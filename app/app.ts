@@ -28,6 +28,9 @@ import { CheckBox } from "@nstudio/nativescript-checkbox";
 
 import StartupScreen from "./components/StartupScreen";
 
+// import { zoned } from "./lib/zoning";
+// import { Zone } from "zone.js/dist/zone";
+
 function configureVueJs(services: typeof Services): Store {
     Vue.registerElement("DropDown", () => DropDown);
 
@@ -135,18 +138,13 @@ Bluebird.config({
     longStackTraces: true,
     cancellation: true,
     monitoring: true,
-    // asyncHooks: true,
 });
-
-// This causes all kinds of chaos on iOS under NS7
-// global.Promise = Bluebird;
 
 // Logging stuff, this includes our hooks to save logs as well as
 // configure logging on Promise failures and funneling errors to
 // Crashlytics.
 void initializeLogging();
 
-console.log(`starting: config ${JSON.stringify(Config)}`);
 console.log(`starting: build ${JSON.stringify(Build)}`);
 
 // This has to be the last thing we do. On iOS this will never return.

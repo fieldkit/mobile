@@ -66,12 +66,14 @@ import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
 import Config from "@/config";
 
-import { serializePromiseChain } from "@/utilities";
+import { promiseAfter, serializePromiseChain } from "@/utilities";
 import { DownloadsDirectory, getFilePath, getFileName, listAllFiles } from "@/lib/fs";
+import { testWithFiles } from "@/lib/testing";
+import { zoned, getZone } from "@/lib/zoning";
+
 import routes, { KnownRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
-import { testWithFiles } from "@/lib/testing";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
 
 import Recalibrate from "../onboarding/Recalibrate.vue";
@@ -80,8 +82,6 @@ import SharedComponents from "@/components/shared";
 
 import { FlowFile, getFlowNames } from "@/reader/model";
 import { download } from "@/reader/download";
-
-import { Zone } from "zone.js/dist/zone";
 
 interface EnvOption {
     display: string;
@@ -484,51 +484,54 @@ export default Vue.extend({
             this.status.push(new StatusMessages(message));
         },
         async testZones(): Promise<void> {
-            await this.asyncExamples();
-
-            if ((global as any).Zone) {
-                console.log("have Zone", Zone.current.name);
-                Zone.current
-                    .fork({
-                        name: "task-ids",
-                        properties: {
-                            id: Math.random(),
-                        },
-                    })
-                    .run(async () => {
-                        console.log("starting", Zone.current.get("id"));
-                        await this.asyncExamples();
-                        console.log("done");
-                    });
-            } else {
-                console.log("no Zone");
-            }
+            const Zone = getZone();
+            console.log("have Zone", Zone.current.name);
+            await zoned(async () => {
+                await this.asyncExamples();
+            });
         },
         async asyncExamples(): Promise<void> {
+            console.log("starting");
             try {
+                console.log("test-after begin");
+                await promiseAfter(1000).then(() => {
+                    console.log("test-after");
+                });
+                console.log("test-after done");
+            } catch (error) {
+                console.log("test-after error", error);
+            }
+
+            try {
+                console.log("test-ctor begin");
                 await new Promise((resolve) => {
-                    console.log("test-1");
+                    console.log("test-ctor");
                     resolve("done");
                 });
+                console.log("test-ctor done");
             } catch (error) {
-                console.log("test-1 error", error);
+                console.log("test-ctor error", error);
             }
 
             try {
+                console.log("test-reject begin");
                 await new Promise((resolve, reject) => {
-                    console.log("test-2");
+                    console.log("test-reject");
                     reject("fail");
                 });
+                console.log("test-reject done");
             } catch (error) {
-                console.log("test-2 error", error);
+                console.log("test-reject error", error);
             }
 
             try {
+                console.log("test-axios begin");
                 const response = await axios.request({ url: "https://api.fieldkit.org/status", timeout: 3000 });
-                console.log("test-3", response.data);
+                console.log("test-axios done", response.data);
             } catch (error) {
-                console.log("test-3 error", error);
+                console.log("test-axios error", error);
             }
+            console.log("done");
         },
     },
 });

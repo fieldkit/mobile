@@ -1,10 +1,11 @@
-import Bluebird from "bluebird";
 import { Conservify, Services, OurStore } from "@/services";
 import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
 import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
+import { promiseAfter } from "@/utilities";
 import { fk_app } from "fk-app-protocol/fk-app";
+import { zoned } from "@/lib/zoning";
 import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
@@ -84,7 +85,7 @@ class NetworkMonitor {
     }
 
     private async watch(): Promise<void> {
-        await Bluebird.delay(10000).then(() => this.issue().finally(() => void this.watch()));
+        await promiseAfter(10000).then(() => zoned(() => this.issue()).finally(() => void this.watch()));
     }
 
     private async issue(): Promise<void> {
@@ -92,7 +93,7 @@ class NetworkMonitor {
     }
 
     private handleWifiChange() {
-        void Bluebird.delay(1000).then(() => this.tryFixedAddresses());
+        void promiseAfter(1000).then(() => this.tryFixedAddresses());
     }
 
     public async tryFixedAddresses(): Promise<void> {
@@ -137,7 +138,7 @@ export default class DiscoverStation {
     }
 
     public restart(): Promise<void> {
-        return this.stopServiceDiscovery({ suspending: false }).then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
+        return this.stopServiceDiscovery({ suspending: false }).then(() => promiseAfter(500).then(() => this.startServiceDiscovery()));
     }
 
     public async startMonitorinNetwork(): Promise<void> {

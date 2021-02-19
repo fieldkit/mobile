@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Vuex, { Store } from "vuex";
+import Vuex, { Store, Dispatch, DispatchOptions } from "vuex";
 import createLogger from "./logger";
 import Config from "@/config";
 
@@ -206,7 +206,7 @@ export default function (rawServices: Services): OurStore {
     const services = new ServiceRef(() => rawServices);
     const appender = storeLogAppender(rawServices);
 
-    return new Vuex.Store({
+    const store = new Vuex.Store({
         plugins: Config.env.dev ? [customizeLogger(appender)] : [customizeLogger(appender)],
         modules: {
             nearby: nearby(services),
@@ -226,4 +226,12 @@ export default function (rawServices: Services): OurStore {
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",
     });
+
+    const dispatchOriginal: Dispatch = store.dispatch;
+    store.dispatch = (type: string, payload?: any, options?: DispatchOptions): Promise<any> => {
+        // console.log("DISPATCH", type);
+        return dispatchOriginal(type, payload, options);
+    };
+
+    return store;
 }

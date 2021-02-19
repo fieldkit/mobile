@@ -4,14 +4,15 @@ import { promiseAfter } from "@/utilities";
 import { ActionTypes, OurStore } from "@/store";
 import registerLifecycleEvents from "@/services/lifecycle";
 import { deleteMissingAssets } from "@/services";
+import { zoned } from "@/lib/zoning";
 
 // import { ProcessAllStationsTask } from "@/lib/process";
 
 function updateStore(store: OurStore): Promise<void> {
-    void promiseAfter(1000)
-        .then(() => store.dispatch(ActionTypes.REFRESH))
+    promiseAfter(1000)
+        .then(() => zoned(() => store.dispatch(ActionTypes.REFRESH)))
         .catch((error) => {
-            console.log(`refresh:error: ${JSON.stringify(error)}`);
+            console.log(`refresh:error: ${JSON.stringify(error)}`, error);
         })
         .finally(() => void updateStore(store));
     return Promise.resolve();

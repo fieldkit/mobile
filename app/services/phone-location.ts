@@ -3,6 +3,7 @@ import { GeoLocation, QueryLocationParams } from "@/wrappers/geolocation";
 import { promiseAfter, unixNow } from "@/utilities";
 import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
 import { Store } from "@/store/our-store";
+import { zoned } from "@/lib/zoning";
 import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");
@@ -51,8 +52,10 @@ export default class PhoneLocationWatcher {
                 }
             )
             .then((location: PhoneLocation) => {
-                this.store.commit(MutationTypes.PHONE_LOCATION, location);
-                return location;
+                return zoned(async () => {
+                    this.store.commit(MutationTypes.PHONE_LOCATION, location);
+                    await Promise.resolve();
+                });
             })
             .then(() => {
                 void promiseAfter(10000).then(() => {

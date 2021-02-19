@@ -4,7 +4,8 @@ import { Store } from "../store/our-store";
 import { FileSystem } from "@/services";
 import SynchronizeNotes from "./synchronize-notes";
 import PortalInterface, { Ids, AxiosError } from "./portal-interface";
-import { serializePromiseChain } from "../utilities";
+import { promiseAfter, serializePromiseChain } from "@/utilities";
+import { zoned } from "@/lib/zoning";
 
 export { SynchronizeNotes };
 
@@ -19,25 +20,30 @@ export default class PortalUpdater {
 
     public start(): Promise<void> {
         console.log("PortalUpdater", "started");
-        setInterval(() => void this.addOrUpdateStations(), 1 * OneMinute);
+        promiseAfter(1 * OneMinute).then(() => {
+            void this.addOrUpdateStations();
+        });
         return Promise.resolve();
     }
 
     public async addOrUpdateStations(): Promise<void> {
-        return await this.portal.isAvailable().then((yes: boolean) => {
-            if (!yes) {
-                console.log("portal unavailable, offline?");
-                return Promise.resolve();
-            }
+        return zoned(
+            async () =>
+                await this.portal.isAvailable().then((yes: boolean) => {
+                    if (!yes) {
+                        console.log("portal unavailable, offline?");
+                        return Promise.resolve();
+                    }
 
-            if (!this.portal.isLoggedIn()) {
-                console.log("portal unavailable, no token");
-                return Promise.resolve();
-            }
+                    if (!this.portal.isLoggedIn()) {
+                        console.log("portal unavailable, no token");
+                        return Promise.resolve();
+                    }
 
-            const allStations = this.store.state.stations.all;
-            return serializePromiseChain(allStations, (station: Station) => this.update(station)).then(() => Promise.resolve());
-        });
+                    const allStations = this.store.state.stations.all;
+                    return serializePromiseChain(allStations, (station: Station) => this.update(station)).then(() => Promise.resolve());
+                })
+        );
     }
 
     private async update(station: Station): Promise<void> {

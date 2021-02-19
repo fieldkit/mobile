@@ -667,12 +667,12 @@ export default class DatabaseInterface {
 
     // Firwmare
 
-    public getAllFirmware(): Promise<FirmwareTableRow[]> {
-        return this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC");
+    public async getAllFirmware(): Promise<FirmwareTableRow[]> {
+        return await this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC");
     }
 
-    public getLatestFirmware(): Promise<FirmwareTableRow | null> {
-        return this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC LIMIT 1").then((all) => {
+    public async getLatestFirmware(): Promise<FirmwareTableRow | null> {
+        return await this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC LIMIT 1").then((all) => {
             if (all.length == 0) {
                 return null;
             }
@@ -680,12 +680,12 @@ export default class DatabaseInterface {
         });
     }
 
-    public deleteAllFirmwareExceptIds(ids: number[]): Promise<FirmwareTableRow[]> {
+    public async deleteAllFirmwareExceptIds(ids: number[]): Promise<FirmwareTableRow[]> {
         const values = _.range(ids.length)
             .map(() => "?")
             .join(",");
 
-        return this.query<FirmwareTableRow>("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids).then((data) => {
+        return await this.query<FirmwareTableRow>("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids).then((data) => {
             return this.execute("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids).then(() => {
                 return data;
             });
@@ -756,20 +756,17 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error fetching notes: ${JSON.stringify(error)}`)));
     }
 
-    public checkSettings(): Promise<void> {
-        return this.getSettings().then((rows) => {
+    public async checkSettings(): Promise<void> {
+        return await this.getSettings().then(async (rows) => {
             if (rows.length == 0) {
                 log.info("settings: initializing");
-                return this.insertSettings(Settings);
-            } else {
-                log.info("existing settings: ", rows[0]);
-                return;
+                await this.insertSettings(Settings);
             }
         });
     }
 
-    public getSettings(): Promise<SettingsTableRow[]> {
-        return this.query<SettingsTableRow>("SELECT * FROM settings LIMIT 1")
+    public async getSettings(): Promise<SettingsTableRow[]> {
+        return await this.query<SettingsTableRow>("SELECT * FROM settings LIMIT 1")
             .then((rows) =>
                 rows.map((row) => {
                     try {

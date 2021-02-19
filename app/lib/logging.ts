@@ -8,6 +8,8 @@ import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import { AuthenticationError, QueryThrottledError } from "./errors";
 import { File } from "./fs";
+// import { Zone } from "zone.js/dist/zone";
+import { getTaskId } from "@/lib/zoning";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -140,11 +142,13 @@ function wrapLoggingMethod(method: string): void {
             // eslint-disable-next-line
             const args: unknown[] = Array.prototype.slice.apply(arguments);
             const time = getPrettyTime();
+            const taskId = getTaskId();
 
             // Prepend time to the unaltered arguments we were
             // given and just log those using the original, we do
             // this before the persisted logging cause that may
             // throw errors and this helps fix them.
+            args.unshift(taskId);
             args.unshift(time);
             if (original.apply) {
                 original.apply(console, args);
