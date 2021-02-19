@@ -18,8 +18,7 @@ export default class PortalUpdater {
     }
 
     public start(): Promise<void> {
-        console.log("PortalUpdater", "started");
-        promiseAfter(1 * OneMinute).then(() => {
+        void promiseAfter(1 * OneMinute).then(() => {
             void this.addOrUpdateStations();
         });
         return Promise.resolve();

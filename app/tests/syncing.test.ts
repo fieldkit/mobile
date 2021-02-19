@@ -19,7 +19,7 @@ describe("Progress", () => {
     it("TryStationOnceAction should disable throttling", async () => {
         expect.assertions(2);
 
-        const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
+        const clock = FakeTimers.install();
         clock.tick(10);
 
         const services = new ServicesImpl();
@@ -409,7 +409,7 @@ describe("Syncing", () => {
 
             const downloadTime = new Date();
 
-            clock.tick(60000);
+            clock.tick(4.5 * 60000);
 
             const streams2 = mockStation.newStreams(1, 200);
             const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
@@ -522,7 +522,7 @@ describe("Syncing", () => {
 
             const firstDownloadTime = new Date();
 
-            clock.tick(60000);
+            clock.tick(6.7 * 60000);
 
             const streams2 = mockStation.newStreams(5, 200);
             const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
@@ -836,7 +836,7 @@ describe("Syncing", () => {
 
             const uploads = store.getters.syncs[0].uploads;
 
-            clock.tick(60000);
+            clock.tick(2.3 * 60000);
 
             const afterReset = fake.factoryReset();
             const streamsAfterReset1 = mockStation.newStreams(1, 100);

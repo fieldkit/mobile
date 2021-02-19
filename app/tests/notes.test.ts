@@ -10,7 +10,7 @@ describe("Notes", () => {
     let clock;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
+        clock = FakeTimers.install();
         clock.tick(10);
 
         services = new ServicesImpl();
@@ -112,7 +112,7 @@ describe("Notes", () => {
             services.Database().addOrUpdateNotes = addOrUpdates;
             services.PortalInterface().updateStationNotes = patches;
 
-            clock.tick(60000);
+            clock.tick(3.4 * 60000);
 
             services.PortalInterface().getStationNotes = () => {
                 return Promise.resolve({
@@ -155,7 +155,7 @@ describe("Notes", () => {
                 });
             };
 
-            clock.tick(60000);
+            clock.tick(5.6 * 60000);
 
             store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "Mobile Note" }));
 
@@ -198,7 +198,7 @@ describe("Notes", () => {
                 });
             };
 
-            clock.tick(60000);
+            clock.tick(1.9 * 60000);
 
             store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "" }));
 
@@ -242,7 +242,7 @@ describe("Notes", () => {
             services.PortalInterface().updateStationNotes = patches;
             services.PortalInterface().downloadStationMedia = downloads;
 
-            clock.tick(60000);
+            clock.tick(3.6 * 60000);
 
             services.PortalInterface().getStationNotes = () => {
                 return Promise.resolve({
