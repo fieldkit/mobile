@@ -19,24 +19,10 @@ import {
     StationSyncStatus,
     DiscoveringStation,
 } from "../types";
-import { StationCalibration } from "../../calibration";
+import { StationCalibration, PendingCalibration } from "@/calibration";
 
 export class StationsState {
     all: Station[] = [];
-}
-
-export class PendingCalibrationPoint {
-    constructor(public readonly index: number, public readonly references: number[], public readonly uncalibrated: number[]) {}
-}
-
-export class PendingCalibration {
-    constructor(public readonly moduleId: string, public readonly points: PendingCalibrationPoint[] = []) {}
-
-    public append(pcp: PendingCalibrationPoint): PendingCalibration {
-        const newPoints = _.clone(this.points);
-        newPoints[pcp.index] = pcp;
-        return new PendingCalibration(this.moduleId, newPoints);
-    }
 }
 
 export class CalibrationState {
