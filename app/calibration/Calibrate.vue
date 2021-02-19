@@ -31,7 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T, promiseAfter } from "@/utilities";
+import { _T, promiseAfter } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";

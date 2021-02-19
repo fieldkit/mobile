@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Config from "@/config";
 import Settings from "@/settings";
-import { sqliteToJs } from "@/utilities";
+import { sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";

@@ -6,8 +6,7 @@ import { UpdateNoteMutation, AttachNoteMediaMutation } from "../store/mutations"
 import { Store } from "../store/our-store";
 import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";
-import { serializePromiseChain } from "../utilities";
-import { getPathTimestamp, rebaseAbsolutePath } from "@/lib/fs";
+import { serializePromiseChain, getPathTimestamp, rebaseAbsolutePath } from "@/lib";
 
 export class MergedNotes {
     constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}

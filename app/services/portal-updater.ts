@@ -4,8 +4,7 @@ import { Store } from "../store/our-store";
 import { FileSystem } from "@/services";
 import SynchronizeNotes from "./synchronize-notes";
 import PortalInterface, { Ids, AxiosError } from "./portal-interface";
-import { promiseAfter, serializePromiseChain } from "@/utilities";
-import { zoned } from "@/lib/zoning";
+import { promiseAfter, serializePromiseChain, zoned } from "@/lib";
 
 export { SynchronizeNotes };
 

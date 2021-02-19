@@ -124,7 +124,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { promiseAfter } from "@/utilities";
+import { promiseAfter } from "@/lib";
 import { Station, Notes, Notification } from "@/store";
 import { ActionTypes } from "~/store/actions";
 import * as animations from "./animations";

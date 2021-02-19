@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { promiseAfter } from "@/utilities";
+import { promiseAfter } from "@/lib";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { fixupModuleConfiguration, EmptyModuleConfig, ModuleConfiguration } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";

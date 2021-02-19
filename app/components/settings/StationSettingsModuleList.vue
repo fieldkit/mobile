@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "../../utilities";
+import { _T } from "@/lib";
 import routes from "../../routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";

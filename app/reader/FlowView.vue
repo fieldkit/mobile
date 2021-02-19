@@ -41,7 +41,7 @@ import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
 import { navigateKnown, KnownRoute } from "@/routes";
-import { Timer } from "@/common/timer";
+import { Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 import { getFlows } from "./download";
 import * as utils from "@nativescript/core/utils/utils";

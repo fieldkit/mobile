@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "@/utilities";
+import { _T } from "@/lib";
 import { Station, Module } from "@/store/types";
 
 import Header from "./Header.vue";

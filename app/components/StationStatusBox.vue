@@ -80,9 +80,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/utilities";
-// import { Enums } from "@nativescript/core";
-import { Timer } from "@/common/timer";
+import { Timer, getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/lib";
 import { LegacyStation } from "@/store";
 
 interface OtherData {

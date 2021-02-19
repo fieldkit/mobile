@@ -55,7 +55,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { getLastSeen, _T, convertOldFirmwareResponse } from "@/utilities";
+import { getLastSeen, _T, convertOldFirmwareResponse } from "@/lib";
 import { Station, Module, Sensor } from "@/store";
 
 export default Vue.extend({

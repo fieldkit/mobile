@@ -68,7 +68,7 @@ import _ from "lodash";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes from "../../routes";
-import { validateStationName } from "../../utilities";
+import { validateStationName } from "@/lib";
 import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "~/components/LabeledTextField.vue";

@@ -37,15 +37,13 @@
 import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { WaitVisual } from "./visuals";
 
-import { _T } from "../utilities";
-import Config from "../config";
+import { _T, Timer } from "@/lib";
+import Config from "@/config";
 
 import Vue from "vue";
 import Header from "./Header.vue";
 import ProgressBarAndStatus from "./ProgressBarAndStatus.vue";
 import CircularTimer from "./CircularTimer.vue";
-
-import { Timer } from "../common/timer";
 
 export default Vue.extend({
     name: "Wait",

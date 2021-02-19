@@ -9,8 +9,7 @@ import { CalibrationState, PendingCalibration, PendingCalibrationPoint, GlobalGe
 import { calibrationStrategies, StationCalibration, WaterCalValue } from "@/calibration";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import CalibrationService from "@/services/calibration-service";
-import { unixNow } from "@/utilities";
-import { CalibrationError } from "@/lib/errors";
+import { unixNow, CalibrationError } from "@/lib";
 
 type ActionParameters = ActionContext<CalibrationState, never>;
 

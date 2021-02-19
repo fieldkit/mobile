@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
-import { serializePromiseChain } from "../utilities";
+import { serializePromiseChain } from "@/lib";
 import Migration from "../migrations/Migration";
 import * as AllMigrations from "../migrations";
 import Config from "../config";

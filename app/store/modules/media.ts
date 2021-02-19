@@ -4,8 +4,7 @@ import { ActionTypes } from "../actions";
 import { MutationTypes, NoteMedia } from "../mutations";
 import { ServiceRef } from "@/services";
 import { ImageAsset, SavedImage } from "@/services/types";
-import { serializePromiseChain } from "@/utilities";
-import { getFileName, getAppRelative } from "@/lib/fs";
+import { serializePromiseChain, getFileName, getAppRelative } from "@/lib";
 
 export class ActiveRecording extends NoteMedia {
     private readonly started: Date = new Date();

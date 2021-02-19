@@ -29,7 +29,7 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import { ActiveRecording } from "@/store";
-import { Timer } from "@/common/timer";
+import { Timer } from "@/lib";
 
 export default Vue.extend({
     data(): { timer: any; now: Date } {

@@ -9,8 +9,8 @@
 </template>
 
 <script lang="ts">
-import { _T } from "../utilities";
 import Vue from "vue";
+import { _T } from "@/lib";
 
 export default Vue.extend({
     name: "Failure",

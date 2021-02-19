@@ -66,10 +66,17 @@ import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
 import Config from "@/config";
 
-import { promiseAfter, serializePromiseChain } from "@/utilities";
-import { DownloadsDirectory, getFilePath, getFileName, listAllFiles } from "@/lib/fs";
-import { testWithFiles } from "@/lib/testing";
-import { zoned, getZone } from "@/lib/zoning";
+import {
+    promiseAfter,
+    serializePromiseChain,
+    DownloadsDirectory,
+    getFilePath,
+    getFileName,
+    listAllFiles,
+    testWithFiles,
+    zoned,
+    getZone,
+} from "@/lib";
 
 import routes, { KnownRoute } from "@/routes";
 import Services from "@/services/singleton";

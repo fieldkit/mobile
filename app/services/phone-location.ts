@@ -1,9 +1,8 @@
 import { Enums } from "@nativescript/core";
 import { GeoLocation, QueryLocationParams } from "@/wrappers/geolocation";
-import { promiseAfter, unixNow } from "@/utilities";
 import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
 import { Store } from "@/store/our-store";
-import { zoned } from "@/lib/zoning";
+import { promiseAfter, unixNow, zoned } from "@/lib";
 import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");

@@ -3,9 +3,8 @@ import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
 import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
-import { promiseAfter } from "@/utilities";
 import { fk_app } from "fk-app-protocol/fk-app";
-import { zoned } from "@/lib/zoning";
+import { promiseAfter, zoned } from "@/lib";
 import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");

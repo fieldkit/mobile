@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { FileType } from "@/store/types";
-import { serializePromiseChain } from "@/utilities";
+import { serializePromiseChain } from "./utilities";
 import { DataServices } from "./data-services";
 import { ParsedDataRecord, ParsedRecordVisitor, DataFile, FileInfo, coerceNumber } from "./data-file";
 

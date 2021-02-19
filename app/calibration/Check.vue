@@ -52,7 +52,7 @@
 import { VisualCalibrationStep, CalibratingSensor, ModuleConfiguration } from "./model";
 import { CheckVisual } from "./visuals";
 
-import { _T } from "../utilities";
+import { _T } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";

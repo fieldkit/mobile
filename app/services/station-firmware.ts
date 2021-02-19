@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { onlyAllowEvery } from "@/utilities";
+import { onlyAllowEvery } from "@/lib";
 import { FirmwareTableRow } from "@/store";
 import { FirmwareResponse, Services } from "@/services";
 

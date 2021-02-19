@@ -127,16 +127,14 @@ import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
 import { Dialogs } from "@nativescript/core";
-import { Station, Notes, NoteMedia } from "@/store";
 
-import { promiseAfter } from "@/utilities";
-import { getAppRelative, getFileName, rebaseAbsolutePath } from "@/lib/fs";
+import { getAppRelative, getFileName, rebaseAbsolutePath, promiseAfter } from "@/lib";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
-import { ActionTypes, SaveNotesAction, AttachNoteMediaMutation } from "@/store";
+import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, AttachNoteMediaMutation } from "@/store";
 import * as animations from "../animations";
 
 export default Vue.extend({

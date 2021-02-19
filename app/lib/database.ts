@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Sqlite, { Database } from "@/wrappers/sqlite";
-import { sqliteToJs, serializePromiseChain } from "@/utilities";
+import { sqliteToJs, serializePromiseChain } from "./utilities";
 import { Readings } from "./readings";
 import { DataServices } from "./data-services";
 import { Task, TaskQueuer } from "./tasks";

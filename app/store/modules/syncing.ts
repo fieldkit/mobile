@@ -25,9 +25,7 @@ import {
     StationProgress,
 } from "../types";
 import { ServiceRef, CalculatedSize } from "@/services";
-import { serializePromiseChain } from "../../utilities";
-import { getPathTimestamp, getFilePath, getFileName } from "../../lib/fs";
-import { AuthenticationError } from "../../lib/errors";
+import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
 
 export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
     return _.orderBy(syncs, [(sync) => SortableStationSorter(sync)]);

@@ -30,7 +30,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes from "../../routes";
-import { _T } from "../../utilities";
+import { _T } from "@/lib";
 
 export default Vue.extend({
     components: {

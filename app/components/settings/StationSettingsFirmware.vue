@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { promiseAfter } from "@/utilities";
+import { promiseAfter } from "@/lib";
 import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";

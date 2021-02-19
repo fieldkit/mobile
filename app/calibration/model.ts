@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module, ModuleConfiguration } from "../store/types";
-import { _T, convertOldFirmwareResponse, notEmpty } from "../utilities";
+import { _T, convertOldFirmwareResponse, notEmpty } from "@/lib";
 
 export { ModuleConfiguration };
 
