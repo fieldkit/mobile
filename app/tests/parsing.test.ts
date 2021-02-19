@@ -3,7 +3,7 @@ import { describe, expect, it } from "@jest/globals";
 import { transform } from "@/reader/parsing";
 import { promises as fsPromises } from "fs";
 
-export async function saveJson(obj: unknown) {
+export async function saveJson(obj: unknown): Promise<void> {
     await fsPromises.writeFile("temp.json", JSON.stringify(obj, null, 4));
 }
 

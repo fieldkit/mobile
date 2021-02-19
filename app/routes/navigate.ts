@@ -9,7 +9,7 @@ import { Frame } from "@nativescript/core";
 
 export interface NavigateOptions {
     clearHistory: boolean | undefined;
-    props: Record<string, any> | undefined;
+    props: Record<string, unknown> | undefined;
     frame: string | undefined;
 }
 

@@ -79,7 +79,7 @@ export default Vue.extend({
         this.form = new Form(this.strategy.references.map((r) => new ReferenceForm(r.value)));
     },
     methods: {
-        onChange(reference: ReferenceForm): void {
+        onChange(_reference: ReferenceForm): void {
             if (this.form.touch()) {
                 // console.log(`on-change: ${JSON.stringify(reference)}`);
                 this.$emit(
