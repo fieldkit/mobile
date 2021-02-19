@@ -57,7 +57,25 @@ const getters = {
 };
 
 export abstract class CalibrationCurve {
-    public abstract calculate(pending: PendingCalibration): DataProto.Calibration;
+    public calculate(pending: PendingCalibration): DataProto.Calibration {
+        const points = pending.points.map(
+            (p) =>
+                new DataProto.CalibrationPoint({
+                    references: p.references,
+                    uncalibrated: p.uncalibrated,
+                })
+        );
+        const coefficients = this.calculateCoefficients(pending);
+        return DataProto.Calibration.create({
+            type: this.curveType,
+            time: unixNow(),
+            points: points,
+            coefficients: coefficients,
+        });
+    }
+
+    public abstract get curveType(): DataProto.CurveType;
+
     public abstract calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients;
 }
 
@@ -71,22 +89,32 @@ function acceptableOffset(value: number): boolean {
     return true;
 }
 
+export class ExponentialCalibrationCurve extends CalibrationCurve {
+    public get curveType(): DataProto.CurveType {
+        return DataProto.CurveType.CURVE_EXPONENTIAL;
+    }
+
+    public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
+        const n = pending.points.length;
+        const x = pending.points.map((p) => p.uncalibrated[0]);
+        const y = pending.points.map((p) => p.references[0]);
+        const indices = _.range(0, n);
+        const xSum = _.sum(x);
+        const ySum = _.sum(y);
+        const xxSum = _.sum((x) => x * x);
+        const xySum = _.sum(indices.map((i) => x[i] * y[i]));
+        const m = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
+        const b = ySum / n - (m * xSum) / n;
+        console.log(`cal:coeff ${JSON.stringify({ x, y })}`);
+        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed`);
+        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed`);
+        return new DataProto.CalibrationCoefficients({ values: [b, m] });
+    }
+}
+
 export class LinearCalibrationCurve extends CalibrationCurve {
-    public calculate(pending: PendingCalibration): DataProto.Calibration {
-        const points = pending.points.map(
-            (p) =>
-                new DataProto.CalibrationPoint({
-                    references: p.references,
-                    uncalibrated: p.uncalibrated,
-                })
-        );
-        const coefficients = this.calculateCoefficients(pending);
-        return DataProto.Calibration.create({
-            type: DataProto.CurveType.CURVE_LINEAR,
-            time: unixNow(),
-            points: points,
-            coefficients: coefficients,
-        });
+    public get curveType(): DataProto.CurveType {
+        return DataProto.CurveType.CURVE_LINEAR;
     }
 
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
