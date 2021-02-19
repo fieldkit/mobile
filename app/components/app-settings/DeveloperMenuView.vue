@@ -81,6 +81,8 @@ import SharedComponents from "@/components/shared";
 import { FlowFile, getFlowNames } from "@/reader/model";
 import { download } from "@/reader/download";
 
+import { Zone } from "zone.js/dist/zone";
+
 interface EnvOption {
     display: string;
     value: string;
@@ -485,7 +487,7 @@ export default Vue.extend({
             await this.asyncExamples();
 
             if ((global as any).Zone) {
-                console.log("have Zone");
+                console.log("have Zone", Zone.current.name);
                 Zone.current
                     .fork({
                         name: "task-ids",
