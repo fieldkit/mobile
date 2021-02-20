@@ -3,7 +3,7 @@
         <Markdown :text="screen.body" />
 
         <StackLayout v-if="image" class="image-container">
-            <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" />
+            <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
         </StackLayout>
     </StackLayout>
 </template>
