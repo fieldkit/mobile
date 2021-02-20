@@ -38,7 +38,7 @@ export default class DatabaseInterface {
         await this.checkSettings();
         await this.cleanup();
 
-        void promiseAfter(60000).then(async () => {
+        void promiseAfter(60000).then(() => {
             void this.startup();
         });
     }

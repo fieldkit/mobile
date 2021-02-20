@@ -25,7 +25,7 @@ import {
     StationProgress,
 } from "../types";
 import { ServiceRef, CalculatedSize } from "@/services";
-import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
+import { serializePromiseChain, logChanges, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
 
 export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
     return _.orderBy(syncs, [(sync) => SortableStationSorter(sync)]);
@@ -256,7 +256,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
             null
         );
 
-        console.log(`sync-status: ${JSON.stringify(syncStatus)}`);
+        logChanges(`[${station.deviceId}] sync-status:`, syncStatus);
 
         return syncStatus;
     });

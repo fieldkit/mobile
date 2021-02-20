@@ -63,20 +63,38 @@ const getters = {
     },
 };
 
+function updateConfiguration(older: ModuleConfiguration | null | undefined, newer: ModuleConfiguration | null | undefined): boolean {
+    if (!newer) return false;
+    if (!older) return true;
+
+    // This doesn't work and I have no idea why.
+    /*
+    if (_.isEqual(_.toPlainObject(older), _.toPlainObject(newer))) {
+        return false;
+    }
+	*/
+
+    // Plan B!
+    if (JSON.stringify(older) == JSON.stringify(newer)) {
+        return false;
+    }
+
+    return true;
+}
+
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
-            return stations.map((station) =>
-                station.modules.map((m) => {
-                    if (m.configuration) {
-                        commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: m.moduleId, configuration: m.configuration });
-                    }
-                })
-            );
+            const modules = _.flatten(stations.map((station) => station.modules));
+            return modules.map((m) => {
+                if (updateConfiguration(state.configurations[m.moduleId], m.configuration)) {
+                    commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: m.moduleId, configuration: m.configuration });
+                }
+            });
         },
         [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
             return payload.statusReply.modules.map((m) => {
-                if (m.configuration) {
+                if (updateConfiguration(state.configurations[m.moduleId], m.configuration)) {
                     commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: m.moduleId, configuration: m.configuration });
                 }
             });

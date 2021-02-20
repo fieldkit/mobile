@@ -16,12 +16,12 @@ export default class PhoneLocationWatcher {
         this.geolocation = new GeoLocation();
     }
 
-    public enableAndGetLocation(): Promise<void> {
+    public async enableAndGetLocation(): Promise<void> {
         const started = new Date();
 
         console.log("phone-location:enable");
 
-        return this.geolocation
+        return await this.geolocation
             .isEnabled()
             .then((enabled: boolean) => {
                 if (!enabled) {
@@ -39,8 +39,8 @@ export default class PhoneLocationWatcher {
             });
     }
 
-    private keepLocationUpdated(): Promise<void> {
-        return this.geolocation
+    private async keepLocationUpdated(): Promise<void> {
+        return await this.geolocation
             .isEnabled()
             .then(
                 (enabled: boolean): Promise<PhoneLocation> => {
@@ -64,9 +64,9 @@ export default class PhoneLocationWatcher {
             });
     }
 
-    private test(name: string, params: QueryLocationParams): Promise<void> {
+    private async test(name: string, params: QueryLocationParams): Promise<void> {
         const started = new Date();
-        return this.geolocation.getCurrentLocation(params).then(
+        await this.geolocation.getCurrentLocation(params).then(
             (loc) => {
                 const done = new Date();
                 const elapsed = done.getTime() - started.getTime();
@@ -80,7 +80,7 @@ export default class PhoneLocationWatcher {
         );
     }
 
-    public testAccuracies(): Promise<void> {
+    public async testAccuracies(): Promise<void> {
         const high20k = {
             desiredAccuracy: Enums.Accuracy.high,
             updateDistance: 10,
@@ -109,7 +109,7 @@ export default class PhoneLocationWatcher {
             timeout: 20000,
         };
 
-        return this.test("high20k", high20k).then(() => {
+        await this.test("high20k", high20k).then(() => {
             return this.test("any20k", any20k).then(() => {
                 return this.test("high2k", high2k).then(() => {
                     return this.test("any2k", any2k).then(() => Promise.resolve());
@@ -118,8 +118,8 @@ export default class PhoneLocationWatcher {
         });
     }
 
-    public getLocation(): Promise<PhoneLocation> {
-        return this.geolocation
+    public async getLocation(): Promise<PhoneLocation> {
+        return await this.geolocation
             .getCurrentLocation({
                 desiredAccuracy: Enums.Accuracy.high,
                 updateDistance: 10,

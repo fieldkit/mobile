@@ -198,3 +198,14 @@ export function validateStationName(name: string): { required: boolean; long: bo
 export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
     return value !== null && value !== undefined;
 }
+
+const changesMap: { [index: string]: string } = {};
+
+export function logChanges(prefix: string, v: unknown) {
+    const stored = JSON.stringify(v);
+    if (changesMap[prefix] === stored) {
+        return;
+    }
+    changesMap[prefix] = stored;
+    console.log(prefix, stored);
+}
