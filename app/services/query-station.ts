@@ -5,6 +5,7 @@ import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
+import { StationError } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 
 const HttpQuery = AppProto.HttpQuery;
@@ -380,7 +381,7 @@ export default class QueryStation {
                         return Promise.reject(err);
                     }
                 );
-        }).then((response: { body: Buffer }) => {
+        }).then((response: { statusCode: number; body: Buffer }) => {
             if (response.body.length == 0) {
                 console.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);
@@ -394,7 +395,8 @@ export default class QueryStation {
         });
     }
 
-    private getResponseBody(response: { body: Buffer }): StationQuery {
+    private getResponseBody(response: { statusCode: number; body: Buffer }): StationQuery {
+        if (response.statusCode == 500) throw new StationError(response.body.toString());
         if (Buffer.isBuffer(response.body)) {
             return {
                 reply: HttpReply.decodeDelimited(response.body),

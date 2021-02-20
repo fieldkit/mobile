@@ -82,3 +82,9 @@ export class CalibrationError extends Error {
         return error?.calibration === true;
     }
 }
+
+export class StationError extends Error {
+    constructor(message: string) {
+        super(message);
+    }
+}
