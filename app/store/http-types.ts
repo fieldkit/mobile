@@ -1,10 +1,10 @@
 /* eslint @typescript-eslint/no-non-null-assertion: "off" */
-import { fk_app } from "fk-app-protocol/fk-app";
-import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
+import { fk_app as AppProto } from "fk-app-protocol/fk-app";
+import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import Long from "long";
 
-const HttpReply = fk_app.HttpReply;
+const HttpReply = AppProto.HttpReply;
 
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
@@ -23,7 +23,7 @@ export interface LiveReadings {
 }
 
 export interface AtlasStatus {
-    type: fk_atlas.SensorType;
+    type: AtlasProto.SensorType;
     calibration: {
         total: number;
     };
@@ -145,20 +145,21 @@ export interface ModuleStatusReply {
     position: number;
     name: string;
     flags: number;
-    sensors: fk_app.SensorCapabilities[];
+    sensors: AppProto.SensorCapabilities[];
     configuration: ModuleConfiguration | null;
 }
 
 export interface HttpStatusReply {
-    type: fk_app.ReplyType;
+    type: AppProto.ReplyType;
     status: ReplyStatus;
     modules: ModuleStatusReply[];
     liveReadings: LiveReadings[];
     schedules: ReplySchedules;
     streams: ReplyStream[];
     networkSettings: NetworkSettings;
-    errors: fk_app.IError[];
+    errors: AppProto.IError[];
     serialized: string;
+    logs: string | null;
 }
 
 export type SerializedStatus = string;
@@ -185,7 +186,7 @@ function toHexString(value: Uint8Array): string {
     return Buffer.from(value).toString("hex");
 }
 
-function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurations: ModuleConfigurations): ModuleStatusReply {
+function translateModule(m: AppProto.IModuleCapabilities | null, moduleConfigurations: ModuleConfigurations): ModuleStatusReply {
     if (!m) throw new Error(`malformed reply: null module`);
     if (!m.name) throw new Error(`malformed reply: no module name`);
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
@@ -201,7 +202,7 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurati
     return {
         moduleId: moduleId,
         configuration: config || EmptyModuleConfig,
-        sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
+        sensors: m.sensors.map((s) => new AppProto.SensorCapabilities(s)),
         name: m.name,
         position: m.position!,
         flags: m.flags!,
@@ -210,12 +211,12 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurati
 
 type ModuleConfigurations = { [index: string]: ModuleConfiguration };
 
-function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleConfigurations: ModuleConfigurations): LiveModuleReadings {
+function translateLiveModuleReadings(lmr: AppProto.ILiveModuleReadings, moduleConfigurations: ModuleConfigurations): LiveModuleReadings {
     return {
         module: translateModule(lmr.module || null, moduleConfigurations),
         readings: lmr.readings!.map((lsr) => {
             return {
-                sensor: new fk_app.SensorCapabilities(lsr.sensor),
+                sensor: new AppProto.SensorCapabilities(lsr.sensor),
                 value: lsr.value!,
                 uncalibrated: lsr.uncalibrated!,
             };
@@ -223,14 +224,14 @@ function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleConf
     };
 }
 
-function translateLiveReadings(lr: fk_app.ILiveReadings, moduleConfigurations: ModuleConfigurations): LiveReadings {
+function translateLiveReadings(lr: AppProto.ILiveReadings, moduleConfigurations: ModuleConfigurations): LiveReadings {
     return {
         time: translateLong(lr.time),
         modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr, moduleConfigurations)),
     };
 }
 
-function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedule {
+function translateSchedule(schedule: AppProto.ISchedule | undefined): ReplySchedule {
     if (!schedule || !schedule.intervals) {
         return {
             intervals: [],
@@ -238,7 +239,7 @@ function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedul
     }
     return {
         intervals: schedule.intervals.map(
-            (i: fk_app.IInterval): ReplyScheduleInterval => {
+            (i: AppProto.IInterval): ReplyScheduleInterval => {
                 return {
                     start: translateLong(i.start),
                     end: translateLong(i.end),
@@ -249,7 +250,9 @@ function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedul
     };
 }
 
-function translateRecordingLocation(location: fk_app.ILocation | undefined): { latitude: number; longitude: number; time: number } | null {
+function translateRecordingLocation(
+    location: AppProto.ILocation | undefined
+): { latitude: number; longitude: number; time: number } | null {
     if (!location || !location.latitude || !location.longitude || !location.time) {
         return null;
     }
@@ -260,7 +263,7 @@ function translateRecordingLocation(location: fk_app.ILocation | undefined): { l
     };
 }
 
-function translateConnectedNetwork(network: fk_app.INetworkInfo | undefined): NetworkInfo | null {
+function translateConnectedNetwork(network: AppProto.INetworkInfo | undefined): NetworkInfo | null {
     if (!network) {
         return null;
     }
@@ -288,7 +291,7 @@ function translateLong(value: number | Long | undefined): number {
     return value as number;
 }
 
-export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
+export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
     if (!serialized) {
         console.log(`no serialized`);
         throw new Error(`no serialized`);
@@ -382,10 +385,10 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             readings: translateSchedule(reply.schedules.readings),
             network: translateSchedule(reply.schedules.network),
         },
-        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m, moduleConfigurations)),
-        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr, moduleConfigurations)),
+        modules: reply.modules.map((m: AppProto.IModuleCapabilities) => translateModule(m, moduleConfigurations)),
+        liveReadings: reply.liveReadings.map((lr: AppProto.ILiveReadings) => translateLiveReadings(lr, moduleConfigurations)),
         streams: reply.streams.map(
-            (s: fk_app.IDataStream): ReplyStream => {
+            (s: AppProto.IDataStream): ReplyStream => {
                 return {
                     time: translateLong(s.time),
                     block: translateLong(s.block),
@@ -407,6 +410,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             }),
         },
         errors: reply.errors,
+        logs: reply.status.logs || null,
         serialized: serialized,
     };
 

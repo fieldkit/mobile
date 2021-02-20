@@ -429,6 +429,10 @@ const actions = (services: ServiceRef) => {
                     console.log(`error handling STATION_REPLY:`, JSON.stringify(statusReply));
                     return Promise.reject(err);
                 });
+
+            if (statusReply.logs) {
+                await services.db().appendStationLogs(statusReply.status.identity.deviceId, statusReply.logs);
+            }
         },
         [ActionTypes.STATION_PORTAL_ERROR]: async ({ commit }: ActionParameters, payload: PortalErrorAction) => {
             await services

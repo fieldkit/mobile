@@ -191,7 +191,7 @@ const actions = (services: ServiceRef) => {
                     },
                     (error) => {
                         if (QueryThrottledError.isInstance(error)) {
-                            console.log(`query-station:warning ${JSON.stringify(error)}`);
+                            console.log(`query-station:warning ${JSON.stringify(error.message)}`);
                             return Promise.resolve();
                         }
                         return Promise.reject(error);

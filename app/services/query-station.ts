@@ -5,12 +5,12 @@ import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
-import { fk_app } from "fk-app-protocol/fk-app";
+import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 
-const HttpQuery = fk_app.HttpQuery;
-const HttpReply = fk_app.HttpReply;
-const QueryType = fk_app.QueryType;
-const ReplyType = fk_app.ReplyType;
+const HttpQuery = AppProto.HttpQuery;
+const HttpReply = AppProto.HttpReply;
+const QueryType = AppProto.QueryType;
+const ReplyType = AppProto.ReplyType;
 
 export type ProgressCallback = (total: number, bytes: number, info: never) => void;
 
@@ -39,7 +39,7 @@ export interface FirmwareResponse {
 
 const log = Config.logger("QueryStation");
 
-type StationQuery = { reply: fk_app.HttpReply; serialized: SerializedStatus };
+type StationQuery = { reply: AppProto.HttpReply; serialized: SerializedStatus };
 
 type ResolveFunc = () => void;
 
@@ -53,11 +53,12 @@ export default class QueryStation {
         this.conservify = services.Conservify();
     }
 
-    private buildLocateMessage(queryType: number, locate: PhoneLocation | null): fk_app.HttpQuery {
+    private buildLocateMessage(queryType: number, locate: PhoneLocation | null): AppProto.HttpQuery {
         if (locate) {
             return HttpQuery.create({
                 type: queryType,
                 time: unixNow(),
+                flags: AppProto.QueryFlags.QUERY_FLAGS_LOGS,
                 locate: {
                     modifying: true,
                     longitude: locate.longitude,
@@ -88,7 +89,7 @@ export default class QueryStation {
     }
 
     public async startDataRecording(address: string): Promise<HttpStatusReply> {
-        const message = fk_app.HttpQuery.create({
+        const message = AppProto.HttpQuery.create({
             type: QueryType.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: true },
             time: unixNow(),
@@ -359,10 +360,10 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private async stationQuery(url: string, message: fk_app.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
+    private async stationQuery(url: string, message: AppProto.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
         return await this.trackActivity(finalOptions, () => {
-            const binaryQuery = HttpQuery.encodeDelimited(message as fk_app.IHttpQuery).finish();
+            const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
 
             return this.conservify
@@ -412,7 +413,7 @@ export default class QueryStation {
         }
     }
 
-    private handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: fk_app.HttpQuery): Promise<StationQuery> {
+    private async handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: AppProto.HttpQuery): Promise<StationQuery> {
         const reply = stationQuery.reply;
         if (reply.type != ReplyType.REPLY_BUSY) {
             return Promise.resolve(stationQuery);
@@ -421,12 +422,12 @@ export default class QueryStation {
         if (delays == 0) {
             return Promise.reject(new StationQueryError("busy"));
         }
-        return this.retryAfter(delays, url, message);
+        return await this.retryAfter(delays, url, message);
     }
 
-    private retryAfter(delays: number, url: string, message: fk_app.HttpQuery): Promise<StationQuery> {
+    private async retryAfter(delays: number, url: string, message: AppProto.HttpQuery): Promise<StationQuery> {
         log.info(url, "retrying after", delays);
-        return promiseAfter(delays).then(() => {
+        return await promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
         });
     }

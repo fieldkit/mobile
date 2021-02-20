@@ -56,7 +56,8 @@ export default class PortalUpdater {
             locationName: notes.location,
         };
 
-        console.log(`adding-station: ${JSON.stringify({ params, userId: station.userId })}`);
+        // This is just way to verbose, especially with logs enabled.
+        // console.log(`adding-station: ${JSON.stringify({ params, userId: station.userId })}`);
         try {
             const defaultUser = this.store.state.portal.currentUser;
             const usersById = this.store.getters.usersById;

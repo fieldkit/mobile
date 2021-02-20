@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Config from "@/config";
 import Settings from "@/settings";
-import { sqliteToJs } from "@/lib";
+import { promiseAfter, sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
@@ -37,6 +37,10 @@ export default class DatabaseInterface {
     public async startup(): Promise<void> {
         await this.checkSettings();
         await this.cleanup();
+
+        void promiseAfter(60000).then(async () => {
+            void this.startup();
+        });
     }
 
     private async query<T>(sql: string, args: unknown[] | undefined = undefined): Promise<T[]> {
@@ -952,24 +956,6 @@ export default class DatabaseInterface {
         }
     }
 
-    public async purgeOldLogs(): Promise<void> {
-        const now = new Date();
-        const epoch = now.getTime() - 1 * 60 * 1000;
-        const values = [epoch];
-
-        const before = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
-        log.info(`database-logs before ${JSON.stringify(before)}`);
-
-        await this.execute("DELETE FROM store_log WHERE time < ?", values);
-
-        const after = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
-        log.info(`database-logs after ${JSON.stringify(after)}`);
-
-        await this.execute("VACUUM");
-
-        log.info(`database-logs ready`);
-    }
-
     public async getAllMedia(): Promise<NoteMedia[]> {
         const rows = await this.getAllNotes();
         const notes = rows.map((r) => {
@@ -980,5 +966,45 @@ export default class DatabaseInterface {
         });
         log.info(`notes: ${JSON.stringify(notes)}`);
         return _.flatten(notes.map((notes) => notes.allMedia()));
+    }
+
+    public async appendStationLogs(deviceId: string, logs: string): Promise<void> {
+        try {
+            const values = [new Date(), deviceId, logs];
+            await this.execute("INSERT INTO station_log (time, device_id, logs) VALUES (?, ?, ?)", values);
+        } catch (error) {
+            log.error(`append-station-log error`, error);
+        }
+    }
+
+    public async purgeOldLogs(): Promise<void> {
+        await this.purgeTable({
+            name: "store_log",
+            status: "SELECT COUNT(*) AS nlogs FROM store_log",
+            purge: "DELETE FROM store_log WHERE time < ?",
+        });
+        await this.purgeTable({
+            name: "station_log",
+            status: "SELECT COUNT(*) AS nlogs FROM station_log",
+            purge: "DELETE FROM station_log WHERE time < ?",
+        });
+    }
+
+    private async purgeTable(table: { name: string; status: string; purge: string }): Promise<void> {
+        const now = new Date();
+        const epoch = now.getTime() - 1 * 60 * 1000;
+        const values = [epoch];
+
+        const before = await this.query<{ nlogs: number }>(table.status);
+        log.info(`${table.name} before ${JSON.stringify(before)}`);
+
+        await this.execute(table.purge, values);
+
+        const after = await this.query<{ nlogs: number }>(table.status);
+        log.info(`${table.name} after ${JSON.stringify(after)}`);
+
+        await this.execute("VACUUM");
+
+        log.info(`${table.name} ready`);
     }
 }
