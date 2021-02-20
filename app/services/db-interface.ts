@@ -970,7 +970,7 @@ export default class DatabaseInterface {
 
     public async appendStationLogs(deviceId: string, logs: string): Promise<void> {
         try {
-            const values = [new Date(), deviceId, logs];
+            const values = [new Date(), deviceId, logs.trim()];
             await this.execute("INSERT INTO station_log (time, device_id, logs) VALUES (?, ?, ?)", values);
         } catch (error) {
             log.error(`append-station-log error`, error);
