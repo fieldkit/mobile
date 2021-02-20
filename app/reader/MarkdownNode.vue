@@ -71,5 +71,6 @@ GridLayout {
     // background-color: #00aa00;
     margin-top: 20;
     margin-bottom: 20;
+    text-align: left;
 }
 </style>
