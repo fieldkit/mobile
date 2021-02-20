@@ -108,8 +108,10 @@ export default Vue.extend({
             );
         },
         async skip(): Promise<void> {
-            console.log("forward", this.form);
-            await this.$navigateTo(routes.stations, { clearHistory: true });
+            await this.$navigateTo(routes.tabbed, {
+                frame: "outer-frame",
+                clearHistory: true,
+            });
         },
         async onBack(): Promise<void> {
             console.log("onBack");
