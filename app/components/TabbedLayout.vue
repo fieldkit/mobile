@@ -46,15 +46,14 @@
     </Page>
 </template>
 <script lang="ts">
-import { Vue } from "vue-property-decorator";
+import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
+import { NavigationMutation } from "@/store";
+import routes, { KnownRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
-import { getBus } from "@/components/NavigationBus";
-import { NavigationMutation } from "@/store";
-import routes from "@/routes";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -63,6 +62,12 @@ export default Vue.extend({
         DataSync,
         AppSettingsView,
     },
+    props: {
+        firstTab: {
+            type: Object as PropType<{ index: number; route: KnownRoute | null }>,
+            required: false,
+        },
+    },
     data(): {
         tab: number;
     } {
@@ -70,29 +75,53 @@ export default Vue.extend({
             tab: 0,
         };
     },
-    mounted() {
+    created() {
+        console.log(`tabbed: created`, this.firstTab, this.tab);
         this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
-
-        getBus().$on("open-settings", (name: string | null) => {
-            console.log("open-settings", name);
-            // eslint-disable-next-line
-            void this.$navigateTo(routes.appSettings[name || "list"], {
-                frame: "settings-frame",
-                animated: false,
-                transition: {
-                    duration: 0,
-                },
-            }).then(() => {
-                // eslint-disable-next-line
-                const view: any = <BottomNavigation>(this.$refs.bottomNavigation as any).nativeView;
-                // eslint-disable-next-line
-                view.selectedIndex = 2;
-            });
-        });
+    },
+    mounted() {
+        console.log(`tabbed: mounted`, this.firstTab, this.tab);
+        this.updateSelected();
+    },
+    updated() {
+        console.log(`tabbed: updated`, this.firstTab, this.tab);
+        this.updateSelected();
     },
     methods: {
+        tabIndexToFrame(index: number): string {
+            return ["stations-frame", "data-frame", "settings-frame"][index];
+        },
+        updateSelected(): void {
+            console.log(`update-selected: updating`);
+            if (this.firstTab) {
+                const bottom = this.$refs.bottomNavigation;
+                if (bottom) {
+                    const view: any = <BottomNavigation>(bottom as any).nativeView;
+                    // eslint-disable-next-line
+                    view.selectedIndex = this.firstTab.index;
+                } else {
+                    console.log(`update-selected: no bottom nav`);
+                }
+
+                this.$nextTick(() => {
+                    if (this.firstTab.route && this.firstTab.index == 2) {
+                        const frame = this.tabIndexToFrame(this.firstTab.index);
+                        console.log(`update-selected: ${frame} / ${this.firstTab.route}`);
+                        void this.$navigateTo(routes.appSettings[this.firstTab.route], {
+                            frame: frame,
+                            animated: false,
+                            transition: {
+                                duration: 0,
+                            },
+                        });
+                    }
+                });
+            } else {
+                console.log(`update-selected: no first tab`);
+            }
+        },
         onSelectedIndexChanged(args) {
             // eslint-disable-next-line
             const view = <BottomNavigation>args.object;

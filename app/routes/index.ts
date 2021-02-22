@@ -52,9 +52,7 @@ import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
 import TabbedLayout from "~/components/TabbedLayout.vue";
 
-import { getBus } from "@/components/NavigationBus";
 import { inferNames, NavigateToFunc, Route } from "./navigate";
-// import { Frame } from "@nativescript/core";
 
 export interface SavedRoute {
     go(): Promise<void>;
@@ -64,27 +62,56 @@ export enum KnownRoute {
     Main = "main",
     AppSettings = "appSettings",
     Developer = "developer",
+    Accounts = "accounts",
 }
 
 const knownRoutes = {
     [KnownRoute.Main]: async (navigateTo: NavigateToFunc): Promise<void> => {
         await navigateTo(routes.tabbed, {
             frame: "outer-frame",
+            props: {
+                firstTab: {
+                    index: 0,
+                    route: null,
+                },
+            },
         });
     },
     [KnownRoute.AppSettings]: async (navigateTo: NavigateToFunc): Promise<void> => {
         await navigateTo(routes.tabbed, {
             clearHistory: true,
             frame: "outer-frame",
+            props: {
+                firstTab: {
+                    index: 2,
+                    route: null,
+                },
+            },
         });
-        getBus().$emit("open-settings", "list");
     },
     [KnownRoute.Developer]: async (navigateTo: NavigateToFunc): Promise<void> => {
         await navigateTo(routes.tabbed, {
             clearHistory: true,
             frame: "outer-frame",
+            props: {
+                firstTab: {
+                    index: 0,
+                    // route: "developer",
+                },
+            },
         });
-        getBus().$emit("open-settings", "developer");
+    },
+    [KnownRoute.Accounts]: async (navigateTo: NavigateToFunc): Promise<void> => {
+        await navigateTo(routes.tabbed, {
+            clearHistory: true,
+            frame: "outer-frame",
+            props: {
+                firstTab: {
+                    index: 2,
+                    route: "accounts",
+                },
+            },
+        });
     },
 };
 
