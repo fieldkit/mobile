@@ -968,42 +968,64 @@ export default class DatabaseInterface {
         return _.flatten(notes.map((notes) => notes.allMedia()));
     }
 
+    private logAppends: { [deviceId: string]: Date } = {};
+
+    private shouldAppend(deviceId: string): boolean {
+        if (!this.logAppends[deviceId]) {
+            return true;
+        }
+        const now = new Date();
+        const seconds = (now.getTime() - this.logAppends[deviceId].getTime()) / 1000;
+        if (seconds > 30) {
+            return true;
+        }
+        console.log(`append-station-log: skipped ${seconds}`);
+        return false;
+    }
+
     public async appendStationLogs(deviceId: string, logs: string): Promise<void> {
         try {
-            const values = [new Date(), deviceId, logs.trim()];
-            await this.execute("INSERT INTO station_log (time, device_id, logs) VALUES (?, ?, ?)", values);
+            const now = new Date();
+            if (this.shouldAppend(deviceId)) {
+                const values = [now, deviceId, logs.trim()];
+                await this.execute("INSERT INTO station_log (time, device_id, logs) VALUES (?, ?, ?)", values);
+                this.logAppends[deviceId] = now;
+                console.log(`append-station-log`);
+            }
         } catch (error) {
             log.error(`append-station-log error`, error);
         }
     }
 
     public async purgeOldLogs(): Promise<void> {
+        const now = new Date();
         await this.purgeTable({
             name: "store_log",
             status: "SELECT COUNT(*) AS nlogs FROM store_log",
             purge: "DELETE FROM store_log WHERE time < ?",
+            epoch: now.getTime() - 1 * 60 * 1000,
         });
         await this.purgeTable({
             name: "station_log",
             status: "SELECT COUNT(*) AS nlogs FROM station_log",
             purge: "DELETE FROM station_log WHERE time < ?",
+            epoch: now.getTime() - 1 * 10 * 1000,
         });
+        await this.execute("VACUUM");
+
+        const times = await this.query(`SELECT time FROM station_log`);
+
+        console.log(`times ${JSON.stringify(times)}`);
     }
 
-    private async purgeTable(table: { name: string; status: string; purge: string }): Promise<void> {
-        const now = new Date();
-        const epoch = now.getTime() - 1 * 60 * 1000;
-        const values = [epoch];
-
+    private async purgeTable(table: { name: string; status: string; purge: string; epoch: number }): Promise<void> {
         const before = await this.query<{ nlogs: number }>(table.status);
         log.info(`${table.name} before ${JSON.stringify(before)}`);
 
-        await this.execute(table.purge, values);
+        await this.execute(table.purge, [table.epoch]);
 
         const after = await this.query<{ nlogs: number }>(table.status);
         log.info(`${table.name} after ${JSON.stringify(after)}`);
-
-        await this.execute("VACUUM");
 
         log.info(`${table.name} ready`);
     }
