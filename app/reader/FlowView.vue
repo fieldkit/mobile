@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" @navigatingTo="onNavigatingTo">
+    <Page class="page" @navigatingFrom="onNavigatingFrom">
         <template v-if="ready">
             <PlatformHeader
                 :title="screen.header.title"
@@ -113,7 +113,8 @@ export default Vue.extend({
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
-        onNavigatingTo(): void {
+        onNavigatingFrom(): void {
+            console.log("flow: leaving");
             if (this.timer) {
                 this.timer.stop();
                 this.timer = null;

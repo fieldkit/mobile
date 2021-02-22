@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
+    <Page class="page" @loaded="onPageLoaded" navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="_L('fieldkitWifi')" :canNavigateBack="false" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0" v-show="step == 0">
@@ -67,7 +67,7 @@ export default Vue.extend({
                 this.frame += 1;
             });
         },
-        onNavigatingTo(): void {
+        onNavigatingFrom(): void {
             console.log("onboarding/start:", "nav away");
             const thisAny = this as any;
             thisAny.timer.stop();
