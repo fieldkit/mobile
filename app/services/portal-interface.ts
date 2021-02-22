@@ -570,7 +570,7 @@ export default class PortalInterface {
                             }
                             console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
-                        console.log(req.url, `portal error: ${JSON.stringify(error)}`);
+                        console.log(req.url, `portal error:`, error);
                         throw error;
                     });
             });
