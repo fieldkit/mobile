@@ -73,18 +73,17 @@ export default Vue.extend({
     data(): {
         nav: FlowNavigator;
         timer: Timer | null;
+        frame: number;
     } {
         return {
             nav: FlowNavigator.None,
             timer: null,
+            frame: 0,
         };
     },
     computed: {
         ready(): boolean {
             return this.nav.ready;
-        },
-        frame(): number {
-            return this.timer?.counter || 0;
         },
         screen(): VisibleScreen {
             return this.nav.screen;
@@ -94,9 +93,12 @@ export default Vue.extend({
         },
     },
     async mounted(): Promise<void> {
+        console.log("flow: mounted");
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flowName);
-        this.timer = new Timer(1000, null);
+        this.timer = new Timer(1000, (frame) => {
+            this.frame = frame;
+        });
     },
     methods: {
         async onForward(): Promise<void> {
