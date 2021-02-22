@@ -257,7 +257,7 @@ export default Vue.extend({
                 calibrationValue as WaterCalValue,
                 compensations,
                 this.strategy.numberOfCalibrationPoints,
-                this.strategy.linear
+                this.strategy.curveType
             );
 
             console.log(`cal-action: ${JSON.stringify(action)}`);

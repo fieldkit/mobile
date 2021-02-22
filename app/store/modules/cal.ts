@@ -23,6 +23,8 @@ type ModuleType = Module<CalibrationState, never>;
 
 type ModuleConfiguration = DataProto.ModuleConfiguration;
 
+export type CurveType = DataProto.CurveType;
+
 export class ClearWaterCalibration {
     public readonly type: string = ActionTypes.CLEAR_SENSOR_CALIBRATION;
 
@@ -39,7 +41,7 @@ export class CalibrateWater {
         public readonly value: WaterCalValue,
         public readonly compensations: { temperature: number | null },
         public readonly expectedPoints: number,
-        public readonly linear: boolean
+        public readonly curveType: CurveType
     ) {}
 }
 
@@ -129,9 +131,7 @@ const actions = (services: ServiceRef) => {
             const completed = pending.points.length == payload.expectedPoints;
             if (completed) {
                 try {
-                    const curve = getCurveForSensor(
-                        payload.linear ? DataProto.CurveType.CURVE_LINEAR : DataProto.CurveType.CURVE_EXPONENTIAL
-                    );
+                    const curve = getCurveForSensor(payload.curveType);
                     const calibration = curve.calculate(pending);
                     console.log(`cal-done: ${JSON.stringify(calibration)}`);
 
