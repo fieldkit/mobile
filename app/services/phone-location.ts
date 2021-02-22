@@ -51,7 +51,7 @@ export default class PhoneLocationWatcher {
                 }
             )
             .then((location: PhoneLocation) => {
-                return zoned(async () => {
+                return zoned({}, async () => {
                     this.store.commit(MutationTypes.PHONE_LOCATION, location);
                     await Promise.resolve();
                 });

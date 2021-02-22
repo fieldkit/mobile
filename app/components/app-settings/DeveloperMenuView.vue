@@ -493,7 +493,7 @@ export default Vue.extend({
         async testZones(): Promise<void> {
             const Zone = getZone();
             console.log("have Zone", Zone.current.name);
-            await zoned(async () => {
+            await zoned({}, async () => {
                 await this.asyncExamples();
             });
         },

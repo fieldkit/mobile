@@ -31,7 +31,7 @@ export default Vue.extend({
 
         console.log("startup loaded");
 
-        await zoned(async () => {
+        await zoned({}, async () => {
             await initializeApplication(services);
         });
 

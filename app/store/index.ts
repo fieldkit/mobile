@@ -231,7 +231,7 @@ export default function (rawServices: Services): OurStore {
     const dispatchOriginal: Dispatch = store.dispatch;
     // eslint-disable-next-line
     store.dispatch = async (type: string, payload?: any, options?: DispatchOptions): Promise<any> => {
-        await zoned(async () => {
+        await zoned({}, async () => {
             await dispatchOriginal(type, payload, options);
         });
     };

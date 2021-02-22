@@ -10,7 +10,7 @@ import { zoned } from "@/lib";
 
 function wrap(fn: (args: unknown) => void): (args: unknown) => void {
     return async (args) => {
-        await zoned(() => {
+        await zoned({ force: true }, () => {
             fn(args);
             return Promise.resolve();
         });

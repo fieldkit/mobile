@@ -10,7 +10,7 @@ import { promiseAfter, zoned } from "@/lib";
 function updateStore(store: OurStore): Promise<void> {
     promiseAfter(1000)
         .then(() =>
-            zoned(async () => {
+            zoned({ force: true }, async () => {
                 await store.dispatch(ActionTypes.REFRESH);
             })
         )

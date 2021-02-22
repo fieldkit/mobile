@@ -62,7 +62,7 @@ class NetworkMonitor {
         console.log("network-monitor: starting", this.enabled);
 
         Connectivity.startMonitoring((newType) => async () => {
-            await zoned(async () => {
+            await zoned({}, async () => {
                 try {
                     console.log("network-monitor: connectivity", Connectivity.typeToString(newType));
 
@@ -86,7 +86,7 @@ class NetworkMonitor {
     }
 
     private async watch(): Promise<void> {
-        await promiseAfter(10000).then(() => zoned(() => this.issue()).finally(() => void this.watch()));
+        await promiseAfter(10000).then(() => zoned({}, () => this.issue()).finally(() => void this.watch()));
     }
 
     private async issue(): Promise<void> {

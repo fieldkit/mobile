@@ -13,7 +13,7 @@ export function getZone() {
     return global["Zone"];
 }
 
-export async function zoned(callback: () => Promise<void>): Promise<void> {
+export async function zoned(options: { force?: boolean }, callback: () => Promise<void>): Promise<void> {
     const zone = getZone();
     if (!zone) {
         console.log("zone: warning no zone");
@@ -21,8 +21,10 @@ export async function zoned(callback: () => Promise<void>): Promise<void> {
         return;
     }
     if (zone.current.get("taskId")) {
-        await callback();
-        return;
+        if (!options.force) {
+            await callback();
+            return;
+        }
     }
     await zone.current
         .fork({
