@@ -26,7 +26,7 @@ export default class PortalUpdater {
 
     public async addOrUpdateStations(): Promise<void> {
         return zoned(
-            {},
+            { force: true },
             async () =>
                 await this.portal.isAvailable().then((yes: boolean) => {
                     if (!yes) {
