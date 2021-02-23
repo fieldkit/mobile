@@ -43,7 +43,7 @@
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
-                <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" />
+                <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" v-if="false" />
 
                 <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" :isEnabled="!busy" />
 
