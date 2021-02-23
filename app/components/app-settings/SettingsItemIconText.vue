@@ -31,6 +31,7 @@ export default Vue.extend({
             if (this.link) {
                 try {
                     await this.$navigateTo(routes.appSettings[this.link], {
+                        frame: "settings-frame",
                         // clearHistory: false,
                     });
                 } catch (error) {
