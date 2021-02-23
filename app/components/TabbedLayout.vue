@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true">
-        <BottomNavigation id="bottom-nav" ref="bottomNavigation" @selectedIndexChanged="onSelectedIndexChanged">
+        <BottomNavigation id="bottom-nav" ref="bottomNavigation" :selectedIndex="tab" @selectedIndexChanged="onSelectedIndexChanged">
             <TabStrip backgroundColor="white">
                 <TabStripItem @tap="tapStations">
                     <Image
@@ -50,7 +50,7 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import routes, { KnownRoute } from "@/routes";
+import routes, { Route, KnownRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
@@ -84,26 +84,38 @@ export default Vue.extend({
         };
     },
     created(): void {
-        console.log(`tabbed: created`, this.firstTab, this.tab);
+        console.log(`tabbed: created ${JSON.stringify(this.firstTab)}`, this.tab);
         this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
     },
     mounted(): void {
-        console.log(`tabbed: mounted`, this.firstTab, this.tab);
+        console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);
         // eslint-disable-next-line
         this.updateSelected();
     },
     updated(): void {
-        console.log(`tabbed: updated`, this.firstTab, this.tab);
-        // eslint-disable-next-line
-        this.updateSelected();
+        console.log(`tabbed: updated ${JSON.stringify(this.firstTab)}`, this.tab);
     },
     methods: {
         tabIndexToFrame(index: number): string {
             const frames = ["stations-frame", "data-frame", "settings-frame"];
             if (index < 0 || index >= frames.length) throw new Error(`invalid frame index`);
             return frames[index];
+        },
+        tabIndexToRoute(index: number): Record<string, Route> {
+            switch (index) {
+                case 2:
+                    return routes.appSettings;
+            }
+            return {};
+        },
+        // eslint-disable-next-line
+        onSelectedIndexChanged(args: any): void {
+            /* eslint-disable */
+            const view = <BottomNavigation>args.object;
+            this.tab = view.selectedIndex;
+            console.log("tab-changed", this.tab);
         },
         updateSelected(): void {
             /* eslint-disable */
@@ -112,23 +124,13 @@ export default Vue.extend({
             const firstTab: FirstTab = this.firstTab;
 
             if (firstTab) {
-                const bottom = this.$refs.bottomNavigation;
-                if (bottom) {
-                    const view: any = <BottomNavigation>(bottom as any).nativeView;
-                    console.log(`update-selected: changing tab`, view.selectedIndex, firstTab.index);
-                    if (view.selectedIndex == firstTab.index) {
-                        view.selectedIndex = firstTab.index;
-                    } else {
-                        console.log(`update-selected: same tab`);
-                    }
-                } else {
-                    console.log(`update-selected: no bottom nav`);
-                }
+                this.tab = this.firstTab.index;
 
-                if (firstTab.route && firstTab.index == 2) {
-                    const frame: string = this.tabIndexToFrame(firstTab.index);
+                const routes = this.tabIndexToRoute(firstTab.index);
+                if (firstTab.route && routes[firstTab.route]) {
+                    const frame = this.tabIndexToFrame(firstTab.index);
                     console.log(`update-selected: ${frame} / ${firstTab.route}`);
-                    void this.$navigateTo(routes.appSettings[firstTab.route], {
+                    void this.$navigateTo(routes[firstTab.route], {
                         frame: frame,
                         animated: false,
                         transition: {
@@ -137,7 +139,6 @@ export default Vue.extend({
                     });
                 } else {
                     console.log(`update-selected: no tab`);
-
                     void this.$navigateTo(StationListView, {
                         frame: "stations-frame",
                         animated: false,
@@ -149,12 +150,6 @@ export default Vue.extend({
             } else {
                 console.log(`update-selected: no first tab`);
             }
-        },
-        onSelectedIndexChanged(args: any): void {
-            /* eslint-disable */
-            const view = <BottomNavigation>args.object;
-            this.tab = view.selectedIndex;
-            console.log("tab-changed", this.tab);
         },
         isSameView(frameId: string, page: any): boolean {
             /* eslint-disable */
