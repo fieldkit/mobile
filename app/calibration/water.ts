@@ -237,12 +237,6 @@ const Do3 = (): CalibrationStrategy => {
             }),
         ]),
         new CalibrationPointStep(new WaterCalValue(1, 0.0, DoRange, commands.DoMiddle), [
-            new CheckVisual(Check, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
             new PrepareVisual(Prepare, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -265,12 +259,6 @@ const Do3 = (): CalibrationStrategy => {
             }),
         ]),
         new CalibrationPointStep(new WaterCalValue(2, 0.0, DoRange, commands.DoHigh), [
-            new CheckVisual(Check, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
             new PrepareVisual(Prepare, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
