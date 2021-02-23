@@ -11,6 +11,7 @@ import { ios } from "@nativescript/core/application";
 
 export function hideKeyboard(): void {
     if (ios) {
+        // eslint-disable-next-line
         ios.nativeApp.sendActionToFromForEvent("resignFirstResponder", null, null, null);
     } else {
         nsutils.ad.dismissSoftInput();
