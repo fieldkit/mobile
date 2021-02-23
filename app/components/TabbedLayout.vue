@@ -106,21 +106,17 @@ export default Vue.extend({
             return frames[index];
         },
         updateSelected(): void {
+            /* eslint-disable */
             console.log(`update-selected: updating`);
 
-            // eslint-disable-next-line
             const firstTab: FirstTab = this.firstTab;
 
             if (firstTab) {
                 const bottom = this.$refs.bottomNavigation;
                 if (bottom) {
-                    // eslint-disable-next-line
                     const view: any = <BottomNavigation>(bottom as any).nativeView;
-                    // eslint-disable-next-line
                     console.log(`update-selected: changing tab`, view.selectedIndex, firstTab.index);
-                    // eslint-disable-next-line
                     if (view.selectedIndex == firstTab.index) {
-                        // eslint-disable-next-line
                         view.selectedIndex = firstTab.index;
                     } else {
                         console.log(`update-selected: same tab`);
@@ -130,7 +126,6 @@ export default Vue.extend({
                 }
 
                 if (firstTab.route && firstTab.index == 2) {
-                    // eslint-disable-next-line
                     const frame: string = this.tabIndexToFrame(firstTab.index);
                     console.log(`update-selected: ${frame} / ${firstTab.route}`);
                     void this.$navigateTo(routes.appSettings[firstTab.route], {
@@ -155,17 +150,15 @@ export default Vue.extend({
                 console.log(`update-selected: no first tab`);
             }
         },
-        // eslint-disable-next-line
         onSelectedIndexChanged(args: any): void {
-            // eslint-disable-next-line
+            /* eslint-disable */
             const view = <BottomNavigation>args.object;
             this.tab = view.selectedIndex;
             console.log("tab-changed", this.tab);
         },
-        // eslint-disable-next-line
         isSameView(frameId: string, page: any): boolean {
+            /* eslint-disable */
             const frameStateNow = this.$s.state.nav.frames[frameId] || { name: null };
-            // eslint-disable-next-line
             const desiredPage: string | null = page.options?.name || null;
             if (!desiredPage) {
                 return false;
