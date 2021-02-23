@@ -1,7 +1,7 @@
 <template>
     <GridLayout rows="*,auto">
         <ScrollView row="0" class="scroll-style" @tap="maybeDismissKeyboard">
-            <GridLayout rows="auto,*" class="choice-container" v-if="strategy == null">
+            <GridLayout rows="auto,*" class="choice-container">
                 <StackLayout row="0">
                     <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
 
@@ -31,32 +31,9 @@
                     <Label text=" " />
                 </StackLayout>
             </GridLayout>
-
-            <GridLayout rows="auto,*" class="choice-container" v-else>
-                <StackLayout row="0">
-                    <Label class="choice-heading" textWrap="true" text="Calibration Fluids" />
-
-                    <Label
-                        class="choice-why"
-                        textWrap="true"
-                        text="The clibration fluids you have may differ from the values below, so please double check them."
-                    />
-                </StackLayout>
-
-                <StackLayout row="1">
-                    <ReferenceValues :strategy="strategy" @changed="onReferenceValues" />
-                </StackLayout>
-            </GridLayout>
         </ScrollView>
         <StackLayout row="1">
-            <Button
-                class="btn btn-primary btn-padded"
-                :text="visual.done"
-                @tap="confirmStrategy"
-                :isEnabled="enabled"
-                v-if="strategy == null"
-            />
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="enabled && references != null" v-else />
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="confirmStrategy" :isEnabled="enabled" />
         </StackLayout>
     </GridLayout>
 </template>
@@ -64,14 +41,12 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import Header from "./Header.vue";
-import ReferenceValues from "./ReferenceValues.vue";
-import { CalibrationStrategy, CalibrationValue } from "./model";
+import { CalibrationStrategy } from "./model";
 
 export default Vue.extend({
     name: "ChooseStrategy",
     components: {
         Header,
-        ReferenceValues,
     },
     props: {
         moduleKey: {
@@ -98,12 +73,10 @@ export default Vue.extend({
     data(): {
         selected: number;
         strategy: CalibrationStrategy | null;
-        references: CalibrationValue[] | null;
     } {
         return {
             selected: 0,
             strategy: null,
-            references: null,
         };
     },
     methods: {
@@ -112,18 +85,7 @@ export default Vue.extend({
         },
         confirmStrategy(): void {
             this.strategy = this.strategies[this.selected];
-        },
-        onReferenceValues(references: CalibrationValue[] | null): void {
-            this.references = references;
-        },
-        done(): void {
-            const strategy = this.strategy;
-            const references = this.references;
-            if (strategy && references) {
-                console.log(`done: ${strategy.moduleKey} ${strategy.heading} ${JSON.stringify(references)}`);
-                const adjusted = strategy.adjustReferences(references);
-                this.$emit("done", adjusted);
-            }
+            this.$emit("done", this.strategy);
         },
         maybeDismissKeyboard(): void {
             //

@@ -1,5 +1,5 @@
 <template>
-    <Page>
+    <Page @tap="tapPage">
         <template v-if="activeStep">
             <Header
                 :title="activeStep.visual.title"
@@ -18,11 +18,11 @@
                         :step="activeStep"
                         :progress="progress"
                         :busy="busy"
-                        @done="(ev) => onDone(ev, activeStep)"
-                        @back="(ev) => onBack(ev, activeStep)"
-                        @clear="(ev) => onClear(ev, activeStep)"
-                        @calibrate="(ev) => onCalibrate(ev, activeStep)"
-                        @cancel="(ev) => onCancel(ev, activeStep)"
+                        @done="() => onDone(activeStep)"
+                        @back="() => onBack(activeStep)"
+                        @clear="() => onClear(activeStep)"
+                        @calibrate="(ref) => onCalibrate(activeStep, ref)"
+                        @cancel="() => onCancel(activeStep)"
                     />
                 </template>
             </StackLayout>
@@ -31,7 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T, promiseAfter } from "@/lib";
+import { _T, promiseAfter, hideKeyboard } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -42,7 +42,7 @@ import Failure from "./Failure.vue";
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModules from "../components/settings/StationSettingsModuleList.vue";
 
-import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
+import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibrationValue, CalibratingSensor } from "./model";
 import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/modules/cal";
 import { WaterCalValue } from "./water";
 
@@ -151,6 +151,9 @@ export default Vue.extend({
         await this.$store.dispatch(new CalibrateBegin(this.deviceId, sensor.moduleId, this.position));
     },
     methods: {
+        tapPage(): void {
+            hideKeyboard();
+        },
         getLastStep(): VisualCalibrationStep {
             const all = this.getAllVisualSteps();
             return all[all.length - 1];
@@ -162,17 +165,16 @@ export default Vue.extend({
         getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
-        onDone(ev: any, step: CalibrationStep): Promise<void> {
+        onDone(step: CalibrationStep): Promise<void> {
             this.completed.push(step);
             if (this.getRemainingSteps().length > 0) {
                 return Promise.resolve();
             }
-
             return this.notifySuccess().then(() => {
                 return this.navigateBack();
             });
         },
-        onCancel(ev: any, step: CalibrationStep): void {
+        onCancel(step: CalibrationStep): void {
             console.log("cal:", "cancel", step);
         },
         navigateBack(): Promise<any> {
@@ -193,7 +195,7 @@ export default Vue.extend({
                 });
             }
         },
-        onBack(ev: any, step: CalibrationStep): Promise<any> {
+        onBack(step: CalibrationStep): Promise<any> {
             console.log("cal:", "back", step, "completed", this.completed.length);
             if (this.completed.length == 0) {
                 return this.$navigateTo(Start, {
@@ -206,7 +208,7 @@ export default Vue.extend({
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
             return Promise.resolve();
         },
-        onClear(ev: any, step: CalibrationStep): Promise<any> {
+        onClear(step: CalibrationStep): Promise<any> {
             if (!this.station || !this.station.connected) {
                 return Promise.reject(new Error("station offline: no clear"));
             }
@@ -235,13 +237,12 @@ export default Vue.extend({
                     });
             });
         },
-        async onCalibrate(ev: any, step: CalibrationStep): Promise<void> {
-            if (!this.station || !this.station.connected) {
-                return Promise.reject(new Error("station offline: no calibrate"));
-            }
+        async onCalibrate(step: CalibrationStep, reference: CalibrationValue): Promise<void> {
+            if (!reference) return Promise.reject(new Error("no calibration reference"));
+            if (!this.station || !this.station.connected) return Promise.reject(new Error("station offline: no calibrate"));
 
             const sensor: CalibratingSensor | null = this.sensor;
-            console.log(`cal-sensor: ${JSON.stringify(sensor)}`);
+            console.log(`cal-sensor: ${JSON.stringify(sensor)} ${JSON.stringify(reference)}`);
             if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
@@ -249,12 +250,11 @@ export default Vue.extend({
             const compensations = {
                 temperature: maybeWaterTemp || null,
             };
-            const calibrationValue = this.strategy.getStepCalibrationValue(step);
             const action = new CalibrateWater(
                 this.deviceId,
                 sensor.moduleId,
                 this.position,
-                calibrationValue as WaterCalValue,
+                reference as WaterCalValue,
                 compensations,
                 this.strategy.numberOfCalibrationPoints,
                 this.strategy.curveType
@@ -267,7 +267,7 @@ export default Vue.extend({
                 .then(
                     (calibrated) => {
                         console.log("cal:", "calibrated");
-                        return this.onDone(ev, step);
+                        return this.onDone(step);
                     },
                     (err) => {
                         console.log("cal:error", err, err ? err.stack : null);

@@ -84,13 +84,16 @@ export default Vue.extend({
     margin-top: 80;
     text-align: center;
 }
+
 .elapsed-time {
     text-align: center;
 }
+
 .elapsed-time-top {
-    margin-top: 35;
+    margin-top: 15;
     margin-bottom: 5;
 }
+
 .inner-circle {
     background-color: white;
     width: 190;
