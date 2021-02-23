@@ -117,7 +117,14 @@ export default Vue.extend({
                     // eslint-disable-next-line
                     const view: any = <BottomNavigation>(bottom as any).nativeView;
                     // eslint-disable-next-line
-                    view.selectedIndex = firstTab.index;
+                    console.log(`update-selected: changing tab`, view.selectedIndex, firstTab.index);
+                    // eslint-disable-next-line
+                    if (view.selectedIndex == firstTab.index) {
+                        // eslint-disable-next-line
+                        view.selectedIndex = firstTab.index;
+                    } else {
+                        console.log(`update-selected: same tab`);
+                    }
                 } else {
                     console.log(`update-selected: no bottom nav`);
                 }
@@ -128,6 +135,16 @@ export default Vue.extend({
                     console.log(`update-selected: ${frame} / ${firstTab.route}`);
                     void this.$navigateTo(routes.appSettings[firstTab.route], {
                         frame: frame,
+                        animated: false,
+                        transition: {
+                            duration: 0,
+                        },
+                    });
+                } else {
+                    console.log(`update-selected: no tab`);
+
+                    void this.$navigateTo(StationListView, {
+                        frame: "stations-frame",
                         animated: false,
                         transition: {
                             duration: 0,
