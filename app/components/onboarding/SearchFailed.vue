@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true">
-        <GridLayout rows="*,140">
+        <GridLayout rows="*,170">
             <ScrollView row="0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0" verticalAlignment="middle">
@@ -20,6 +20,7 @@
 
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('tryAgain')" @tap="forward"></Button>
+                <Button class="btn btn-secondary" :text="_L('getHelp')" @tap="getHelp"></Button>
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -30,7 +31,6 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes from "../../routes";
-import { _T } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -51,6 +51,10 @@ export default Vue.extend({
                 frame: "outer-frame",
                 clearHistory: true,
             });
+        },
+        getHelp() {
+            const utilsModule = require("tns-core-modules/utils/utils");
+            utilsModule.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");
         },
     },
 });
@@ -110,5 +114,14 @@ export default Vue.extend({
 }
 .red-text {
     color: $fk-primary-red;
+}
+.btn-secondary {
+    font-size: 18;
+    text-transform: none;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
+    font-weight: bold;
+    border-color: $fk-primary-red;
+    border-width: 1;
+    background-color: white;
 }
 </style>

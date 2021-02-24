@@ -419,7 +419,7 @@ export default Vue.extend({
                 silenced: false,
                 project: {},
                 user: store.state.portal?.currentUser,
-                station: {},
+                station: { id: 1 },
                 actions: {},
             });
 
@@ -430,7 +430,7 @@ export default Vue.extend({
                 silenced: false,
                 project: {},
                 user: store.state.portal?.currentUser,
-                station: {},
+                station: { id: 1 },
                 actions: {},
             });
 
@@ -441,7 +441,7 @@ export default Vue.extend({
                 silenced: false,
                 project: {},
                 user: store.state.portal?.currentUser,
-                station: {},
+                station: { id: 1 },
                 actions: {},
             });
         },

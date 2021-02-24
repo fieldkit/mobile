@@ -28,21 +28,23 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
+                        @addFieldNotes="addFieldNotes"
                     />
                 </GridLayout>
                 <Label
                     :text="_L('notificationArchive')"
                     class="bold size-14 m-x-10 m-t-30 m-b-20"
                     @loaded="onLabelLoadedVerticalCentered"
-                    v-if="dismissedNotifications.length > 0"
+                    v-if="satisfiedNotifications.length > 0"
                 />
-                <GridLayout v-for="dismissedItem in dismissedNotifications" :key="dismissedItem.id">
+                <GridLayout v-for="satisfiedItem in satisfiedNotifications" :key="satisfiedItem.id">
                     <NotificationItem
-                        :notification="dismissedItem"
+                        :notification="satisfiedItem"
                         :showMenu="showMenu"
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
+                        @addFieldNotes="addFieldNotes"
                     />
                 </GridLayout>
             </StackLayout>
@@ -57,7 +59,6 @@ import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";
-import Promise from "bluebird";
 
 export default Vue.extend({
     data() {
@@ -76,10 +77,10 @@ export default Vue.extend({
             return this.$s.state.notifications.notifications;
         },
         activeNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
+            return this.$s.state.notifications.notifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
         },
-        dismissedNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === true);
+        satisfiedNotifications() {
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.satisfiedAt);
         },
     },
     methods: {
@@ -107,6 +108,16 @@ export default Vue.extend({
         },
         satisfy(notification) {
             this.$s.dispatch(ActionTypes.SATISFY_NOTIFICATION, { key: notification.key });
+        },
+        async addFieldNotes(notification): Promise<void> {
+            if (notification.station.id) {
+                await this.$navigateTo(routes.deploy.notes, {
+                    props: {
+                        stationId: notification.station.id,
+                        linkedFromStation: true,
+                    },
+                });
+            }
         },
     },
 });
