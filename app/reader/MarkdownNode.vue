@@ -52,6 +52,8 @@ GridLayout {
 
 .md-heading-2 {
     // background-color: #aabb00;
+    font-family: "AvenirLTPro-Medium";
+    text-color: #6a6d71;
     font-size: 12;
     line-height: 4;
 }
