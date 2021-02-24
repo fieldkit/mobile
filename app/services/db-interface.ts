@@ -867,7 +867,7 @@ export default class DatabaseInterface {
                             silenced: row.silenced !== "false",
                             dismissedAt: row.dismissedAt,
                             satisfiedAt: row.satisfiedAt,
-                            actions: row.actions,
+                            actions: JSON.parse(row.actions) as Record<string, unknown>,
                             project: JSON.parse(row.project) as Record<string, unknown>,
                             user: JSON.parse(row.user) as Record<string, unknown>,
                             station: JSON.parse(row.station) as Record<string, unknown>,
@@ -895,7 +895,7 @@ export default class DatabaseInterface {
                         JSON.stringify(notification.project),
                         JSON.stringify(notification.user),
                         JSON.stringify(notification.station),
-                        notification.actions,
+                        JSON.stringify(notification.actions),
                     ];
                     return this.execute(
                         `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -922,7 +922,7 @@ export default class DatabaseInterface {
                         notification.project ? JSON.stringify(notification.project) : dbValues.project,
                         notification.user ? JSON.stringify(notification.user) : dbValues.user,
                         notification.station ? JSON.stringify(notification.station) : dbValues.station,
-                        notification.actions ?? dbValues.actions,
+                        notification.actions ? JSON.stringify(notification.actions) : dbValues.actions,
                         notification.id,
                     ];
 
