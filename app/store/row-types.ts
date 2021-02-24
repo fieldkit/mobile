@@ -112,8 +112,8 @@ export interface NotificationsTableRow {
     kind: string;
     created: number;
     silenced: string;
-    dismissedAt: number;
-    satisfiedAt: number;
+    dismissedAt: number | null;
+    satisfiedAt: number | null;
     project: string;
     user: string;
     station: string;
@@ -126,12 +126,12 @@ export interface QueriedNotificationsTableRow {
     kind: string;
     created: number;
     silenced: boolean;
-    dismissedAt: number;
-    satisfiedAt: number;
+    dismissedAt: number | null;
+    satisfiedAt: number | null;
     project: Record<string, unknown>;
     user: Record<string, unknown>;
     station: Record<string, unknown>;
-    actions: string;
+    actions: Record<string, unknown>;
 }
 
 export interface FirmwareTableRow {
