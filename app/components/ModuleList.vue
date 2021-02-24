@@ -55,7 +55,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { getLastSeen, _T, convertOldFirmwareResponse } from "@/lib";
+import { getLastSeen, _T } from "@/lib";
 import { Station, Module, Sensor } from "@/store";
 
 export default Vue.extend({
@@ -96,12 +96,10 @@ export default Vue.extend({
             return _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
         },
         getModuleName(mod: Module): string {
-            const newName = convertOldFirmwareResponse(mod);
-            return _T(newName + ".name");
+            return _T(mod.name + ".name");
         },
         getSensorName(mod: Module, sensor: Sensor): string {
-            const newName = convertOldFirmwareResponse(mod);
-            return _T(newName + ".sensors." + sensor.name);
+            return _T(mod.name + ".sensors." + sensor.name);
         },
         getModuleImage(mod: Module, connected: boolean): string {
             const statusString = connected ? "" : "Gray_";

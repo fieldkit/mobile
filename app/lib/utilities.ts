@@ -157,18 +157,6 @@ export function _T(key: string): string {
     }
 }
 
-export function convertOldFirmwareResponse(module: { name: string; sensors: { name: string }[] }): string {
-    // compensate for old firmware
-    if (module.name.indexOf("modules") != 0) {
-        module.name = "modules." + module.name;
-        if (module.name == "modules.water") {
-            // this is dicey, but temporary...
-            module.name += "." + module.sensors[0].name;
-        }
-    }
-    return module.name;
-}
-
 const lastRunTimes: { [index: string]: number } = {};
 
 export function onlyAllowEvery<V>(seconds: number, action: () => Promise<V>, otherwise: () => V): () => Promise<V> {

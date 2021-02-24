@@ -55,7 +55,10 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { busy: boolean; strategy: CalibrationStrategy | null } {
+    data(): {
+        busy: boolean;
+        strategy: CalibrationStrategy | null;
+    } {
         return {
             busy: false,
             strategy: null,
@@ -120,10 +123,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.choice-heading {
-}
-.choice-why {
-}
 .strategy-container {
     margin-bottom: 10;
     border: 1px solid black;

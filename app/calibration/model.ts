@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module, ModuleConfiguration } from "../store/types";
-import { _T, convertOldFirmwareResponse, notEmpty, unixNow, CalibrationError } from "@/lib";
+import { _T, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 
 export { ModuleConfiguration };
@@ -147,7 +147,7 @@ export class ModuleCalibration {
     public readonly needsCalibration: boolean;
 
     constructor(module: Module, configuration: ModuleConfiguration | null, haveStrategies: boolean) {
-        this.name = _T(convertOldFirmwareResponse(module) + ".name");
+        this.name = _T(module.name + ".name");
         this.position = module.position || 0;
         this.image = module.image;
         this.canCalibrate = haveStrategies;
