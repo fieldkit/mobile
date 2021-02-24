@@ -1,4 +1,6 @@
-import { HttpResponse } from "@/wrappers/networking";
+import { HttpResponse, ConnectionError } from "@/wrappers/networking";
+
+export { ConnectionError };
 
 export class AuthenticationError extends Error {
     public readonly authenticated = false;

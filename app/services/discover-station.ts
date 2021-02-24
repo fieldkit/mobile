@@ -99,22 +99,23 @@ class NetworkMonitor {
 
     public async tryFixedAddresses(): Promise<void> {
         await Promise.all(
-            this.FixedAddresses.map(
-                (fa) =>
-                    this.services
-                        .QueryStation()
-                        .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
-                        .then((status) => {
+            this.FixedAddresses.map((fa) =>
+                this.services
+                    .QueryStation()
+                    .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
+                    .then(
+                        (status) => {
                             return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
                                 name: status.status.identity.deviceId,
                                 host: fa.address,
                                 port: fa.port,
                             });
-                        }),
-                () => {
-                    // ignore error
-                }
+                        },
+                        () => {
+                            // ignore error
+                        }
+                    )
             )
         );
     }

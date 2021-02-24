@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { unixNow, promiseAfter, QueryThrottledError, StationQueryError, HttpError } from "@/lib";
+import { unixNow, promiseAfter, QueryThrottledError, StationQueryError, HttpError, ConnectionError } from "@/lib";
 import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
@@ -178,13 +178,13 @@ export default class QueryStation {
 
     public async calculateDownloadSize(url: string): Promise<CalculatedSize> {
         return await this.trackActivity({ url: url, throttle: false }, () => {
-            return this.conservify
-                .json({
-                    method: "HEAD",
-                    url: url,
-                })
-                .then(
-                    (response: HttpResponse) => {
+            return this.catchErrors(
+                this.conservify
+                    .json({
+                        method: "HEAD",
+                        url: url,
+                    })
+                    .then((response: HttpResponse) => {
                         if (response.statusCode != 204) {
                             console.log("http-status", response.statusCode, response.headers);
                             return Promise.reject(new HttpError("status", response));
@@ -200,30 +200,22 @@ export default class QueryStation {
 
                         console.log("size", size, response.headers);
                         return new CalculatedSize(size);
-                    },
-                    (err) => {
-                        console.log(url, "query error", err.message); // eslint-disable-line
-                        return Promise.reject(err);
-                    }
-                );
+                    })
+            );
         });
     }
 
     public async queryLogs(url: string): Promise<string> {
         return await this.trackActivityAndThrottle(url, () => {
-            return this.conservify
-                .text({
-                    url: url + "/download/logs",
-                })
-                .then(
-                    (response: HttpResponse): string => {
+            return this.catchErrors(
+                this.conservify
+                    .text({
+                        url: url + "/download/logs",
+                    })
+                    .then((response: HttpResponse): string => {
                         return response.body.toString();
-                    },
-                    (err) => {
-                        console.log(url, "query error", err.message); // eslint-disable-line
-                        return Promise.reject(err);
-                    }
-                );
+                    })
+            );
         });
     }
 
@@ -367,31 +359,38 @@ export default class QueryStation {
             const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
 
-            return this.conservify
-                .protobuf({
-                    method: "POST",
-                    url: url,
-                    body: binaryQuery,
-                    connectionTimeout: 3,
-                })
-                .then(
-                    (response) => response,
-                    (err) => {
-                        console.log(url, "query error", err.message); // eslint-disable-line
-                        return Promise.reject(err);
-                    }
-                );
-        }).then((response: { statusCode: number; body: Buffer }) => {
+            return this.catchErrors(
+                this.conservify
+                    .protobuf({
+                        method: "POST",
+                        url: url,
+                        body: binaryQuery,
+                        connectionTimeout: 3,
+                    })
+                    .then((response) => response)
+            );
+        }).then(async (response: { statusCode: number; body: Buffer }) => {
             if (response.body.length == 0) {
                 console.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);
             }
 
             const decoded = this.getResponseBody(response);
-            return this.handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
+            return await this.handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
                 log.verbose(url, "query success", finalReply);
                 return finalReply;
             });
+        });
+    }
+
+    private catchErrors<T>(promise: Promise<T>): Promise<T> {
+        return promise.catch((err) => {
+            if (err instanceof ConnectionError) {
+                console.log(`query-station error`, err.message);
+            } else {
+                console.log(`query-station error`, err);
+            }
+            return Promise.reject(err);
         });
     }
 

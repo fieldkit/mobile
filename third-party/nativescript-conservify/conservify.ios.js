@@ -1,6 +1,10 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 var conservify_common_1 = require("./conservify.common");
+__export(require("./conservify.common"));
 var MyNetworkingListener = (function (_super) {
     __extends(MyNetworkingListener, _super);
     function MyNetworkingListener() {
@@ -136,7 +140,7 @@ var UploadListener = (function (_super) {
         if (task) {
             var info = task.info;
             this.tasks.removeTask(taskId);
-            task.reject(new conservify_common_1.ConnectionError(message, info));
+            task.reject(new conservify_common_1.ConnectionError(message || "unknown error", info));
         } else {
             this.logger("upload:onError (orphaned)", taskId);
         }
@@ -216,7 +220,7 @@ var DownloadListener = (function (_super) {
         if (task) {
             var info = task.info;
             this.tasks.removeTask(taskId);
-            task.reject(new conservify_common_1.ConnectionError(message, info));
+            task.reject(new conservify_common_1.ConnectionError(message || "unknown error", info));
         } else {
             this.logger("download:onError (orphaned)", taskId, message);
         }

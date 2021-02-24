@@ -1,4 +1,5 @@
 import { PromiseCallbacks, TransferInfo, HttpResponse, StartOptions, StopOptions } from "./conservify.common";
+export * from "./conservify.common";
 declare class ReadOptions extends NSObject {
     static alloc(): ReadOptions;
     static new(): ReadOptions;
@@ -78,4 +79,3 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     findConnectedNetwork(): Promise<any>;
     scanNetworks(): Promise<any>;
 }
-export {};

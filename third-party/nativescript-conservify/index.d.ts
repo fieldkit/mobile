@@ -35,6 +35,10 @@ export declare interface ConnectedNetwork {
     };
 }
 
+export declare class ConnectionError extends Error {
+    constructor(message: string, public readonly info: string);
+}
+
 export declare interface ScannedNetworks {
     //
 }
