@@ -136,20 +136,25 @@ export function getFormattedTime(date: Date): string {
 }
 
 export function _T(key: string): string {
-    const value: string | undefined = _L(key);
-    if (value) return value;
-    const parts: string[] = key.split(".");
-    if (parts.length == 0) throw new Error(`invalid _T key: ${key}`);
-    let word = parts.shift()!; // eslint-disable-line
-    if (!word) throw new Error(`error finding key: ${key}`);
-    let node = _T(word);
-    while (parts.length > 0) {
-        word = parts.shift()!; // eslint-disable-line
+    try {
+        const value: string | undefined = _L(key);
+        if (value) return value;
+        const parts: string[] = key.split(".");
+        if (parts.length == 0) throw new Error(`invalid _T key: ${key}`);
+        let word = parts.shift()!; // eslint-disable-line
         if (!word) throw new Error(`error finding key: ${key}`);
-        node = node[word]; // eslint-disable-line
+        let node = _T(word);
+        while (parts.length > 0) {
+            word = parts.shift()!; // eslint-disable-line
+            if (!word) throw new Error(`error finding key: ${key}`);
+            node = node[word]; // eslint-disable-line
+        }
+        if (!node) throw new Error(`error finding key: ${key}`);
+        return node;
+    } catch (err) {
+        console.log(`error translating key: ${key}`);
+        return key;
     }
-    if (!node) throw new Error(`error finding key: ${key}`);
-    return node;
 }
 
 export function convertOldFirmwareResponse(module: { name: string; sensors: { name: string }[] }): string {
