@@ -96,7 +96,7 @@ export default Vue.extend({
         console.log("flow: mounted");
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flowName);
-        this.timer = new Timer(1000, (frame) => {
+        this.timer = new Timer(2000, (frame) => {
             this.frame = frame;
         });
     },

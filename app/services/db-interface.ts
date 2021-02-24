@@ -1012,10 +1012,6 @@ export default class DatabaseInterface {
             epoch: now.getTime() - 1 * 10 * 1000,
         });
         await this.execute("VACUUM");
-
-        const times = await this.query(`SELECT time FROM station_log`);
-
-        console.log(`times ${JSON.stringify(times)}`);
     }
 
     private async purgeTable(table: { name: string; status: string; purge: string; epoch: number }): Promise<void> {
@@ -1028,5 +1024,8 @@ export default class DatabaseInterface {
         log.info(`${table.name} after ${JSON.stringify(after)}`);
 
         log.info(`${table.name} ready`);
+
+        const times = await this.query(`SELECT MIN(time), MAX(time) FROM station_log`);
+        console.log(`times ${JSON.stringify(times)}`);
     }
 }

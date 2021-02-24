@@ -38,7 +38,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            const route = routes.calibration.start;
+            // const route = routes.calibration.start;
             // const route = routes.deploy.start;
             // const route = routes.deploy.notes;
             // const route = routes.deploy.review;
@@ -57,22 +57,15 @@ export default Vue.extend({
             // const route = routes.onboarding.start;
             // const route = routes.tabbed;
             // const route = routes.login;
-            if (route != routes.tabbed) {
-                await this.$navigateTo(routes.tabbed, {
-                    clearHistory: true,
-                });
-            }
-            /*
-            await this.$navigateTo(route, {
+            await this.$navigateTo(routes.tabbed, {
                 clearHistory: true,
-                frame: "stations-frame",
                 props: {
-                    stationId: 1,
-                    position: 3,
-                    flowName: "onboarding",
+                    firstTab: {
+                        index: 2,
+                        route: "developer",
+                    },
                 },
             });
-*/
 
             return;
         }

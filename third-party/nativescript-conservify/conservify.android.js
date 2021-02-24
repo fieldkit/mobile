@@ -1,7 +1,11 @@
 "use strict";
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
 var conservify_common_1 = require("./conservify.common");
 var application_1 = require("tns-core-modules/application");
+__export(require("./conservify.common"));
 function toJsHeaders(headers) {
     var jsHeaders = {};
     var iter = headers.entrySet().iterator();
@@ -195,7 +199,7 @@ var Conservify = (function () {
                 if (task) {
                     var info = task.info;
                     delete active[taskId];
-                    task.reject(new conservify_common_1.ConnectionError(message, info));
+                    task.reject(new conservify_common_1.ConnectionError(message || "unknown error", info));
                 } else {
                     owner.logger("upload:onError (orphaned)", taskId, message);
                 }
@@ -254,7 +258,7 @@ var Conservify = (function () {
                 if (task) {
                     var info = task.info;
                     delete active[taskId];
-                    task.reject(new conservify_common_1.ConnectionError(message, info));
+                    task.reject(new conservify_common_1.ConnectionError(message || "unknown error", info));
                 } else {
                     owner.logger("download:onError (orphaned)", taskId, message);
                 }

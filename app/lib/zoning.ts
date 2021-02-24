@@ -32,6 +32,9 @@ export async function zoned(options: { force?: boolean }, callback: () => Promis
             properties: {
                 taskId: `task-${makeTaskId(6)}`,
             },
+            onHandleError: function (parentZoneDelegate, currentZone, targetZone, error) {
+                console.log("error handled by zone: " + error);
+            },
             /*
             onInvokeTask: function (
                 parentZoneDelegate: ZoneDelegate,

@@ -26,11 +26,8 @@ export default Vue.extend({
         };
     },
     async mounted(): Promise<void> {
-        console.log(`mounted:`, this.text);
         this.tree = await transform(this.text);
-        console.log(`mounted:`, this.tree);
     },
-    methods: {},
 });
 </script>
 

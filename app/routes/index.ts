@@ -54,6 +54,8 @@ import TabbedLayout from "~/components/TabbedLayout.vue";
 
 import { inferNames, NavigateToFunc, Route } from "./navigate";
 
+export * from "./navigate";
+
 export interface SavedRoute {
     go(): Promise<void>;
 }
@@ -95,8 +97,8 @@ const knownRoutes = {
             frame: "outer-frame",
             props: {
                 firstTab: {
-                    index: 0,
-                    // route: "developer",
+                    index: 2,
+                    route: "developer",
                 },
             },
         });

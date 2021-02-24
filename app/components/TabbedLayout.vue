@@ -1,6 +1,12 @@
 <template>
     <Page actionBarHidden="true">
-        <BottomNavigation id="bottom-nav" ref="bottomNavigation" @selectedIndexChanged="onSelectedIndexChanged">
+        <BottomNavigation
+            id="bottom-nav"
+            ref="bottomNavigation"
+            :selectedIndex="tab"
+            @selectedIndexChanged="onSelectedIndexChanged"
+            @loaded="bottomLoaded"
+        >
             <TabStrip backgroundColor="white">
                 <TabStripItem @tap="tapStations">
                     <Image
@@ -50,7 +56,7 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import routes, { KnownRoute } from "@/routes";
+import routes, { Route, KnownRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
@@ -84,20 +90,16 @@ export default Vue.extend({
         };
     },
     created(): void {
-        console.log(`tabbed: created`, this.firstTab, this.tab);
+        console.log(`tabbed: created ${JSON.stringify(this.firstTab)}`, this.tab);
         this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
     },
     mounted(): void {
-        console.log(`tabbed: mounted`, this.firstTab, this.tab);
-        // eslint-disable-next-line
-        this.updateSelected();
+        console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);
     },
     updated(): void {
-        console.log(`tabbed: updated`, this.firstTab, this.tab);
-        // eslint-disable-next-line
-        this.updateSelected();
+        console.log(`tabbed: updated ${JSON.stringify(this.firstTab)}`, this.tab);
     },
     methods: {
         tabIndexToFrame(index: number): string {
@@ -105,35 +107,34 @@ export default Vue.extend({
             if (index < 0 || index >= frames.length) throw new Error(`invalid frame index`);
             return frames[index];
         },
+        tabIndexToRoute(index: number): Record<string, Route> {
+            switch (index) {
+                case 2:
+                    return routes.appSettings;
+            }
+            return {};
+        },
+        // eslint-disable-next-line
+        onSelectedIndexChanged(args: any): void {
+            /* eslint-disable */
+            const view = <BottomNavigation>args.object;
+            this.tab = view.selectedIndex;
+            console.log("tab-changed", this.tab);
+        },
         updateSelected(): void {
+            /* eslint-disable */
             console.log(`update-selected: updating`);
 
-            // eslint-disable-next-line
             const firstTab: FirstTab = this.firstTab;
 
             if (firstTab) {
-                const bottom = this.$refs.bottomNavigation;
-                if (bottom) {
-                    // eslint-disable-next-line
-                    const view: any = <BottomNavigation>(bottom as any).nativeView;
-                    // eslint-disable-next-line
-                    console.log(`update-selected: changing tab`, view.selectedIndex, firstTab.index);
-                    // eslint-disable-next-line
-                    if (view.selectedIndex == firstTab.index) {
-                        // eslint-disable-next-line
-                        view.selectedIndex = firstTab.index;
-                    } else {
-                        console.log(`update-selected: same tab`);
-                    }
-                } else {
-                    console.log(`update-selected: no bottom nav`);
-                }
+                this.tab = this.firstTab.index;
 
-                if (firstTab.route && firstTab.index == 2) {
-                    // eslint-disable-next-line
-                    const frame: string = this.tabIndexToFrame(firstTab.index);
+                const routes = this.tabIndexToRoute(firstTab.index);
+                if (firstTab.route && routes[firstTab.route]) {
+                    const frame = this.tabIndexToFrame(firstTab.index);
                     console.log(`update-selected: ${frame} / ${firstTab.route}`);
-                    void this.$navigateTo(routes.appSettings[firstTab.route], {
+                    void this.$navigateTo(routes[firstTab.route], {
                         frame: frame,
                         animated: false,
                         transition: {
@@ -142,7 +143,6 @@ export default Vue.extend({
                     });
                 } else {
                     console.log(`update-selected: no tab`);
-
                     void this.$navigateTo(StationListView, {
                         frame: "stations-frame",
                         animated: false,
@@ -155,17 +155,9 @@ export default Vue.extend({
                 console.log(`update-selected: no first tab`);
             }
         },
-        // eslint-disable-next-line
-        onSelectedIndexChanged(args: any): void {
-            // eslint-disable-next-line
-            const view = <BottomNavigation>args.object;
-            this.tab = view.selectedIndex;
-            console.log("tab-changed", this.tab);
-        },
-        // eslint-disable-next-line
         isSameView(frameId: string, page: any): boolean {
+            /* eslint-disable */
             const frameStateNow = this.$s.state.nav.frames[frameId] || { name: null };
-            // eslint-disable-next-line
             const desiredPage: string | null = page.options?.name || null;
             if (!desiredPage) {
                 return false;
@@ -213,6 +205,11 @@ export default Vue.extend({
                     });
                 }
             }
+        },
+        bottomLoaded(): void {
+            console.log("tabbed: bottom-loaded");
+            // eslint-disable-next-line
+            this.updateSelected();
         },
     },
 });

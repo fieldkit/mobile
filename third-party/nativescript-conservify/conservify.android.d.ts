@@ -1,4 +1,5 @@
 import { TransferInfo, HttpResponse, StartOptions, StopOptions } from "./conservify.common";
+export * from "./conservify.common";
 declare class OpenedFile {
     cfy: Conservify;
     fs: any;
@@ -38,4 +39,3 @@ export declare class Conservify {
     findConnectedNetwork(): Promise<any>;
     scanNetworks(): Promise<any>;
 }
-export {};

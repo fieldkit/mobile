@@ -37,8 +37,8 @@
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
 
-            <Label class="debugging-title" text="Debugging:" textWrap="true" />
-            <Label class="calibration-debugging" :text="debugging" textWrap="true" />
+            <Label class="debugging-title" text="Debugging:" textWrap="true" v-if="debugging" />
+            <Label class="calibration-debugging" :text="debugging" textWrap="true" v-if="debugging" />
 
             <Button class="btn btn-padded" text="Clear" :isEnabled="!busy" @tap="clear" />
         </StackLayout>
@@ -49,10 +49,12 @@
 </template>
 
 <script lang="ts">
+import { _T } from "@/lib";
+
 import { VisualCalibrationStep, CalibratingSensor, ModuleConfiguration } from "./model";
 import { CheckVisual } from "./visuals";
 
-import { _T } from "@/lib";
+import Config from "@/config";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -95,8 +97,11 @@ export default Vue.extend({
         calibrationPoints(): number {
             return this.sensor.moduleCalibration?.calibration?.points?.length || 0;
         },
-        debugging(): string {
-            return JSON.stringify(this.sensor.moduleCalibration);
+        debugging(): string | null {
+            if (Config.beta) {
+                return JSON.stringify(this.sensor.moduleCalibration);
+            }
+            return null;
         },
     },
     methods: {
