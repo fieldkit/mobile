@@ -1,6 +1,12 @@
 <template>
     <Page actionBarHidden="true">
-        <BottomNavigation id="bottom-nav" ref="bottomNavigation" :selectedIndex="tab" @selectedIndexChanged="onSelectedIndexChanged">
+        <BottomNavigation
+            id="bottom-nav"
+            ref="bottomNavigation"
+            :selectedIndex="tab"
+            @selectedIndexChanged="onSelectedIndexChanged"
+            @loaded="bottomLoaded"
+        >
             <TabStrip backgroundColor="white">
                 <TabStripItem @tap="tapStations">
                     <Image
@@ -91,8 +97,6 @@ export default Vue.extend({
     },
     mounted(): void {
         console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);
-        // eslint-disable-next-line
-        this.updateSelected();
     },
     updated(): void {
         console.log(`tabbed: updated ${JSON.stringify(this.firstTab)}`, this.tab);
@@ -201,6 +205,11 @@ export default Vue.extend({
                     });
                 }
             }
+        },
+        bottomLoaded(): void {
+            console.log("tabbed: bottom-loaded");
+            // eslint-disable-next-line
+            this.updateSelected();
         },
     },
 });
