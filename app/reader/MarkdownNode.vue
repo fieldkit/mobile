@@ -47,11 +47,13 @@ GridLayout {
 .md-heading-1 {
     // background-color: #ddbb00;
     font-size: 18;
+    line-height: 4;
 }
 
 .md-heading-2 {
     // background-color: #aabb00;
     font-size: 12;
+    line-height: 4;
 }
 
 .md-list {
@@ -69,8 +71,16 @@ GridLayout {
 
 .md-grid {
     // background-color: #00aa00;
+    font-size: 14;
     margin-top: 20;
     margin-bottom: 20;
     text-align: left;
+}
+
+.md-paragraph {
+    // background-color: #8383aa;
+    font-size: 18;
+    line-height: 4;
+    margin-bottom: 5;
 }
 </style>
