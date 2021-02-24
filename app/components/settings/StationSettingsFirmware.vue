@@ -185,7 +185,7 @@ export default Vue.extend({
             };
             this.canUpgrade = false;
             return this.$showModal(UpgradeFirmwareModal, options).then((value: unknown) => {
-                console.log(`upgrade-done: ${value}`);
+                console.log(`upgrade-done: ${JSON.stringify(value)}`);
                 // We do this to prevent them from tapping again right after.
                 return promiseAfter(10000).then(() => {
                     // this.canUpgrade = true;
