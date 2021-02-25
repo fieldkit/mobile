@@ -11,6 +11,7 @@
                 :busy="busy"
                 :enabled="currentStation.connected"
                 @done="done"
+                v-if="false"
             />
         </GridLayout>
     </Page>
@@ -86,6 +87,14 @@ export default Vue.extend({
             if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
             return visual;
         },
+    },
+    mounted(): void {
+        const strategies = this.strategies;
+        if (strategies.length == 1) {
+            this.$nextTick(async () => {
+                await this.done(strategies[0]);
+            });
+        }
     },
     methods: {
         async done(strategy: CalibrationStrategy): Promise<void> {
