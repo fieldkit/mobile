@@ -138,18 +138,35 @@ export function getFormattedTime(date: Date): string {
 export function _T(key: string): string {
     try {
         const value: string | undefined = _L(key);
-        if (value) return value;
+        if (value) {
+            return value;
+        }
+
         const parts: string[] = key.split(".");
-        if (parts.length == 0) throw new Error(`invalid _T key: ${key}`);
+        if (parts.length == 0 || parts.length == 1) {
+            console.log(`error translating key: ${key}`);
+            return key;
+        }
+
         let word = parts.shift()!; // eslint-disable-line
-        if (!word) throw new Error(`error finding key: ${key}`);
+        if (!word) {
+            console.log(`error translating key: ${key}`);
+            return key;
+        }
+
         let node = _T(word);
         while (parts.length > 0) {
             word = parts.shift()!; // eslint-disable-line
-            if (!word) throw new Error(`error finding key: ${key}`);
+            if (!word) {
+                console.log(`error translating key: ${key}`);
+                return key;
+            }
             node = node[word]; // eslint-disable-line
         }
-        if (!node) throw new Error(`error finding key: ${key}`);
+        if (!node) {
+            console.log(`error translating key: ${key}`);
+            return key;
+        }
         return node;
     } catch (err) {
         console.log(`error translating key: ${key}`);
