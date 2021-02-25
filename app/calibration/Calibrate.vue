@@ -113,12 +113,20 @@ export default Vue.extend({
 
                 const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
 
+                // HACK Right now unitOfMeasure in the firmware is blank for pH. This can go away eventually.
+                const getUoM = () => {
+                    if (displaySensor.name == "ph") {
+                        return "pH";
+                    }
+                    return displaySensor.unitOfMeasure;
+                };
+
                 return new CalibratingSensor(
                     this.stationId,
                     moduleId,
                     station.connected,
                     this.position,
-                    displaySensor.unitOfMeasure,
+                    getUoM(),
                     displaySensor.reading,
                     displaySensor.uncalibrated,
                     calibrationValue,
