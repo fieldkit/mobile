@@ -10,7 +10,7 @@
                 />
                 <StackLayout flexShrink="0.25" verticalAlignment="bottom">
                     <Label :text="uncalibrated | prettyReading" class="size-26" />
-                    <Label :text="calibrated | prettyReading" class="" />
+                    <Label :text="calibrated | prettyReading" class="" v-if="beta" />
                 </StackLayout>
                 <Label
                     :text="unitOfMeasure"
@@ -33,6 +33,7 @@
 <script lang="ts">
 import Vue from "vue";
 import CircularProgressBar from "../components/CircularProgressBar.vue";
+import Config from "@/config";
 
 export default Vue.extend({
     components: {
@@ -68,6 +69,9 @@ export default Vue.extend({
         return {};
     },
     computed: {
+        beta(): boolean {
+            return Config.beta;
+        },
         elapsedMs(): number {
             return this.elapsed * 1000;
         },
