@@ -49,8 +49,6 @@
 </template>
 
 <script lang="ts">
-import { _T } from "@/lib";
-
 import { VisualCalibrationStep, CalibratingSensor, ModuleConfiguration } from "./model";
 import { CheckVisual } from "./visuals";
 
@@ -127,6 +125,7 @@ export default Vue.extend({
     margin-right: 20;
     margin-left: 20;
 }
+
 .instruction-heading {
     font-size: 18;
 }
@@ -139,6 +138,7 @@ export default Vue.extend({
     margin-left: 20;
     font-size: 16;
 }
+
 .debugging-title {
     font-size: 14;
     font-weight: bold;
@@ -146,6 +146,7 @@ export default Vue.extend({
     margin-right: 20;
     margin-left: 20;
 }
+
 .calibration-debugging {
     padding: 20;
 }

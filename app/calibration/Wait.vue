@@ -3,12 +3,18 @@
         <StackLayout row="0">
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
-            <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+            <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
 
             <StackLayout class="form">
-                <Label col="1" class="m-t-5 m-l-5 heading" :text="_L(form.label)" textWrap="true" />
+                <Label col="1" class="m-t-5 m-l-5 heading" :text="_T(form.label)" textWrap="true" />
 
-                <TextField v-model="form.value" autocorrect="false" autocapitalizationType="none" class="input" @textChange="onChange()" />
+                <TextField
+                    v-model="form.value"
+                    autocorrect="false"
+                    autocapitalizationType="none"
+                    class="reference-field input"
+                    @textChange="onChange()"
+                />
 
                 <Label
                     v-show="!form.valid"
@@ -199,5 +205,13 @@ export default Vue.extend({
     border-top-width: 2;
     padding-top: 5;
     padding-bottom: 5;
+}
+
+.reference-field {
+    text-align: center;
+}
+
+.heading {
+    text-align: center;
 }
 </style>

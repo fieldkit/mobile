@@ -76,7 +76,7 @@ export default Vue.extend({
             return this.elapsed * 1000;
         },
         unitIsPrefix(): boolean {
-            return this.unitOfMeasure.toLowerCase() == "ph";
+            return this.unitOfMeasure ? this.unitOfMeasure.toLowerCase() == "ph" : false;
         },
     },
     methods: {},
@@ -85,7 +85,7 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 .timer-container {
-    margin-top: 80;
+    margin-top: 40;
     text-align: center;
 }
 
@@ -94,7 +94,7 @@ export default Vue.extend({
 }
 
 .elapsed-time-top {
-    margin-top: 15;
+    margin-top: 10;
     margin-bottom: 5;
 }
 
