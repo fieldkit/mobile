@@ -3,8 +3,8 @@
         <GridLayout rows="auto,*,140">
             <GridLayout row="0" rows="auto,auto" columns="*" class="">
                 <StackLayout row="0" verticalAlignment="middle">
-                    <ConnectionStatusHeader :connected="currentStation.connected" />
-                    <Label class="m-y-20 title text-center" :text="currentStation.name" textWrap="true"></Label>
+                    <ConnectionStatusHeader :connected="station.connected" />
+                    <Label class="m-y-20 title text-center" :text="station.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
                     <Image
@@ -12,7 +12,7 @@
                         colSpan="2"
                         class="m-b-10 m-l-15 m-r-15"
                         src="~/images/Icon_complete.png"
-                        v-if="currentStation.completed && currentStation.modules.length > 0"
+                        v-if="station.completed && station.modules.length > 0"
                     />
                     <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" v-else />
                     <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
@@ -20,13 +20,13 @@
                 </GridLayout>
             </GridLayout>
 
-            <ScrollView row="1" v-if="currentStation.modules.length > 0">
+            <ScrollView row="1" v-if="station.modules.length > 0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
                         <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
                         <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
 
-                        <CalibratingModules :station="currentStation" @selected="calibrateModule" />
+                        <CalibratingModules :station="station" @selected="calibrateModule" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -39,7 +39,7 @@
                     <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
                 </GridLayout>
             </StackLayout>
-            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="currentStation.modules.length > 0">
+            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="station.modules.length > 0">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
                 <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
@@ -59,7 +59,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes from "@/routes";
-import { StationCalibration, ModuleCalibration } from "@/calibration";
+import { makeCalibrationRoute, StationCalibration, ModuleCalibration } from "@/calibration";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
 
@@ -82,7 +82,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(): StationCalibration {
+        station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
     },
@@ -95,23 +95,16 @@ export default Vue.extend({
         async goToDetails(): Promise<void> {
             await this.$navigateTo(routes.station.detail, {
                 props: {
-                    stationId: this.currentStation.id,
+                    stationId: this.station.id,
                 },
             });
         },
-        async calibrateModule(m: ModuleCalibration): Promise<void> {
-            if (!this.currentStation.connected) {
+        async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
+            if (!this.station.connected) {
                 return Promise.resolve();
             }
-            /*
-            await this.$navigateTo(routes.calibration.start, {
-                props: {
-                    stationId: this.stationId,
-                    position: m.position,
-                    fromSettings: false,
-                },
-			});
-			*/
+            const route = makeCalibrationRoute(this.station, moduleCal);
+            await navigateFullRoute(this.$navigateTo, route);
         },
         async addModule(): Promise<void> {
             await this.$navigateTo(routes.onboarding.addModule, {

@@ -14,14 +14,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes, { FullRoute } from "@/routes";
+import { navigateFullRoute } from "@/routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
-import { Common } from "@/calibration/water";
-import { calibrationStrategies } from "@/calibration/strategies";
+import { makeCalibrationRoute } from "@/calibration";
 
 export default Vue.extend({
     components: {
@@ -42,32 +41,8 @@ export default Vue.extend({
     },
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
-            const modulesCommon = Common();
-            const moduleCommon = modulesCommon[moduleCal.moduleKey];
-            if (!moduleCommon) throw new Error(`missing module common: ${moduleCal.moduleKey}`);
-            const flowName = moduleCal.moduleKey.replace("modules.", "onboarding.");
-            const strategies = calibrationStrategies().getModuleStrategies(moduleCal.moduleKey);
-            if (!strategies.length) throw new Error(`no strategies for module: ${moduleCal.moduleKey}`);
-            const strategy = strategies[0];
-            await this.$navigateTo(routes.reader.flow, {
-                frame: "stations-frame",
-                props: {
-                    flowName: flowName,
-                    icon: moduleCommon.icon,
-                    finished: new FullRoute("station/calibrate", "stations-frame", {
-                        stationId: this.station.id,
-                        position: moduleCal.position,
-                        strategy: strategy,
-                        fromSettings: true,
-                    }),
-                    skipped: new FullRoute("station/calibrate", "stations-frame", {
-                        stationId: this.station.id,
-                        position: moduleCal.position,
-                        strategy: strategy,
-                        fromSettings: true,
-                    }),
-                },
-            });
+            const route = makeCalibrationRoute(this.station, moduleCal);
+            await navigateFullRoute(this.$navigateTo, route);
         },
     },
 });
