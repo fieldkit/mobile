@@ -17,10 +17,9 @@ import Vue from "vue";
 import { navigateFullRoute } from "@/routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
-import { StationCalibration, ModuleCalibration } from "@/calibration/model";
+import { StationCalibration, ModuleCalibration } from "@/calibration";
+import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-
-import { makeCalibrationRoute } from "@/calibration";
 
 export default Vue.extend({
     components: {

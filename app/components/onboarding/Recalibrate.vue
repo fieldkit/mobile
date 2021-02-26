@@ -59,7 +59,8 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes, { navigateFullRoute } from "@/routes";
-import { makeCalibrationRoute, StationCalibration, ModuleCalibration } from "@/calibration";
+import { StationCalibration, ModuleCalibration } from "@/calibration";
+import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
 
