@@ -322,7 +322,11 @@ export default class CalibrationService {
 
     private getResponseBody(response: HttpResponse): AtlasProto.WireAtlasReply | null {
         if (Buffer.isBuffer(response.body)) {
-            return AtlasReply.decodeDelimited(response.body);
+            try {
+                return AtlasReply.decodeDelimited(response.body);
+            } catch (err) {
+                console.log(`error parsing reply:`, response.body);
+            }
         }
         return null;
     }
