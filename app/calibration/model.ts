@@ -139,6 +139,7 @@ export class CalibrationStrategies {
 export type ModuleConfigurationByModuleId = { [index: string]: ModuleConfiguration };
 
 export class ModuleCalibration {
+    public readonly moduleKey: string;
     public readonly name: string;
     public readonly position: number;
     public readonly image: string;
@@ -147,6 +148,7 @@ export class ModuleCalibration {
     public readonly needsCalibration: boolean;
 
     constructor(module: Module, configuration: ModuleConfiguration | null, haveStrategies: boolean) {
+        this.moduleKey = module.name;
         this.name = _T(module.name + ".name");
         this.position = module.position || 0;
         this.image = module.image;
