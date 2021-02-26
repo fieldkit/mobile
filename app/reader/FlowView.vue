@@ -93,7 +93,7 @@ export default Vue.extend({
         },
     },
     async mounted(): Promise<void> {
-        console.log("flow: mounted");
+        console.log("flow: mounted", this.flowName);
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flowName);
         this.timer = new Timer(2000, (frame) => {

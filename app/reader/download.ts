@@ -1,9 +1,10 @@
 import axios from "axios";
 import flowSchema from "../data/flow-schema";
+import flows from "../data/flows.json";
 import * as convertKeys from "convert-keys";
 import { FlowFile } from "./model";
 
-let saved: FlowFile = { data: { flows: [], screens: [] } };
+let saved: FlowFile = flows;
 
 export async function getFlows(): Promise<FlowFile> {
     return Promise.resolve(saved);

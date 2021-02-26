@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\nA) Upper Board \nB) Lower Board\nC) Module Base \nD) Module Board(s)\nE) Battery\nF) FieldKit Case\nG) Cable Plate\nH) Screws\nI) Micro USB cable\n\n+ Phillips screwdriver (not included)",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro USB cable   |\n| E) Battery        |   |\n\n## + Phillips screwdriver (not included)",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -63,7 +63,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Combine Upper and Lower Boards\nIf not already pre-assembled, combine your Upper Board and Lower Board. Be sure to line up the pin headers and sockets. Then press them together firmly.",
+                        "body": "# Combine Upper and Lower Boards\nIf not already pre-assembled, combine your Upper Board and Lower Board. Be sure to line up the pin headers and sockets. Then press them together firmly.",
                         "images": [
                             {
                                 "url": "/uploads/TI_2_A_112a78f350.jpg"
@@ -92,7 +92,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach Module Base\nAttach the combined Upper and Lower Boards to the Module Base. You now have your FieldKit Core.",
+                        "body": "# Attach Module Base\nAttach the combined Upper and Lower Boards to the Module Base. You now have your FieldKit Core.",
                         "images": [
                             {
                                 "url": "/uploads/TI_3_A_e2c8ce7917.png"
@@ -118,7 +118,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure them with screws.",
+                        "body": "# Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure them with screws.",
                         "images": [
                             {
                                 "url": "/uploads/TI_4_A_e9dc955a94.jpg"
@@ -144,7 +144,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Secure Inside Case\nPlace your assembled components inside the Case. Secure everything down with screws so it doesn't move around.\n\nNote: You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
+                        "body": "# Secure Inside Case\nPlace your assembled components inside the Case. Secure everything down with screws so it doesn't move around.\n\n## Note: You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_5_A_ccf0984f18.png"
@@ -170,7 +170,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach Battery\nInsert the battery cable to the top left of the Upper Board where it says “BATTERY”.",
+                        "body": "# Attach Battery\nInsert the battery cable to the top left of the Upper Board where it says “BATTERY”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_6_A_501dfaea02.png"
@@ -196,7 +196,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach Button\nInsert the button cable to the top right of the Upper Board where it says “BTN”.",
+                        "body": "# Attach Button\nInsert the button cable to the top right of the Upper Board where it says “BTN”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_7_A_836b705122.png"
@@ -222,7 +222,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Assemble Cable Plate\nAdd the inserts into the glands, and screw them into the Cable Plate. \n\nNote: Your Cable Plate depends on your sensor and power configuration. For solar gland, you'll need to snip the insert in order to thread the solar cable through.",
+                        "body": "# Assemble Cable Plate\nAdd the inserts into the glands, and screw them into the Cable Plate. \n\n## Note: Your Cable Plate depends on your sensor and power configuration. For solar gland, you'll need to snip the insert in order to thread the solar cable through.",
                         "images": [
                             {
                                 "url": "/uploads/TI_21_1c7cdf7182.png"
@@ -251,7 +251,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Plug in Micro USB Cable\nPlug in the Micro USB cable to a power source to charge \nthe Battery.",
+                        "body": "# Plug in Micro USB Cable\nPlug in the Micro USB cable to a power source to charge \nthe Battery.",
                         "images": [
                             {
                                 "url": "/uploads/TI_8_A_5c71cc37f2.png"
@@ -277,7 +277,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach Cable Plate to Case\nScrew the Cable Plate onto the Case.",
+                        "body": "# Attach Cable Plate to Case\nScrew the Cable Plate onto the Case.",
                         "images": [
                             {
                                 "url": "/uploads/TI_24_6362509d17.png"
@@ -303,7 +303,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Leave Station to Charge\nFlip the switch to the “ON” position. Leave Micro USB cable plugged in until the battery reads fully charged.",
+                        "body": "# Leave Station to Charge\nFlip the switch to the “ON” position. Leave Micro USB cable plugged in until the battery reads fully charged.",
                         "images": [
                             {
                                 "url": "/uploads/TI_15_A_NEW_x2_9759453cc0.png"
@@ -402,7 +402,7 @@
                 "guideTitle": "Need more help? View Product Guide",
                 "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
-                    "title": "Calibration",
+                    "title": "Set Up",
                     "subtitle": "Weather"
                 },
                 "simple": [
@@ -421,7 +421,7 @@
             },
             {
                 "id": "21",
-                "name": "onboarding.ph.01",
+                "name": "onboarding.water.ph.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -447,7 +447,7 @@
             },
             {
                 "id": "22",
-                "name": "onboarding.ph.02",
+                "name": "onboarding.water.ph.02",
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "",
@@ -473,7 +473,7 @@
             },
             {
                 "id": "24",
-                "name": "onboarding.ec.01",
+                "name": "onboarding.water.ec.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -499,7 +499,7 @@
             },
             {
                 "id": "25",
-                "name": "onboarding.ec.02",
+                "name": "onboarding.water.ec.02",
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "",
@@ -525,7 +525,7 @@
             },
             {
                 "id": "26",
-                "name": "onboarding.do.01",
+                "name": "onboarding.water.dox.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -551,7 +551,7 @@
             },
             {
                 "id": "27",
-                "name": "onboarding.do.02",
+                "name": "onboarding.water.dox.02",
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "",
@@ -577,7 +577,7 @@
             },
             {
                 "id": "29",
-                "name": "onboarding.watertemp.01",
+                "name": "onboarding.water.temp.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -603,7 +603,7 @@
             },
             {
                 "id": "30",
-                "name": "onboarding.watertemp.02",
+                "name": "onboarding.water.temp.02",
                 "locale": "en_US",
                 "forward": "Complete Setup",
                 "skip": "",
@@ -722,7 +722,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the Weather Pack:\n\nA) Stevenson Screen + Arm\nB) Weather Sensor Board\nC) CAT5 Cable\nD) Rain Gauge + Arm\nE) Anemometer and Wind Vane + Arm\nF) Mounting Pole (a) + (b)\nG) Hose Clamps\nH) Screws\n\n## The Weather Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the Weather Pack:\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Stevenson Screen + Arm      | E) Anemometer and Wind Vane + Arm      |\n| B) Weather Sensor Board       | F) Mounting Pole (a) + (b)       |\n| C) CAT5 Cable       | G) Hose Clamps    |\n| D) Rain Gauge + Arm       | H) Screws    |\n\n## The Weather Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_26_2e8af5beca.png"
@@ -782,6 +782,52 @@
                     {
                         "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Flour       | 500g       |\n| 2. Water       | 220g       |\n| 3. Salt        | 1/4 tsp    |\n\nTables don't need to line up exactly in this editor, though that makes things easier to read. The left hand side pipes are important if you're using lists. Another thing you may notice is that LEFT and RIGHT. It's annoying, but the headers are required (cause this is a table) and so we will hide them, but they're necessary for the parser we're using.",
                         "images": []
+                    }
+                ]
+            },
+            {
+                "id": "40",
+                "name": "onboarding.water.ph.03",
+                "locale": "en_US",
+                "forward": "Forward",
+                "skip": null,
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "Set Up",
+                    "subtitle": "pH"
+                },
+                "simple": [
+                    {
+                        "body": "# Three-Point Calibration\n\nMake sure you have 3 pH standard solutions. We recommend pH 4.00, 7.00 and 10.00.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_11_1_2_3_p_H_b98d65977a.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "41",
+                "name": "onboarding.water.ec.03",
+                "locale": "en_US",
+                "forward": "Forward",
+                "skip": null,
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "Set Up",
+                    "subtitle": "Conductivity"
+                },
+                "simple": [
+                    {
+                        "body": "# Three-Point Calibration\n\nMake sure you have 3 conductivity standard solutions. We recommend 1,000, 10,000, and 100,000 µS/cm.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_11_1_2_3_conductivity_a5568114a3.png"
+                            }
+                        ]
                     }
                 ]
             }
