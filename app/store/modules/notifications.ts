@@ -4,6 +4,8 @@ import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
 import { NotificationsTableRow } from "~/store/row-types";
+import moment from "moment";
+import Config from "@/config";
 
 export class NotificationsState {
     notifications: Notification[] = [];
@@ -15,8 +17,8 @@ export interface Notification {
     kind?: string;
     created?: number;
     silenced?: boolean;
-    dismissedAt?: number;
-    satisfiedAt?: number;
+    dismissedAt?: number | null;
+    satisfiedAt?: number | null;
     project?: string;
     user?: string;
     station?: string;
@@ -36,14 +38,32 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
             return dispatch(ActionTypes.LOAD_NOTIFICATIONS);
         },
-        [ActionTypes.LOAD_NOTIFICATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
-                .db()
-                .getAllNotifications()
-                .then((notifications) => {
-                    commit(MutationTypes.LOAD_NOTIFICATIONS, notifications);
+        [ActionTypes.LOAD_NOTIFICATIONS]: async ({ commit, dispatch, state }: ActionParameters) => {
+            const rawNotifications = await services.db().getAllNotifications();
+
+            const notifications = await Promise.all(
+                rawNotifications.map(async (item) => {
+                    const dismissedPeriodMinutes = Config.beta ? 10 : 60 * 24 * 3;
+                    if (!item.satisfiedAt && item.silenced) {
+                        if (
+                            !item.dismissedAt ||
+                            (item.dismissedAt &&
+                                moment().diff(moment(item.dismissedAt).add(dismissedPeriodMinutes, "minutes"), "minutes") >= 0)
+                        ) {
+                            item.silenced = false;
+                            item.dismissedAt = null;
+
+                            await services.db().updateNotification({ key: item.key, silenced: false, dismissedAt: null });
+
+                            return item;
+                        }
+                    }
+
+                    return item;
                 })
-                .catch((e) => console.log(ActionTypes.LOAD_NOTIFICATIONS, e));
+            );
+
+            return commit(MutationTypes.LOAD_NOTIFICATIONS, notifications);
         },
         [ActionTypes.ADD_NOTIFICATION]: ({ dispatch }: ActionParameters, notification) => {
             return services
@@ -56,7 +76,7 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .updateNotification(notification)
-                .then((res) => dispatch(ActionTypes.LOAD_NOTIFICATIONS).then(() => res))
+                .then((res) => res)
                 .catch((e) => console.log(ActionTypes.UPDATE_NOTIFICATION, e));
         },
         [ActionTypes.DISMISS_NOTIFICATION]: (
@@ -80,7 +100,7 @@ const actions = (services: ServiceRef) => {
             const notification: Notification = {
                 ...state.notifications.find((item) => item.key === payload.key),
                 key: payload.key,
-                dismissedAt: Number(new Date()),
+                satisfiedAt: Number(new Date()),
             };
 
             return services

@@ -95,6 +95,7 @@
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
+                    v-if="!currentStation.deployed"
                     :topPosition="220"
                     :leftPosition="240"
                     arrowDirection="up"
@@ -125,7 +126,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { promiseAfter } from "@/lib";
-import { Station, Notes, Notification } from "@/store";
+import { Notes, Notification, LegacyStation } from "@/store";
 import { ActionTypes } from "~/store/actions";
 import * as animations from "./animations";
 import SharedComponents from "@/components/shared";
@@ -173,7 +174,7 @@ export default Vue.extend({
     },
     computed: {
         notifications(): Notification[] {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
+            return this.$s.state.notifications.notifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
         },
         isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
@@ -181,7 +182,7 @@ export default Vue.extend({
         notes(): Notes {
             return this.$s.state.notes.stations[this.stationId];
         },
-        currentStation(): Station {
+        currentStation(): LegacyStation {
             const station = this.$s.getters.legacyStations[this.stationId];
             if (!station) {
                 console.log(`missing legacyStation`, this.stationId);
@@ -198,6 +199,7 @@ export default Vue.extend({
         void this.completeSetup();
     },
     async created(): Promise<void> {
+        await this.$s.dispatch(ActionTypes.LOAD_NOTIFICATIONS);
         this.unwatch = this.$s.watch(
             (state, getters) => getters.legacyStations[this.stationId].connected,
             (newValue, oldValue) => {
@@ -333,7 +335,7 @@ export default Vue.extend({
             }
         },
         nextTooltip() {
-            this.tip++;
+            this.tip = this.tip + (this.currentStation?.deployed && this.tip === 2 ? 2 : 1);
         },
         dismissTooltip() {
             (this.$refs.scrollview as any).nativeView.isScrollEnabled = true;
