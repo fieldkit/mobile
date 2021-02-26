@@ -9,9 +9,9 @@ import Wait from "./Wait.vue";
 type Range = [number, number];
 
 const PhRange: Range = [0, 14];
-const DoxRange: Range = [0, 100000];
-const EcRange: Range = [0, 100000];
-const OrpRange: Range = [0, 100000];
+const DoxRange: Range = [0, 40];
+const EcRange: Range = [0, 1000000];
+const OrpRange: Range = [-2000, 2000];
 const TempRange: Range = [-200, 200];
 
 export class CalibrationCommand {
@@ -305,7 +305,7 @@ const Do3 = (): CalibrationStrategy => {
         _T("calibration.water.dox.strategy0.heading"),
         _T("calibration.water.dox.strategy0.help"),
         [
-            new CalibrationPointStep(new WaterCalValue(0, 4, DoxRange, commands.Dox0), [
+            new CalibrationPointStep(new WaterCalValue(0, 5, DoxRange, commands.Dox0), [
                 new CheckVisual(Check, {
                     ...doxCommon,
                     heading: _T("calibration.water.dox.check.heading"),
@@ -338,7 +338,8 @@ const Do3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.dox.step0.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(1, 7, DoxRange, commands.Dox1), [
+            new CalibrationPointStep(new WaterCalValue(1, 7.5, DoxRange, commands.Dox1), [
+                /*
                 new PrepareVisual(Prepare, {
                     ...doxCommon,
                     heading: _T("calibration.water.dox.step1.prepare0.heading"),
@@ -346,6 +347,7 @@ const Do3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.dox.step1.prepare0.done"),
                     image: "~/images/TI_12-A.jpg",
                 }),
+				*/
                 new PrepareVisual(Prepare, {
                     ...doxCommon,
                     heading: _T("calibration.water.dox.step1.prepare1.heading"),
@@ -360,7 +362,8 @@ const Do3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.dox.step1.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(2, 10, DoxRange, commands.Dox2), [
+            new CalibrationPointStep(new WaterCalValue(2, 9, DoxRange, commands.Dox2), [
+                /*
                 new PrepareVisual(Prepare, {
                     ...doxCommon,
                     heading: _T("calibration.water.dox.step2.prepare0.heading"),
@@ -368,6 +371,7 @@ const Do3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.dox.step2.prepare0.done"),
                     image: "~/images/TI_12-A.jpg",
                 }),
+				*/
                 new PrepareVisual(Prepare, {
                     ...doxCommon,
                     heading: _T("calibration.water.dox.step2.prepare1.heading"),
@@ -394,7 +398,7 @@ const Orp3 = (): CalibrationStrategy => {
         _T("calibration.water.orp.strategy0.heading"),
         _T("calibration.water.orp.strategy0.help"),
         [
-            new CalibrationPointStep(new WaterCalValue(0, 4, OrpRange, commands.Orp0), [
+            new CalibrationPointStep(new WaterCalValue(0, -100, OrpRange, commands.Orp0), [
                 new CheckVisual(Check, {
                     ...orpCommon,
                     heading: _T("calibration.water.orp.check.heading"),
@@ -427,7 +431,7 @@ const Orp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.orp.step0.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(1, 7, OrpRange, commands.Orp1), [
+            new CalibrationPointStep(new WaterCalValue(1, 0, OrpRange, commands.Orp1), [
                 new PrepareVisual(Prepare, {
                     ...orpCommon,
                     heading: _T("calibration.water.orp.step1.prepare0.heading"),
@@ -449,7 +453,7 @@ const Orp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.orp.step1.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(2, 10, OrpRange, commands.Orp2), [
+            new CalibrationPointStep(new WaterCalValue(2, 100, OrpRange, commands.Orp2), [
                 new PrepareVisual(Prepare, {
                     ...orpCommon,
                     heading: _T("calibration.water.orp.step2.prepare0.heading"),
@@ -483,7 +487,7 @@ const Temp3 = (): CalibrationStrategy => {
         _T("calibration.water.temp.strategy0.heading"),
         _T("calibration.water.temp.strategy0.help"),
         [
-            new CalibrationPointStep(new WaterCalValue(0, 4, TempRange, commands.Temp0), [
+            new CalibrationPointStep(new WaterCalValue(0, 0, TempRange, commands.Temp0), [
                 new CheckVisual(Check, {
                     ...tempCommon,
                     heading: _T("calibration.water.temp.check.heading"),
@@ -516,7 +520,8 @@ const Temp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.temp.step0.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(1, 7, TempRange, commands.Temp1), [
+            new CalibrationPointStep(new WaterCalValue(1, 20, TempRange, commands.Temp1), [
+                /*
                 new PrepareVisual(Prepare, {
                     ...tempCommon,
                     heading: _T("calibration.water.temp.step1.prepare0.heading"),
@@ -524,6 +529,7 @@ const Temp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.temp.step1.prepare0.done"),
                     image: "~/images/TI_12-A.jpg",
                 }),
+				*/
                 new PrepareVisual(Prepare, {
                     ...tempCommon,
                     heading: _T("calibration.water.temp.step1.prepare1.heading"),
@@ -538,7 +544,8 @@ const Temp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.temp.step1.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(2, 10, TempRange, commands.Temp2), [
+            new CalibrationPointStep(new WaterCalValue(2, 100, TempRange, commands.Temp2), [
+                /*
                 new PrepareVisual(Prepare, {
                     ...tempCommon,
                     heading: _T("calibration.water.temp.step2.prepare0.heading"),
@@ -546,6 +553,7 @@ const Temp3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.temp.step2.prepare0.done"),
                     image: "~/images/TI_12-A.jpg",
                 }),
+				*/
                 new PrepareVisual(Prepare, {
                     ...tempCommon,
                     heading: _T("calibration.water.temp.step2.prepare1.heading"),

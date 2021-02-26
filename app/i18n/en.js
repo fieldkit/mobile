@@ -650,15 +650,15 @@ module.exports = {
 				step0: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the dissolved oxygen probe in a cup with the first standard.",
+						instructions: "Place the dissolved oxygen probe in a cup of water with your standard dissolved oxygen meter probe.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -667,15 +667,15 @@ module.exports = {
 				step1: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the dissolved oxygen probe in a cup with the next standard.",
+						instructions: "Place the aquarium pump air stone into the cup with your probes, and turn the aquarium pump to low.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -684,15 +684,15 @@ module.exports = {
 				step2: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the dissolved oxygen probe in a cup with the next standard.",
+						instructions: "Keep the aquarium pump air stone in the cup, and turn the aquarium pump to high.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -713,15 +713,15 @@ module.exports = {
 				step0: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the temperature probe in a cup with the first standard.",
+						instructions: "Place the temperature probe and standard thermometer in a cup with ice water.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard thermometer:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -730,15 +730,15 @@ module.exports = {
 				step1: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the temperature probe in a cup with the next standard.",
+						instructions: "Place the temperature probe and standard thermometer in a cup with room temperature water.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard thermometer:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -747,15 +747,15 @@ module.exports = {
 				step2: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
-						instructions: "Place the temperature probe in a cup with the next standard.",
+						instructions: "Place the temperature probe and standard thermometer in a cup with boiling water.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "Enter the value below based on your standard thermometer:",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -776,8 +776,8 @@ module.exports = {
 				step0: {
 					prepare0: {
 						heading: "",
-						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
-						done: "Next",
+						instructions: "",
+						done: "",
 					},
 					prepare1: {
 						heading: "",
