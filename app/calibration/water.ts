@@ -568,6 +568,7 @@ export function Common(): { [index: string]: CommonProperties } {
     return {
         "modules.water.ph": PhCommon(),
         "modules.water.ec": EcCommon(),
+        "modules.water.dox": DoCommon(),
         "modules.water.do": DoCommon(),
         "modules.water.orp": OrpCommon(),
         "modules.water.temp": TempCommon(),

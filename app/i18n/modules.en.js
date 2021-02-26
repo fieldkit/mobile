@@ -21,6 +21,12 @@ module.exports = {
                     do: "Dissolved Oxygen",
                 },
             },
+            dox: {
+                name: "Dissolved Oxygen",
+                sensors: {
+                    dox: "Dissolved Oxygen",
+                },
+            },
             temp: {
                 name: "Water Temperature",
                 sensors: {
