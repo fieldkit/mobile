@@ -114,6 +114,8 @@ export default Vue.extend({
                     return `~/images/Icon_${statusString}WaterpH_Module.png`;
                 case "modules.water.do":
                     return `~/images/Icon_${statusString}DissolvedOxygen_Module.png`;
+                case "modules.water.dox":
+                    return `~/images/Icon_${statusString}DissolvedOxygen_Module.png`;
                 case "modules.water.temp":
                     return `~/images/Icon_${statusString}WaterTemp_Module.png`;
                 case "modules.water.orp":

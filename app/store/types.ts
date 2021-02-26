@@ -47,6 +47,7 @@ export class Module {
             "modules.water.ec": "~/images/Icon_WaterConductivity_Module.png",
             "modules.water.ph": "~/images/Icon_WaterpH_Module.png",
             "modules.water.do": "~/images/Icon_DissolvedOxygen_Module.png",
+            "modules.water.dox": "~/images/Icon_DissolvedOxygen_Module.png",
             "modules.water.temp": "~/images/Icon_WaterTemp_Module.png",
             "modules.water.orp": "~/images/Icon_Water_Module.png",
             "modules.water.unknown": "~/images/Icon_Water_Module.png",
