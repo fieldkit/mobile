@@ -5,7 +5,7 @@
                 :title="activeStep.visual.title"
                 :subtitle="activeStep.visual.subtitle"
                 :icon="activeStep.visual.icon"
-                @back="(ev) => onBack(ev, activeStep)"
+                @back="() => onBack(activeStep)"
             />
             <StackLayout>
                 <Success v-if="cleared" text="Cleared" />
@@ -40,7 +40,7 @@ import Success from "./Success.vue";
 import Failure from "./Failure.vue";
 
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
-import StationSettingsModules from "../components/settings/StationSettingsModuleList.vue";
+import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibrationValue, CalibratingSensor } from "./model";
 import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/modules/cal";
@@ -185,17 +185,17 @@ export default Vue.extend({
         onCancel(step: CalibrationStep): void {
             console.log("cal:", "cancel", step);
         },
-        navigateBack(): Promise<any> {
+        async navigateBack(): Promise<void> {
             console.log("navigateBack", this.fromSettings);
             if (this.fromSettings) {
-                return this.$navigateTo(StationSettingsModules, {
+                await this.$navigateTo(StationSettingsModuleList, {
                     clearHistory: true,
                     props: {
                         stationId: this.stationId,
                     },
                 });
             } else {
-                return this.$navigateTo(Recalibrate, {
+                await this.$navigateTo(Recalibrate, {
                     clearHistory: true,
                     props: {
                         stationId: this.stationId,
@@ -203,15 +203,18 @@ export default Vue.extend({
                 });
             }
         },
-        onBack(step: CalibrationStep): Promise<any> {
+        async onBack(step: CalibrationStep): Promise<void> {
             console.log("cal:", "back", step, "completed", this.completed.length);
             if (this.completed.length == 0) {
-                return this.$navigateTo(Start, {
-                    props: {
-                        stationId: this.stationId,
-                        position: this.position,
-                    },
-                });
+                await this.navigateBack();
+                if (false) {
+                    await this.$navigateTo(Start, {
+                        props: {
+                            stationId: this.stationId,
+                            position: this.position,
+                        },
+                    });
+                }
             }
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
             return Promise.resolve();

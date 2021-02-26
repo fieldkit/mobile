@@ -106,6 +106,7 @@ export default Vue.extend({
                     stationId: this.stationId,
                     position: this.position,
                     strategy: this.strategy,
+                    fromSettings: this.fromSettings,
                 },
             });
         },
