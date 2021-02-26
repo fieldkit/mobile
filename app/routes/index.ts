@@ -155,6 +155,7 @@ const routes = {
 
     station: {
         settings: {
+            menu: new Route(StationSettings, {}),
             wifiSchedule: new Route(StationSettingsWiFiSchedule, {}),
             wifiNetworks: new Route(StationSettingsWiFiNetworks, {}),
             firmware: new Route(StationSettingsFirmware, {}),

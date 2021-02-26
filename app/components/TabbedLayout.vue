@@ -109,6 +109,8 @@ export default Vue.extend({
         },
         tabIndexToRoute(index: number): Record<string, Route> {
             switch (index) {
+                case 0:
+                    return routes.station.settings;
                 case 2:
                     return routes.appSettings;
             }
@@ -136,6 +138,9 @@ export default Vue.extend({
                     console.log(`update-selected: ${frame} / ${firstTab.route}`);
                     void this.$navigateTo(routes[firstTab.route], {
                         frame: frame,
+                        props: {
+                            stationId: 1,
+                        },
                         animated: false,
                         transition: {
                             duration: 0,

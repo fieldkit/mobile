@@ -57,12 +57,13 @@ export default Vue.extend({
             // const route = routes.onboarding.start;
             // const route = routes.tabbed;
             // const route = routes.login;
+
             await this.$navigateTo(routes.tabbed, {
                 clearHistory: true,
                 props: {
                     firstTab: {
                         index: 0,
-                        route: null,
+                        route: "menu",
                     },
                 },
             });

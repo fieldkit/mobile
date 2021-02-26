@@ -545,15 +545,13 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .spacer {
     border-top-color: $fk-gray-border;
     border-top-width: 2;
 }
+
 .drop-down {
     padding: 8;
     background-color: white;
