@@ -3,6 +3,7 @@
         <template v-if="ready">
             <PlatformHeader
                 :title="screen.header.title"
+                :icon="icon"
                 :canCancel="true"
                 :canNavigateSettings="false"
                 :canNavigateBack="screen.navOptions.backward.allowed"
@@ -68,6 +69,10 @@ export default Vue.extend({
             default: () => {
                 return KnownRoute.Main;
             },
+        },
+        icon: {
+            type: String,
+            default: null,
         },
     },
     data(): {
