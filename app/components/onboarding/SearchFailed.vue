@@ -123,5 +123,6 @@ export default Vue.extend({
     border-color: $fk-primary-red;
     border-width: 1;
     background-color: white;
+    padding: 0;
 }
 </style>
