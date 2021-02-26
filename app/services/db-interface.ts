@@ -397,11 +397,19 @@ export default class DatabaseInterface {
             Promise.all(
                 keeping.map((moduleId) => {
                     const configuration = incoming[moduleId].configuration ? JSON.stringify(incoming[moduleId].configuration) : "";
-                    const values = [incoming[moduleId].flags || 0, configuration, stationId, allExisting[moduleId].id];
-                    return this.execute("UPDATE modules SET flags = ?, status = ?, station_id = ? WHERE id = ?", values).then(() => {
-                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
-                        return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
-                    });
+                    const values = [
+                        incoming[moduleId].name,
+                        incoming[moduleId].flags || 0,
+                        configuration,
+                        stationId,
+                        allExisting[moduleId].id,
+                    ];
+                    return this.execute("UPDATE modules SET name = ?, flags = ?, status = ?, station_id = ? WHERE id = ?", values).then(
+                        () => {
+                            const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
+                            return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
+                        }
+                    );
                 })
             ),
         ]).then(() => Promise.resolve());
