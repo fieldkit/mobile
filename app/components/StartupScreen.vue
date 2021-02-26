@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
-import { Route } from "@/routes/navigate";
+import { Route, FullRoute } from "@/routes/navigate";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
@@ -38,32 +38,14 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            // const route = routes.calibration.start;
-            // const route = routes.deploy.start;
-            // const route = routes.deploy.notes;
-            // const route = routes.deploy.review;
-            // const route = routes.stationSettings;
-            // const route = routes.station.settings.firmware;
-            // const route = routes.station.settings.wifiNetworks;
-            // const route = routes.stationDetail;
-            // const route = routes.onboarding.start;
-            // const route = routes.dataSync;
-            // const route = routes.reader.flow;
-            // const route = routes.developerMenu;
-            // const route = routes.appSettings.account;
-            // const route = routes.tabbed;
-            // const route = routes.onboarding.assembleStation;
-            // const route = routes.onboarding.network;
-            // const route = routes.onboarding.start;
-            // const route = routes.tabbed;
-            // const route = routes.login;
-
             await this.$navigateTo(routes.tabbed, {
                 clearHistory: true,
                 props: {
                     firstTab: {
                         index: 0,
-                        route: "menu",
+                        route: new FullRoute("station/settings/menu", "stations-frame", {
+                            stationId: 1,
+                        }),
                     },
                 },
             });

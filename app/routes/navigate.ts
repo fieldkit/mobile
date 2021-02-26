@@ -30,15 +30,22 @@ export type RouteTable = {
     [index: string]: RouteTable | Route;
 };
 
-export function inferNames(routes: RouteTable, prefix = ""): void {
+export function inferNames(routes: RouteTable, prefix = ""): { [index: string]: Route } {
+    const map: { [index: string]: Route } = {};
     for (const key of Object.keys(routes)) {
         const value = routes[key];
         if (value instanceof Route) {
             value.name = prefix + key;
+            map[value.name] = value;
         } else {
-            inferNames(value, key + "/");
+            _.extend(map, inferNames(value, prefix + key + "/"));
         }
     }
+    return map;
+}
+
+export class FullRoute {
+    constructor(public readonly name: string, public readonly frame: string, public readonly props: Record<string, unknown>) {}
 }
 
 export class Route {

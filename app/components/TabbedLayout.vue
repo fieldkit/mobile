@@ -56,14 +56,14 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import routes, { Route, KnownRoute } from "@/routes";
+import routes, { Route, FullRoute, navigateFullRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
 
 interface FirstTab {
     index: number;
-    route: KnownRoute | null;
+    route: FullRoute | null;
 }
 
 export default Vue.extend({
@@ -123,7 +123,7 @@ export default Vue.extend({
             this.tab = view.selectedIndex;
             console.log("tab-changed", this.tab);
         },
-        updateSelected(): void {
+        async updateSelected(): Promise<void> {
             /* eslint-disable */
             console.log(`update-selected: updating`);
 
@@ -132,29 +132,17 @@ export default Vue.extend({
             if (firstTab) {
                 this.tab = this.firstTab.index;
 
-                const routes = this.tabIndexToRoute(firstTab.index);
-                if (firstTab.route && routes[firstTab.route]) {
-                    const frame = this.tabIndexToFrame(firstTab.index);
-                    console.log(`update-selected: ${frame} / ${firstTab.route}`);
-                    void this.$navigateTo(routes[firstTab.route], {
-                        frame: frame,
-                        props: {
-                            stationId: 1,
-                        },
-                        animated: false,
-                        transition: {
-                            duration: 0,
-                        },
-                    });
-                } else {
+                if (!firstTab.route) {
                     console.log(`update-selected: no tab`);
-                    void this.$navigateTo(StationListView, {
+                    await this.$navigateTo(StationListView, {
                         frame: "stations-frame",
                         animated: false,
                         transition: {
                             duration: 0,
                         },
                     });
+                } else {
+                    await navigateFullRoute(this.$navigateTo, firstTab.route);
                 }
             } else {
                 console.log(`update-selected: no first tab`);

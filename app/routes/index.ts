@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import DataSync from "../components/DataSyncView.vue";
 import Login from "../components/LoginView.vue";
 
@@ -7,8 +9,7 @@ import StationSettings from "../components/settings/StationSettingsView.vue";
 import StationSettingsWiFiNetworks from "../components/settings/StationSettingsWiFiNetwork.vue";
 import StationSettingsWiFiSchedule from "../components/settings/StationSettingsWiFiSchedule.vue";
 import StationSettingsFirmware from "../components/settings/StationSettingsFirmware.vue";
-
-import CalibrateStart from "../calibration/Start.vue";
+import Calibrate from "../calibration/Calibrate.vue";
 
 import AssembleStation from "../components/onboarding/AssembleStationView.vue";
 import OnboardingStartView from "../components/onboarding/Start.vue";
@@ -52,77 +53,9 @@ import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
 import TabbedLayout from "~/components/TabbedLayout.vue";
 
-import { inferNames, NavigateToFunc, Route } from "./navigate";
+import { inferNames, NavigateToFunc, Route, FullRoute } from "./navigate";
 
 export * from "./navigate";
-
-export interface SavedRoute {
-    go(): Promise<void>;
-}
-
-export enum KnownRoute {
-    Main = "main",
-    AppSettings = "appSettings",
-    Developer = "developer",
-    Accounts = "accounts",
-}
-
-const knownRoutes = {
-    [KnownRoute.Main]: async (navigateTo: NavigateToFunc): Promise<void> => {
-        await navigateTo(routes.tabbed, {
-            frame: "outer-frame",
-            props: {
-                firstTab: {
-                    index: 0,
-                    route: null,
-                },
-            },
-        });
-    },
-    [KnownRoute.AppSettings]: async (navigateTo: NavigateToFunc): Promise<void> => {
-        await navigateTo(routes.tabbed, {
-            clearHistory: true,
-            frame: "outer-frame",
-            props: {
-                firstTab: {
-                    index: 2,
-                    route: null,
-                },
-            },
-        });
-    },
-    [KnownRoute.Developer]: async (navigateTo: NavigateToFunc): Promise<void> => {
-        await navigateTo(routes.tabbed, {
-            clearHistory: true,
-            frame: "outer-frame",
-            props: {
-                firstTab: {
-                    index: 2,
-                    route: "developer",
-                },
-            },
-        });
-    },
-    [KnownRoute.Accounts]: async (navigateTo: NavigateToFunc): Promise<void> => {
-        await navigateTo(routes.tabbed, {
-            clearHistory: true,
-            frame: "outer-frame",
-            props: {
-                firstTab: {
-                    index: 2,
-                    route: "accounts",
-                },
-            },
-        });
-    },
-};
-
-export async function navigateKnown(navigateFn: NavigateToFunc, route: KnownRoute): Promise<void> {
-    const handler = knownRoutes[route];
-    if (!handler) throw new Error(`no such route`);
-    console.log(`navigate: route ${route}`);
-    await handler(navigateFn);
-}
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -150,10 +83,12 @@ const routes = {
     },
 
     // Per station
-    stationDetail: new Route(StationDetail, { reading: true, station: true }),
-    stationSettings: new Route(StationSettings, {}),
+    stationDetail: new Route(StationDetail, { reading: true, station: true }), // Deprec
+    stationSettings: new Route(StationSettings, {}), // Deprec
 
     station: {
+        detail: new Route(StationDetail, { reading: true, station: true }),
+        calibrate: new Route(Calibrate, {}),
         settings: {
             menu: new Route(StationSettings, {}),
             wifiSchedule: new Route(StationSettingsWiFiSchedule, {}),
@@ -187,9 +122,6 @@ const routes = {
         editing: new Route(EditNoteView, { connected: true }),
         review: new Route(DeployReview, { connected: true }),
     },
-    calibration: {
-        start: new Route(CalibrateStart, { connected: true }),
-    },
 
     // Reader
     reader: {
@@ -198,6 +130,19 @@ const routes = {
     notifications: new Route(NotificationsView, {}),
 };
 
-inferNames(routes);
+const routeMap = inferNames(routes);
+
+console.log("routes", _.keys(routeMap));
+
+export async function navigateFullRoute(navigateFn: NavigateToFunc, route: FullRoute): Promise<void> {
+    if (!routeMap[route.name]) {
+        console.log(_.keys(routeMap));
+        throw new Error(`no such route: ${route.name}`);
+    }
+    await navigateFn(routeMap[route.name], {
+        frame: route.frame,
+        props: route.props,
+    });
+}
 
 export default routes;

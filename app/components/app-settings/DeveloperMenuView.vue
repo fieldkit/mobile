@@ -78,7 +78,7 @@ import {
     getZone,
 } from "@/lib";
 
-import routes, { KnownRoute } from "@/routes";
+import routes, { FullRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
@@ -274,8 +274,8 @@ export default Vue.extend({
                 frame: "outer-frame",
                 props: {
                     flowName: name,
-                    finished: KnownRoute.Developer,
-                    skipped: KnownRoute.Developer,
+                    finished: new FullRoute("tabbed", "outer-frame", {}),
+                    skipped: new FullRoute("tabbed", "outer-frame", {}),
                 },
             });
         },
