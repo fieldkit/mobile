@@ -28,21 +28,22 @@
         <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
                 <StackLayout v-if="haveBackStack" col="0" class="back-icon" @tap="raiseBack">
-                    <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
+                    <Image height="25" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
                 <GridLayout col="1" :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title text-center" :text="title" textWrap="true"></Label>
                     <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
                 <StackLayout v-if="!icon && canCancel" col="2" class="close-icon" @tap="raiseCancel">
-                    <Image width="21" src="~/images/Icon_Close.png"></Image>
+                    <Image height="25" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
                 <StackLayout v-if="!icon && canNavigateSettings" col="2" class="configure-icon" @tap="onSettings">
-                    <Image width="25" src="~/images/Icon_Congfigure.png"></Image>
+                    <Image height="25" src="~/images/Icon_Congfigure.png"></Image>
                 </StackLayout>
                 <StackLayout v-if="icon" col="2" class="normal-icon" @tap="raiseIcon">
-                    <Image width="25" :src="icon"></Image>
+                    <Image height="25" :src="icon"></Image>
                 </StackLayout>
+                <StackLayout v-else col="2"></StackLayout>
             </GridLayout>
         </template>
     </ActionBar>
