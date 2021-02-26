@@ -61,8 +61,8 @@ export default Vue.extend({
                 clearHistory: true,
                 props: {
                     firstTab: {
-                        index: 2,
-                        route: "developer",
+                        index: 0,
+                        route: null,
                     },
                 },
             });

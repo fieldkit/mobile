@@ -14,8 +14,11 @@ export interface CommonInfo {
 
 export interface CheckInfo extends CommonInfo {
     heading: string;
+    instructions: string;
+    calibrated: string;
+    uncalibrated: string;
+    clear: string;
     done: string;
-    skip: string;
 }
 
 export class CheckVisual extends CalibrationVisual implements CheckInfo {
@@ -25,8 +28,11 @@ export class CheckVisual extends CalibrationVisual implements CheckInfo {
     public readonly subtitle: string;
     public readonly icon: string;
     public readonly heading: string;
+    public readonly instructions: string;
+    public readonly uncalibrated: string;
+    public readonly calibrated: string;
+    public readonly clear: string;
     public readonly done: string;
-    public readonly skip: string;
 
     constructor(component: VueComponent, info: CheckInfo) {
         super(component);
@@ -36,8 +42,11 @@ export class CheckVisual extends CalibrationVisual implements CheckInfo {
         this.subtitle = info.subtitle;
         this.icon = info.icon;
         this.heading = info.heading;
+        this.instructions = info.instructions;
+        this.calibrated = info.calibrated;
+        this.uncalibrated = info.uncalibrated;
+        this.clear = info.clear;
         this.done = info.done;
-        this.skip = info.skip;
     }
 }
 

@@ -1,5 +1,6 @@
 import { CalibrationStrategy, CalibrationPointStep, CalibrationValue } from "./model";
 import { CheckVisual, PrepareVisual, WaitVisual } from "./visuals";
+import { _T } from "@/lib";
 
 import Check from "./Check.vue";
 import Prepare from "./Prepare.vue";
@@ -8,7 +9,7 @@ import Wait from "./Wait.vue";
 type Range = [number, number];
 
 const PhRange: Range = [0, 14];
-const DoRange: Range = [0, 100000];
+const DoxRange: Range = [0, 100000];
 const EcRange: Range = [0, 100000];
 const OrpRange: Range = [0, 100000];
 const TempRange: Range = [-200, 200];
@@ -18,25 +19,25 @@ export class CalibrationCommand {
 }
 
 const commands = {
-    PhLow: new CalibrationCommand("calibration.references.low"),
-    PhMiddle: new CalibrationCommand("calibration.references.middle"),
-    PhHigh: new CalibrationCommand("calibration.references.high"),
+    Ph0: new CalibrationCommand("calibration.water.ph.step0.standard"),
+    Ph1: new CalibrationCommand("calibration.water.ph.step1.standard"),
+    Ph2: new CalibrationCommand("calibration.water.ph.step2.standard"),
 
-    DoLow: new CalibrationCommand("calibration.references.low"),
-    DoMiddle: new CalibrationCommand("calibration.references.middle"),
-    DoHigh: new CalibrationCommand("calibration.references.high"),
+    Dox0: new CalibrationCommand("calibration.water.dox.step0.standard"),
+    Dox1: new CalibrationCommand("calibration.water.dox.step1.standard"),
+    Dox2: new CalibrationCommand("calibration.water.dox.step2.standard"),
 
-    EcLow: new CalibrationCommand("calibration.references.low"),
-    EcMiddle: new CalibrationCommand("calibration.references.middle"),
-    EcHigh: new CalibrationCommand("calibration.references.high"),
+    Ec0: new CalibrationCommand("calibration.water.ec.step0.standard"),
+    Ec1: new CalibrationCommand("calibration.water.ec.step1.standard"),
+    Ec2: new CalibrationCommand("calibration.water.ec.step2.standard"),
 
-    OrpLow: new CalibrationCommand("calibration.references.low"),
-    OrpMiddle: new CalibrationCommand("calibration.references.middle"),
-    OrpHigh: new CalibrationCommand("calibration.references.high"),
+    Orp0: new CalibrationCommand("calibration.water.orp.step0.standard"),
+    Orp1: new CalibrationCommand("calibration.water.orp.step1.standard"),
+    Orp2: new CalibrationCommand("calibration.water.orp.step2.standard"),
 
-    TempLow: new CalibrationCommand("calibration.references.low"),
-    TempMiddle: new CalibrationCommand("calibration.references.middle"),
-    TempHigh: new CalibrationCommand("calibration.references.high"),
+    Temp0: new CalibrationCommand("calibration.water.temp.step0.standard"),
+    Temp1: new CalibrationCommand("calibration.water.temp.step1.standard"),
+    Temp2: new CalibrationCommand("calibration.water.temp.step2.standard"),
 };
 
 export class WaterCalValue extends CalibrationValue {
@@ -67,10 +68,10 @@ function PhCommon(): CommonProperties {
     return {
         sensor: "ph",
         unitOfMeasure: "pH",
-        title: _L("setup"),
-        subtitle: _L("waterPh"),
+        title: _T("calibration.water.ph.title"),
+        subtitle: _T("calibration.water.ph.subtitle"),
         icon: "~/images/Icon_WaterpH_Module.png",
-        done: _L("next"),
+        done: _T("next"),
     };
 }
 
@@ -78,10 +79,10 @@ function DoCommon(): CommonProperties {
     return {
         sensor: "do",
         unitOfMeasure: "mg/L",
-        title: _L("setup"),
-        subtitle: _L("waterDissolvedOxygen"),
+        title: _T("calibration.water.dox.title"),
+        subtitle: _T("calibration.water.dox.subtitle"),
         icon: "~/images/Icon_DissolvedOxygen_Module.png",
-        done: _L("next"),
+        done: _T("next"),
     };
 }
 
@@ -89,10 +90,10 @@ function EcCommon(): CommonProperties {
     return {
         sensor: "ec",
         unitOfMeasure: "μS",
-        title: _L("setup"),
-        subtitle: _L("waterConductivity"),
+        title: _T("calibration.water.ec.title"),
+        subtitle: _T("calibration.water.ec.subtitle"),
         icon: "~/images/Icon_WaterConductivity_Module.png",
-        done: _L("next"),
+        done: _T("next"),
     };
 }
 
@@ -100,10 +101,10 @@ function OrpCommon(): CommonProperties {
     return {
         sensor: "orp",
         unitOfMeasure: "",
-        title: _L("setup"),
-        subtitle: _L("waterOrp"),
+        title: _T("calibration.water.orp.title"),
+        subtitle: _T("calibration.water.orp.subtitle"),
         icon: "~/images/Icon_WaterConductivity_Module.png", // WRONG
-        done: _L("next"),
+        done: _T("next"),
     };
 }
 
@@ -111,455 +112,456 @@ function TempCommon(): CommonProperties {
     return {
         sensor: "temp",
         unitOfMeasure: "",
-        title: _L("setup"),
-        subtitle: _L("modules.water.temp.name"),
+        title: _T("calibration.water.temp.title"),
+        subtitle: _T("calibration.water.temp.subtitle"),
         icon: "~/images/Icon_WaterConductivity_Module.png", // WRONG
-        done: _L("next"),
+        done: _T("next"),
     };
 }
 
 const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
-    return new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
-        new CalibrationPointStep(new WaterCalValue(0, 7, PhRange, commands.PhMiddle), [
-            new CheckVisual(Check, {
-                ...phCommon,
-                heading: _L("threePointCalibration"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("threePointCalibration"),
-                instructions: _L("makeSureYouHavePhFluids"),
-                image: "~/images/TI_11_three_bottles.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("midPointCalibration"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("midPointCalibration"),
-                instructions: _L("placeProbeIn7Solution"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("startTimer"),
-            }),
-            new WaitVisual(Wait, {
-                ...phCommon,
-                seconds: 120,
-                heading: _L("midPointCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(1, 4, PhRange, commands.PhLow), [
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("lowPointCalibration"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("lowPointCalibration"),
-                instructions: _L("placeProbeIn4Solution"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("startTimer"),
-            }),
-            new WaitVisual(Wait, {
-                ...phCommon,
-                seconds: 120,
-                heading: _L("lowPointCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(2, 10, PhRange, commands.PhHigh), [
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("highPointCalibration"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("highPointCalibration"),
-                instructions: _L("placeProbeIn10Solution"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("startTimer"),
-            }),
-            new WaitVisual(Wait, {
-                ...phCommon,
-                seconds: 120,
-                heading: _L("highPointCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
-};
-
-const Do3 = (): CalibrationStrategy => {
-    const doCommon = DoCommon();
-
-    return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
-        new CalibrationPointStep(new WaterCalValue(0, 0.0, DoRange, commands.DoLow), [
-            new CheckVisual(Check, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...doCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(1, 0.0, DoRange, commands.DoMiddle), [
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...doCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(2, 0.0, DoRange, commands.DoHigh), [
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...doCommon,
-                heading: _L("dissovedOxygenCalibration"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...doCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
+    return new CalibrationStrategy(
+        "modules.water.ph",
+        _T("calibration.water.ph.strategy0.heading"),
+        _T("calibration.water.ph.strategy0.help"),
+        [
+            new CalibrationPointStep(new WaterCalValue(0, 4, PhRange, commands.Ph0), [
+                new CheckVisual(Check, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.check.heading"),
+                    calibrated: _T("calibration.water.ph.check.calibrated"),
+                    uncalibrated: _T("calibration.water.ph.check.uncalibrated"),
+                    instructions: _T("calibration.water.ph.check.instructions"),
+                    clear: _T("calibration.water.ph.check.clear"),
+                    done: _T("calibration.water.ph.check.done"),
+                }),
+                /*
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step0.prepare0.heading"),
+                    instructions: _T("calibration.water.ph.step0.prepare0.instructions"),
+                    done: _T("calibration.water.ph.step0.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+				*/
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step0.prepare1.heading"),
+                    instructions: _T("calibration.water.ph.step0.prepare1.instructions"),
+                    done: _T("calibration.water.ph.step0.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...phCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ph.step0.calibrate.heading"),
+                    done: _T("calibration.water.ph.step0.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(1, 7, PhRange, commands.Ph1), [
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step1.prepare0.heading"),
+                    instructions: _T("calibration.water.ph.step1.prepare0.instructions"),
+                    done: _T("calibration.water.ph.step1.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step1.prepare1.heading"),
+                    instructions: _T("calibration.water.ph.step1.prepare1.instructions"),
+                    done: _T("calibration.water.ph.step1.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...phCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ph.step1.calibrate.heading"),
+                    done: _T("calibration.water.ph.step1.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(2, 10, PhRange, commands.Ph2), [
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step2.prepare0.heading"),
+                    instructions: _T("calibration.water.ph.step2.prepare0.instructions"),
+                    done: _T("calibration.water.ph.step2.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...phCommon,
+                    heading: _T("calibration.water.ph.step2.prepare1.heading"),
+                    instructions: _T("calibration.water.ph.step2.prepare1.instructions"),
+                    done: _T("calibration.water.ph.step2.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...phCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ph.step2.calibrate.heading"),
+                    done: _T("calibration.water.ph.step2.calibrate.done"),
+                }),
+            ]),
+        ]
+    );
 };
 
 const Ec3 = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
-    return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
-        new CalibrationPointStep(new WaterCalValue(0, 0.0, EcRange, commands.EcLow), [
-            new CheckVisual(Check, {
-                ...ecCommon,
-                heading: _L("waterConductivity"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...ecCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(1, 12880 / 2, EcRange, commands.EcMiddle), [
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...ecCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(2, 12880, EcRange, commands.EcHigh), [
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...ecCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...ecCommon,
-                seconds: 120,
-                heading: _L("dissovedOxygenCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
+    return new CalibrationStrategy(
+        "modules.water.ec",
+        _T("calibration.water.ec.strategy0.heading"),
+        _T("calibration.water.ec.strategy0.help"),
+        [
+            new CalibrationPointStep(new WaterCalValue(0, 4, EcRange, commands.Ec0), [
+                new CheckVisual(Check, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.check.heading"),
+                    calibrated: _T("calibration.water.ec.check.calibrated"),
+                    uncalibrated: _T("calibration.water.ec.check.uncalibrated"),
+                    instructions: _T("calibration.water.ec.check.instructions"),
+                    clear: _T("calibration.water.ec.check.clear"),
+                    done: _T("calibration.water.ec.check.done"),
+                }),
+                /*
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step0.prepare0.heading"),
+                    instructions: _T("calibration.water.ec.step0.prepare0.instructions"),
+                    done: _T("calibration.water.ec.step0.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+				*/
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step0.prepare1.heading"),
+                    instructions: _T("calibration.water.ec.step0.prepare1.instructions"),
+                    done: _T("calibration.water.ec.step0.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...ecCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ec.step0.calibrate.heading"),
+                    done: _T("calibration.water.ec.step0.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(1, 7, EcRange, commands.Ec1), [
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step1.prepare0.heading"),
+                    instructions: _T("calibration.water.ec.step1.prepare0.instructions"),
+                    done: _T("calibration.water.ec.step1.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step1.prepare1.heading"),
+                    instructions: _T("calibration.water.ec.step1.prepare1.instructions"),
+                    done: _T("calibration.water.ec.step1.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...ecCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ec.step1.calibrate.heading"),
+                    done: _T("calibration.water.ec.step1.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(2, 10, EcRange, commands.Ec2), [
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step2.prepare0.heading"),
+                    instructions: _T("calibration.water.ec.step2.prepare0.instructions"),
+                    done: _T("calibration.water.ec.step2.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...ecCommon,
+                    heading: _T("calibration.water.ec.step2.prepare1.heading"),
+                    instructions: _T("calibration.water.ec.step2.prepare1.instructions"),
+                    done: _T("calibration.water.ec.step2.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...ecCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.ec.step2.calibrate.heading"),
+                    done: _T("calibration.water.ec.step2.calibrate.done"),
+                }),
+            ]),
+        ]
+    );
+};
+
+const Do3 = (): CalibrationStrategy => {
+    const doxCommon = DoCommon();
+
+    return new CalibrationStrategy(
+        "modules.water.dox",
+        _T("calibration.water.dox.strategy0.heading"),
+        _T("calibration.water.dox.strategy0.help"),
+        [
+            new CalibrationPointStep(new WaterCalValue(0, 4, DoxRange, commands.Dox0), [
+                new CheckVisual(Check, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.check.heading"),
+                    calibrated: _T("calibration.water.dox.check.calibrated"),
+                    uncalibrated: _T("calibration.water.dox.check.uncalibrated"),
+                    instructions: _T("calibration.water.dox.check.instructions"),
+                    clear: _T("calibration.water.dox.check.clear"),
+                    done: _T("calibration.water.dox.check.done"),
+                }),
+                /*
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step0.prepare0.heading"),
+                    instructions: _T("calibration.water.dox.step0.prepare0.instructions"),
+                    done: _T("calibration.water.dox.step0.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+				*/
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step0.prepare1.heading"),
+                    instructions: _T("calibration.water.dox.step0.prepare1.instructions"),
+                    done: _T("calibration.water.dox.step0.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...doxCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.dox.step0.calibrate.heading"),
+                    done: _T("calibration.water.dox.step0.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(1, 7, DoxRange, commands.Dox1), [
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step1.prepare0.heading"),
+                    instructions: _T("calibration.water.dox.step1.prepare0.instructions"),
+                    done: _T("calibration.water.dox.step1.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step1.prepare1.heading"),
+                    instructions: _T("calibration.water.dox.step1.prepare1.instructions"),
+                    done: _T("calibration.water.dox.step1.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...doxCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.dox.step1.calibrate.heading"),
+                    done: _T("calibration.water.dox.step1.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(2, 10, DoxRange, commands.Dox2), [
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step2.prepare0.heading"),
+                    instructions: _T("calibration.water.dox.step2.prepare0.instructions"),
+                    done: _T("calibration.water.dox.step2.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...doxCommon,
+                    heading: _T("calibration.water.dox.step2.prepare1.heading"),
+                    instructions: _T("calibration.water.dox.step2.prepare1.instructions"),
+                    done: _T("calibration.water.dox.step2.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...doxCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.dox.step2.calibrate.heading"),
+                    done: _T("calibration.water.dox.step2.calibrate.done"),
+                }),
+            ]),
+        ]
+    );
 };
 
 const Orp3 = (): CalibrationStrategy => {
     const orpCommon = OrpCommon();
 
-    return new CalibrationStrategy("modules.water.orp", _L("modules.water.orp.name"), _L("modules.water.orp.name"), [
-        new CalibrationPointStep(new WaterCalValue(0, 0.0, OrpRange, commands.OrpLow), [
-            new CheckVisual(Check, {
-                ...orpCommon,
-                heading: _L("modules.water.orp.name"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...orpCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(1, 12880 / 2, OrpRange, commands.OrpMiddle), [
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...orpCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(2, 12880, OrpRange, commands.OrpHigh), [
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...orpCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...orpCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
+    return new CalibrationStrategy(
+        "modules.water.orp",
+        _T("calibration.water.orp.strategy0.heading"),
+        _T("calibration.water.orp.strategy0.help"),
+        [
+            new CalibrationPointStep(new WaterCalValue(0, 4, OrpRange, commands.Orp0), [
+                new CheckVisual(Check, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.check.heading"),
+                    calibrated: _T("calibration.water.orp.check.calibrated"),
+                    uncalibrated: _T("calibration.water.orp.check.uncalibrated"),
+                    instructions: _T("calibration.water.orp.check.instructions"),
+                    clear: _T("calibration.water.orp.check.clear"),
+                    done: _T("calibration.water.orp.check.done"),
+                }),
+                /*
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step0.prepare0.heading"),
+                    instructions: _T("calibration.water.orp.step0.prepare0.instructions"),
+                    done: _T("calibration.water.orp.step0.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+				*/
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step0.prepare1.heading"),
+                    instructions: _T("calibration.water.orp.step0.prepare1.instructions"),
+                    done: _T("calibration.water.orp.step0.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...orpCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.orp.step0.calibrate.heading"),
+                    done: _T("calibration.water.orp.step0.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(1, 7, OrpRange, commands.Orp1), [
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step1.prepare0.heading"),
+                    instructions: _T("calibration.water.orp.step1.prepare0.instructions"),
+                    done: _T("calibration.water.orp.step1.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step1.prepare1.heading"),
+                    instructions: _T("calibration.water.orp.step1.prepare1.instructions"),
+                    done: _T("calibration.water.orp.step1.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...orpCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.orp.step1.calibrate.heading"),
+                    done: _T("calibration.water.orp.step1.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(2, 10, OrpRange, commands.Orp2), [
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step2.prepare0.heading"),
+                    instructions: _T("calibration.water.orp.step2.prepare0.instructions"),
+                    done: _T("calibration.water.orp.step2.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...orpCommon,
+                    heading: _T("calibration.water.orp.step2.prepare1.heading"),
+                    instructions: _T("calibration.water.orp.step2.prepare1.instructions"),
+                    done: _T("calibration.water.orp.step2.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...orpCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.orp.step2.calibrate.heading"),
+                    done: _T("calibration.water.orp.step2.calibrate.done"),
+                }),
+            ]),
+        ]
+    );
 };
 
 const Temp3 = (): CalibrationStrategy => {
     const tempCommon = TempCommon();
 
-    return new CalibrationStrategy("modules.water.temp", _L("modules.water.temp.name"), _L("modules.water.temp.name"), [
-        new CalibrationPointStep(new WaterCalValue(0, 0, TempRange, commands.TempLow), [
-            new CheckVisual(Check, {
-                ...tempCommon,
-                heading: _L("modules.water.temp.name"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("dryProbeBefore"),
-                image: "~/images/TI_16-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part1Dry"),
-                instructions: _L("holdProbeOut"),
-                image: "~/images/TI_16-B.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...tempCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(1, 20, TempRange, commands.TempMiddle), [
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...tempCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-        new CalibrationPointStep(new WaterCalValue(2, 100, TempRange, commands.TempHigh), [
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("haveYourConductivitySolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...tempCommon,
-                heading: _L("part2Wet"),
-                instructions: _L("placeInAndStabilizeWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("next"),
-            }),
-            new WaitVisual(Wait, {
-                ...tempCommon,
-                seconds: 120,
-                heading: _L("orpCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
+    return new CalibrationStrategy(
+        "modules.water.temp",
+        _T("calibration.water.temp.strategy0.heading"),
+        _T("calibration.water.temp.strategy0.help"),
+        [
+            new CalibrationPointStep(new WaterCalValue(0, 4, TempRange, commands.Temp0), [
+                new CheckVisual(Check, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.check.heading"),
+                    calibrated: _T("calibration.water.temp.check.calibrated"),
+                    uncalibrated: _T("calibration.water.temp.check.uncalibrated"),
+                    instructions: _T("calibration.water.temp.check.instructions"),
+                    clear: _T("calibration.water.temp.check.clear"),
+                    done: _T("calibration.water.temp.check.done"),
+                }),
+                /*
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step0.prepare0.heading"),
+                    instructions: _T("calibration.water.temp.step0.prepare0.instructions"),
+                    done: _T("calibration.water.temp.step0.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+				*/
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step0.prepare1.heading"),
+                    instructions: _T("calibration.water.temp.step0.prepare1.instructions"),
+                    done: _T("calibration.water.temp.step0.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...tempCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.temp.step0.calibrate.heading"),
+                    done: _T("calibration.water.temp.step0.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(1, 7, TempRange, commands.Temp1), [
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step1.prepare0.heading"),
+                    instructions: _T("calibration.water.temp.step1.prepare0.instructions"),
+                    done: _T("calibration.water.temp.step1.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step1.prepare1.heading"),
+                    instructions: _T("calibration.water.temp.step1.prepare1.instructions"),
+                    done: _T("calibration.water.temp.step1.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...tempCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.temp.step1.calibrate.heading"),
+                    done: _T("calibration.water.temp.step1.calibrate.done"),
+                }),
+            ]),
+            new CalibrationPointStep(new WaterCalValue(2, 10, TempRange, commands.Temp2), [
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step2.prepare0.heading"),
+                    instructions: _T("calibration.water.temp.step2.prepare0.instructions"),
+                    done: _T("calibration.water.temp.step2.prepare0.done"),
+                    image: "~/images/TI_12-A.jpg",
+                }),
+                new PrepareVisual(Prepare, {
+                    ...tempCommon,
+                    heading: _T("calibration.water.temp.step2.prepare1.heading"),
+                    instructions: _T("calibration.water.temp.step2.prepare1.instructions"),
+                    done: _T("calibration.water.temp.step2.prepare1.done"),
+                    image: "~/images/TI_13-C.jpg",
+                }),
+                new WaitVisual(Wait, {
+                    ...tempCommon,
+                    seconds: 120,
+                    heading: _T("calibration.water.temp.step2.calibrate.heading"),
+                    done: _T("calibration.water.temp.step2.calibrate.done"),
+                }),
+            ]),
+        ]
+    );
 };
 
 export function Common(): { [index: string]: CommonProperties } {

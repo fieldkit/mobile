@@ -49,7 +49,7 @@
 import { VisualCalibrationStep, CalibratingSensor, CalibrationValue } from "./model";
 import { WaitVisual } from "./visuals";
 
-import { _T, Timer } from "@/lib";
+import { Timer } from "@/lib";
 import Config from "@/config";
 
 import Vue from "vue";

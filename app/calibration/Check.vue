@@ -4,43 +4,15 @@
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
             <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
 
-            <Label
-                class="existing-calibration"
-                text="This sensor doesn't appear to have been calibrated."
-                textWrap="true"
-                v-if="calibrationPoints == 0"
-            />
-            <Label
-                class="existing-calibration"
-                text="This sensor appears to have been calibrated using a 1-point strategy."
-                textWrap="true"
-                v-if="calibrationPoints == 1"
-            />
-            <Label
-                class="existing-calibration"
-                text="This sensor appears to have been calibrated using a 2-point strategy."
-                textWrap="true"
-                v-if="calibrationPoints == 2"
-            />
-            <Label
-                class="existing-calibration"
-                text="This sensor appears to have been calibrated using a 3-point strategy."
-                textWrap="true"
-                v-if="calibrationPoints == 3"
-            />
-            <Label
-                class="existing-calibration"
-                text="This sensor appears to have been calibrated using a 4-point strategy."
-                textWrap="true"
-                v-if="calibrationPoints == 4"
-            />
+            <Label class="existing-calibration" :text="visual.uncalibrated" textWrap="true" v-if="calibrationPoints == 0" />
+            <Label class="existing-calibration" :text="visual.calibrated" textWrap="true" v-if="calibrationPoints > 0" />
 
-            <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
+            <Label class="existing-calibration" :text="visual.instructions" textWrap="true" />
 
             <Label class="debugging-title" text="Debugging:" textWrap="true" v-if="debugging" />
             <Label class="calibration-debugging" :text="debugging" textWrap="true" v-if="debugging" />
 
-            <Button class="btn btn-padded" text="Clear" :isEnabled="!busy" @tap="clear" />
+            <Button class="btn btn-padded" :text="visual.clear" :isEnabled="!busy" @tap="clear" />
         </StackLayout>
         <StackLayout row="1">
             <Button class="btn btn-primary btn-padded" :isEnabled="!busy" :text="visual.done" @tap="done" />

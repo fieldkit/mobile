@@ -66,11 +66,6 @@ module.exports = {
     connect: "Connect",
     setup: "Set Up",
     fetchingStationInfo: "Fetching station information",
-    uncalibrated: "Uncalibrated",
-    noCalibrationNeeded: "No calibration needed",
-    calibrated: "Calibrated",
-    startCalibrationStep1: "Let's set up your station before you deploy!",
-    startCalibrationStep2: "To complete setup, calibrate each sensor module for accurate data readings.",
     done: "Done",
     setupLater: "Set up later",
     endCalibrationStep: "Your FieldKit station setup is complete.",
@@ -126,18 +121,6 @@ module.exports = {
     longRangeNetwork: "Long Range Network",
     // StationSettingsModule.vue
     moduleTitle: "Module",
-	calibration: {
-		title: "Calibration",
-		references: {
-			high: "High",
-			middle: "Middle",
-			low: "Low",
-			unknown: "Unknown",
-			atmosphere: "Atmosphere",
-			dry: "EC Dry",
-			single: "EC Single",
-		}
-	},
     calibrateSensor: "Calibrate Sensor",
     calibrationRecommendation: "Calibrate your sensor any time. It is recommended to calibrate every 6 months to a year.",
     noCalibrationNeededSensor: "No calibration needed for this sensor.",
@@ -177,35 +160,18 @@ module.exports = {
     // CalibrationView.vue
     stationDisconnectedTapHere: "Station disconnected.",
     expectedValue: "Expected value",
-    calibrationFailed: "Calibration Failed",
-    calibrationErrorOccured: "Looks like an error occured. Try calibration again now or try later if you prefer.",
     calibrateLater: "Calibrate later",
-    waterPh: "Water pH",
     chooseCalibrationType: "Choose calibration type",
     choosePhInstruction: "Would you like to perform quick calibration or three-point calibration?",
     quickCalibration: "Quick calibration",
     threePointCalibration: "Three-point calibration",
     quickPhCalibration: "Quick pH Calibration",
     haveYourQuickSolution: "Make sure you have your quick calibration pH solution.",
-    rinseWithDeionizedWater: "Rinse probe off with de-ionized water.",
     placeProbeInSolutionWithTemp: "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
     startTimer: "Start Timer",
     calibrate: "Calibrate",
-    makeSureYouHavePhFluids: "Make sure you have your pH calibration fluids for pH levels 7, 4, and 10.",
-    midPointCalibration: "Mid-point Calibration",
-    placeProbeIn7Solution: "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
-    lowPointCalibration: "Low-point Calibration",
-    placeProbeIn4Solution: "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
-    highPointCalibration: "High-point Calibration",
-    placeProbeIn10Solution: "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
     waterDissolvedOxygen: "Water Dissolved Oxygen",
     dissolvedOxygenCalibration: "Dissolved Oxygen Calibration",
-    dryProbeBefore: "Make sure you dry your probe before calibration.",
-    holdProbeOut: "Hold probe out in the atmosphere.",
-    waterConductivity: "Water Electrical Conductivity",
-    part1Dry: "Part 1: Dry Conductivity Calibration",
-    part2Wet: "Part 2: Wet Conductivity Calibration",
-    haveYourConductivitySolution: "Make sure you have your conductivity solution.",
     placeInAndStabilizeWithTemp: "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
     // ConfigureCaptureInterval.vue
     dataCaptureSchedule: "Data Capture Schedule",
@@ -391,8 +357,6 @@ module.exports = {
     notAuthorizedToUpdatePortal: "We are currently not authorized to update the Portal. Are you logged in?",
     stationDeployedHeading: "Station Deployed",
     stationDeployedText: "Station Deployed Text",
-    calibrationRequiredHeading: "Calibration Required",
-    calibrationRequiredText: "calibration Required Text",
     // NotificationView.vue
     dismiss: "Dismiss",
     // ScreenFooter.vue
@@ -411,7 +375,6 @@ module.exports = {
     addStationInstruction: "You have no stations. Add a station to start collecting data.",
     confirmViewDevMenu: "Do you want to view development options?",
     // StationPickerModal.vue
-    tapStationToRecalibrate: "Tap the station you want to recalibrate:",
     // StationSettingsView.vue
     nameOver40: "Name has a 40-character maximum.",
     nameNotPrintable: "Name has invalid letters, acceptable letters are A-Z, 0-9 and \"~!@#$%^&*()-.'`",
@@ -542,6 +505,334 @@ module.exports = {
             licenses: "Licenses"
         },
         lorem: "Lorem ipsum"
-    }
-
+    },
+	calibration: {
+		water: {
+			ph: {
+				title: "Set Up",
+				subtitle: "pH",
+				check: {
+					heading: "pH Calibration",
+					instructions: "",
+					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
+					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
+					clear: "Clear",
+					done: "Next",
+				},
+				step0: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the pH probe in a cup with the first standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step1: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the pH probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step2: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the pH probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				}
+			},
+			ec: {
+				title: "Set Up",
+				subtitle: "Conductivity",
+				check: {
+					heading: "Conductivity Calibration",
+					instructions: "",
+					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
+					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
+					clear: "Clear",
+					done: "Next",
+				},
+				step0: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the conductivity probe in a cup with the first standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step1: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the conductivity probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step2: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the conductivity probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				}
+			},
+			dox: {
+				title: "Set Up",
+				subtitle: "Dissolved Oxygen",
+				check: {
+					heading: "Dissolved Oxygen Calibration",
+					instructions: "",
+					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
+					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
+					clear: "Clear",
+					done: "Next",
+				},
+				step0: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the dissolved oxygen probe in a cup with the first standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step1: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the dissolved oxygen probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step2: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the dissolved oxygen probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				}
+			},
+			temp: {
+				title: "Set Up",
+				subtitle: "Water Temperature",
+				check: {
+					heading: "Water Temperature Calibration",
+					instructions: "",
+					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
+					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
+					clear: "Clear",
+					done: "Next",
+				},
+				step0: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the temperature probe in a cup with the first standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step1: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the temperature probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step2: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the temperature probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				}
+			},
+			orp: {
+				title: "Set Up",
+				subtitle: "ORP",
+				check: {
+					heading: "ORP Calibration",
+					instructions: "",
+					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
+					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
+					clear: "Clear",
+					done: "Next",
+				},
+				step0: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the ORP probe in a cup with the first standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step1: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the ORP probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				},
+				step2: {
+					prepare0: {
+						heading: "",
+						instructions: "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+						done: "Next",
+					},
+					prepare1: {
+						heading: "",
+						instructions: "Place the ORP probe in a cup with the next standard.",
+						done: "Start Timer",
+					},
+					standard: "Enter the value below based on your standard:",
+					calibrate: {
+						heading: "",
+						done: "Calibrate",
+					},
+				}
+			},
+		}
+	},
+    calibrationFailed: "Calibration Failed",
+    calibrationErrorOccured: "Looks like an error occured. Try calibration again now or try later if you prefer.",
+    uncalibrated: "Uncalibrated",
+    noCalibrationNeeded: "No calibration needed",
+    calibrated: "Calibrated",
+    startCalibrationStep1: "Let's set up your station before you deploy!",
+    startCalibrationStep2: "To complete setup, calibrate each sensor module for accurate data readings.",
+    tapStationToRecalibrate: "Tap the station you want to recalibrate:",
+    calibrationRequiredHeading: "Calibration Required",
+    calibrationRequiredText: "calibration Required Text"
 };
