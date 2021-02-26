@@ -14,12 +14,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "@/lib";
-import routes from "../../routes";
+import routes, { FullRoute } from "@/routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+
+import { Common } from "@/calibration/water";
+import { calibrationStrategies } from "@/calibration/strategies";
 
 export default Vue.extend({
     components: {
@@ -37,17 +39,33 @@ export default Vue.extend({
         station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
-        deployed(): boolean {
-            return this.$s.getters.availableStationsById[this.stationId].deployStartTime !== null;
-        },
     },
     methods: {
         async calibrateModule(m: ModuleCalibration): Promise<void> {
-            console.log("module", m);
-            await this.$navigateTo(routes.calibration.start, {
+            const modulesCommon = Common();
+            const moduleCommon = modulesCommon[m.moduleKey];
+            if (!moduleCommon) throw new Error(`missing module common: ${m.moduleKey}`);
+            const flowName = m.moduleKey.replace("modules.", "onboarding.");
+            const strategies = calibrationStrategies().getModuleStrategies(m.moduleKey);
+            if (!strategies.length) throw new Error(`no strategies for module: ${m.moduleKey}`);
+            const strategy = strategies[0];
+            await this.$navigateTo(routes.reader.flow, {
+                frame: "stations-frame",
                 props: {
-                    stationId: this.station.id,
-                    position: m.position,
+                    flowName: flowName,
+                    icon: moduleCommon.icon,
+                    finished: new FullRoute("station/calibrate", "stations-frame", {
+                        stationId: this.station.id,
+                        position: m.position,
+                        strategy: strategy,
+                        fromSettings: true,
+                    }),
+                    skipped: new FullRoute("station/calibrate", "stations-frame", {
+                        stationId: this.station.id,
+                        position: m.position,
+                        strategy: strategy,
+                        fromSettings: true,
+                    }),
                 },
             });
         },

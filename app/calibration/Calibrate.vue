@@ -35,7 +35,6 @@ import { _T, promiseAfter, hideKeyboard } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
-import Start from "./Start.vue";
 import Success from "./Success.vue";
 import Failure from "./Failure.vue";
 
@@ -207,14 +206,6 @@ export default Vue.extend({
             console.log("cal:", "back", step, "completed", this.completed.length);
             if (this.completed.length == 0) {
                 await this.navigateBack();
-                if (false) {
-                    await this.$navigateTo(Start, {
-                        props: {
-                            stationId: this.stationId,
-                            position: this.position,
-                        },
-                    });
-                }
             }
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
             return Promise.resolve();

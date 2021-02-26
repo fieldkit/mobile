@@ -103,14 +103,15 @@ export default Vue.extend({
             if (!this.currentStation.connected) {
                 return Promise.resolve();
             }
+            /*
             await this.$navigateTo(routes.calibration.start, {
-                clearHistory: true,
                 props: {
                     stationId: this.stationId,
                     position: m.position,
                     fromSettings: false,
                 },
-            });
+			});
+			*/
         },
         async addModule(): Promise<void> {
             await this.$navigateTo(routes.onboarding.addModule, {
