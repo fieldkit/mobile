@@ -335,17 +335,19 @@ export default class DatabaseInterface {
                             id: existing[name].id,
                             reading: incoming[name].reading,
                             uncalibrated: incoming[name].uncalibrated,
+                            unitOfMeasure: incoming[name].unitOfMeasure,
                             position: incoming[name].position,
                             trend: getTrend(name),
                         };
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        this.execute("UPDATE sensors SET reading = ?, uncalibrated = ?, trend = ?, position = ? WHERE id = ?", [
+                        this.execute("UPDATE sensors SET reading = ?, uncalibrated = ?, trend = ?, position = ?, unit = ? WHERE id = ?", [
                             update.reading,
                             update.uncalibrated,
                             update.trend,
                             update.position,
+                            update.unitOfMeasure,
                             update.id,
                         ])
                     )

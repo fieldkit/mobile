@@ -41,7 +41,7 @@
                             <FlexboxLayout>
                                 <Image width="7" verticalAlignment="bottom" :src="getDisplayIcon(s)" class="trend-icon"></Image>
                                 <Label flexShrink="0.25" :text="getDisplayReading(s)" verticalAlignment="bottom" class="size-24 m-l-2" />
-                                <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12 m-t-10" />
+                                <Label :text="s.unitOfMeasure" verticalAlignment="bottom" class="unit size-12 m-t-10" />
                             </FlexboxLayout>
                             <Label :text="getSensorName(m, s)" textWrap="true" class="sensor-name size-14" />
                         </WrapLayout>
