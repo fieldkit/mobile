@@ -113,6 +113,17 @@ export default Vue.extend({
             this.selectedStationId = id;
         },
     },
+    watch: {
+        async nearbyStations(newValue: NearbyStation[], oldValue: NearbyStation[]) {
+            if (newValue.length === 0) {
+                await this.$navigateTo(routes.onboarding.searchFailed, {
+                    props: {
+                        reconnecting: this.reconnecting,
+                    },
+                });
+            }
+        },
+    },
 });
 </script>
 
