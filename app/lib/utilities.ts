@@ -163,7 +163,9 @@ export function _T(key: string): string {
             }
             node = node[word]; // eslint-disable-line
         }
-        if (!node) {
+
+        // Intentionally allow blank translations through here.
+        if (!node && node !== "") {
             console.log(`error translating key: ${key}`);
             return key;
         }
