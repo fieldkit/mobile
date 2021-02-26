@@ -41,7 +41,7 @@ export default Vue.extend({
     },
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
-            const route = makeCalibrationRoute(this.station, moduleCal);
+            const route = await makeCalibrationRoute(this.station, moduleCal);
             await navigateFullRoute(this.$navigateTo, route);
         },
     },

@@ -58,7 +58,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import routes, { navigateFullRoute } from "@/routes";
 import { makeCalibrationRoute, StationCalibration, ModuleCalibration } from "@/calibration";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
@@ -103,7 +103,7 @@ export default Vue.extend({
             if (!this.station.connected) {
                 return Promise.resolve();
             }
-            const route = makeCalibrationRoute(this.station, moduleCal);
+            const route = await makeCalibrationRoute(this.station, moduleCal);
             await navigateFullRoute(this.$navigateTo, route);
         },
         async addModule(): Promise<void> {
