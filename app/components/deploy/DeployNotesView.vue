@@ -223,7 +223,7 @@ export default Vue.extend({
         onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.stationDetail, {
+                this.$navigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -244,7 +244,7 @@ export default Vue.extend({
         onBackToDetail(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.stationDetail, {
+                this.$navigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },

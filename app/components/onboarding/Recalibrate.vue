@@ -93,7 +93,7 @@ export default Vue.extend({
             });
         },
         async goToDetails(): Promise<void> {
-            await this.$navigateTo(routes.stationDetail, {
+            await this.$navigateTo(routes.station.detail, {
                 props: {
                     stationId: this.currentStation.id,
                 },

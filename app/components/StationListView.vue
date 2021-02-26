@@ -69,7 +69,7 @@ export default Vue.extend({
             if (!station.id) throw new Error(`missing station id: ${station.name || "<NONE>"}`);
             await Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.stationDetail, {
+                this.$navigateTo(routes.station.detail, {
                     props: {
                         stationId: station.id,
                     },

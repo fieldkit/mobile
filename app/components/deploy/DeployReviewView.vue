@@ -188,7 +188,7 @@ export default Vue.extend({
             ev.object.text = _L("processing");
 
             return this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
-                return this.$navigateTo(routes.stationDetail, {
+                return this.$navigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                         redirectedFromDeploy: true,

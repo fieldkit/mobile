@@ -41,13 +41,13 @@ export default Vue.extend({
         },
     },
     methods: {
-        async calibrateModule(m: ModuleCalibration): Promise<void> {
+        async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
             const modulesCommon = Common();
-            const moduleCommon = modulesCommon[m.moduleKey];
-            if (!moduleCommon) throw new Error(`missing module common: ${m.moduleKey}`);
-            const flowName = m.moduleKey.replace("modules.", "onboarding.");
-            const strategies = calibrationStrategies().getModuleStrategies(m.moduleKey);
-            if (!strategies.length) throw new Error(`no strategies for module: ${m.moduleKey}`);
+            const moduleCommon = modulesCommon[moduleCal.moduleKey];
+            if (!moduleCommon) throw new Error(`missing module common: ${moduleCal.moduleKey}`);
+            const flowName = moduleCal.moduleKey.replace("modules.", "onboarding.");
+            const strategies = calibrationStrategies().getModuleStrategies(moduleCal.moduleKey);
+            if (!strategies.length) throw new Error(`no strategies for module: ${moduleCal.moduleKey}`);
             const strategy = strategies[0];
             await this.$navigateTo(routes.reader.flow, {
                 frame: "stations-frame",
@@ -56,13 +56,13 @@ export default Vue.extend({
                     icon: moduleCommon.icon,
                     finished: new FullRoute("station/calibrate", "stations-frame", {
                         stationId: this.station.id,
-                        position: m.position,
+                        position: moduleCal.position,
                         strategy: strategy,
                         fromSettings: true,
                     }),
                     skipped: new FullRoute("station/calibrate", "stations-frame", {
                         stationId: this.station.id,
-                        position: m.position,
+                        position: moduleCal.position,
                         strategy: strategy,
                         fromSettings: true,
                     }),

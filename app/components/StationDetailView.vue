@@ -252,7 +252,7 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$navigateTo(routes.stationSettings, {
+                    this.$navigateTo(routes.station.settings.menu, {
                         props: {
                             stationId: this.currentStation.id,
                         },
@@ -264,7 +264,7 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$navigateTo(routes.stationDetail, {
+                    this.$navigateTo(routes.station.detail, {
                         props: {
                             stationId: this.currentStation.id,
                         },

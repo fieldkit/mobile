@@ -171,7 +171,7 @@ export default Vue.extend({
         },
         onCalloutTap(this: any, station) {
             this.$emit("opened-details", station);
-            return this.$navigateTo(routes.stationDetail, {
+            return this.$navigateTo(routes.station.detail, {
                 props: {
                     stationId: station.id,
                 },

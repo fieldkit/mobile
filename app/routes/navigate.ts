@@ -18,8 +18,6 @@ export interface RouteState {
     connected?: boolean;
     listing?: boolean;
     station?: boolean;
-    login?: boolean;
-    developer?: boolean;
     dataSync?: boolean;
     props?: Record<string, unknown> | null;
     reading?: boolean;
@@ -51,16 +49,7 @@ export class FullRoute {
 export class Route {
     public name = "unknown";
 
-    constructor(public readonly page: Component, public readonly state: RouteState) {}
-
-    combine(options: NavigateOptions | null): RouteState {
-        if (options && options.props) {
-            const cloned = _.cloneDeep(this.state);
-            cloned.props = options.props;
-            return cloned;
-        }
-        return this.state;
-    }
+    constructor(public readonly page: Component) {}
 }
 
 export type NavigateToFunc = (component: VueConstructor | Route, options?: NavigationEntryVue, cb?: () => Page) => Promise<Page>;

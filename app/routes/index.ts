@@ -58,76 +58,72 @@ import { inferNames, NavigateToFunc, Route, FullRoute } from "./navigate";
 export * from "./navigate";
 
 const routes = {
-    login: new Route(Login, { login: true }),
-    tabbed: new Route(TabbedLayout, {}),
-    developerMenu: new Route(DeveloperMenu, { developer: true }),
+    login: new Route(Login),
+    tabbed: new Route(TabbedLayout),
+    developerMenu: new Route(DeveloperMenu),
 
     // Bottom navigation
-    stations: new Route(StationListView, { clear: true, listing: true }),
-    dataSync: new Route(DataSync, { clear: true, dataSync: true }),
+    stations: new Route(StationListView),
+    dataSync: new Route(DataSync),
     appSettings: {
-        list: new Route(AppSettings, { clear: true }),
-        data: new Route(AppSettingsData, {}),
-        units: new Route(AppSettingsUnits, {}),
-        notifications: new Route(AppSettingsNotifications, {}),
-        permissions: new Route(AppSettingsPermissions, {}),
-        account: new Route(AppSettingsAccount, {}),
-        accountAdd: new Route(AppSettingsAccountAdd, {}),
-        appearance: new Route(AppSettingsAppearance, {}),
-        appearanceFontSize: new Route(AppSettingsAppearanceFontSize, {}),
-        appearanceLanguage: new Route(AppSettingsAppearanceLanguage, {}),
-        help: new Route(AppSettingsHelp, {}),
-        helpAppVersion: new Route(AppSettingsHelpAppVersion, {}),
-        legal: new Route(AppSettingsLegal, {}),
-        developer: new Route(DeveloperMenu, { developer: true }),
+        list: new Route(AppSettings),
+        data: new Route(AppSettingsData),
+        units: new Route(AppSettingsUnits),
+        notifications: new Route(AppSettingsNotifications),
+        permissions: new Route(AppSettingsPermissions),
+        account: new Route(AppSettingsAccount),
+        accountAdd: new Route(AppSettingsAccountAdd),
+        appearance: new Route(AppSettingsAppearance),
+        appearanceFontSize: new Route(AppSettingsAppearanceFontSize),
+        appearanceLanguage: new Route(AppSettingsAppearanceLanguage),
+        help: new Route(AppSettingsHelp),
+        helpAppVersion: new Route(AppSettingsHelpAppVersion),
+        legal: new Route(AppSettingsLegal),
+        developer: new Route(DeveloperMenu),
     },
 
-    // Per station
-    stationDetail: new Route(StationDetail, { reading: true, station: true }), // Deprec
-    stationSettings: new Route(StationSettings, {}), // Deprec
-
     station: {
-        detail: new Route(StationDetail, { reading: true, station: true }),
-        calibrate: new Route(Calibrate, {}),
+        detail: new Route(StationDetail),
+        calibrate: new Route(Calibrate),
         settings: {
-            menu: new Route(StationSettings, {}),
-            wifiSchedule: new Route(StationSettingsWiFiSchedule, {}),
-            wifiNetworks: new Route(StationSettingsWiFiNetworks, {}),
-            firmware: new Route(StationSettingsFirmware, {}),
+            menu: new Route(StationSettings),
+            wifiSchedule: new Route(StationSettingsWiFiSchedule),
+            wifiNetworks: new Route(StationSettingsWiFiNetworks),
+            firmware: new Route(StationSettingsFirmware),
         },
     },
 
     // Onboarding
     onboarding: {
-        assembleStation: new Route(AssembleStation, {}),
-        start: new Route(OnboardingStartView, {}),
-        searching: new Route(OnboardingSearchingView, {}),
-        nearby: new Route(OnboardingNearbyStationsView, {}),
-        searchFailed: new Route(SearchFailedView, {}),
-        network: new Route(OnboardingNetwork, {}),
-        addWifi: new Route(AddWifiNetwork, {}),
-        deploymentLocation: new Route(DeploymentLocation, {}),
-        dataSync: new Route(DataSyncOnboarding, {}),
-        rename: new Route(RenameStation, {}),
-        reconnecting: new Route(OnboardingReconnecting, {}),
-        recalibrate: new Route(Recalibrate, {}),
-        addModule: new Route(AddModuleView, {}),
-        completeSettings: new Route(CompleteSettings, {}),
+        assembleStation: new Route(AssembleStation),
+        start: new Route(OnboardingStartView),
+        searching: new Route(OnboardingSearchingView),
+        nearby: new Route(OnboardingNearbyStationsView),
+        searchFailed: new Route(SearchFailedView),
+        network: new Route(OnboardingNetwork),
+        addWifi: new Route(AddWifiNetwork),
+        deploymentLocation: new Route(DeploymentLocation),
+        dataSync: new Route(DataSyncOnboarding),
+        rename: new Route(RenameStation),
+        reconnecting: new Route(OnboardingReconnecting),
+        recalibrate: new Route(Recalibrate),
+        addModule: new Route(AddModuleView),
+        completeSettings: new Route(CompleteSettings),
     },
 
     // Deployment
     deploy: {
-        start: new Route(DeployMap, { connected: true }),
-        notes: new Route(DeployNotes, { connected: true }),
-        editing: new Route(EditNoteView, { connected: true }),
-        review: new Route(DeployReview, { connected: true }),
+        start: new Route(DeployMap),
+        notes: new Route(DeployNotes),
+        editing: new Route(EditNoteView),
+        review: new Route(DeployReview),
     },
 
     // Reader
     reader: {
-        flow: new Route(FlowView, {}),
+        flow: new Route(FlowView),
     },
-    notifications: new Route(NotificationsView, {}),
+    notifications: new Route(NotificationsView),
 };
 
 const routeMap = inferNames(routes);
