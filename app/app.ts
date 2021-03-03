@@ -9,6 +9,7 @@ import "zone.js/dist/zone";
 import "zone.js/dist/zone-error";
 import "zone.js/dist/zone-bluebird";
 
+import _ from "lodash";
 import moment from "moment";
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
@@ -41,7 +42,7 @@ function configureVueJs(services: typeof Services): Store {
     });
 
     Vue.filter("prettyReading", (value: number | undefined): string => {
-        if (!value) {
+        if (!_.isNumber(value)) {
             return "--";
         }
         return value.toFixed(2);
