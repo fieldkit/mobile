@@ -64,7 +64,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import AppSettings from "@/wrappers/app-settings";
 import * as animations from "../animations";
 

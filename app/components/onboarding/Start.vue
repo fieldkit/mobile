@@ -41,7 +41,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "../../routes";
+import { routes } from "@/routes";
 import { _T, Timer } from "@/lib";
 
 export default Vue.extend({

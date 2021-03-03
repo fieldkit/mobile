@@ -28,7 +28,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import { LegacyStation } from "~/store";

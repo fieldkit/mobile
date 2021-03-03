@@ -56,7 +56,7 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import routes, { Route, FullRoute, navigateFullRoute } from "@/routes";
+import { routes, Route, FullRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
@@ -142,7 +142,7 @@ export default Vue.extend({
                         },
                     });
                 } else {
-                    await navigateFullRoute(this.$navigateTo, firstTab.route);
+                    await this.$navigateTo(firstTab.route, {});
                 }
             } else {
                 console.log(`update-selected: no first tab`);

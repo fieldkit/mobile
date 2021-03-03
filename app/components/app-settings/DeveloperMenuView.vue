@@ -78,7 +78,7 @@ import {
     getZone,
 } from "@/lib";
 
-import routes, { FullRoute } from "@/routes";
+import { routes, FullRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";

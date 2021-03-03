@@ -89,7 +89,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { email } from "vuelidate/lib/validators";
 

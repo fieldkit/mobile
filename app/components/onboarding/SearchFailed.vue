@@ -30,7 +30,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "../../routes";
+import { routes } from "@/routes";
 
 export default Vue.extend({
     components: {
@@ -47,10 +47,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.onboarding.searching, {});
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.tabbed, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            await this.$navigateTo(routes.tabbed, {});
         },
         getHelp() {
             const utilsModule = require("tns-core-modules/utils/utils");

@@ -123,7 +123,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "../../routes";
+import { routes } from "@/routes";
 import { ActionTypes, Station, Notes, NoteForm } from "@/store";
 import * as animations from "../animations";
 import SharedComponents from "@/components/shared";

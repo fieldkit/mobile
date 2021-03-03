@@ -58,7 +58,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { LegacyStation } from "@/store";
 import NetworkTypeItem from "~/components/onboarding/NetworkTypeItem.vue";

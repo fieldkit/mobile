@@ -40,7 +40,7 @@ import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
-import { navigateFullRoute, FullRoute } from "@/routes";
+import { FullRoute } from "@/routes";
 import { Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 import { getFlows } from "./download";
@@ -149,7 +149,7 @@ export default Vue.extend({
             await this.leave(this.skipped);
         },
         async leave(route: FullRoute): Promise<void> {
-            await navigateFullRoute(this.$navigateTo, route);
+            await this.$navigateTo(route);
         },
     },
 });

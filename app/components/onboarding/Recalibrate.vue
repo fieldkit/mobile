@@ -58,7 +58,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes, { navigateFullRoute } from "@/routes";
+import { routes } from "@/routes";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -89,9 +89,7 @@ export default Vue.extend({
     },
     methods: {
         async goToStations(): Promise<void> {
-            await this.$navigateTo(routes.tabbed, {
-                frame: "outer-frame",
-            });
+            await this.$navigateTo(routes.tabbed, {});
         },
         async goToDetails(): Promise<void> {
             await this.$navigateTo(routes.station.detail, {
@@ -105,7 +103,7 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.station, moduleCal);
-            await navigateFullRoute(this.$navigateTo, route);
+            await this.$navigateTo(route);
         },
         async addModule(): Promise<void> {
             await this.$navigateTo(routes.onboarding.addModule, {
