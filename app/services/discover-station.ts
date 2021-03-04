@@ -86,7 +86,7 @@ class NetworkMonitor {
     }
 
     private async watch(): Promise<void> {
-        await promiseAfter(10000).then(() => zoned({}, () => this.issue()).finally(() => void this.watch()));
+        await promiseAfter(10000).then(() => zoned({ force: true }, () => this.issue()).finally(() => void this.watch()));
     }
 
     private async issue(): Promise<void> {
