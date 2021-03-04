@@ -51,7 +51,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { isAndroid, isIOS, Utils } from "@nativescript/core";
 import { ActionTypes, LegacyStation } from "@/store";
 

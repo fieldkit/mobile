@@ -28,7 +28,6 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { _T } from "@/lib";
 import { isAndroid, Utils } from "@nativescript/core";
 import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
 import { routes, fullRoutes } from "@/routes";
