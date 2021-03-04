@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
-import { routes, fullRoutes, FullRoute } from "@/routes";
+import { fullRoutes, FullRoute } from "@/routes";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
@@ -36,20 +36,6 @@ export default Vue.extend({
 
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
-
-            if (false) {
-                await this.$navigateTo(routes.tabbed, {
-                    clearHistory: true,
-                    props: {
-                        firstTab: {
-                            index: 0,
-                            route: new FullRoute("station/settings/menu", "stations-frame", {
-                                stationId: 1,
-                            }),
-                        },
-                    },
-                });
-            }
 
             await this.$navigateTo(fullRoutes.onboarding.assemble);
 

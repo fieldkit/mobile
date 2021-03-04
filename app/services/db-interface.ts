@@ -370,11 +370,12 @@ export default class DatabaseInterface {
         const removed = _.difference(_.keys(stationExisting), _.keys(incoming));
         const keeping = _.intersection(_.keys(allExisting), _.keys(incoming));
 
-        log.info(
+        log.verbose(
             `synchronize modules`,
             JSON.stringify({
                 stationId,
-                all: _.keys(allExisting),
+                all: _.values(allExisting).map((m) => [m.name, m.id]),
+                positions: _.values(allExisting).map((m) => [m.name, m.position]),
                 adding,
                 removed,
                 keeping,
@@ -400,16 +401,18 @@ export default class DatabaseInterface {
                     const values = [
                         incoming[moduleId].name,
                         incoming[moduleId].flags || 0,
+                        incoming[moduleId].position,
                         configuration,
                         stationId,
                         allExisting[moduleId].id,
                     ];
-                    return this.execute("UPDATE modules SET name = ?, flags = ?, status = ?, station_id = ? WHERE id = ?", values).then(
-                        () => {
-                            const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
-                            return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
-                        }
-                    );
+                    return this.execute(
+                        "UPDATE modules SET name = ?, flags = ?, position = ?, status = ?, station_id = ? WHERE id = ?",
+                        values
+                    ).then(() => {
+                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
+                        return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
+                    });
                 })
             ),
         ]).then(() => Promise.resolve());
