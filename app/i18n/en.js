@@ -56,6 +56,9 @@ module.exports = {
     yourWifi: "Your WiFi Network",
     wifiStep1: "Enter the name and password of the WiFi network you would like to connect your FieldKit station to.",
     wifiStep2: "Unfortunately, only 2.4GHz WiFi is currently supported and both fields are case sensitive.",
+    wifiNameTitle: "Select WiFi Network",
+    wifiNameBig: "Add a list of preferred WiFi Networks.",
+    wifiNameSmall: "Only 2.4GHz WiFi is currently supported",
     next: "Next",
     networkNameHint: "Enter WiFi network name",
     networkPasswordHint: "Enter network password",
@@ -94,7 +97,7 @@ module.exports = {
     connectedLocationDescription: "Internet access",
     connectStation: "Connect Station",
     dataSyncStationTitle:"Data Sync Details",
-    dataSyncStationInfo:"How specifically do you want to sync your data? You can update this later in Settings.",
+    dataSyncStationInfo:"How do you want to sync your phone's data for all your stations? You can update this later in Settings.",
     completeSettings: "Connection Settings Complete",
     // Recalibrate.vue
     goToStations: "Go to Stations",
@@ -435,11 +438,11 @@ module.exports = {
         data: {
             data: "Data",
             autoSyncStationTitle: "Auto Sync Station",
-            autoSyncStationDescription: "Automatically download data from station",
+            autoSyncStationDescription: "Automatically download data from stations",
             autoSyncPortalTitle: "Auto Sync Portal",
-            autoSyncPortalDescription: "Automatically upload data portal",
+            autoSyncPortalDescription: "Automatically upload data to portal",
             mobileDataUsageTitle: "Mobile Data Usage",
-            mobileDataUsageDescription: "Only sync your data to portal while connected WiFi",
+            mobileDataUsageDescription: "Only sync data to portal over WiFi (not cellular)",
         },
         notifications: {
             notifications: "Notifications",
