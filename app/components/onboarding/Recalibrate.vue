@@ -109,7 +109,6 @@ export default Vue.extend({
         },
         async addModule(): Promise<void> {
             await this.$navigateTo(routes.onboarding.addModule, {
-                clearHistory: true,
                 props: {
                     stationId: this.stationId,
                 },

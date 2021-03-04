@@ -124,9 +124,14 @@ export default Vue.extend({
                 return;
             });
         },
-        onBackward(): Promise<boolean> {
+        async onBackward(): Promise<boolean> {
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
-            return this.nav.move(this.screen.navOptions.backward);
+            if (this.screen.navOptions.backward.navigateBack) {
+                await this.$navigateBack();
+                return true;
+            } else {
+                return await this.nav.move(this.screen.navOptions.backward);
+            }
         },
         onNavigatingFrom(): void {
             console.log("flow: leaving");

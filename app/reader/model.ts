@@ -35,7 +35,7 @@ export interface FlowFile {
 }
 
 export class NavigationOption {
-    private constructor(public readonly label: string | null) {}
+    private constructor(public readonly label: string | null, public readonly navigateBack: boolean = false) {}
 
     public get allowed(): boolean {
         return this != NavigationOption.Nope;
@@ -44,6 +44,7 @@ export class NavigationOption {
     public static Nope = new NavigationOption("nope");
     public static Done = new NavigationOption("done");
     public static Forward = new NavigationOption("forward");
+    public static NavigateBack = new NavigationOption("navigate-back", true);
     public static Backward = new NavigationOption("backward");
     public static Skip = new NavigationOption("skip");
 
@@ -144,7 +145,7 @@ export class FlowNavigator {
     private createVisibleScreen(): VisibleScreen {
         const screen = this.screens[this.index];
         const forward = this.index == this.screens.length - 1 ? NavigationOption.Done : NavigationOption.Forward;
-        const backward = this.index == 0 ? NavigationOption.Nope : NavigationOption.Backward;
+        const backward = this.index == 0 ? NavigationOption.NavigateBack : NavigationOption.Backward;
         const navOptions = new NavigationOptions(backward, forward);
         return new VisibleScreen(screen, navOptions);
     }
