@@ -20,7 +20,6 @@ import OnboardingNetwork from "../components/onboarding/Network.vue";
 import RenameStation from "../components/onboarding/RenameStation.vue";
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import OnboardingReconnecting from "../components/onboarding/Reconnecting.vue";
-import AddWifiNetwork from "../components/onboarding/AddWifi.vue";
 
 import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
@@ -54,6 +53,8 @@ import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 import TabbedLayout from "~/components/TabbedLayout.vue";
 
 import { Route, RouteTable, FullRoute } from "./navigate";
+import AddWifiName from "~/components/onboarding/AddWifiName.vue";
+import AddWifiPassword from "~/components/onboarding/AddWifiPassword.vue";
 
 const Frames = {
     Outer: "outer-frame",
@@ -105,7 +106,8 @@ export const routes = {
         nearby: new Route(OnboardingNearbyStationsView, Frames.Stations),
         searchFailed: new Route(SearchFailedView, Frames.Stations),
         network: new Route(OnboardingNetwork, Frames.Stations),
-        addWifi: new Route(AddWifiNetwork, Frames.Stations),
+        addWifiName: new Route(AddWifiName, Frames.Stations),
+        addWifiPassword: new Route(AddWifiPassword, Frames.Stations),
         deploymentLocation: new Route(DeploymentLocation, Frames.Stations),
         dataSync: new Route(DataSyncOnboarding, Frames.Stations),
         rename: new Route(RenameStation, Frames.Stations),

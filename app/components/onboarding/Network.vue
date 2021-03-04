@@ -6,9 +6,7 @@
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
                         <ConnectionStatusHeader :connected="currentStation.connected" />
-
                         <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
-
                         <StackLayout v-if="remote">
                             <NetworkTypeItem
                                 :selected="selected === REMOTE_SELECTED"
@@ -102,7 +100,7 @@ export default Vue.extend({
         async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
                 // Skipping dataSync
-                await this.$navigateTo(routes.onboarding.completeSettings, {
+                await this.$navigateTo(routes.onboarding.dataSync, {
                     props: {
                         stationId: this.stationId,
                         remote: true,
@@ -111,7 +109,7 @@ export default Vue.extend({
             }
 
             if (this.selected === this.CONNECTED_SELECTED) {
-                await this.$navigateTo(routes.onboarding.addWifi, {
+                await this.$navigateTo(routes.onboarding.addWifiName, {
                     props: {
                         stationId: this.stationId,
                     },

@@ -16,6 +16,13 @@
                         v-on:change="saveSettings"
                     />
                     <SettingsItemSlider
+                        :title="'appSettings.data.autoSyncPortalTitle'"
+                        :description="'appSettings.data.autoSyncPortalDescription'"
+                        class="m-l-20 m-r-20"
+                        v-model="currentSettings.data.autoSyncPortal"
+                        v-on:change="saveSettings"
+                    />
+                    <SettingsItemSlider
                         :title="'appSettings.data.mobileDataUsageTitle'"
                         :description="'appSettings.data.mobileDataUsageDescription'"
                         class="m-l-20 m-r-20"
