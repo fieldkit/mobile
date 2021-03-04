@@ -89,7 +89,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
+import { routes, fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { email } from "vuelidate/lib/validators";
 
@@ -181,11 +181,9 @@ export default Vue.extend({
                     password: this.form.password,
                 });
 
-                console.log(`returned: ${JSON.stringify(returned)}`);
+                console.log(`returned: ${JSON.stringify(returned)}`, "a");
 
-                await this.$navigateTo(routes.onboarding.assembleStation, {
-                    clearHistory: true,
-                });
+                await this.$navigateTo(fullRoutes.onboarding.assemble);
             } catch (error) {
                 this.busy = false;
                 if (error && error.response && error.response.data) {
