@@ -1,16 +1,21 @@
 <template>
     <Page @loaded="onPageLoaded" actionBarHidden="true" @unloaded="onUnloaded">
         <template v-if="step == 0">
-            <StackLayout verticalAlignment="bottom" class="m-x-10">
-                <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
-                <Image class="illo" src="~/images/FieldKit_welcome_image.jpg"></Image>
-                <StackLayout class="welcome-text-container">
-                    <Label :text="_L('welcome')" class="welcome text-center" />
-                    <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
+            <GridLayout rows="*,140">
+                <StackLayout row="0">
+                    <Image verticalAlignment="middle" class="logo" src="~/images/fieldkit-logo-blue.png" stretch="aspectFit" />
+                    <Image verticalAlignment="middle" class="illo" src="~/images/FieldKit_welcome_image.jpg" stretch="aspectFit" />
+                    <StackLayout class="welcome-text-container">
+                        <Label :text="_L('welcome')" class="welcome text-center" />
+                        <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
+                    </StackLayout>
                 </StackLayout>
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('getStarted')" @tap="goNext"></Button>
-                <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
-            </StackLayout>
+
+                <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
+                    <Button class="btn btn-primary btn-padded m-y-10" :text="_L('getStarted')" @tap="goNext"></Button>
+                    <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
+                </StackLayout>
+            </GridLayout>
         </template>
         <template v-else>
             <GridLayout rows="*,80">
@@ -64,9 +69,9 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
+import { routes, fullRoutes } from "@/routes";
 import AppSettings from "@/wrappers/app-settings";
-import * as animations from "../animations";
+import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -106,15 +111,11 @@ export default Vue.extend({
         };
     },
     methods: {
-        onPageLoaded(): void {
+        async onPageLoaded(): Promise<void> {
             console.log("AssembleStationView::loaded");
             if (this.step == this.steps.length - 1) {
-                setTimeout(() => {
-                    this.$navigateTo(routes.onboarding.start, {
-                        frame: "outer-frame",
-                        // clearHistory: true,
-                    });
-                }, 3000);
+                await promiseAfter(3000);
+                await this.$navigateTo(routes.onboarding.start, {});
             }
             const thisAny = this as any;
             thisAny._appSettings = new AppSettings();
@@ -128,6 +129,7 @@ export default Vue.extend({
             }
         },
         onUnloaded(): void {
+            console.log("unloading");
             this.stopAnimation();
         },
         async goBack(ev: Event): Promise<void> {
@@ -138,18 +140,11 @@ export default Vue.extend({
                 this.instruction = this.steps[this.step].instruction;
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
-                await animations.pressed(ev);
             } else {
-                await Promise.all([
-                    animations.pressed(ev),
-                    this.$navigateTo(routes.tabbed, {
-                        frame: "outer-frame",
-                        // clearHistory: true,
-                    }),
-                ]);
+                await this.$navigateTo(fullRoutes.tabbed, {});
             }
         },
-        goNext(): void {
+        async goNext(): Promise<void> {
             if (this.step < this.steps.length - 1) {
                 this.step += 1;
                 this.animateFrames();
@@ -158,12 +153,8 @@ export default Vue.extend({
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
                 if (this.step == this.steps.length - 1) {
-                    setTimeout(() => {
-                        this.$navigateTo(routes.onboarding.start, {
-                            frame: "outer-frame",
-                            // clearHistory: true,
-                        });
-                    }, 3000);
+                    await promiseAfter(3000);
+                    await this.$navigateTo(routes.onboarding.start, {});
                 }
             }
         },
@@ -172,10 +163,7 @@ export default Vue.extend({
             thisAny._appSettings.setNumber("skipCount", (thisAny._appSettings.getNumber("skipCount") || 0) + 1);
             try {
                 console.log("skip");
-                await this.$navigateTo(routes.onboarding.start, {
-                    frame: "outer-frame",
-                    // clearHistory: true,
-                });
+                await this.$navigateTo(routes.onboarding.start, {});
             } catch (err) {
                 console.log(err, err.stack);
             }
@@ -327,11 +315,11 @@ function createCheckList() {
 @import "~/_app-variables";
 
 .logo {
-    margin-top: 8%;
+    margin-top: 50em;
     width: 50%;
+    margin-bottom: 20em;
 }
 .illo {
-    margin-top: 8%;
     width: 75%;
 }
 .welcome-text-container {
@@ -346,6 +334,7 @@ function createCheckList() {
     font-size: 18;
 }
 .skip {
+    padding-top: 10;
     padding-bottom: 10;
     background-color: white;
     font-size: 14;

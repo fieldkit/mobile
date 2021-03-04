@@ -3,25 +3,24 @@
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
-import { Route, FullRoute } from "@/routes/navigate";
+import { routes, fullRoutes, FullRoute } from "@/routes";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
-import routes from "@/routes";
 import { zoned } from "@/lib";
 
-function getFirstRoute(services: Services): Route {
+function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();
 
     if (services.PortalInterface().isLoggedIn()) {
-        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2
-            ? routes.tabbed
-            : routes.onboarding.assembleStation;
+        const tabbed = fullRoutes.login;
+        const onboarding = fullRoutes.onboarding.assemble;
+        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? tabbed : onboarding;
     }
 
-    return routes.login;
+    return fullRoutes.login;
 }
 
 export default Vue.extend({
@@ -38,17 +37,21 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            await this.$navigateTo(routes.tabbed, {
-                clearHistory: true,
-                props: {
-                    firstTab: {
-                        index: 0,
-                        route: new FullRoute("station/settings/menu", "stations-frame", {
-                            stationId: 1,
-                        }),
+            if (false) {
+                await this.$navigateTo(routes.tabbed, {
+                    clearHistory: true,
+                    props: {
+                        firstTab: {
+                            index: 0,
+                            route: new FullRoute("station/settings/menu", "stations-frame", {
+                                stationId: 1,
+                            }),
+                        },
                     },
-                },
-            });
+                });
+            }
+
+            await this.$navigateTo(fullRoutes.onboarding.assemble);
 
             return;
         }
@@ -56,10 +59,7 @@ export default Vue.extend({
         console.log("first navigate");
 
         try {
-            await this.$navigateTo(getFirstRoute(services), {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            await this.$navigateTo(getFirstRoute(services));
         } catch (err) {
             console.log("error", err, err.stack);
         }

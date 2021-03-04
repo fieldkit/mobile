@@ -9,6 +9,7 @@ import "zone.js/dist/zone";
 import "zone.js/dist/zone-error";
 import "zone.js/dist/zone-bluebird";
 
+import _ from "lodash";
 import moment from "moment";
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
@@ -19,7 +20,7 @@ import RadGauge from "nativescript-ui-gauge/vue";
 import { _T, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
-import navigatorFactory from "./routes/navigate";
+import { navigatorFactory } from "./routes";
 import Config, { Build } from "./config";
 
 import { MapboxView } from "nativescript-mapbox";
@@ -41,7 +42,7 @@ function configureVueJs(services: typeof Services): Store {
     });
 
     Vue.filter("prettyReading", (value: number | undefined): string => {
-        if (!value) {
+        if (!_.isNumber(value)) {
             return "--";
         }
         return value.toFixed(2);

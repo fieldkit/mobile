@@ -39,8 +39,8 @@
 <script lang="ts">
 import Vue from "vue";
 import Promise from "bluebird";
-import routes from "@/routes";
 import Config from "@/config";
+import { routes } from "@/routes";
 import { isIOS } from "@nativescript/core";
 import { AvailableStation } from "@/store/types";
 

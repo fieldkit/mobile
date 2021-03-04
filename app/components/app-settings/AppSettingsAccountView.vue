@@ -71,7 +71,7 @@ import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
 import { Dialogs } from "@nativescript/core";
 import { ActionTypes, CurrentUser, RemoveAccountAction, SyncAccountAction } from "@/store";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import Services from "@/services/singleton";
 import moment from "moment";
 

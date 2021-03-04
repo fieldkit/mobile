@@ -12,7 +12,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { Page } from "@nativescript/core";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { promiseAfter } from "@/lib";
 import { LegacyStation } from "@/store";
 import LargeSpinner from "@/components/LargeSpinner.vue";
@@ -47,6 +47,7 @@ export default Vue.extend({
     },
     watch: {
         numberOfNearbyStations(newValue: number, oldValue: number): void {
+            console.log("searching:watch:numberOfNearbyStations", newValue, oldValue);
             this.foundStations(newValue);
         },
     },

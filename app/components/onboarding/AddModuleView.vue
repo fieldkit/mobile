@@ -28,10 +28,10 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
 import * as animations from "../animations";
+import { LegacyStation } from "~/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-import { Station } from "~/store";
+import { routes } from "@/routes";
 
 export default Vue.extend({
     props: {
@@ -62,8 +62,8 @@ export default Vue.extend({
         ConnectionStatusHeader,
     },
     computed: {
-        currentStation(): Station {
-            return this.$s.getters.stationsById[this.stationId];
+        currentStation(): LegacyStation {
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {

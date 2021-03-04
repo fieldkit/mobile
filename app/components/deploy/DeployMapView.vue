@@ -94,7 +94,7 @@
 import Vue from "vue";
 import { isIOS } from "@nativescript/core";
 import Config from "@/config";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store/actions";
 import { Schedule, Station, Notes } from "@/store";
 import SharedComponents from "@/components/shared";

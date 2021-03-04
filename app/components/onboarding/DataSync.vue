@@ -43,7 +43,7 @@ import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import SettingsItemIconText from "~/components/app-settings/SettingsItemIconText.vue";
 import SettingsItemSlider from "~/components/app-settings/SettingsItemSlider.vue";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { ActionTypes, LegacyStation } from "@/store";
 
 export default Vue.extend({

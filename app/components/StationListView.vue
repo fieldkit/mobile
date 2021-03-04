@@ -34,7 +34,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
@@ -69,6 +69,7 @@ export default Vue.extend({
             if (!station.id) throw new Error(`missing station id: ${station.name || "<NONE>"}`);
             await Promise.all([
                 animations.pressed(ev),
+                // eslint-disable-next-line
                 this.$navigateTo(routes.station.detail, {
                     props: {
                         stationId: station.id,

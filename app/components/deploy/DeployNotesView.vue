@@ -125,7 +125,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { Dialogs } from "@nativescript/core";
 
 import { getAppRelative, getFileName, rebaseAbsolutePath, promiseAfter } from "@/lib";

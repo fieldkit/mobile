@@ -56,7 +56,7 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import routes, { Route, FullRoute, navigateFullRoute } from "@/routes";
+import { routes, Route, FullRoute } from "@/routes";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
@@ -91,9 +91,9 @@ export default Vue.extend({
     },
     created(): void {
         console.log(`tabbed: created ${JSON.stringify(this.firstTab)}`, this.tab);
-        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
-        this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
-        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
+        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", "", false));
+        this.$s.commit(new NavigationMutation("data-frame", "DataSync", "", false));
+        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", "", false));
     },
     mounted(): void {
         console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);
@@ -142,7 +142,7 @@ export default Vue.extend({
                         },
                     });
                 } else {
-                    await navigateFullRoute(this.$navigateTo, firstTab.route);
+                    await this.$navigateTo(firstTab.route, {});
                 }
             } else {
                 console.log(`update-selected: no first tab`);

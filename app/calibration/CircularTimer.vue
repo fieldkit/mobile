@@ -1,7 +1,7 @@
 <template>
     <GridLayout rows="auto,auto" columns="*" class="timer-container">
         <GridLayout row="0" class="inner-circle">
-            <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="uncalibrated">
+            <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="haveUncalibrated">
                 <Label
                     :text="unitOfMeasure"
                     verticalAlignment="bottom"
@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import Vue from "vue";
 import CircularProgressBar from "../components/CircularProgressBar.vue";
 import Config from "@/config";
@@ -69,6 +70,9 @@ export default Vue.extend({
         return {};
     },
     computed: {
+        haveUncalibrated(): boolean {
+            return _.isNumber(this.calibrated);
+        },
         beta(): boolean {
             return Config.beta;
         },
@@ -79,7 +83,6 @@ export default Vue.extend({
             return this.unitOfMeasure ? this.unitOfMeasure.toLowerCase() == "ph" : false;
         },
     },
-    methods: {},
 });
 </script>
 

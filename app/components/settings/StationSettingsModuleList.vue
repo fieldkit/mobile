@@ -14,7 +14,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { navigateFullRoute } from "@/routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
@@ -41,7 +40,7 @@ export default Vue.extend({
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
             const route = await makeCalibrationRoute(this.station, moduleCal);
-            await navigateFullRoute(this.$navigateTo, route);
+            await this.$navigateTo(route);
         },
     },
 });

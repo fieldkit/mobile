@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "@/routes";
+import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
@@ -113,10 +113,7 @@ export default Vue.extend({
             this.form.v.password.length = this.form.password.length > 0 && this.form.password.length < 10;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.assembleStation, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            await this.$navigateTo(fullRoutes.onboarding);
         },
         invalid(): boolean {
             this.checkEmail();

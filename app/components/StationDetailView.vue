@@ -124,7 +124,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "@/routes";
+import { routes } from "@/routes";
 import { promiseAfter } from "@/lib";
 import { Notes, Notification, LegacyStation } from "@/store";
 import { ActionTypes } from "~/store/actions";
