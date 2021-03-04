@@ -29,7 +29,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import * as animations from "../animations";
-import { LegacyStation } from "~/store";
+import { LegacyStation, ScanStationModulesAction } from "~/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import { routes } from "@/routes";
 
@@ -79,6 +79,8 @@ export default Vue.extend({
             this.stopAnimation();
         },
         async goNext(ev: Event): Promise<void> {
+            await this.$store.dispatch(new ScanStationModulesAction(this.currentStation.deviceId));
+
             await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.onboarding.recalibrate, {

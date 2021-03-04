@@ -187,7 +187,7 @@ export class SaveNotesAction {
 export class ScanStationModulesAction {
     type = ActionTypes.SCAN_STATION_MODULES;
 
-    constructor(public readonly stationId: number) {}
+    constructor(public readonly deviceId: string) {}
 }
 
 export class UpgradeStationFirmwareAction {
