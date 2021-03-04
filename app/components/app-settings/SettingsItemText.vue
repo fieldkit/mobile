@@ -25,6 +25,7 @@ export default Vue.extend({
     methods: {
         async goToRoute(): Promise<void> {
             if (this.link) {
+                // eslint-disable-next-line
                 await this.$navigateTo(routes.appSettings[this.link], {});
             } else {
                 this.$emit("tap");

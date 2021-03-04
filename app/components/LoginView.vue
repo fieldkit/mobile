@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { Vue } from "vue-property-decorator";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { fullRoutes } from "@/routes";
@@ -53,6 +53,7 @@ export default Vue.extend({
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
                         console.log("navigating", fullRoutes.onboarding);
+                        // eslint-disable-next-line
                         await this.$navigateTo(fullRoutes.onboarding);
                     })
                     .catch((error) => {
