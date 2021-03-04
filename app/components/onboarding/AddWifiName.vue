@@ -23,7 +23,7 @@
                             <Label v-if="storedNetworks.length == 0" :text="_L('noSavedNetworks')" class="size-14" />
                         </StackLayout>
                     </GridLayout>
-                    <GridLayout columns="30,*" class="p-t-10 m-l-20" v-for="networkName in storedNetworks">
+                    <GridLayout columns="30,*" class="p-t-10 m-l-20" v-for="(networkName, i) in storedNetworks" v-bind:key="i">
                         <CheckBox
                             row="0"
                             col="0"
