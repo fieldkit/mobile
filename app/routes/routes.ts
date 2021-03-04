@@ -55,66 +55,72 @@ import TabbedLayout from "~/components/TabbedLayout.vue";
 
 import { Route, RouteTable, FullRoute } from "./navigate";
 
+const Frames = {
+    Outer: "outer-frame",
+    Stations: "stations-frame",
+    Data: "data-frame",
+    Settings: "settings-frame",
+};
+
 export const routes = {
     login: new Route(Login),
     tabbed: new Route(TabbedLayout),
-    developerMenu: new Route(DeveloperMenu),
 
     // Bottom navigation
-    stations: new Route(StationListView),
-    dataSync: new Route(DataSync),
+    stations: new Route(StationListView, Frames.Stations),
+    dataSync: new Route(DataSync, Frames.Data),
     appSettings: {
-        list: new Route(AppSettings),
-        data: new Route(AppSettingsData),
-        units: new Route(AppSettingsUnits),
-        notifications: new Route(AppSettingsNotifications),
-        permissions: new Route(AppSettingsPermissions),
-        account: new Route(AppSettingsAccount),
-        accountAdd: new Route(AppSettingsAccountAdd),
-        appearance: new Route(AppSettingsAppearance),
-        appearanceFontSize: new Route(AppSettingsAppearanceFontSize),
-        appearanceLanguage: new Route(AppSettingsAppearanceLanguage),
-        help: new Route(AppSettingsHelp),
-        helpAppVersion: new Route(AppSettingsHelpAppVersion),
-        legal: new Route(AppSettingsLegal),
-        developer: new Route(DeveloperMenu),
+        list: new Route(AppSettings, Frames.Settings),
+        data: new Route(AppSettingsData, Frames.Settings),
+        units: new Route(AppSettingsUnits, Frames.Settings),
+        notifications: new Route(AppSettingsNotifications, Frames.Settings),
+        permissions: new Route(AppSettingsPermissions, Frames.Settings),
+        account: new Route(AppSettingsAccount, Frames.Settings),
+        accountAdd: new Route(AppSettingsAccountAdd, Frames.Settings),
+        appearance: new Route(AppSettingsAppearance, Frames.Settings),
+        appearanceFontSize: new Route(AppSettingsAppearanceFontSize, Frames.Settings),
+        appearanceLanguage: new Route(AppSettingsAppearanceLanguage, Frames.Settings),
+        help: new Route(AppSettingsHelp, Frames.Settings),
+        helpAppVersion: new Route(AppSettingsHelpAppVersion, Frames.Settings),
+        legal: new Route(AppSettingsLegal, Frames.Settings),
+        developer: new Route(DeveloperMenu, Frames.Settings),
     },
 
     station: {
-        detail: new Route(StationDetail),
-        calibrate: new Route(Calibrate),
+        detail: new Route(StationDetail, Frames.Stations),
+        calibrate: new Route(Calibrate, Frames.Stations),
         settings: {
-            menu: new Route(StationSettings),
-            wifiSchedule: new Route(StationSettingsWiFiSchedule),
-            wifiNetworks: new Route(StationSettingsWiFiNetworks),
-            firmware: new Route(StationSettingsFirmware),
+            menu: new Route(StationSettings, Frames.Stations),
+            wifiSchedule: new Route(StationSettingsWiFiSchedule, Frames.Stations),
+            wifiNetworks: new Route(StationSettingsWiFiNetworks, Frames.Stations),
+            firmware: new Route(StationSettingsFirmware, Frames.Stations),
         },
     },
 
     // Onboarding
     onboarding: {
-        assembleStation: new Route(AssembleStation),
-        start: new Route(OnboardingStartView),
-        searching: new Route(OnboardingSearchingView),
-        nearby: new Route(OnboardingNearbyStationsView),
-        searchFailed: new Route(SearchFailedView),
-        network: new Route(OnboardingNetwork),
-        addWifi: new Route(AddWifiNetwork),
-        deploymentLocation: new Route(DeploymentLocation),
-        dataSync: new Route(DataSyncOnboarding),
-        rename: new Route(RenameStation),
-        reconnecting: new Route(OnboardingReconnecting),
-        recalibrate: new Route(Recalibrate),
-        addModule: new Route(AddModuleView),
-        completeSettings: new Route(CompleteSettings),
+        assembleStation: new Route(AssembleStation, Frames.Stations),
+        start: new Route(OnboardingStartView, Frames.Stations),
+        searching: new Route(OnboardingSearchingView, Frames.Stations),
+        nearby: new Route(OnboardingNearbyStationsView, Frames.Stations),
+        searchFailed: new Route(SearchFailedView, Frames.Stations),
+        network: new Route(OnboardingNetwork, Frames.Stations),
+        addWifi: new Route(AddWifiNetwork, Frames.Stations),
+        deploymentLocation: new Route(DeploymentLocation, Frames.Stations),
+        dataSync: new Route(DataSyncOnboarding, Frames.Stations),
+        rename: new Route(RenameStation, Frames.Stations),
+        reconnecting: new Route(OnboardingReconnecting, Frames.Stations),
+        recalibrate: new Route(Recalibrate, Frames.Stations),
+        addModule: new Route(AddModuleView, Frames.Stations),
+        completeSettings: new Route(CompleteSettings, Frames.Stations),
     },
 
     // Deployment
     deploy: {
-        start: new Route(DeployMap),
-        notes: new Route(DeployNotes),
-        editing: new Route(EditNoteView),
-        review: new Route(DeployReview),
+        start: new Route(DeployMap, Frames.Stations),
+        notes: new Route(DeployNotes, Frames.Stations),
+        editing: new Route(EditNoteView, Frames.Stations),
+        review: new Route(DeployReview, Frames.Stations),
     },
 
     // Reader
@@ -141,12 +147,26 @@ function inferNames(routes: RouteTable, prefix = ""): { [index: string]: Route }
 export const namedRoutes = inferNames(routes);
 
 export const fullRoutes = {
-    login: new FullRoute("login", "outer-frame", {}),
-    tabbed: new FullRoute("tabbed", "outer-frame", {}),
-    onboarding: new FullRoute("tabbed", "outer-frame", {
+    login: new FullRoute("login", Frames.Outer, {}),
+    tabbed: new FullRoute("tabbed", Frames.Outer, {}),
+    onboarding: {
+        assemble: new FullRoute("tabbed", Frames.Outer, {
+            firstTab: {
+                index: 0,
+                route: new FullRoute("onboarding/assembleStation", Frames.Stations, {}),
+            },
+        }),
+        start: new FullRoute("tabbed", Frames.Outer, {
+            firstTab: {
+                index: 0,
+                route: new FullRoute("onboarding/assembleStation", Frames.Stations, {}),
+            },
+        }),
+    },
+    stations: new FullRoute("tabbed", Frames.Outer, {
         firstTab: {
             index: 0,
-            route: new FullRoute("onboarding/assembleStation", "stations-frame", {}),
+            route: null,
         },
     }),
 };

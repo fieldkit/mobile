@@ -1,7 +1,7 @@
 <template>
     <Page actionBarHidden="true">
-        <GridLayout rows="auto,*,140">
-            <GridLayout row="0" rows="auto,auto" columns="*" class="">
+        <GridLayout rows="auto,*,auto">
+            <GridLayout row="0" rows="auto,auto">
                 <StackLayout row="0" verticalAlignment="middle">
                     <ConnectionStatusHeader :connected="station.connected" />
                     <Label class="m-y-20 title text-center" :text="station.name" textWrap="true"></Label>
@@ -30,6 +30,7 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
+
             <StackLayout row="1" v-else>
                 <GridLayout rows="auto,30,60,auto,auto" columns="*" class="m-10 text-center">
                     <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
@@ -39,6 +40,7 @@
                     <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
                 </GridLayout>
             </StackLayout>
+
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="station.modules.length > 0">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
                 <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
@@ -58,7 +60,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { routes } from "@/routes";
+import { routes, fullRoutes } from "@/routes";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -89,7 +91,7 @@ export default Vue.extend({
     },
     methods: {
         async goToStations(): Promise<void> {
-            await this.$navigateTo(routes.tabbed, {});
+            await this.$navigateTo(fullRoutes.tabbed, {});
         },
         async goToDetails(): Promise<void> {
             await this.$navigateTo(routes.station.detail, {

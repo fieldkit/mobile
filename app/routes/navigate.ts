@@ -29,5 +29,5 @@ export class FullRoute {
 export class Route {
     public name = "unknown";
 
-    constructor(public readonly page: Component) {}
+    constructor(public readonly page: Component, public readonly frame: string | undefined = undefined) {}
 }

@@ -91,9 +91,9 @@ export default Vue.extend({
     },
     created(): void {
         console.log(`tabbed: created ${JSON.stringify(this.firstTab)}`, this.tab);
-        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
-        this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
-        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
+        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", "", false));
+        this.$s.commit(new NavigationMutation("data-frame", "DataSync", "", false));
+        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", "", false));
     },
     mounted(): void {
         console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);

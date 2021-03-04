@@ -21,11 +21,11 @@ export type NavigateToFunc = (
     cb?: () => Page
 ) => Promise<Page>;
 
-function addDefaults(options: NavigateOptions | null): NavigateOptions {
+function addDefaults(options: NavigateOptions | null, overrides: { frame: string | undefined }): NavigateOptions {
     const frame = Frame.topmost();
     if (!frame) throw new Error(`no top frame`);
     const defaults = {
-        frame: frame ? frame.id : null,
+        frame: overrides.frame || (frame ? frame.id : null),
         transition: {
             name: "fade",
         },
@@ -34,26 +34,47 @@ function addDefaults(options: NavigateOptions | null): NavigateOptions {
 }
 
 export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
-    // eslint-disable-next-line
+    /* eslint-disable */
     return async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {
-        const withDefaults = addDefaults(options);
         if (pageOrRoute instanceof FullRoute) {
+            console.log("nav:full-route");
             const route = namedRoutes[pageOrRoute.name];
             const page = route.page as any;
-            store.commit(new NavigationMutation(withDefaults.frame || "", page.options.name || "", page.options.__file || ""));
+            store.commit(
+                new NavigationMutation(
+                    pageOrRoute.frame || "<no-frame>",
+                    pageOrRoute.name || "<no-name>",
+                    page.options.__file || "<no-file>",
+                    true
+                )
+            );
             await navigateTo(page, {
                 frame: pageOrRoute.frame,
                 props: pageOrRoute.props,
             });
         } else if (pageOrRoute instanceof Route) {
+            const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
             const page = pageOrRoute.page as any;
-            // eslint-disable-next-line
-            store.commit(new NavigationMutation(withDefaults.frame || "", page.options.name || "", page.options.__file || ""));
+            console.log("nav:route", pageOrRoute);
+            store.commit(
+                new NavigationMutation(
+                    withDefaults.frame || "<no-frame>",
+                    page.options.name || "<no-name>",
+                    page.options.__file || "<no-file>",
+                    false
+                )
+            );
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
+            const withDefaults = addDefaults(options, { frame: undefined });
+            console.log("nav:vue");
             store.commit(
-                // eslint-disable-next-line
-                new NavigationMutation(withDefaults.frame || "", pageOrRoute.options.name || "", pageOrRoute.options.__file || "")
+                new NavigationMutation(
+                    withDefaults.frame || "<no-frame>",
+                    pageOrRoute.options.name || "<no-name>",
+                    pageOrRoute.options.__file || "<no-file>",
+                    false
+                )
             );
             await navigateTo(pageOrRoute, withDefaults);
         }

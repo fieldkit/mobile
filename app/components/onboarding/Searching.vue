@@ -47,6 +47,7 @@ export default Vue.extend({
     },
     watch: {
         numberOfNearbyStations(newValue: number, oldValue: number): void {
+            console.log("searching:watch:numberOfNearbyStations", newValue, oldValue);
             this.foundStations(newValue);
         },
     },

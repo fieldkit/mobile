@@ -147,5 +147,5 @@ export class RenameStationMutation {
 export class NavigationMutation {
     type = MutationTypes.NAVIGATION;
 
-    constructor(public readonly frame: string, public readonly name: string, public readonly file: string) {}
+    constructor(public readonly frame: string, public readonly name: string, public readonly file: string, public readonly full: boolean) {}
 }

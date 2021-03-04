@@ -27,7 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { routes } from "@/routes";
+import { routes, fullRoutes } from "@/routes";
 
 export default Vue.extend({
     components: {
@@ -53,7 +53,7 @@ export default Vue.extend({
         },
         back(): void {},
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.stations, { clearHistory: true });
+            await this.$navigateTo(fullRoutes.stations);
         },
     },
 });

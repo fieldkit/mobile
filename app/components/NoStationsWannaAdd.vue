@@ -8,7 +8,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
+import { fullRoutes } from "@/routes";
 
 export default Vue.extend({
     name: "NoStationsWannaAdd",
@@ -19,12 +19,9 @@ export default Vue.extend({
         },
     },
     methods: {
-        goToAddStation(): Promise<any> {
-            // NOTE Without this weird things break after the navigation. Need to address this when we've got more time.
-            return this.$navigateTo(routes.onboarding.start, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+        async goToAddStation(): Promise<any> {
+            console.log("navigate:", fullRoutes.onboarding.assemble);
+            await this.$navigateTo(fullRoutes.onboarding.assemble);
         },
     },
 });

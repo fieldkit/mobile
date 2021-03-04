@@ -22,7 +22,7 @@
 import Vue from "vue";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
-import routes from "@/routes";
+import { fullRoutes } from "@/routes";
 import { LoginAction } from "@/store/actions";
 
 export default Vue.extend({
@@ -51,11 +51,9 @@ export default Vue.extend({
                 await this.$services
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
-                    .then(() => {
-                        return this.$navigateTo(routes.onboarding.assembleStation, {
-                            frame: "outer-frame",
-                            clearHistory: true,
-                        });
+                    .then(async () => {
+                        console.log("navigating", fullRoutes.onboarding);
+                        await this.$navigateTo(fullRoutes.onboarding);
                     })
                     .catch((error) => {
                         console.log("error", error);

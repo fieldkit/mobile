@@ -34,10 +34,10 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { routes } from "@/routes";
 import { _T } from "@/lib";
 import { isAndroid, Utils } from "@nativescript/core";
 import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
+import { routes, fullRoutes } from "@/routes";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
@@ -108,10 +108,7 @@ export default Vue.extend({
             );
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.tabbed, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            await this.$navigateTo(fullRoutes.tabbed);
         },
         async onBack(): Promise<void> {
             console.log("onBack");

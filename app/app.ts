@@ -20,7 +20,7 @@ import RadGauge from "nativescript-ui-gauge/vue";
 import { _T, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
-import navigatorFactory from "./routes/navigate";
+import { navigatorFactory } from "./routes";
 import Config, { Build } from "./config";
 
 import { MapboxView } from "nativescript-mapbox";

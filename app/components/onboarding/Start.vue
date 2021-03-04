@@ -41,7 +41,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { routes } from "@/routes";
+import { fullRoutes, routes } from "@/routes";
 import { _T, Timer } from "@/lib";
 
 export default Vue.extend({
@@ -75,10 +75,7 @@ export default Vue.extend({
         async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                await this.$navigateTo(routes.onboarding.searching, {
-                    frame: "outer-frame",
-                    clearHistory: true,
-                });
+                await this.$navigateTo(routes.onboarding.searching);
             }
         },
         async back(): Promise<void> {
@@ -94,10 +91,7 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(routes.tabbed, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            await this.$navigateTo(fullRoutes.tabbed);
         },
     },
 });
