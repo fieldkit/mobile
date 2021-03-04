@@ -8,6 +8,8 @@ export enum MutationTypes {
 
     PHONE_NETWORK = "PHONE_NETWORK",
     PHONE_LOCATION = "PHONE_LOCATION",
+    LOAD_STORED_NETWORKS = "LOAD_STORED_NETWORKS",
+    ADD_STORED_NETWORKS = "ADD_STORED_NETWORKS",
 
     // Discovery / Comms
 

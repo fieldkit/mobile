@@ -3,7 +3,7 @@ import Config from "@/config";
 import Settings from "@/settings";
 import { promiseAfter, sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
-import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
+import { Download, FileTypeUtils, Station, Sensor, Module, Stream, StoredNetworkTableRow } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
 import {
     AccountsTableRow,
@@ -1037,5 +1037,35 @@ export default class DatabaseInterface {
 
         const times = await this.query(`SELECT MIN(time), MAX(time) FROM station_log`);
         console.log(`times ${JSON.stringify(times)}`);
+    }
+
+    public async getStoredNetworks(): Promise<StoredNetworkTableRow[]> {
+        const rows = await this.query<StoredNetworkTableRow>("SELECT * FROM stored_networks").catch((error) =>
+            Promise.reject(new Error(`error fetching stored networks: ${JSON.stringify(error)}`))
+        );
+
+        return rows.map((row) => {
+            return {
+                id: row.id,
+                name: row.name,
+                created: row.created,
+            };
+        });
+    }
+
+    public async addStoredNetwork(name: string): Promise<void> {
+        if (name == null) {
+            return Promise.reject(new Error(`error saving stored network, name is required`));
+        }
+        return await this.query(`SELECT id FROM stored_networks WHERE name = ?`, [name])
+            .then((maybeId: { id: number }[]) => {
+                if (maybeId.length == 0) {
+                    const values = [name, new Date()];
+                    return this.execute(`INSERT INTO stored_networks (name, created) VALUES (?, ?)`, values);
+                }
+
+                return Promise.reject(new Error(`error adding stored network`));
+            })
+            .catch((error) => Promise.reject(new Error(`error adding stored network: ${JSON.stringify(error)}`)));
     }
 }

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
+import {CommonLocations, PhoneLocation, PhoneNetwork, StoredNetworkTableRow} from "../types";
 import { MutationTypes, RenameStationMutation } from "../mutations";
 import { ActionTypes, RefreshNetworkAction, NetworkChangedAction, StationRepliedAction } from "../actions";
 import { Station } from "../types";
@@ -12,6 +12,7 @@ export class PhoneState {
     network: PhoneNetwork | null = null;
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
     stationNetworks: string[] = [];
+    storedNetworks: string[] = [];
 }
 
 const getters = {
@@ -54,6 +55,25 @@ const actions = (services: ServiceRef) => {
                 commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(statusReply.ssid, statusReply.create));
             }
         },
+        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
+            return dispatch(ActionTypes.LOAD_STORED_NETWORKS);
+        },
+        [ActionTypes.LOAD_STORED_NETWORKS]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
+                .db()
+                .getStoredNetworks()
+                .then((rows) => {
+                    commit(MutationTypes.LOAD_STORED_NETWORKS, rows);
+                })
+                .catch((e) => console.log(ActionTypes.LOAD_STORED_NETWORKS, e));
+        },
+        [ActionTypes.ADD_STORED_NETWORKS]: async ({ dispatch }: ActionParameters, name) => {
+            await services
+                .db()
+                .addStoredNetwork(name)
+                .then((res) => dispatch(ActionTypes.LOAD_STORED_NETWORKS))
+                .catch((e) => console.log(ActionTypes.ADD_STORED_NETWORKS, e));
+        }
     };
 };
 
@@ -75,6 +95,13 @@ const mutations = {
             state,
             "stationNetworks",
             stations.map((station) => station.name)
+        );
+    },
+    [MutationTypes.LOAD_STORED_NETWORKS]: (state: PhoneState, storedNetworksRows: StoredNetworkTableRow[]) => {
+        Vue.set(
+            state,
+            "storedNetworks",
+            storedNetworksRows.map((storedNetwork) => storedNetwork.name)
         );
     },
 };

@@ -166,3 +166,9 @@ export interface StoreLogRow {
     before: string;
     after: string;
 }
+
+export interface StoredNetworkTableRow {
+    id: number;
+    name: string;
+    created: Date;
+}
