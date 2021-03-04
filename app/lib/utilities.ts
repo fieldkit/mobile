@@ -213,7 +213,7 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
 
 const changesMap: { [index: string]: string } = {};
 
-export function logChanges(prefix: string, v: unknown) {
+export function logChanges(prefix: string, v: unknown): void {
     const stored = JSON.stringify(v);
     if (changesMap[prefix] === stored) {
         return;
