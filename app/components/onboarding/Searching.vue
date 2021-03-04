@@ -11,7 +11,6 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { Page } from "@nativescript/core";
 import { routes } from "@/routes";
 import { promiseAfter } from "@/lib";
 import { LegacyStation } from "@/store";
@@ -86,21 +85,24 @@ export default Vue.extend({
         onNavigatingTo(): void {
             console.log(`searching:onNavigatingTo`);
         },
-        foundStations(numberStations: number): Promise<Page | void> {
-            console.log("number of nearby stations", numberStations);
-
+        async foundStations(numberStations: number): Promise<void> {
             if (this.timer) {
+                console.log("found-stations", numberStations);
                 this.timer.cancel();
                 this.timer = null;
+            } else {
+                console.log("found-stations, no timer ignored", numberStations);
+                return;
             }
 
             if (numberStations == 1) {
                 if (true) {
-                    return this.$navigateTo(routes.onboarding.nearby, {
+                    await this.$navigateTo(routes.onboarding.nearby, {
                         props: {
                             reconnecting: this.reconnecting,
                         },
                     });
+                    return;
                 }
 
                 const legacyStations: LegacyStation[] = Object.values(this.$s.getters.legacyStations);
