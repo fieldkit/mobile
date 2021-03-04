@@ -113,7 +113,7 @@ export default Vue.extend({
             this.form.v.password.length = this.form.password.length > 0 && this.form.password.length < 10;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(fullRoutes.onboarding);
+            await this.$navigateTo(fullRoutes.onboarding.assemble);
         },
         invalid(): boolean {
             this.checkEmail();
