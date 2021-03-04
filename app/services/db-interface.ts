@@ -59,11 +59,11 @@ export default class DatabaseInterface {
     }
 
     public getModuleAll(): Promise<ModuleTableRow[]> {
-        return this.query<ModuleTableRow>("SELECT * FROM modules ORDER BY station_id");
+        return this.query<ModuleTableRow>("SELECT * FROM modules ORDER BY station_id, position");
     }
 
     public getSensorAll(): Promise<SensorTableRow[]> {
-        return this.query<SensorTableRow>("SELECT * FROM sensors ORDER BY module_id");
+        return this.query<SensorTableRow>("SELECT * FROM sensors ORDER BY module_id, position");
     }
 
     public getStreamAll(): Promise<StreamTableRow[]> {
