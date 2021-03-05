@@ -60,7 +60,7 @@
             </GridLayout>
         </StackLayout>
         <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
-            <GridLayout rows="auto, auto" columns="40,*">
+            <GridLayout rows="auto,auto" columns="40,*">
                 <Image v-if="stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
@@ -68,10 +68,17 @@
             </GridLayout>
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
-            <GridLayout rows="auto" columns="30,*">
+            <GridLayout rows="auto" columns="30,*" class="ssid-container">
                 <Image v-if="stationAP" width="25" src="~/images/Icon_Connected_AP.png" rowSpan="2" col="0" />
                 <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
-                <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
+                <Label
+                    v-if="displayedSSID"
+                    row="0"
+                    col="1"
+                    class="m-l-10 size-12 ssid"
+                    :text="_L('wifi') + ': ' + displayedSSID"
+                    textWrap="false"
+                />
                 <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
             </GridLayout>
         </AbsoluteLayout>
@@ -168,8 +175,7 @@ export default Vue.extend({
             return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
         },
         displayedSSID(): string | null {
-            const currentSSID = this.$s.state.phone.network?.ssid || null;
-            return currentSSID && currentSSID.length > 10 ? currentSSID.substr(0, 10) + "..." : currentSSID;
+            return this.$s.state.phone.network?.ssid || null;
         },
         stationAP(): boolean {
             return Boolean(this.$s.state.phone.network?.ap);
@@ -270,5 +276,13 @@ export default Vue.extend({
 
 AbsoluteLayout {
     background-color: $white;
+}
+
+.ssid-container {
+}
+
+.ssid {
+    // This is important to ensuring that the ellipses appear when this is too long.
+    width: 290px;
 }
 </style>
