@@ -84,9 +84,11 @@ export default Vue.extend({
     },
     data(): {
         tab: number;
+        ready: boolean;
     } {
         return {
             tab: 0,
+            ready: false,
         };
     },
     created(): void {
@@ -200,9 +202,14 @@ export default Vue.extend({
             }
         },
         bottomLoaded(): void {
-            console.log("tabbed: bottom-loaded");
-            // eslint-disable-next-line
-            this.updateSelected();
+            if (this.ready) {
+                console.log("tabbed: bottom-loaded (skip)");
+            } else {
+                console.log("tabbed: bottom-loaded");
+                // eslint-disable-next-line
+                this.updateSelected();
+                this.ready = true;
+            }
         },
     },
 });
