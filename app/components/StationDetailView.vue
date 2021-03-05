@@ -38,7 +38,7 @@
                                     row="3"
                                     class="btn btn-primary btn-padded m-30"
                                     :text="_L('addModules')"
-                                    :isEnabled="true"
+                                    :isEnabled="currentStation.connected"
                                     @tap="addModule"
                                 />
                             </GridLayout>
