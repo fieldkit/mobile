@@ -32,13 +32,8 @@
             </ScrollView>
 
             <StackLayout row="1" v-else>
-                <GridLayout rows="auto,30,60,auto,auto" columns="*" class="m-10 text-center">
-                    <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
-                    <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
-                    <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260" textWrap="true"></Label>
-                    <Button row="3" class="btn btn-primary btn-padded m-30" :text="_L('addModules')" :isEnabled="true" @tap="addModule" />
-                    <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
-                </GridLayout>
+                <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" />
+                <Label :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
             </StackLayout>
 
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="station.modules.length > 0">
@@ -65,6 +60,7 @@ import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
+import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
 
 export default Vue.extend({
     name: "Recalibrate",
@@ -72,6 +68,7 @@ export default Vue.extend({
         ...SharedComponents,
         ConnectionStatusHeader,
         CalibratingModules,
+        NoModulesWannaAdd,
     },
     props: {
         stationId: {

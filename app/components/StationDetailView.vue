@@ -25,23 +25,11 @@
                                 />
                             </GridLayout>
                             <ModuleList order="3" :station="currentStation" />
-                            <GridLayout
+                            <NoModulesWannaAdd
+                                :stationId="currentStation.id"
+                                :connected="currentStation.connected"
                                 v-if="currentStation.modules.filter((item) => !item.internal).length === 0"
-                                rows="auto,30,60,auto"
-                                columns="*"
-                                class="m-10 text-center bordered-container p-b-20"
-                            >
-                                <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
-                                <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
-                                <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260" textWrap="true"></Label>
-                                <Button
-                                    row="3"
-                                    class="btn btn-primary btn-padded m-30"
-                                    :text="_L('addModules')"
-                                    :isEnabled="currentStation.connected"
-                                    @tap="addModule"
-                                />
-                            </GridLayout>
+                            />
                         </StackLayout>
                     </GridLayout>
 
@@ -132,6 +120,7 @@ import * as animations from "./animations";
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
 import ModuleList from "./ModuleList.vue";
+import NoModulesWannaAdd from "./NoModulesWannaAdd.vue";
 import NotificationFooter from "./NotificationFooter.vue";
 import StationDetailTooltipView from "~/components/StationDetailTooltipView.vue";
 import { Settings } from "~/store/modules/portal";
@@ -141,6 +130,7 @@ export default Vue.extend({
         ...SharedComponents,
         StationStatusBox,
         ModuleList,
+        NoModulesWannaAdd,
         NotificationFooter,
         StationDetailTooltipView,
     },
