@@ -145,6 +145,7 @@ export interface FirmwareTableRow {
     etag: string;
     buildTime: number;
     buildNumber: string;
+    logicalAddress: number | null;
 }
 
 export interface PortalConfigTableRow {

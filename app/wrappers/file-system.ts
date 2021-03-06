@@ -40,6 +40,12 @@ export class FolderWrapper {
     public entries(): Promise<FileSystemEntity[]> {
         return this.f.getEntities();
     }
+
+    public async clear(): Promise<void> {
+        if (this.f) {
+            await this.f.clear();
+        }
+    }
 }
 
 export default class FileSystem {
@@ -53,6 +59,10 @@ export default class FileSystem {
 
     public getFile(path: string): FileWrapper {
         return new FileWrapper(path);
+    }
+
+    public async deleteFolder(path: string): Promise<void> {
+        await this.getFolder(path).clear();
     }
 
     public listFolder(path: string): Promise<FileLike[]> {

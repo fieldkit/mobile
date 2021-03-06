@@ -1,7 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
 import { onlyAllowEvery } from "@/lib";
-import { FirmwareTableRow } from "@/store";
 import { FirmwareResponse, Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
@@ -27,6 +26,11 @@ function transformProgress(callback: ProgressCallback, fn: (v: number) => number
     };
 }
 
+export interface Firmware {
+    id: number;
+    path: string;
+}
+
 export default class StationFirmware {
     private services: Services;
     public check: () => Promise<void>;
@@ -50,69 +54,68 @@ export default class StationFirmware {
         );
     }
 
-    public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
-        log.info("downloading firmware");
-        await this.services
+    private async downloadBinary(
+        moduleName: string,
+        progressCallback: ProgressCallback = NoopProgress,
+        force = false
+    ): Promise<Firmware[]> {
+        const remoteFirmware = await this.services
             .PortalInterface()
-            .listFirmware("fk-core")
+            .listFirmware(moduleName)
             .then((firmware) => {
-                log.info(`firmwares: ${JSON.stringify(_.map(firmware.firmwares, (fw) => fw.id))}`);
                 return firmware.firmwares.map((f) => {
-                    const local = this.services.FileSystem().getFolder("firmware").getFile(`fk-bundled-fkb-${f.id}.bin`);
-                    log.verbose("local", local);
+                    const local = this.services.FileSystem().getFolder("firmware").getFile(`${moduleName}-${f.id}.bin`);
                     return _.extend(f, {
                         path: local.path,
                     });
                 });
-            })
-            .then((firmwares) => {
-                if (!firmwares || firmwares.length == 0) {
-                    log.info("no firmware to download");
-                    return;
-                }
+            });
 
-                return this.services
-                    .Database()
-                    .addOrUpdateFirmware(firmwares[0])
-                    .then(() => {
-                        const local = this.services.FileSystem().getFile(firmwares[0].path);
-                        if (!local.exists || local.size == 0 || force === true) {
-                            log.info(`downloading firmware: ${JSON.stringify(firmwares[0])}`, firmwares[0]);
+        if (!remoteFirmware || remoteFirmware.length == 0) {
+            log.info("no firmware to download");
+            return [];
+        }
 
-                            const downloadProgress = transformProgress(progressCallback, (p) => p);
+        const firmware = remoteFirmware[0];
 
-                            return this.services
-                                .PortalInterface()
-                                .downloadFirmware(firmwares[0].url, firmwares[0].path, downloadProgress)
-                                .catch((err) => {
-                                    log.error("downloading error:", err);
-                                })
-                                .then(() => {
-                                    return firmwares[0];
-                                });
-                        }
+        await this.services.Database().addOrUpdateFirmware(
+            _.extend(
+                {
+                    logicalAddress: null,
+                },
+                firmware
+            )
+        );
 
-                        log.info(`already have: ${JSON.stringify(firmwares[0])}`);
+        const local = this.services.FileSystem().getFile(firmware.path);
+        if (!local.exists || local.size == 0 || force === true) {
+            log.info(`downloading firmware: ${JSON.stringify(firmware)}`);
+            const downloadProgress = transformProgress(progressCallback, (p) => p);
+            await this.services.PortalInterface().downloadFirmware(firmware.url, firmware.path, downloadProgress);
+        } else {
+            log.info(`already have: ${JSON.stringify(firmware)}`);
+        }
 
-                        return this.deleteOldFirmware().then(() => {
-                            return firmwares[0];
-                        });
-                    })
-                    .then(() => {
-                        return firmwares;
-                    });
-            })
-            .then((firmwares) => {
-                const ids = _(firmwares).map("id").value();
-                return this.services
-                    .Database()
-                    .deleteAllFirmwareExceptIds(ids)
-                    .then((deleted: FirmwareTableRow[]) => {
-                        console.log("deleted", deleted);
-                        return Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
-                    });
-            })
-            .then(() => Promise.resolve());
+        return [firmware];
+    }
+
+    public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
+        const hasBootloader = await this.services.Database().hasBootloader();
+        if (!hasBootloader) {
+            console.log("deleting firmware folder");
+            await this.services.FileSystem().deleteFolder("firmware");
+            console.log("deleting firmware rows");
+            await this.services.Database().deleteAllFirmware();
+        }
+
+        const coreBinaries = await this.downloadBinary("fk-core", progressCallback, force);
+        const blBinaries = await this.downloadBinary("fk-bl", progressCallback, force);
+        const ids = _.concat(coreBinaries, blBinaries).map((f) => f.id);
+
+        const deleted = await this.services.Database().deleteAllFirmwareExceptIds(ids);
+
+        console.log(`deleted firmware: ${JSON.stringify(deleted)}`);
+        await Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
     }
 
     private async deleteFirmware(fw: { path: string }): Promise<void> {
@@ -121,19 +124,6 @@ export default class StationFirmware {
             log.info("removing", fw.path, local.exists, local.size);
             await local.remove();
         }
-    }
-
-    private async deleteOldFirmware(): Promise<void> {
-        return await this.services
-            .Database()
-            .getAllFirmware()
-            .then((firmware) => {
-                return _(firmware)
-                    .tail()
-                    .map((fw) => this.deleteFirmware(fw))
-                    .value();
-            })
-            .then(() => Promise.resolve());
     }
 
     public async cleanupFirmware(): Promise<void> {

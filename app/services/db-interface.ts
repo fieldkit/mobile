@@ -697,7 +697,15 @@ export default class DatabaseInterface {
         });
     }
 
+    public async deleteAllFirmware(): Promise<void> {
+        await this.execute("DELETE FROM firmware");
+    }
+
     public async deleteAllFirmwareExceptIds(ids: number[]): Promise<FirmwareTableRow[]> {
+        if (ids.length == 0) {
+            return [];
+        }
+
         const values = _.range(ids.length)
             .map(() => "?")
             .join(",");
@@ -709,28 +717,36 @@ export default class DatabaseInterface {
         });
     }
 
+    public async hasBootloader(): Promise<boolean> {
+        const rows = await this.query<{ nrows: number }>("SELECT COUNT(*) AS nrows FROM firmware WHERE module = ?", ["fk-bl"]);
+        return rows[0].nrows > 0;
+    }
+
     public async addOrUpdateFirmware(firmware: FirmwareTableRow): Promise<void> {
-        return await this.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]).then((id) => {
-            if (id.length === 1) {
-                return Promise.resolve();
-            }
-            const values = [
-                firmware.id,
-                firmware.time,
-                firmware.url,
-                firmware.module,
-                firmware.profile,
-                firmware.etag,
-                firmware.path,
-                _.isObject(firmware.meta) ? JSON.stringify(firmware.meta) : firmware.meta,
-                firmware.buildTime,
-                firmware.buildNumber,
-            ];
-            return this.execute(
-                `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                values
-            );
-        });
+        const ids = await this.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]);
+        if (ids.length === 1) {
+            await this.execute(`UPDATE firmware SET logical_address = ? WHERE id = ?`, [firmware.logicalAddress, firmware.id]);
+            return;
+        }
+
+        const values = [
+            firmware.id,
+            firmware.time,
+            firmware.url,
+            firmware.module,
+            firmware.profile,
+            firmware.etag,
+            firmware.path,
+            _.isObject(firmware.meta) ? JSON.stringify(firmware.meta) : firmware.meta,
+            firmware.buildTime,
+            firmware.buildNumber,
+            firmware.logicalAddress,
+        ];
+
+        await this.execute(
+            `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number, logical_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            values
+        );
     }
 
     public async addOrUpdateNotes(notes: Notes): Promise<void> {

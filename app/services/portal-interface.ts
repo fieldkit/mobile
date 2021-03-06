@@ -94,6 +94,7 @@ export interface PortalFirmware {
     etag: string;
     buildTime: number;
     buildNumber: string;
+    logicalAddress?: number;
 }
 
 export interface AddStationFields {

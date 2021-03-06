@@ -7,7 +7,7 @@ import { promiseAfter, zoned } from "@/lib";
 
 // import { ProcessAllStationsTask } from "@/lib/process";
 
-function updateStore(store: OurStore): Promise<void> {
+export function updateStore(store: OurStore): Promise<void> {
     promiseAfter(1000)
         .then(() =>
             zoned({ force: true }, async () => {
@@ -21,7 +21,7 @@ function updateStore(store: OurStore): Promise<void> {
     return Promise.resolve();
 }
 
-function enableLocationServices(services: Services): Promise<void> {
+export function enableLocationServices(services: Services): Promise<void> {
     // On iOS this can take a while, so we do this in the background.
     void services.PhoneLocation().enableAndGetLocation();
     return Promise.resolve();

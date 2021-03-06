@@ -69,6 +69,7 @@ describe("UserAuth", () => {
             .mockReturnValueOnce(Promise.resolve(userResponse))
             .mockReturnValueOnce(Promise.resolve(transmissionResponse))
             .mockReturnValueOnce(Promise.resolve(statusResponse))
+            .mockReturnValueOnce(Promise.resolve(firmwareResponse))
             .mockReturnValueOnce(Promise.resolve(firmwareResponse));
 
         await store.dispatch(new LoginAction(user.email, user.password));

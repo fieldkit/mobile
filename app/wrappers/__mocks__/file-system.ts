@@ -24,6 +24,10 @@ export class FolderWrapper {
     public entries(): FileLike[] {
         return [];
     }
+
+    public clear(): Promise<void> {
+        return Promise.resolve();
+    }
 }
 
 export default class FileSystem {
@@ -41,5 +45,9 @@ export default class FileSystem {
 
     public listFolder(_path: string): Promise<FileLike[]> {
         return Promise.resolve([]);
+    }
+
+    public deleteFolder(path: string): Promise<void> {
+        return Promise.resolve();
     }
 }

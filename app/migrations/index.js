@@ -25,4 +25,5 @@ export * from "./20210119_173542_add_last_synced.ts";
 export * from "./20210217_180557_add_uncalibrated_column.ts";
 export * from "./20210217_180912_rename_current_reading.ts";
 export * from "./20210219_151559_add_station_logs.ts";
-export * from "./20210301_123327_add_stored_networks_table";
+export * from "./20210301_123327_add_stored_networks_table.ts";
+export * from "./20210306_140641_add_firmware_logical_address.ts";

@@ -74,6 +74,7 @@ describe("Authentication", () => {
                 .mockReturnValueOnce(Promise.resolve(user))
                 .mockReturnValueOnce(Promise.resolve(transmission))
                 .mockReturnValueOnce(Promise.resolve(status))
+                .mockReturnValueOnce(Promise.resolve(firmware))
                 .mockReturnValueOnce(Promise.resolve(firmware));
 
             services.Conservify().download = jest.fn(() =>
