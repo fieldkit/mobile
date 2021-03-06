@@ -64,11 +64,19 @@ GridLayout {
 }
 
 .md-list-item {
+    // background-color: #a000a0;
     color: $fk-primary-black;
     text-align: left;
     font-size: 16;
     margin-right: 30;
     margin-left: 30;
+}
+
+.md-seq-key {
+    margin-right: 10;
+}
+
+.md-seq-value {
 }
 
 .md-grid {

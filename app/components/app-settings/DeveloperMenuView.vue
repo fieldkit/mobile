@@ -45,7 +45,7 @@
 
                 <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" v-if="false" />
 
-                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" :isEnabled="!busy" />
+                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
 
                 <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
                     <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />

@@ -37,6 +37,96 @@ describe("reader parsing", () => {
             });
         });
 
+        it("should parse simple list", async () => {
+            const actual = await transform("1. Item\n2. Item\n3. Item\n");
+
+            expect(actual).toEqual({
+                type: "StackLayout",
+                props: {
+                    class: "md-tree",
+                },
+                children: [
+                    {
+                        type: "StackLayout",
+                        props: {
+                            class: "md-list",
+                        },
+                        children: [
+                            {
+                                children: [
+                                    {
+                                        children: [
+                                            {
+                                                props: {
+                                                    text: "Item",
+                                                    textWrap: true,
+                                                },
+                                                type: "Label",
+                                            },
+                                        ],
+                                        props: {
+                                            class: "md-paragraph",
+                                        },
+                                        type: "StackLayout",
+                                    },
+                                ],
+                                props: {
+                                    class: "md-list-item",
+                                },
+                                type: "StackLayout",
+                            },
+                            {
+                                children: [
+                                    {
+                                        children: [
+                                            {
+                                                props: {
+                                                    text: "Item",
+                                                    textWrap: true,
+                                                },
+                                                type: "Label",
+                                            },
+                                        ],
+                                        props: {
+                                            class: "md-paragraph",
+                                        },
+                                        type: "StackLayout",
+                                    },
+                                ],
+                                props: {
+                                    class: "md-list-item",
+                                },
+                                type: "StackLayout",
+                            },
+                            {
+                                children: [
+                                    {
+                                        children: [
+                                            {
+                                                props: {
+                                                    text: "Item",
+                                                    textWrap: true,
+                                                },
+                                                type: "Label",
+                                            },
+                                        ],
+                                        props: {
+                                            class: "md-paragraph",
+                                        },
+                                        type: "StackLayout",
+                                    },
+                                ],
+                                props: {
+                                    class: "md-list-item",
+                                },
+                                type: "StackLayout",
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
         it("should parse complete example", async () => {
             const actual = await transform(`
 # Heading
@@ -299,33 +389,75 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "LEFT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
-                                        type: "Label",
+                                        type: "GridLayout",
                                         props: {
-                                            text: "1. Flour",
-                                            textWrap: true,
+                                            class: "md-grid",
+                                            rows: "auto,auto,auto",
+                                            columns: "auto,*",
                                         },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "2. Water",
-                                            textWrap: true,
-                                        },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "3. Salt",
-                                            textWrap: true,
-                                        },
+                                        children: [
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 0,
+                                                    col: 0,
+                                                    text: "1.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 1,
+                                                    col: 0,
+                                                    text: "2.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 2,
+                                                    col: 0,
+                                                    text: "3.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 0,
+                                                    col: 1,
+                                                    text: "Flour",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 1,
+                                                    col: 1,
+                                                    text: "Water",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 2,
+                                                    col: 1,
+                                                    text: "Salt",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                        ],
                                     },
                                 ],
                             },
@@ -336,13 +468,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "RIGHT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -404,33 +529,75 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "LEFT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
-                                        type: "Label",
+                                        type: "GridLayout",
                                         props: {
-                                            text: "1. Flour",
-                                            textWrap: true,
+                                            class: "md-grid",
+                                            rows: "auto,auto,auto",
+                                            columns: "auto,*",
                                         },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "2. Water",
-                                            textWrap: true,
-                                        },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "3. Salt",
-                                            textWrap: true,
-                                        },
+                                        children: [
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 0,
+                                                    col: 0,
+                                                    text: "1.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 1,
+                                                    col: 0,
+                                                    text: "2.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 2,
+                                                    col: 0,
+                                                    text: "3.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 0,
+                                                    col: 1,
+                                                    text: "Flour",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 1,
+                                                    col: 1,
+                                                    text: "Water",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 2,
+                                                    col: 1,
+                                                    text: "Salt",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                        ],
                                     },
                                 ],
                             },
@@ -441,13 +608,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "RIGHT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -561,33 +721,75 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "LEFT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
-                                        type: "Label",
+                                        type: "GridLayout",
                                         props: {
-                                            text: "1. Flour",
-                                            textWrap: true,
+                                            class: "md-grid",
+                                            rows: "auto,auto,auto",
+                                            columns: "auto,*",
                                         },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "2. Water",
-                                            textWrap: true,
-                                        },
-                                    },
-                                    {
-                                        type: "Label",
-                                        props: {
-                                            text: "3. Salt",
-                                            textWrap: true,
-                                        },
+                                        children: [
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 0,
+                                                    col: 0,
+                                                    text: "1.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 1,
+                                                    col: 0,
+                                                    text: "2.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-key",
+                                                    row: 2,
+                                                    col: 0,
+                                                    text: "3.",
+                                                    textWrap: false,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 0,
+                                                    col: 1,
+                                                    text: "Flour",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 1,
+                                                    col: 1,
+                                                    text: "Water",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                            {
+                                                type: "Label",
+                                                props: {
+                                                    class: "md-seq-value",
+                                                    row: 2,
+                                                    col: 1,
+                                                    text: "Salt",
+                                                    textWrap: true,
+                                                },
+                                            },
+                                        ],
                                     },
                                 ],
                             },
@@ -598,13 +800,6 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "RIGHT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {

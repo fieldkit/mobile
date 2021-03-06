@@ -22,6 +22,77 @@ export interface MdNode {
     type: string;
     props: Record<string, unknown>;
     children?: MdNode[];
+    sequence?: {
+        ordinal: string;
+        label: string;
+    };
+}
+
+function toMaybeSequenceItem(node: MdNode): MdNode {
+    const text = node.props.text as string | undefined;
+    if (!text) {
+        return node;
+    }
+    const m = text.match(/([\dA-Z]+\.)\s+(.+)/);
+    if (!m) {
+        return node;
+    }
+    return _.extend(
+        {
+            sequence: {
+                ordinal: m[1],
+                label: m[2],
+            },
+        },
+        node
+    );
+}
+
+function createSequences(children: MdNode[]): MdNode[] {
+    const maybeSequences = children.map((m) => toMaybeSequenceItem(m));
+    const onlySequences = !_.some(maybeSequences, (s) => !s.sequence);
+    if (onlySequences) {
+        const ordinals = maybeSequences.map((s, index) => {
+            if (!s.sequence) throw new Error();
+            return {
+                type: "Label",
+                props: {
+                    class: "md-seq-key",
+                    row: index,
+                    col: 0,
+                    text: s.sequence.ordinal,
+                    textWrap: false,
+                },
+            };
+        });
+
+        const labels = maybeSequences.map((s, index) => {
+            if (!s.sequence) throw new Error();
+            return {
+                type: "Label",
+                props: {
+                    class: "md-seq-value",
+                    row: index,
+                    col: 1,
+                    text: s.sequence.label,
+                    textWrap: true,
+                },
+            };
+        });
+
+        return [
+            {
+                type: "GridLayout",
+                props: {
+                    class: "md-grid",
+                    rows: _.times(maybeSequences.length, (i) => "auto").join(","),
+                    columns: "auto,*",
+                },
+                children: _.concat(ordinals, labels),
+            },
+        ];
+    }
+    return children;
 }
 
 function createContext(): Context {
@@ -55,7 +126,7 @@ function createContext(): Context {
                             col: index,
                             class: "md-column",
                         },
-                        children: _.flatten(column),
+                        children: createSequences(_.flatten(column)),
                     };
                 }
             );
