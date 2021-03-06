@@ -400,7 +400,7 @@
                 "forward": "Complete Setup",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide",
-                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#weather-module-setup",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
@@ -433,7 +433,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the pH Probe.\n\n## The pH Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the pH Probe.\nThe pH Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_41_ee59861b57.png"
@@ -452,7 +452,7 @@
                 "forward": "Calibrate Sensors",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide",
-                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station//#pH-module-setup",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "pH"
@@ -504,7 +504,7 @@
                 "forward": "Calibrate Sensors",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide ",
-                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#conductivity-module-setup",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Conductivity"
@@ -556,14 +556,14 @@
                 "forward": "Calibrate Sensors",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide",
-                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#dissolved-oxygen-module-setup",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Dissolved Oxygen"
                 },
                 "simple": [
                     {
-                        "body": "# Attach to Station\n## Screw the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "# Attach to Station\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_50_8834adfd6d.png"
@@ -608,7 +608,7 @@
                 "forward": "Complete Setup",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide",
-                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#water-temperature-module-setup",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Water Temperature"
@@ -722,7 +722,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the Weather Pack:\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Stevenson Screen + Arm      | E) Anemometer and Wind Vane + Arm      |\n| B) Weather Sensor Board       | F) Mounting Pole (a) + (b)       |\n| C) CAT5 Cable       | G) Hose Clamps    |\n| D) Rain Gauge + Arm       | H) Screws    |\n\n## The Weather Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the Weather Pack:\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Stevenson Screen + Arm       | 5. Anemometer and Wind Vane + Arm      |\n| 2. Weather Sensor Board          | 6. Mounting Pole (a) + (b)       |\n| 3. CAT5 Cable                            | 7. Hose Clamps    |\n| 4. Rain Gauge + Arm                  | 8. Screws    |\n\n## The Weather Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_26_2e8af5beca.png"
@@ -780,7 +780,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Flour       | 500g       |\n| 2. Water       | 220g       |\n| 3. Salt        | 1/4 tsp    |\n\nTables don't need to line up exactly in this editor, though that makes things easier to read. The left hand side pipes are important if you're using lists. Another thing you may notice is that LEFT and RIGHT. It's annoying, but the headers are required (cause this is a table) and so we will hide them, but they're necessary for the parser we're using.",
+                        "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Stevenson Screen + Arm      | 5. Anemometer and Wind Vane + Arm      |\n| 2. Weather Sensor Board       | 6. Mounting Pole (a) + (b)       |\n| 3. CAT5 Cable       | 7. Hose Clamps    |\n| 4. Rain Gauge + Arm       | 8. Screws    |\n\nTables don't need to line up exactly in this editor, though that makes things easier to read. The left hand side pipes are important if you're using lists. Another thing you may notice is that LEFT and RIGHT. It's annoying, but the headers are required (cause this is a table) and so we will hide them, but they're necessary for the parser we're using.",
                         "images": []
                     }
                 ]
@@ -789,8 +789,8 @@
                 "id": "40",
                 "name": "onboarding.water.ph.03",
                 "locale": "en_US",
-                "forward": "Forward",
-                "skip": null,
+                "forward": "Next",
+                "skip": "Skip",
                 "guideTitle": null,
                 "guideUrl": null,
                 "header": {
@@ -812,8 +812,8 @@
                 "id": "41",
                 "name": "onboarding.water.ec.03",
                 "locale": "en_US",
-                "forward": "Forward",
-                "skip": null,
+                "forward": "Next",
+                "skip": "Skip",
                 "guideTitle": null,
                 "guideUrl": null,
                 "header": {
@@ -826,6 +826,52 @@
                         "images": [
                             {
                                 "url": "/uploads/TI_11_1_2_3_conductivity_a5568114a3.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "42",
+                "name": "onboarding.water.temp.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip",
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "Set Up",
+                    "subtitle": "Water Temperature"
+                },
+                "simple": [
+                    {
+                        "body": "# Three-Point Transfer Calibration\nMake sure you have 3 temperature sources and a standard thermometer.\n\n## We recommend using the following sources in this order: a cup of ice water (0°C), room temperature air (20–22 °C), and a cup of boiling water (100°C).",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_13_Wat_Temp_3_7e67a24363.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "43",
+                "name": "onboarding.water.dox.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip",
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "Set Up",
+                    "subtitle": "Dissolved Oxygen"
+                },
+                "simple": [
+                    {
+                        "body": "# Three-point Transfer Calibration\n\nMake sure you have a cup of water, an aquarium air pump, tubing and airstone, and a standard Dissolved Oxygen meter or test kit.",
+                        "images": [
+                            {
+                                "url": "/uploads/DO_3_Point_Intro_NEW_4d949981b3.png"
                             }
                         ]
                     }
