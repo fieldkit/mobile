@@ -37,7 +37,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$navigateTo(fullRoutes.dataSync);
 
             return;
         }

@@ -151,6 +151,12 @@ export const namedRoutes = inferNames(routes);
 export const fullRoutes = {
     login: new FullRoute("login", Frames.Outer, {}),
     tabbed: new FullRoute("tabbed", Frames.Outer, {}),
+    dataSync: new FullRoute("tabbed", Frames.Outer, {
+        firstTab: {
+            index: 0,
+            route: new FullRoute("dataSync", Frames.Data, {}),
+        },
+    }),
     onboarding: {
         assemble: new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
