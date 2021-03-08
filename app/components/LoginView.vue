@@ -52,9 +52,9 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
-                        console.log("navigating", fullRoutes.onboarding);
+                        console.log("navigating", fullRoutes.onboarding.assemble);
                         // eslint-disable-next-line
-                        await this.$navigateTo(fullRoutes.onboarding);
+                        await this.$navigateTo(fullRoutes.onboarding.assemble);
                     })
                     .catch((error) => {
                         console.log("error", error);
