@@ -10,6 +10,7 @@
                 :text="value"
                 :keyboardType="keyboardType"
                 :secure="secure && hidden"
+                :isEnabled="isEnabled"
                 autocorrect="false"
                 autocapitalizationType="none"
                 @focus="onFocus"
@@ -55,6 +56,10 @@ export default Vue.extend({
         canShow: {
             type: Boolean,
             default: false,
+        },
+        isEnabled: {
+            type: Boolean,
+            default: true,
         },
     },
     data(): {

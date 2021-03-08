@@ -1,6 +1,6 @@
 <template>
     <StackLayout class="form">
-        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" />
+        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" :isEnabled="!busy" />
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -28,7 +28,7 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" />
+        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" :isEnabled="!busy" />
         <Label
             v-show="form.v.password.required"
             id="password-required"
