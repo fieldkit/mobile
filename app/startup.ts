@@ -37,7 +37,6 @@ async function resumePortalSession(services: Services): Promise<void> {
 async function startupPortal(services: Services): Promise<void> {
     console.log(`startup-portal: begin`);
 
-    await services.StationFirmware().cleanupFirmware();
     await resumePortalSession(services);
     await services.PortalUpdater().start();
 

@@ -126,33 +126,10 @@ export default class StationFirmware {
         }
     }
 
-    public async cleanupFirmware(): Promise<void> {
-        const firmware = await this.services.Database().getAllFirmware();
-        const keeping: number[] = [];
-
-        for (const fw of firmware) {
-            const local = this.services.FileSystem().getFile(fw.path);
-            if (local && local.exists && local.size > 0) {
-                log.info("keeping", fw.path, local.exists, local.size);
-                keeping.push(fw.id);
-            } else {
-                log.info("deleting", fw.path, local.exists, local.size);
-            }
-        }
-
-        await this.services
-            .Database()
-            .deleteAllFirmwareExceptIds(keeping)
-            .then((deleted) => {
-                log.info("deleted", deleted);
-                return Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
-            });
-    }
-
-    public upgradeStation(url: string, progressCallback: ProgressCallback): Promise<FirmwareResponse> {
+    public async upgradeStation(url: string, progressCallback: ProgressCallback): Promise<FirmwareResponse> {
         log.info("upgrade", url);
 
-        return this.haveFirmware().then((yes: boolean) => {
+        return await this.haveFirmware().then((yes: boolean) => {
             if (!yes) {
                 return Promise.reject(new Error("missingFirmware"));
             }
@@ -171,8 +148,8 @@ export default class StationFirmware {
         });
     }
 
-    public haveFirmware(): Promise<boolean> {
-        return this.services
+    public async haveFirmware(): Promise<boolean> {
+        return await this.services
             .Database()
             .getLatestFirmware()
             .then((firmware) => {

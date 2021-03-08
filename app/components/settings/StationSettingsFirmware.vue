@@ -201,11 +201,8 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .bottom-border {
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;
