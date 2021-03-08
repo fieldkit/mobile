@@ -78,7 +78,7 @@ import {
     getZone,
 } from "@/lib";
 
-import { routes, FullRoute } from "@/routes";
+import { routes, fullRoutes, FullRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
@@ -285,10 +285,7 @@ export default Vue.extend({
             this.busy = false;
         },
         async goOnboarding(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.assembleStation, {
-                frame: "outer-frame",
-                clearHistory: true,
-            });
+            void this.$navigateTo(fullRoutes.onboarding.assemble);
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({
@@ -316,10 +313,7 @@ export default Vue.extend({
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
-                    void this.$navigateTo(routes.onboarding.assembleStation, {
-                        frame: "outer-frame",
-                        clearHistory: true,
-                    });
+                    void this.$navigateTo(fullRoutes.onboarding.assemble);
                 }
             });
         },
