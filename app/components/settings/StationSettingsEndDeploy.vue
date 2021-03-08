@@ -36,18 +36,16 @@ import { AvailableStation, ActionTypes } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
-    data() {
-        return {};
+    name: "StationSettingsEndDeploy",
+    components: {
+        ...SharedComponents,
+        ConnectionStatusHeader,
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-    },
-    components: {
-        ...SharedComponents,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

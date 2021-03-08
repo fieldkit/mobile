@@ -147,7 +147,10 @@ export default class QueryStation {
     public async sendNetworkSettings(address: string, networks: NetworkInfo[]): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
-            networkSettings: { networks: networks },
+            networkSettings: {
+                modifying: true,
+                networks: networks,
+            },
         });
 
         return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
