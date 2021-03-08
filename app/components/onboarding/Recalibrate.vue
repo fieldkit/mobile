@@ -36,8 +36,8 @@
                 <Label :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
             </StackLayout>
 
-            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="station.modules.length > 0">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
+            <StackLayout row="2" verticalAlignment="bottom" v-if="station.modules.length > 0">
+                <Button class="btn btn-primary" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
                 <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
 
@@ -139,7 +139,6 @@ export default Vue.extend({
 .skip {
     padding-top: 10;
     padding-bottom: 10;
-    background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
@@ -159,5 +158,9 @@ export default Vue.extend({
 .small {
     width: 50;
     margin: 20;
+}
+
+.btn-primary {
+    margin-bottom: 0;
 }
 </style>

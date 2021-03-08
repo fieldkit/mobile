@@ -26,13 +26,16 @@
             </template>
         </template>
         <template v-else>
-            <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
+            <GridLayout rows="auto" columns="15*,70*,15*" :class="classes" verticalAlignment="middle">
                 <StackLayout v-if="haveBackStack" col="0" class="back-icon" @tap="raiseBack">
                     <Image height="25" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
-                <GridLayout col="1" :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
-                    <Label row="0" class="title text-center" :text="title" textWrap="true"></Label>
-                    <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
+                <GridLayout v-if="subtitle" col="1" rows="auto,auto" columns="*" verticalAlignment="middle">
+                    <Label row="0" class="text-center title" :text="title" textWrap="false" />
+                    <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="false" />
+                </GridLayout>
+                <GridLayout v-else col="1" rows="auto" columns="*" verticalAlignment="middle">
+                    <Label row="0" class="text-center title" :text="title" textWrap="false" />
                 </GridLayout>
                 <StackLayout v-if="!icon && canCancel" col="2" class="close-icon" @tap="raiseCancel">
                     <Image height="25" src="~/images/Icon_Close.png"></Image>

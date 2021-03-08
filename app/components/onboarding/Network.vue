@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('chooseWifiSettings')" :canNavigateSettings="false" />
-        <GridLayout rows="*,140">
+        <GridLayout rows="*,auto">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">

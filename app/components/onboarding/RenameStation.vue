@@ -1,7 +1,7 @@
 <template>
     <Page class="page" @loaded="onPageLoaded">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,140">
+        <GridLayout rows="*,auto">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
@@ -51,13 +51,8 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="_L('saveNewName')"
-                    @tap="rename"
-                    :isEnabled="currentStation.connected && !busy"
-                />
+            <StackLayout row="1" verticalAlignment="bottom">
+                <Button class="btn btn-primary" :text="_L('saveNewName')" @tap="rename" :isEnabled="currentStation.connected && !busy" />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -210,8 +205,7 @@ export default Vue.extend({
 .skip {
     padding-top: 10;
     padding-bottom: 10;
-    background-color: white;
-    font-size: 16;
+    font-size: 14;
     font-weight: bold;
     text-align: center;
     margin: 10;
@@ -227,5 +221,8 @@ export default Vue.extend({
 }
 .m-t-60 {
     margin-top: 60;
+}
+.btn-primary {
+    margin-bottom: 0;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
-    <Page class="page" @loaded="onPageLoaded" navigatingFrom="onNavigatingFrom">
-        <PlatformHeader :title="_L('fieldkitWifi')" :canNavigateBack="false" :canNavigateSettings="false" />
-        <GridLayout rows="*,140">
+    <Page @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
+        <PlatformHeader :title="_L('fieldkitWifi')" :onBack="back" :canNavigateSettings="false" />
+        <GridLayout rows="*,auto">
             <ScrollView row="0" v-show="step == 0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0">
@@ -30,8 +30,8 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('continue')" @tap="forward"></Button>
+            <StackLayout row="1" verticalAlignment="bottom">
+                <Button class="btn btn-primary" :text="_L('continue')" @tap="forward" />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -48,7 +48,6 @@ export default Vue.extend({
     components: {
         ...SharedComponents,
     },
-    props: {},
     data(): {
         frame: number;
         step: number;
@@ -61,7 +60,8 @@ export default Vue.extend({
     methods: {
         onPageLoaded(): void {
             console.log("onboarding/start:", "loaded");
-
+            this.step = 0;
+            this.frame = 0;
             const thisAny = this as any;
             thisAny.timer = new Timer(1000, () => {
                 this.frame += 1;
@@ -75,7 +75,9 @@ export default Vue.extend({
         async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                await this.$navigateTo(routes.onboarding.searching);
+                await this.$navigateTo(routes.onboarding.searching, {
+                    backstackVisible: false,
+                });
             }
         },
         async back(): Promise<void> {
@@ -103,7 +105,6 @@ export default Vue.extend({
 .skip {
     padding-top: 10;
     padding-bottom: 10;
-    background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
@@ -140,7 +141,6 @@ export default Vue.extend({
     width: 50;
     margin: 20;
 }
-
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
@@ -151,5 +151,8 @@ export default Vue.extend({
 }
 .red-text {
     color: $fk-primary-red;
+}
+.btn-primary {
+    margin-bottom: 0;
 }
 </style>

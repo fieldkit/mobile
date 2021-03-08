@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,140">
+        <GridLayout rows="*,auto">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0">

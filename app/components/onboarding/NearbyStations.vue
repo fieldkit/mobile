@@ -1,13 +1,16 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="*,140">
+    <Page>
+        <PlatformHeader title="Onboarding" :canNavigateSettings="false" />
+        <GridLayout rows="*,auto">
             <ScrollView row="0">
                 <StackLayout>
-                    <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true"></Label>
+                    <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true" />
 
-                    <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true"></Label>
+                    <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true" />
 
-                    <StackLayout class="m-t-10"></StackLayout>
+                    <!-- Why is this here? -->
+                    <StackLayout class="m-t-10" />
+
                     <GridLayout rows="auto" columns="30,*" class="option-container" v-for="station in nearbyStations" :key="station.id">
                         <CheckBox
                             col="0"
@@ -20,13 +23,13 @@
                             boxType="circle"
                             @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
                         />
-                        <Label col="1" class="m-t-5 m-l-5" :text="station.name"></Label>
+                        <Label col="1" class="m-t-5 m-l-5" :text="station.name" />
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
 
-            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" :isEnabled="true" @tap="forward"></Button>
+            <StackLayout row="1" verticalAlignment="bottom">
+                <Button class="btn btn-primary" :text="_L('next')" :isEnabled="true" @tap="forward" />
                 <Label :text="_L('noStationTryAgain')" class="skip" @tap="tryAgain" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -133,7 +136,6 @@ export default Vue.extend({
 .skip {
     padding-top: 10;
     padding-bottom: 10;
-    background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
@@ -181,5 +183,8 @@ export default Vue.extend({
 }
 .red-text {
     color: $fk-primary-red;
+}
+.btn-primary {
+    margin-bottom: 0;
 }
 </style>
