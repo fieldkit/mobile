@@ -94,6 +94,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.station.detail, {
                 props: {
                     stationId: this.station.id,
+                    redirectedFromCalibration: !this.station.modules.find(item => !item.isCalibrated)
                 },
             });
         },

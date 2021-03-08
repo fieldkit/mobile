@@ -32,7 +32,17 @@
                             />
                         </StackLayout>
                     </GridLayout>
-
+                    <AbsoluteLayout v-if="redirectedFromCalibration" row="0" col="0" class="text-center">
+                        <GridLayout top="75" width="100%">
+                            <StackLayout class="ready-to-deploy-dialog-container p-20">
+                                <Image width="60" src="~/images/Icon_Success.png"></Image>
+                                <Label :text="_L('readyToDeploy')" class="size-18 bold p-10 m-t-20" />
+                                <Label :text="_L('readyToDeployBodyDialog')" class="size-16 p-10 m-t-10" textWrap="true" lineHeight="4" />
+                                <Button class="btn btn-primary ready-to-deploy-button" :text="_L('viewChecklist')" @tap="onViewChecklist" />
+                                <Label :text="_L('skipChecklist')" class="size-14 m-t-20" textWrap="true" @tap="onSkip" />
+                            </StackLayout>
+                        </GridLayout>
+                    </AbsoluteLayout>
                     <AbsoluteLayout v-if="newlyDeployed" row="0" col="0" class="text-center">
                         <GridLayout top="75" width="100%">
                             <StackLayout class="deployed-dialog-container">
@@ -51,7 +61,7 @@
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
-            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorialGuide">
+            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorialGuide && !redirectedFromCalibration">
                 <StationDetailTooltipView
                     :topPosition="30"
                     :leftPosition="200"
@@ -124,6 +134,7 @@ import NoModulesWannaAdd from "./NoModulesWannaAdd.vue";
 import NotificationFooter from "./NotificationFooter.vue";
 import StationDetailTooltipView from "~/components/StationDetailTooltipView.vue";
 import { Settings } from "~/store/modules/portal";
+import * as utils from "@nativescript/core/utils/utils";
 
 export default Vue.extend({
     components: {
@@ -140,6 +151,10 @@ export default Vue.extend({
             required: true,
         },
         redirectedFromDeploy: {
+            type: Boolean,
+            default: false,
+        },
+        redirectedFromCalibration: {
             type: Boolean,
             default: false,
         },
@@ -344,6 +359,16 @@ export default Vue.extend({
                 });
             }
         },
+        onViewChecklist() {
+            utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
+        },
+        async onSkip() {
+            await this.$navigateTo(routes.station.detail, {
+                props: {
+                    stationId: this.stationId,
+                },
+            });
+        },
     },
 });
 </script>
@@ -387,5 +412,19 @@ StationDetailTooltipView {
 }
 .active {
     z-index: 99;
+}
+
+.ready-to-deploy-dialog-container {
+    border-radius: 4;
+    background-color: $white;
+    color: $fk-circle-blue;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    width: 300;
+    padding-top: 40;
+}
+
+.ready-to-deploy-button {
+    margin-top: 50;
 }
 </style>
