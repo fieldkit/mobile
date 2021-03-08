@@ -126,7 +126,7 @@ export default Vue.extend({
         },
         async onSync(account: CurrentUser): Promise<void> {
             const yesNo = await Dialogs.confirm({
-                title: "Are you sure?",
+                title: "Are you sure you would like to sync this account?",
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             });
@@ -136,7 +136,7 @@ export default Vue.extend({
         },
         async onRemove(account: CurrentUser): Promise<void> {
             const yesNo = await Dialogs.confirm({
-                title: "Are you sure?",
+                title: "Are you sure you would like to remove this account?",
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             });
