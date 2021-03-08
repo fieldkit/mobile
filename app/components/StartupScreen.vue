@@ -37,9 +37,11 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            await this.$navigateTo(fullRoutes.onboarding.start);
+            if (this.$s.getters.stationCalibrations[1]) {
+                await this.$navigateTo(fullRoutes.onboarding.recalibrate(1));
 
-            return;
+                return;
+            }
         }
 
         console.log("first navigate");

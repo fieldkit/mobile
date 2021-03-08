@@ -167,9 +167,18 @@ export const fullRoutes = {
         start: new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,
-                route: new FullRoute("onboarding/assembleStation", Frames.Stations, {}),
+                route: new FullRoute("onboarding/start", Frames.Stations, {}),
             },
         }),
+        recalibrate: (stationId: number) =>
+            new FullRoute("tabbed", Frames.Outer, {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("onboarding/recalibrate", Frames.Stations, {
+                        stationId: stationId,
+                    }),
+                },
+            }),
     },
     stations: new FullRoute("tabbed", Frames.Outer, {
         firstTab: {

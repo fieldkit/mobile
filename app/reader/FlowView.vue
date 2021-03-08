@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" @navigatingFrom="onNavigatingFrom">
+    <Page @navigatingFrom="onNavigatingFrom">
         <template v-if="ready">
             <PlatformHeader
                 :title="screen.header.title"
@@ -115,7 +115,7 @@ export default Vue.extend({
     },
     methods: {
         async onForward(): Promise<void> {
-            console.log("forward", this.screen.name, this.screen.navOptions.forward);
+            console.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
             await this.nav.move(this.screen.navOptions.forward).then(async (done) => {
                 if (done) {
                     console.log("flow-view: done");
@@ -125,11 +125,12 @@ export default Vue.extend({
             });
         },
         async onBackward(): Promise<boolean> {
-            console.log("backward", this.screen.name, this.screen.navOptions.backward);
             if (this.screen.navOptions.backward.navigateBack) {
+                console.log("flow-view: navigate-back", this.screen.name);
                 await this.$navigateBack();
                 return true;
             } else {
+                console.log("flow-view: backward", this.screen.name, this.screen.navOptions.backward);
                 return await this.nav.move(this.screen.navOptions.backward);
             }
         },

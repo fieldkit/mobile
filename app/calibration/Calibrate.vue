@@ -38,9 +38,6 @@ import Header from "./Header.vue";
 import Success from "./Success.vue";
 import Failure from "./Failure.vue";
 
-import Recalibrate from "../components/onboarding/Recalibrate.vue";
-import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
-
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibrationValue, CalibratingSensor } from "./model";
 import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/modules/cal";
 import { WaterCalValue } from "./water";
@@ -185,22 +182,8 @@ export default Vue.extend({
             console.log("cal:", "cancel", step);
         },
         async navigateBack(): Promise<void> {
-            console.log("navigateBack", this.fromSettings);
-            if (this.fromSettings) {
-                await this.$navigateTo(StationSettingsModuleList, {
-                    clearHistory: true,
-                    props: {
-                        stationId: this.stationId,
-                    },
-                });
-            } else {
-                await this.$navigateTo(Recalibrate, {
-                    clearHistory: true,
-                    props: {
-                        stationId: this.stationId,
-                    },
-                });
-            }
+            console.log("cal:", "navigate-back", this.fromSettings);
+            await this.$navigateBack();
         },
         async onBack(step: CalibrationStep): Promise<void> {
             console.log("cal:", "back", step, "completed", this.completed.length);
