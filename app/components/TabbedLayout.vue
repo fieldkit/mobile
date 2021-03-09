@@ -7,7 +7,7 @@
             @selectedIndexChanged="onSelectedIndexChanged"
             @loaded="bottomLoaded"
         >
-            <TabStrip backgroundColor="white" selectedItemColor="#2c3e50">
+            <TabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
                 <TabStripItem @tap="tapStations">
                     <Image
                         width="22"
