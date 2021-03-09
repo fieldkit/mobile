@@ -689,12 +689,15 @@ export default class DatabaseInterface {
     }
 
     public async getLatestFirmware(): Promise<FirmwareTableRow | null> {
-        return await this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC LIMIT 1").then((all) => {
-            if (all.length == 0) {
-                return null;
+        log.info("get-latest-firmware", await this.getAllFirmware());
+        return await this.query<FirmwareTableRow>("SELECT * FROM firmware WHERE module = ? ORDER BY time DESC LIMIT 1", ["fk-core"]).then(
+            (all) => {
+                if (all.length == 0) {
+                    return null;
+                }
+                return all[0];
             }
-            return all[0];
-        });
+        );
     }
 
     public async deleteAllFirmware(): Promise<void> {
