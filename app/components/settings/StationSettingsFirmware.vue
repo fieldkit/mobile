@@ -81,12 +81,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { promiseAfter } from "@/lib";
+import { fullRoutes } from "@/routes";
 import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-import { getBus } from "@/components/NavigationBus";
 
 export default Vue.extend({
     components: {
@@ -194,7 +194,7 @@ export default Vue.extend({
         },
         async addAccount(): Promise<void> {
             console.log("addAccount");
-            getBus().$emit("open-settings", "account");
+            await this.$navigateTo(fullRoutes.settings.accounts);
         },
     },
 });

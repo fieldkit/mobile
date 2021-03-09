@@ -186,4 +186,12 @@ export const fullRoutes = {
             route: null,
         },
     }),
+    settings: {
+        accounts: new FullRoute("tabbed", Frames.Outer, {
+            firstTab: {
+                index: 2,
+                route: new FullRoute("appSettings/accountAdd", Frames.Settings, {}),
+            },
+        }),
+    },
 };
