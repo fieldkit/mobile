@@ -1,70 +1,65 @@
 <template>
     <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
         <PlatformHeader title="Onboarding" :onBack="goBack" :canNavigateSettings="false" />
-        <template v-if="step == 0">
-            <GridLayout rows="*,auto">
-                <StackLayout row="0">
-                    <Image verticalAlignment="middle" class="logo" src="~/images/fieldkit-logo-blue.png" stretch="aspectFit" />
-                    <Image verticalAlignment="middle" class="welcome-image" src="~/images/FieldKit_welcome_image.jpg" stretch="aspectFit" />
-                    <StackLayout class="welcome-text-container">
-                        <Label :text="_L('welcome')" class="welcome text-center" />
-                        <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
-                    </StackLayout>
+        <GridLayout rows="*,auto" v-if="step == 0">
+            <StackLayout row="0">
+                <Image verticalAlignment="middle" class="logo" src="~/images/fieldkit-logo-blue.png" stretch="aspectFit" />
+                <Image verticalAlignment="middle" class="welcome-image" src="~/images/FieldKit_welcome_image.jpg" stretch="aspectFit" />
+                <StackLayout class="welcome-text-container">
+                    <Label :text="_L('welcome')" class="welcome text-center" />
+                    <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
                 </StackLayout>
+            </StackLayout>
 
-                <StackLayout row="1" verticalAlignment="bottom">
-                    <Button class="btn btn-primary" :text="_L('getStarted')" @tap="goNext" />
-                    <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
-                </StackLayout>
+            <StackLayout row="1" verticalAlignment="bottom">
+                <Button class="btn btn-primary" :text="_L('getStarted')" @tap="goNext" />
+                <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
+            </StackLayout>
+        </GridLayout>
+        <StackLayout verticalAlignment="middle" v-else-if="step == lastStep">
+            <GridLayout rows="auto,auto">
+                <Image row="0" src="~/images/Icon_Success.png" class="small" stretch="aspectFit" />
+                <Label row="1" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
             </GridLayout>
-        </template>
-        <template v-else>
-            <GridLayout rows="*,auto">
-                <StackLayout row="0">
-                    <GridLayout rows="auto" columns="*" class="top-line-bkgd" v-if="step > 1">
-                        <StackLayout horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
-                    </GridLayout>
+        </StackLayout>
+        <GridLayout rows="*,auto" v-else>
+            <StackLayout row="0">
+                <GridLayout rows="auto" columns="*" class="top-line-bkgd">
+                    <StackLayout horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
+                </GridLayout>
 
-                    <Label class="instruction" :text="instruction" lineHeight="4" textWrap="true" />
+                <Label class="instruction" :text="instruction" lineHeight="4" textWrap="true" />
 
-                    <StackLayout class="m-x-30" v-if="checklist">
-                        <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
-                            <Label
-                                v-for="item in checklist"
-                                class="checklist-item"
-                                :key="item.id"
-                                :row="item.row"
-                                :col="item.col"
-                                :text="item.text"
-                            />
-                            <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
-                        </Gridlayout>
-                    </StackLayout>
-
-                    <GridLayout rows="*" columns="*">
-                        <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame" stretch="aspectFit" />
+                <StackLayout class="m-x-30" v-if="checklist">
+                    <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
                         <Label
-                            v-if="!displayFrame && noImageText"
-                            verticalAlignment="middle"
-                            class="m-y-30 m-x-20 text-center size-20"
-                            :text="noImageText"
+                            v-for="item in checklist"
+                            class="checklist-item"
+                            :key="item.id"
+                            :row="item.row"
+                            :col="item.col"
+                            :text="item.text"
                         />
-                    </GridLayout>
+                        <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
+                    </Gridlayout>
                 </StackLayout>
 
-                <StackLayout rowSpan="2" verticalAlignment="middle" v-if="step == lastStep">
-                    <GridLayout rows="auto,auto" columns="*">
-                        <Image row="0" src="~/images/Icon_Success.png" class="small" stretch="aspectFit" />
-                        <Label row="1" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
-                    </GridLayout>
-                </StackLayout>
+                <GridLayout rows="*" columns="*">
+                    <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame" stretch="aspectFit" />
+                    <Label
+                        v-if="!displayFrame && noImageText"
+                        verticalAlignment="middle"
+                        class="m-y-30 m-x-20 text-center size-20"
+                        :text="noImageText"
+                    />
+                </GridLayout>
+            </StackLayout>
 
-                <StackLayout row="1" verticalAlignment="bottom" v-else>
-                    <Button class="btn btn-primary" :text="buttonText" @tap="goNext" />
-                    <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
-                </StackLayout>
-            </GridLayout>
-        </template>
+            <StackLayout row="1" verticalAlignment="bottom">
+                <Button class="btn btn-primary" :text="buttonText" @tap="goNext" />
+                <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
+            </StackLayout>
+        </GridLayout>
     </Page>
 </template>
 

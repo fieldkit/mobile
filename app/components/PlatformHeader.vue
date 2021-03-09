@@ -163,6 +163,7 @@ export default Vue.extend({
                 this.classes
             );
         }
+        // eslint-disable-next-line
         if (true) {
             // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
             const frame = Frame.topmost();
