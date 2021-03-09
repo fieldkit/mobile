@@ -31,6 +31,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes, fullRoutes } from "@/routes";
+import * as utils from "@nativescript/core/utils/utils";
 
 export default Vue.extend({
     components: {
@@ -50,8 +51,7 @@ export default Vue.extend({
             await this.$navigateTo(fullRoutes.tabbed);
         },
         getHelp() {
-            const utilsModule = require("tns-core-modules/utils/utils");
-            utilsModule.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");
+            utils.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");
         },
     },
 });

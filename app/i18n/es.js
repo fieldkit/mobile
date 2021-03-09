@@ -396,6 +396,9 @@ module.exports = {
     stationDeployed: "Estación Implementado",
     readyToDeploy: "Listo para implementare",
     deployed: "Implementado",
+    readyToDeployBodyDialog: "Your station is setup and almost ready to start recording data. First, review the steps needed before depolyment.",
+    viewChecklist: "View Checklist",
+    skipChecklist: "Skip and Explore",
     // StationListView.vue
     lookingForStations: "Buscando estaciones ...",
     connectAStation: "Conectar una estación",

@@ -45,7 +45,7 @@ export default Vue.extend({
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         onProductGuide() {
-            utils.openUrl("https://www.fieldkit.org/product-guide/");
+            utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
     },
 });
