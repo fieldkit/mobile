@@ -39,6 +39,7 @@
 
                 <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 
+                <Button class="btn btn-primary btn-padded" text="Reset Logs" @tap="deleteLogs" />
                 <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
@@ -76,6 +77,7 @@ import {
     testWithFiles,
     zoned,
     getZone,
+    truncateLogs,
 } from "@/lib";
 
 import { routes, fullRoutes, FullRoute } from "@/routes";
@@ -320,6 +322,20 @@ export default Vue.extend({
         uploadDiagnostics(): Promise<any> {
             return this.$showModal(DiagnosticsModal, {
                 props: {},
+            });
+        },
+        async deleteLogs(): Promise<void> {
+            const confirmation = await this.superConfirm();
+            if (!confirmation) {
+                return;
+            }
+
+            await truncateLogs();
+
+            await alert({
+                title: _L("devOptions"),
+                message: "Logs deleted.",
+                okButtonText: _L("ok"),
             });
         },
         async deleteAll(): Promise<void> {

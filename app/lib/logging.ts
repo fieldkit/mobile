@@ -26,6 +26,11 @@ function getLogsFile(): File {
     return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
 }
 
+export async function truncateLogs(): Promise<void> {
+    await getLogsFile().remove();
+    logs.length = 0; // Empty logs.
+}
+
 function getExistingLogs(file: File): string {
     if (file.size < MaximumLogSize) {
         return file.readTextSync() || "";
@@ -57,8 +62,8 @@ function flush(): Promise<void> {
     });
 }
 
-export function copyLogs(where: File): Promise<void> {
-    return flush().then(() => {
+export async function copyLogs(where: File): Promise<void> {
+    return await flush().then(() => {
         return new Promise((resolve, reject) => {
             const file = getLogsFile();
             const existing = file.readTextSync();
