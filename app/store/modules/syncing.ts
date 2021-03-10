@@ -220,11 +220,12 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         // factory reset and then download more data.
         const uploads = station.streams
             .map((stream) => {
-                const firstBlock = stream.portalLastBlock || 0;
                 const lastBlock = stream.downloadLastBlock || 0;
+                const firstBlock = (stream.portalLastBlock || 0) > lastBlock ? lastBlock : stream.portalLastBlock || 0;
                 const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
                 const files = station.downloads
                     .filter((d) => d.fileType == stream.fileType())
+                    .filter((d) => d.generationId == stream.generationId)
                     .filter((d) => !d.uploaded)
                     .map((d) => new LocalFile(d.path, d.size));
                 return new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);

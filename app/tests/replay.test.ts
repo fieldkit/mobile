@@ -3,7 +3,7 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { Database } from "@/wrappers/sqlite";
-import { ActionTypes, Station, StationSyncStatus } from "@/store";
+import { ActionTypes, Station, StationSyncStatus, FileType } from "@/store";
 import { deleteMissingAssets } from "@/services";
 import { rebaseAbsolutePath } from "@/lib/fs";
 
@@ -17,12 +17,13 @@ describe("Replay", () => {
     it.skip("load replay database and replay station reply", async () => {
         expect.assertions(1);
 
+        const stationId = 14;
         const services = new ServicesImpl();
-        const path = "/home/jlewallen/fieldkit/mobile/app/tests/replay-cases/70125844-4747-4ed2-9f40-0c8efde65938.db";
+        const path = "/home/jlewallen/downloads/fk.db";
         const db = await openDiscardingChanges(services, path);
 
         await db.execute(`PRAGMA foreign_keys = OFF`);
-        await db.execute(`DELETE FROM stations WHERE id != 4`);
+        await db.execute(`DELETE FROM stations WHERE id != ?`, [stationId]);
 
         const store = services.Store();
         await store.dispatch(ActionTypes.LOAD_STATIONS);
@@ -30,21 +31,59 @@ describe("Replay", () => {
         console.log(`loaded: ${store.state.stations.all.length}`);
 
         for (const station of store.state.stations.all) {
-            const statusReply = station.decodeStatusReply();
-            if (false) {
-                console.log(statusReply);
-            }
+            console.log(station.decodeStatusReply());
         }
 
-        console.log(_.map(store.state.syncing.stations, (s) => [s.id, s.name]));
+        const names = _.map(store.state.syncing.stations, (s) => [s.id, s.name]);
+        console.log("names", names);
 
         const syncs: { [index: number]: StationSyncStatus } = _.keyBy(store.state.syncing.syncs, (s) => s.id);
         const stations: { [index: number]: Station } = _.keyBy(store.state.syncing.stations, (s) => s.id!);
 
-        (stations[4] as any).serializedStatus = null;
+        const station = stations[stationId];
 
-        console.log("station", JSON.stringify(stations[4], null, 2));
-        console.log("sync", JSON.stringify(syncs[4], null, 2));
+        (station as any).serializedStatus = null;
+        (station as any).serialized = null;
+
+        // console.log("station", JSON.stringify(station, null, 2));
+
+        const sync = syncs[stationId];
+        console.log("sync", JSON.stringify(sync, null, 2));
+
+        const dataOnly = sync.uploads.filter((file) => file.fileType == FileType.Data);
+        console.log("sync", {
+            readingsCopying: sync.readingsCopying,
+            readingsReadyUpload: sync.readingsReadyUpload,
+            readingsReadyDownload: sync.readingsReadyDownload,
+            pathsToUpload: sync.getPathsToUpload(),
+            pathsToUploadLength: sync.getPathsToUpload().length,
+            uploads: dataOnly.map((f) => [f.blocks]),
+        });
+
+        const allDownloads = await db.query<{ path: string }>("SELECT * FROM downloads WHERE station_id = ? AND uploaded IS NULL", [
+            stationId,
+        ]);
+
+        const keyed = _.keyBy(allDownloads, (d) => d.path);
+
+        for (const pending of dataOnly) {
+            if (pending.blocks < 0) {
+                console.log("blocks", pending.blocks);
+                if (false)
+                    for (const file of pending.files) {
+                        const download = keyed[file.path];
+                        if (!download) throw new Error();
+                        console.log("file", JSON.stringify(download, null, 2));
+                    }
+
+                if (false)
+                    for (const file of pending.files) {
+                        const download = keyed[file.path];
+                        if (!download) throw new Error();
+                        console.log("file", JSON.stringify(download, null, 2));
+                    }
+            }
+        }
 
         expect(db).toBeDefined();
     });
