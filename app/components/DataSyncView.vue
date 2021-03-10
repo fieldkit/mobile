@@ -56,7 +56,7 @@
                                 :text="sync.readingsReadyDownload + ' Reading'"
                                 class="readings-label"
                             />
-                            <Label text="Ready to download from station" class="transfer-label" />
+                            <Label text="Ready to download from the station" class="transfer-label" />
                         </StackLayout>
                         <StackLayout v-if="sync.connected" row="0" col="1" class="container-icon" @tap="onDownload(sync)">
                             <Image class="icon-button" width="20" src="~/images/Icon_Download.png" />
