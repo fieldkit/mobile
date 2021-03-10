@@ -3,7 +3,7 @@ import Config from "@/config";
 import Settings from "@/settings";
 import { promiseAfter, sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
-import { Download, FileTypeUtils, Station, Sensor, Module, Stream, StoredNetworkTableRow } from "@/store/types";
+import { Download, FileType, FileTypeUtils, Station, Sensor, Module, Stream, StoredNetworkTableRow } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
 import {
     AccountsTableRow,
@@ -72,6 +72,14 @@ export default class DatabaseInterface {
 
     public getDownloadAll(): Promise<DownloadTableRow[]> {
         return this.query<DownloadTableRow>("SELECT * FROM downloads ORDER BY station_id");
+    }
+
+    public getPendingStationDownloads(deviceId: string): Promise<DownloadTableRow[]> {
+        return this.query<DownloadTableRow>("SELECT * FROM downloads WHERE device_id = ? AND uploaded IS NULL", [deviceId]);
+    }
+
+    public getStationGenerationDownloads(deviceId: string, generationId: string): Promise<DownloadTableRow[]> {
+        return this.query<DownloadTableRow>("SELECT * FROM downloads WHERE generation = ?", [generationId]);
     }
 
     public getAvailablePortalEnvs(): Promise<PortalConfigTableRow[]> {
@@ -437,6 +445,53 @@ export default class DatabaseInterface {
             `INSERT INTO streams (station_id, device_id, generation_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             values
         );
+    }
+
+    public async resetSyncStatus(
+        stationId: number,
+        deviceId: string,
+        generationId: string,
+        streams: {
+            fileType: FileType;
+            firstBlock: number;
+            lastBlock: number;
+        }[]
+    ): Promise<void> {
+        const before = await this.query("SELECT * FROM streams WHERE device_id = ?", [deviceId]);
+        console.log(`resetting-before: ${JSON.stringify(before)}`);
+
+        // Delete all of the stream rows for the device, we're going to recreate one for the generation we just uploaded.
+        await this.execute("DELETE FROM streams WHERE device_id = ?", [deviceId]);
+
+        for (const stream of streams) {
+            const values = [
+                stationId,
+                deviceId,
+                generationId,
+                FileTypeUtils.toString(stream.fileType),
+                0,
+                stream.firstBlock,
+                stream.lastBlock,
+                0,
+                stream.firstBlock,
+                stream.lastBlock,
+                0,
+                stream.firstBlock,
+                stream.lastBlock,
+                new Date(),
+            ];
+            await this.execute(
+                `INSERT INTO streams
+				 (station_id, device_id, generation_id, type, device_size, device_first_block, device_last_block,
+				  download_size, download_first_block, download_last_block,
+				  portal_size, portal_first_block, portal_last_block, updated)
+				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                values
+            );
+        }
+
+        const after = await this.query("SELECT * FROM streams WHERE device_id = ?", [deviceId]);
+        console.log(`resetting-after: ${JSON.stringify(after)}`);
     }
 
     public async forgetUploads(): Promise<void> {

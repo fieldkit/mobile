@@ -47,6 +47,12 @@ function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise
     });
 }
 
+export class ResetSyncStatusAction {
+    type = ActionTypes.RESET_SYNC_STATUS;
+
+    constructor(public readonly deviceId: string) {}
+}
+
 type ActionParameters = ActionContext<SyncingState, never>;
 
 const actions = (services: ServiceRef) => {
@@ -164,11 +170,65 @@ const actions = (services: ServiceRef) => {
                             return Promise.reject(error);
                         });
                 });
+                await dispatch(new ResetSyncStatusAction(sync.deviceId));
                 await dispatch(ActionTypes.LOAD);
             } finally {
                 commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
                 state.busy[sync.deviceId] = false;
             }
+        },
+        [ActionTypes.RESET_SYNC_STATUS]: async (
+            { commit, dispatch, state }: ActionParameters,
+            payload: ResetSyncStatusAction
+        ): Promise<void> => {
+            const pendingDownloads = await services.db().getPendingStationDownloads(payload.deviceId);
+            if (pendingDownloads.length > 0) {
+                console.log("skipping sync resetting, has pending uploads");
+                return;
+            }
+
+            const sync = state.syncs.find((s) => s.deviceId == payload.deviceId);
+            if (!sync) throw new Error("missing sync for station");
+
+            const downloads = await services.db().getStationGenerationDownloads(sync.deviceId, sync.generationId);
+            const dataOnly = downloads.filter((d) => FileTypeUtils.fromString(d.type) == FileType.Data);
+            const metaOnly = downloads.filter((d) => FileTypeUtils.fromString(d.type) == FileType.Meta);
+
+            const streams = [
+                {
+                    fileType: FileType.Data,
+                    firstBlock: _.min(dataOnly.map((d) => d.firstBlock)) || 0,
+                    lastBlock: _.max(dataOnly.map((d) => d.lastBlock)) || 0,
+                },
+                {
+                    fileType: FileType.Meta,
+                    firstBlock: _.min(metaOnly.map((d) => d.firstBlock)) || 0,
+                    lastBlock: _.max(metaOnly.map((d) => d.lastBlock)) || 0,
+                },
+            ];
+
+            console.log(
+                dataOnly.map((d) => d.firstBlock),
+                _.min(dataOnly.map((d) => d.firstBlock)) || 0
+            );
+            console.log(
+                dataOnly.map((d) => d.lastBlock),
+                _.max(dataOnly.map((d) => d.lastBlock)) || 0
+            );
+
+            const resetStatus = {
+                generationId: sync.generationId,
+                dataOnly,
+                metaOnly,
+                streams,
+            };
+
+            const station = state.stations.find((s) => s.deviceId == sync.deviceId);
+            if (!station || !station.id) throw new Error("no station for device id");
+
+            console.log(`resetting sync status: ${JSON.stringify(resetStatus)}`);
+
+            await services.db().resetSyncStatus(station.id, sync.deviceId, sync.generationId, streams);
         },
     };
 };

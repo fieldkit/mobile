@@ -3,7 +3,7 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { Database } from "@/wrappers/sqlite";
-import { ActionTypes, Station, StationSyncStatus, FileType } from "@/store";
+import { ActionTypes, Station, StationSyncStatus, FileType, ResetSyncStatusAction } from "@/store";
 import { deleteMissingAssets } from "@/services";
 import { rebaseAbsolutePath } from "@/lib/fs";
 
@@ -24,6 +24,7 @@ describe("Replay", () => {
 
         await db.execute(`PRAGMA foreign_keys = OFF`);
         await db.execute(`DELETE FROM stations WHERE id != ?`, [stationId]);
+        await db.execute(`DELETE FROM streams WHERE station_id != ?`, [stationId]);
 
         const store = services.Store();
         await store.dispatch(ActionTypes.LOAD_STATIONS);
@@ -84,6 +85,10 @@ describe("Replay", () => {
                     }
             }
         }
+
+        await db.execute("UPDATE downloads SET uploaded = ?", [new Date()]);
+
+        await store.dispatch(new ResetSyncStatusAction(sync.deviceId));
 
         expect(db).toBeDefined();
     });

@@ -631,7 +631,7 @@ export class StationSyncStatus {
     constructor(
         public readonly id: number,
         public readonly deviceId: string,
-        private readonly generationId: string,
+        public readonly generationId: string, // Used in resetting sync status.
         public readonly name: string,
         public readonly wasConnected: boolean,
         public readonly lastSeen: Date,
