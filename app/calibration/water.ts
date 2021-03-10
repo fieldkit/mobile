@@ -216,7 +216,7 @@ const Ec3 = (): CalibrationStrategy => {
         _T("calibration.water.ec.strategy0.heading"),
         _T("calibration.water.ec.strategy0.help"),
         [
-            new CalibrationPointStep(new WaterCalValue(0, 4, EcRange, commands.Ec0), [
+            new CalibrationPointStep(new WaterCalValue(0, 1000, EcRange, commands.Ec0), [
                 new CheckVisual(Check, {
                     ...ecCommon,
                     heading: _T("calibration.water.ec.check.heading"),
@@ -249,7 +249,7 @@ const Ec3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.ec.step0.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(1, 7, EcRange, commands.Ec1), [
+            new CalibrationPointStep(new WaterCalValue(1, 10000, EcRange, commands.Ec1), [
                 new PrepareVisual(Prepare, {
                     ...ecCommon,
                     heading: _T("calibration.water.ec.step1.prepare0.heading"),
@@ -271,7 +271,7 @@ const Ec3 = (): CalibrationStrategy => {
                     done: _T("calibration.water.ec.step1.calibrate.done"),
                 }),
             ]),
-            new CalibrationPointStep(new WaterCalValue(2, 10, EcRange, commands.Ec2), [
+            new CalibrationPointStep(new WaterCalValue(2, 100000, EcRange, commands.Ec2), [
                 new PrepareVisual(Prepare, {
                     ...ecCommon,
                     heading: _T("calibration.water.ec.step2.prepare0.heading"),
