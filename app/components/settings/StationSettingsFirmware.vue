@@ -194,7 +194,7 @@ export default Vue.extend({
         },
         async addAccount(): Promise<void> {
             console.log("addAccount");
-            await this.$navigateTo(fullRoutes.settings.accounts);
+            await this.$navigateTo(fullRoutes.settings.addAccount);
         },
     },
 });

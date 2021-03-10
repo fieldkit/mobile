@@ -153,7 +153,7 @@ import moment from "moment";
 import Vue from "vue";
 import { DownloadStationDataAction, UploadStationDataAction } from "@/store/actions";
 import { StationSyncStatus } from "@/store";
-import { routes } from "@/routes";
+import { fullRoutes, routes } from "@/routes";
 import Config from "@/config";
 
 import SharedComponents from "@/components/shared";
@@ -238,7 +238,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.onboarding.start, {});
         },
         async goToLogin(): Promise<void> {
-            await this.$navigateTo(routes.appSettings.accountAdd, {});
+            await this.$navigateTo(fullRoutes.settings.addAccount, {});
         },
     },
 });
