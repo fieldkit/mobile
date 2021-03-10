@@ -144,30 +144,31 @@ const actions = (services: ServiceRef) => {
 
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, false, totalBytes));
 
-            await serializePromiseChain(downloads, (download: Download) => {
-                console.log("syncing:upload", sync.name, download);
-                return services
-                    .portal()
-                    .uploadPreviouslyDownloaded(sync.id, sync.name, download, (total: number, copied: number) => {
-                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
-                    })
-                    .then(() => services.db().markDownloadAsUploaded(download))
-                    .catch((error) => {
-                        if (AuthenticationError.isInstance(error)) {
-                            console.log(`error uploading (auth): ${JSON.stringify(error)}`);
-                            Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                        } else {
-                            console.log(`error uploading (other) ${JSON.stringify(error)}`);
-                            Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                        }
-                        return Promise.reject(error);
-                    });
-            })
-                .then(() => dispatch(ActionTypes.LOAD))
-                .finally(() => {
-                    commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
-                    state.busy[sync.deviceId] = false;
+            try {
+                await serializePromiseChain(downloads, (download: Download) => {
+                    console.log("syncing:upload", sync.name, download);
+                    return services
+                        .portal()
+                        .uploadPreviouslyDownloaded(sync.id, sync.name, download, (total: number, copied: number) => {
+                            commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
+                        })
+                        .then(() => services.db().markDownloadAsUploaded(download))
+                        .catch((error) => {
+                            if (AuthenticationError.isInstance(error)) {
+                                console.log(`error uploading (auth): ${JSON.stringify(error)}`);
+                                Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                            } else {
+                                console.log(`error uploading (other) ${JSON.stringify(error)}`);
+                                Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                            }
+                            return Promise.reject(error);
+                        });
                 });
+                await dispatch(ActionTypes.LOAD);
+            } finally {
+                commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                state.busy[sync.deviceId] = false;
+            }
         },
     };
 };
