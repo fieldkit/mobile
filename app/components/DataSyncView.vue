@@ -110,9 +110,8 @@
                                 class="readings-label"
                             />
                             <Label v-if="userLoggedIn" :text="_L('readyToUpload')" class="transfer-label" />
-                            <StackLayout v-if="!userLoggedIn" @tap="goToLogin">
-                                <Label :text="_L('loginToUpload')" class="transfer-label" />
-                                <Label :text="_L('clickToLogin')" class="transfer-label" />
+                            <StackLayout v-if="!userLoggedIn" @tap="goToLogin" class="login-needed">
+                                <Label :text="_L('clickToLogin')" class="transfer-label" textWrap="true" />
                             </StackLayout>
                         </StackLayout>
                         <StackLayout row="0" col="1" class="container-icon" @tap="onUpload(sync)">
@@ -301,5 +300,8 @@ export default Vue.extend({
 }
 .icon-button {
     /* background-color: #bfbfef; */
+}
+.login-needed {
+    padding: 5em;
 }
 </style>
