@@ -314,7 +314,13 @@ function createCheckList() {
     width: 50%;
     margin-bottom: 20em;
 }
-.welcome-image {
+
+.ns-ios .welcome-image {
+    width: 70%;
+    margin-bottom: 30em;
+}
+
+.ns-android .welcome-image {
     width: 50%;
     margin-bottom: 20em;
 }
