@@ -15,9 +15,14 @@ function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();
 
     if (services.PortalInterface().isLoggedIn()) {
-        const tabbed = fullRoutes.login;
+        const tabbed = fullRoutes.stations;
         const onboarding = fullRoutes.onboarding.assemble;
-        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? tabbed : onboarding;
+        const completedSetup = appSettings.getString("completedSetup");
+        const skipCount = appSettings.getNumber("skipCount");
+        console.log(`${JSON.stringify({ completedSetup, skipCount })}`);
+        return completedSetup || skipCount > 2 ? tabbed : onboarding;
+    } else {
+        console.log(`no user`, "a");
     }
 
     return fullRoutes.login;
