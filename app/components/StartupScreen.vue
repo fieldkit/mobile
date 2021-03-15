@@ -43,7 +43,9 @@ export default Vue.extend({
             console.log("developer", Config.env.developer);
 
             if (this.$s.getters.stationCalibrations[1]) {
-                await this.$navigateTo(fullRoutes.onboarding.recalibrate(1));
+                await this.$navigateTo(fullRoutes.onboarding.recalibrate(1), {
+                    clearHistory: true,
+                });
 
                 return;
             }
@@ -52,7 +54,9 @@ export default Vue.extend({
         console.log("first navigate");
 
         try {
-            await this.$navigateTo(getFirstRoute(services));
+            await this.$navigateTo(getFirstRoute(services), {
+                clearHistory: true,
+            });
         } catch (err) {
             console.log("error", err, err.stack);
         }

@@ -48,10 +48,13 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
                     true
                 )
             );
-            await navigateTo(page, {
-                frame: pageOrRoute.frame,
-                props: pageOrRoute.props,
-            });
+            await navigateTo(
+                page,
+                _.extend(options, {
+                    frame: pageOrRoute.frame,
+                    props: pageOrRoute.props,
+                })
+            );
         } else if (pageOrRoute instanceof Route) {
             const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
             const page = pageOrRoute.page as any;
