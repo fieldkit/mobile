@@ -114,7 +114,7 @@ function TempCommon(): CommonProperties {
         unitOfMeasure: "",
         title: _T("calibration.water.temp.title"),
         subtitle: _T("calibration.water.temp.subtitle"),
-        icon: "~/images/Icon_WaterConductivity_Module.png", // WRONG
+        icon: "~/images/Icon_WaterTemp_Module.png",
         done: _T("next"),
     };
 }
