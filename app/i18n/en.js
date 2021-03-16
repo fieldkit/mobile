@@ -833,7 +833,7 @@ module.exports = {
 		}
 	},
     calibrationFailed: "Calibration Failed",
-    calibrationErrorOccured: "Looks like an error occured. Try calibration again now or try later if you prefer.",
+    calibrationErrorOccured: "An error has ocurred during calibration. Please double check the standards you have gathered and read the instructions carefully. If the problem persists, please contact technical support.",
     uncalibrated: "Uncalibrated",
     noCalibrationNeeded: "No calibration needed",
     calibrated: "Calibrated",

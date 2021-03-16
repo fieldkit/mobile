@@ -10,7 +10,7 @@
             <StackLayout>
                 <Success v-if="cleared" text="Cleared" />
                 <Success v-if="success" :text="_L('calibrated')" />
-                <Failure v-if="failure" />
+                <Failure v-if="failure" @try-again="tryAgain" @skip="skip" :moduleId="sensor.moduleId" />
                 <template v-if="!(success || failure) && sensor">
                     <component
                         :is="activeStep.visual.component"
@@ -22,7 +22,6 @@
                         @back="() => onBack(activeStep)"
                         @clear="() => onClear(activeStep)"
                         @calibrate="(ref) => onCalibrate(activeStep, ref)"
-                        @cancel="() => onCancel(activeStep)"
                     />
                 </template>
             </StackLayout>
@@ -31,7 +30,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T, promiseAfter, hideKeyboard } from "@/lib";
+import { promiseAfter, hideKeyboard } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -68,7 +67,13 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { success: boolean; cleared: boolean; failure: boolean; busy: boolean; completed: CalibrationStep[] } {
+    data(): {
+        success: boolean;
+        cleared: boolean;
+        failure: boolean;
+        busy: boolean;
+        completed: CalibrationStep[];
+    } {
         return {
             success: false,
             cleared: false,
@@ -178,8 +183,10 @@ export default Vue.extend({
                 return this.navigateBack();
             });
         },
-        onCancel(step: CalibrationStep): void {
-            console.log("cal:", "cancel", step);
+        async skip(): Promise<void> {
+            console.log("cal:", "skip", this.fromSettings);
+            await this.$navigateBack();
+            await this.$navigateBack();
         },
         async navigateBack(): Promise<void> {
             console.log("cal:", "navigate-back", this.fromSettings);
@@ -263,6 +270,10 @@ export default Vue.extend({
                     this.busy = false;
                 });
         },
+        async tryAgain(): Promise<void> {
+            this.failure = false;
+            this.completed = [];
+        },
         notifyCleared(): Promise<void> {
             this.cleared = true;
             return promiseAfter(3000).then(() => {
@@ -275,11 +286,8 @@ export default Vue.extend({
                 this.success = false;
             });
         },
-        notifyFailure(): Promise<void> {
+        async notifyFailure(): Promise<void> {
             this.failure = true;
-            return promiseAfter(3000).then(() => {
-                this.failure = false;
-            });
         },
     },
 });

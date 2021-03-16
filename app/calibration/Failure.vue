@@ -1,29 +1,85 @@
 <template>
     <StackLayout height="100%" verticalAlignment="middle" class="container">
-        <StackLayout row="0" verticalAlignment="middle">
-            <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
-            <Label row="1" :text="_L('calibrationFailed')" class="instruction-heading"></Label>
-            <Label row="2" :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true"></Label>
-        </StackLayout>
+        <GridLayout rows="auto,*,auto">
+            <StackLayout row="0">
+                <Image src="~/images/Icon_Warning_error.png" class="small"></Image>
+                <Label :text="_L('calibrationFailed')" class="instruction-heading"></Label>
+            </StackLayout>
+            <StackLayout row="1" class="information-container">
+                <Label :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true" />
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="table" v-if="rows.length >= 3">
+                    <Label row="0" col="0" text="Expected" class="column-heading" />
+                    <Label row="0" col="1" text="Measured" class="column-heading" />
+
+                    <Label row="1" col="0" :text="rows[0].expected | prettyReading" class="column-value" />
+                    <Label row="1" col="1" :text="rows[0].measured | prettyReading" class="column-value" />
+                    <Label row="2" col="0" :text="rows[1].expected | prettyReading" class="column-value" />
+                    <Label row="2" col="1" :text="rows[1].measured | prettyReading" class="column-value" />
+                    <Label row="3" col="0" :text="rows[2].expected | prettyReading" class="column-value" />
+                    <Label row="3" col="1" :text="rows[2].measured | prettyReading" class="column-value" />
+                </GridLayout>
+            </StackLayout>
+            <StackLayout row="2" verticalAlignment="bottom">
+                <Button class="btn btn-primary" text="Calibrate Again" @tap="tryAgain" />
+                <Label text="Calibrate Later" class="skip" textWrap="true" @tap="skip" />
+            </StackLayout>
+        </GridLayout>
     </StackLayout>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "@/lib";
 
 export default Vue.extend({
     name: "Failure",
-    props: {},
-    data(): {} {
-        return {};
+    props: {
+        moduleId: {
+            type: String,
+            required: true,
+        },
     },
-    methods: {},
+    data(): {
+        rows: { expected: number; measured: number }[];
+    } {
+        return {
+            rows: [],
+        };
+    },
+    mounted() {
+        const cal = this.$store.state.cal.pending[this.moduleId];
+        if (cal) {
+            this.rows = cal.points.map((p) => {
+                return {
+                    expected: p.references[0],
+                    measured: p.uncalibrated[0],
+                };
+            });
+        } else {
+            console.log("calibration data missing");
+        }
+    },
+    methods: {
+        tryAgain(): void {
+            this.$emit("try-again");
+        },
+        skip(): void {
+            this.$emit("skip");
+        },
+    },
 });
 </script>
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.skip {
+    padding-top: 10;
+    padding-bottom: 10;
+    font-size: 14;
+    font-weight: bold;
+    text-align: center;
+    margin: 10;
+}
 
 .instruction-heading {
     color: $fk-primary-black;
@@ -38,7 +94,25 @@ export default Vue.extend({
     margin: 20;
 }
 
-.container {
+.btn-primary {
+    margin-bottom: 0;
+}
+
+.information-container {
     padding: 20;
+}
+
+.table {
+    padding-top: 20;
+}
+
+.column-heading {
+    font-weight: bold;
+    padding: 10;
+}
+
+.column-value {
+    font-weight: bold;
+    padding: 10;
 }
 </style>

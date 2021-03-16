@@ -125,6 +125,11 @@ export default Vue.extend({
             const frame = Frame.topmost();
             if (frame) {
                 console.log("platform-header:backStack", frame.id, frame.backStack.length);
+                console.log(
+                    "platform-header:backStack",
+                    frame.id,
+                    frame.backStack.map((e) => e.entry)
+                );
                 return true; // frame.backStack.length > 0;
             }
             return true;
