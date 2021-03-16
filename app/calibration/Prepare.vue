@@ -5,7 +5,8 @@
                 <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
                 <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
                 <Label class="instruction-text" :text="visual.instructions" lineHeight="4" textWrap="true" />
-                <Image verticalAlignment="middle" class="illo" :src="visual.image" />
+
+                <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
             </StackLayout>
             <StackLayout row="1">
                 <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
@@ -17,7 +18,7 @@
 <script lang="ts">
 import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { PrepareVisual } from "./visuals";
-import { _T } from "@/lib";
+import { Timer } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -47,13 +48,28 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): {} {
-        return {};
+    data(): {
+        timer: Timer | null;
+        frame: number;
+    } {
+        return {
+            timer: null,
+            frame: 0,
+        };
     },
     computed: {
         visual(): PrepareVisual {
             return this.step.visual as PrepareVisual;
         },
+    },
+    mounted(this: any) {
+        this.frame = 0;
+        this.timer = new Timer(1000, () => {
+            this.frame += 1;
+        });
+    },
+    destroyed(this: any) {
+        this.timer.stop();
     },
     methods: {
         back(): void {

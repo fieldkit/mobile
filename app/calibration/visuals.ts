@@ -50,10 +50,14 @@ export class CheckVisual extends CalibrationVisual implements CheckInfo {
     }
 }
 
+export interface VisualImage {
+    path: string;
+}
+
 export interface PrepareInfo extends CommonInfo {
     heading: string;
     instructions: string;
-    image: string;
+    images: VisualImage[];
     done: string;
 }
 
@@ -65,7 +69,7 @@ export class PrepareVisual extends CalibrationVisual implements PrepareInfo {
     public readonly icon: string;
     public readonly heading: string;
     public readonly instructions: string;
-    public readonly image: string;
+    public readonly images: VisualImage[];
     public readonly done: string;
 
     constructor(component: VueComponent, info: PrepareInfo) {
@@ -77,7 +81,7 @@ export class PrepareVisual extends CalibrationVisual implements PrepareInfo {
         this.icon = info.icon;
         this.heading = info.heading;
         this.instructions = info.instructions;
-        this.image = info.image;
+        this.images = info.images;
         this.done = info.done;
     }
 }

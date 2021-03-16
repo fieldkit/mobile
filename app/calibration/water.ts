@@ -119,6 +119,8 @@ function TempCommon(): CommonProperties {
     };
 }
 
+const probeDipImages = [{ path: "~/images/TI_13-A.png" }, { path: "~/images/TI_13-B.png" }];
+
 const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
@@ -143,7 +145,7 @@ const Ph3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ph.step0.prepare0.heading"),
                     instructions: _T("calibration.water.ph.step0.prepare0.instructions"),
                     done: _T("calibration.water.ph.step0.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -151,7 +153,7 @@ const Ph3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ph.step0.prepare1.heading"),
                     instructions: _T("calibration.water.ph.step0.prepare1.instructions"),
                     done: _T("calibration.water.ph.step0.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...phCommon,
@@ -166,14 +168,14 @@ const Ph3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ph.step1.prepare0.heading"),
                     instructions: _T("calibration.water.ph.step1.prepare0.instructions"),
                     done: _T("calibration.water.ph.step1.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...phCommon,
                     heading: _T("calibration.water.ph.step1.prepare1.heading"),
                     instructions: _T("calibration.water.ph.step1.prepare1.instructions"),
                     done: _T("calibration.water.ph.step1.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...phCommon,
@@ -188,14 +190,14 @@ const Ph3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ph.step2.prepare0.heading"),
                     instructions: _T("calibration.water.ph.step2.prepare0.instructions"),
                     done: _T("calibration.water.ph.step2.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...phCommon,
                     heading: _T("calibration.water.ph.step2.prepare1.heading"),
                     instructions: _T("calibration.water.ph.step2.prepare1.instructions"),
                     done: _T("calibration.water.ph.step2.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...phCommon,
@@ -232,7 +234,7 @@ const Ec3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ec.step0.prepare0.heading"),
                     instructions: _T("calibration.water.ec.step0.prepare0.instructions"),
                     done: _T("calibration.water.ec.step0.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -240,7 +242,7 @@ const Ec3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ec.step0.prepare1.heading"),
                     instructions: _T("calibration.water.ec.step0.prepare1.instructions"),
                     done: _T("calibration.water.ec.step0.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
@@ -255,14 +257,14 @@ const Ec3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ec.step1.prepare0.heading"),
                     instructions: _T("calibration.water.ec.step1.prepare0.instructions"),
                     done: _T("calibration.water.ec.step1.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...ecCommon,
                     heading: _T("calibration.water.ec.step1.prepare1.heading"),
                     instructions: _T("calibration.water.ec.step1.prepare1.instructions"),
                     done: _T("calibration.water.ec.step1.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
@@ -277,14 +279,14 @@ const Ec3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.ec.step2.prepare0.heading"),
                     instructions: _T("calibration.water.ec.step2.prepare0.instructions"),
                     done: _T("calibration.water.ec.step2.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...ecCommon,
                     heading: _T("calibration.water.ec.step2.prepare1.heading"),
                     instructions: _T("calibration.water.ec.step2.prepare1.instructions"),
                     done: _T("calibration.water.ec.step2.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
@@ -321,7 +323,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step0.prepare0.heading"),
                     instructions: _T("calibration.water.dox.step0.prepare0.instructions"),
                     done: _T("calibration.water.dox.step0.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -329,7 +331,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step0.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step0.prepare1.instructions"),
                     done: _T("calibration.water.dox.step0.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
@@ -345,7 +347,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step1.prepare0.heading"),
                     instructions: _T("calibration.water.dox.step1.prepare0.instructions"),
                     done: _T("calibration.water.dox.step1.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -353,7 +355,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step1.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step1.prepare1.instructions"),
                     done: _T("calibration.water.dox.step1.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
@@ -369,7 +371,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step2.prepare0.heading"),
                     instructions: _T("calibration.water.dox.step2.prepare0.instructions"),
                     done: _T("calibration.water.dox.step2.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -377,7 +379,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step2.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step2.prepare1.instructions"),
                     done: _T("calibration.water.dox.step2.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
@@ -414,7 +416,7 @@ const Orp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.orp.step0.prepare0.heading"),
                     instructions: _T("calibration.water.orp.step0.prepare0.instructions"),
                     done: _T("calibration.water.orp.step0.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -422,7 +424,7 @@ const Orp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.orp.step0.prepare1.heading"),
                     instructions: _T("calibration.water.orp.step0.prepare1.instructions"),
                     done: _T("calibration.water.orp.step0.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...orpCommon,
@@ -437,14 +439,14 @@ const Orp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.orp.step1.prepare0.heading"),
                     instructions: _T("calibration.water.orp.step1.prepare0.instructions"),
                     done: _T("calibration.water.orp.step1.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...orpCommon,
                     heading: _T("calibration.water.orp.step1.prepare1.heading"),
                     instructions: _T("calibration.water.orp.step1.prepare1.instructions"),
                     done: _T("calibration.water.orp.step1.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...orpCommon,
@@ -459,14 +461,14 @@ const Orp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.orp.step2.prepare0.heading"),
                     instructions: _T("calibration.water.orp.step2.prepare0.instructions"),
                     done: _T("calibration.water.orp.step2.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
                 new PrepareVisual(Prepare, {
                     ...orpCommon,
                     heading: _T("calibration.water.orp.step2.prepare1.heading"),
                     instructions: _T("calibration.water.orp.step2.prepare1.instructions"),
                     done: _T("calibration.water.orp.step2.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...orpCommon,
@@ -503,7 +505,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step0.prepare0.heading"),
                     instructions: _T("calibration.water.temp.step0.prepare0.instructions"),
                     done: _T("calibration.water.temp.step0.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }, { path: "~/images/TI_12-B.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -511,7 +513,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step0.prepare1.heading"),
                     instructions: _T("calibration.water.temp.step0.prepare1.instructions"),
                     done: _T("calibration.water.temp.step0.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...tempCommon,
@@ -527,7 +529,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step1.prepare0.heading"),
                     instructions: _T("calibration.water.temp.step1.prepare0.instructions"),
                     done: _T("calibration.water.temp.step1.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [{ path: "~/images/TI_12-A.png" }],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -535,7 +537,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step1.prepare1.heading"),
                     instructions: _T("calibration.water.temp.step1.prepare1.instructions"),
                     done: _T("calibration.water.temp.step1.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...tempCommon,
@@ -551,7 +553,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step2.prepare0.heading"),
                     instructions: _T("calibration.water.temp.step2.prepare0.instructions"),
                     done: _T("calibration.water.temp.step2.prepare0.done"),
-                    image: "~/images/TI_12-A.jpg",
+                    images: [],
                 }),
 				*/
                 new PrepareVisual(Prepare, {
@@ -559,7 +561,7 @@ const Temp3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.temp.step2.prepare1.heading"),
                     instructions: _T("calibration.water.temp.step2.prepare1.instructions"),
                     done: _T("calibration.water.temp.step2.prepare1.done"),
-                    image: "~/images/TI_13-C.jpg",
+                    images: probeDipImages,
                 }),
                 new WaitVisual(Wait, {
                     ...tempCommon,
