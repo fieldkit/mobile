@@ -433,7 +433,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the pH Probe.\nThe pH Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the pH Probe.\n## The pH Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_41_ee59861b57.png"
@@ -615,7 +615,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach to Station\n\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "# Attach to Station\n\nScrew the Water Temperature Probe cable into the Water Temperature Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_54_144e3748ce.png"
@@ -687,16 +687,16 @@
                 "name": "onboarding.distance.03",
                 "locale": "en_US",
                 "forward": "Complete Setup",
-                "skip": "Need more help? View Product Guide",
-                "guideTitle": null,
-                "guideUrl": null,
+                "skip": "",
+                "guideTitle": "Need more help? View Product Guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Distance"
                 },
                 "simple": [
                     {
-                        "body": "# Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
+                        "body": "# Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the Distance Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_61_d487cfcc1b.png"
@@ -845,7 +845,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Three-Point Transfer Calibration\nMake sure you have 3 temperature sources and a standard thermometer.\n\n## We recommend using the following sources in this order: a cup of ice water (0°C), room temperature air (20–22 °C), and a cup of boiling water (100°C).",
+                        "body": "# Three-Point Transfer Calibration\nMake sure you have 3 temperature sources and a standard thermometer.\n\n## We recommend using the following sources in this order: a cup of ice water (0°C), room temperature air, and a cup of boiling water (100°C).",
                         "images": [
                             {
                                 "url": "/uploads/TI_13_Wat_Temp_3_7e67a24363.png"
@@ -868,7 +868,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Three-point Transfer Calibration\n\nMake sure you have a cup of water, an aquarium air pump, tubing and airstone, and a standard Dissolved Oxygen meter or test kit.",
+                        "body": "# Three-point Transfer Calibration\n\nGather together a cup of water, an aquarium air pump, tubing and airstone, and a standard Dissolved Oxygen meter or test kit.",
                         "images": [
                             {
                                 "url": "/uploads/DO_3_Point_Intro_NEW_4d949981b3.png"

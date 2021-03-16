@@ -17,21 +17,16 @@ async function saveToFile(uri: string, filename: string): Promise<string> {
     });
 }
 
-async function downloadAllPhotos(flows: any): Promise<any> {
-    for (const screen of flows.data.screens) {
-        for (const simple of screen.simple) {
-            for (const image of simple.images) {
-                const relativeUrl = image.url;
-                const url = baseUrl + relativeUrl;
-                const path = "../app/images/reader" + relativeUrl;
-                console.log("downloading", url, path);
-                await saveToFile(url, path);
+async function downloadAllPhotos(urls: string[]): Promise<any> {
+    for (const relativeUrl of urls) {
+        const url = baseUrl + relativeUrl;
+        const path = "../app/images/reader" + relativeUrl;
+        console.log("downloading", url, path);
+        await saveToFile(url, path);
 
-                const loaded = await Jimp.read(path);
-                await loaded.resize(800, 800);
-                await loaded.writeAsync(path);
-            }
-        }
+        const loaded = await Jimp.read(path);
+        await loaded.resize(800, 800);
+        await loaded.writeAsync(path);
     }
 }
 
@@ -39,7 +34,9 @@ async function main() {
     const incoming = await download(baseUrl);
 
     if (!_.includes(process.argv, "--json")) {
-        await downloadAllPhotos(incoming);
+        const urls = _.flatten(_.flatten(incoming.data.screens.map((s) => s.simple.map((ss) => ss.images.map((i) => i.url)))));
+
+        await downloadAllPhotos(urls);
     }
 
     console.log("looks good!");
