@@ -523,7 +523,7 @@ module.exports = {
 					instructions: "",
 					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
-					clear: "Clear",
+					clear: "Clear Calibration",
 					done: "Next",
 				},
 				step0: {
@@ -586,7 +586,7 @@ module.exports = {
 					instructions: "",
 					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
-					clear: "Clear",
+					clear: "Clear Calibration",
 					done: "Next",
 				},
 				step0: {
@@ -649,7 +649,7 @@ module.exports = {
 					instructions: "",
 					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
-					clear: "Clear",
+					clear: "Clear Calibration",
 					done: "Next",
 				},
 				step0: {
@@ -712,7 +712,7 @@ module.exports = {
 					instructions: "",
 					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
-					clear: "Clear",
+					clear: "Clear Calibration",
 					done: "Next",
 				},
 				step0: {
@@ -775,7 +775,7 @@ module.exports = {
 					instructions: "",
 					uncalibrated: "This sensor doesn't appear to have been calibrated yet.",
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
-					clear: "Clear",
+					clear: "Clear Calibration",
 					done: "Next",
 				},
 				step0: {

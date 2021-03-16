@@ -174,17 +174,21 @@ export default Vue.extend({
         getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
-        onDone(step: CalibrationStep): Promise<void> {
+        async onDone(step: CalibrationStep): Promise<void> {
             this.completed.push(step);
             if (this.getRemainingSteps().length > 0) {
-                return Promise.resolve();
+                return;
             }
-            return this.notifySuccess().then(() => {
-                return this.navigateBack();
-            });
+            await this.notifySuccess();
+
+            // TODO There HAS to be a better way.
+            await this.navigateBack();
+            await this.navigateBack();
         },
         async skip(): Promise<void> {
             console.log("cal:", "skip", this.fromSettings);
+
+            // TODO There HAS to be a better way.
             await this.$navigateBack();
             await this.$navigateBack();
         },
@@ -200,34 +204,35 @@ export default Vue.extend({
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
             return Promise.resolve();
         },
-        onClear(step: CalibrationStep): Promise<any> {
+        async onClear(step: CalibrationStep): Promise<void> {
             if (!this.station || !this.station.connected) {
                 return Promise.reject(new Error("station offline: no clear"));
             }
-            return Promise.resolve().then(() => {
-                const sensor = this.sensor;
-                if (!sensor) {
-                    return Promise.resolve();
-                }
-                const action = new ClearWaterCalibration(this.deviceId, sensor.moduleId, this.position);
-                console.log("cal:", "clearing", action);
-                this.busy = true;
-                return this.$s
-                    .dispatch(action)
-                    .then(
-                        (cleared) => {
-                            console.log("cal:", "cleared");
-                            return this.notifyCleared();
-                        },
-                        (err) => {
-                            console.log("cal:error", err, err ? err.stack : null);
-                            return this.notifyFailure();
-                        }
-                    )
-                    .finally(() => {
-                        this.busy = false;
-                    });
-            });
+
+            const sensor = this.sensor;
+            if (!sensor) {
+                return Promise.resolve();
+            }
+            const action = new ClearWaterCalibration(this.deviceId, sensor.moduleId, this.position);
+            console.log("cal:", "clearing", action);
+            this.busy = true;
+            await this.$s
+                .dispatch(action)
+                .then(
+                    (cleared) => {
+                        console.log("cal:", "cleared");
+                        return this.notifyCleared();
+                    },
+                    (err) => {
+                        console.log("cal:error", err, err ? err.stack : null);
+                        return this.notifyFailure();
+                    }
+                )
+                .finally(() => {
+                    this.busy = false;
+                });
+
+            await this.onDone(this.activeStep);
         },
         async onCalibrate(step: CalibrationStep, reference: CalibrationValue): Promise<void> {
             if (!reference) return Promise.reject(new Error("no calibration reference"));
