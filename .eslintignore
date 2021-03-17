@@ -23,6 +23,7 @@ app/reader/SimpleScreen.vue
 app/i18n/*
 app/migrations/*.js
 app/reader/FlowView.vue
+app/components/ModuleItem.vue
 app/components/WiFiNetworkForm.vue
 app/components/onboarding/AddWifiName.vue
 app/components/onboarding/AddWifiPassword.vue
