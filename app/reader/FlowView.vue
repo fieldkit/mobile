@@ -3,6 +3,7 @@
         <template v-if="ready">
             <PlatformHeader
                 :title="screen.header.title"
+                :subtitle="subtitle"
                 :icon="icon"
                 :canCancel="true"
                 :canNavigateSettings="false"
@@ -43,6 +44,7 @@ import PlatformHeader from "@/components/PlatformHeader";
 import { FullRoute } from "@/routes";
 import { Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
+import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
 import * as utils from "@nativescript/core/utils/utils";
 
@@ -78,10 +80,6 @@ export default Vue.extend({
                 };
             },
         },
-        icon: {
-            type: String,
-            default: null,
-        },
     },
     data(): {
         nav: FlowNavigator;
@@ -104,9 +102,25 @@ export default Vue.extend({
         progress(): number {
             return this.nav.progress;
         },
+        header(): ModuleHeader | undefined {
+            return tryFindModuleHeader(this.flowName);
+        },
+        icon(): string | null {
+            if (this.header) {
+                return this.header.icon;
+            }
+            return null;
+        },
+        subtitle(): string | null {
+            if (this.header) {
+                return this.header.name;
+            }
+            return null;
+        },
     },
     async mounted(): Promise<void> {
         console.log("flow: mounted", this.flowName);
+        console.log("flow: mounted", this.header);
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flowName);
         this.timer = new Timer(2000, (frame) => {
