@@ -91,6 +91,6 @@ GridLayout {
     // background-color: #8383aa;
     font-size: 18;
     line-height: 4;
-    margin-bottom: 5;
+    margin-bottom: 20;
 }
 </style>
