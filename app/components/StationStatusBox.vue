@@ -21,21 +21,22 @@
                     <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
                         <Image v-if="station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_memory.png" />
                         <Image v-if="!station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_Memory_Grayed_Out.png" />
-                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryAvailable')" />
+                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryUsed')" />
                         <Label
                             row="1"
                             col="1"
                             class="m-l-5 m-t-2 m-b-5 size-10 lighter"
                             horizontalAlignment="left"
-                            :text="displayAvailableMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
+                            :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
                         />
                         <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                             <StackLayout row="0" class="memory-bar" />
                             <StackLayout
                                 id="station-memory-bar"
-                                :width="displayAvailableMemoryPercent + '%'"
+                                :width="displayConsumedMemoryPercent + '%'"
                                 row="0"
                                 class="memory-bar"
+                                :class="memoryBar()"
                                 horizontalAlignment="left"
                             />
                         </GridLayout>
@@ -127,6 +128,11 @@ export default Vue.extend({
             if (!this.station.consumedMemory) return "";
             return convertBytesToLabel(this.station.consumedMemory);
         },
+        displayConsumedMemoryPercent(): number {
+            if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
+
+            return (this.station.consumedMemory * 100) / this.station.totalMemory;
+        },
         displayTotalMemory(): string {
             if (!this.station.totalMemory) return "";
             return convertBytesToLabel(this.station.totalMemory);
@@ -193,6 +199,16 @@ export default Vue.extend({
         emitDeployTap(): void {
             this.$emit("deploy-tapped");
         },
+        memoryBar(): string {
+            if (this.displayConsumedMemoryPercent < 75) {
+                return "memory-bar-green";
+            }
+            if (this.displayConsumedMemoryPercent < 90) {
+                return "memory-bar-yellow";
+            }
+
+            return "memory-bar-red";
+        },
     },
 });
 </script>
@@ -252,9 +268,7 @@ export default Vue.extend({
     margin-right: 40;
     margin-left: 5;
 }
-#station-memory-bar {
-    background: $fk-tertiary-green;
-}
+
 .memory-bar {
     height: 5;
     background: $fk-gray-lightest;
@@ -284,5 +298,17 @@ AbsoluteLayout {
 .ssid {
     // This is important to ensuring that the ellipses appear when this is too long.
     width: 290px;
+}
+
+.memory-bar-green {
+    background: $fk-tertiary-green;
+}
+
+.memory-bar-yellow {
+    background: $fk-tertiary-yellow;
+}
+
+.memory-bar-red {
+    background: $fk-tertiary-red;
 }
 </style>
