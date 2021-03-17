@@ -37,8 +37,8 @@
             </StackLayout>
 
             <StackLayout row="2" verticalAlignment="bottom" v-if="station.modules.length > 0">
-                <Button class="btn btn-primary" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
-                <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
+                <Button class="btn btn-primary" :text="_L('done')" :isEnabled="done" @tap="goToStations" />
+                <Label :text="done ? _L('goToStations') : _L('setupLater')" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
 
             <StackLayout row="0" rowSpan="3" v-if="loading" height="100%" backgroundColor="white" verticalAlignment="middle">
@@ -85,6 +85,9 @@ export default Vue.extend({
         station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
+        done(): boolean {
+            return !this.station.modules.find((item) => item.canCalibrate && item.needsCalibration);
+        },
     },
     methods: {
         async goToStations(): Promise<void> {
@@ -94,7 +97,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.station.detail, {
                 props: {
                     stationId: this.station.id,
-                    redirectedFromCalibration: !this.station.modules.find(item => !item.isCalibrated)
+                    redirectedFromCalibration: !this.station.modules.find((item) => !item.isCalibrated),
                 },
             });
         },
