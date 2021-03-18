@@ -1,5 +1,5 @@
 <template>
-    <Page>
+    <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader title="Onboarding" :canNavigateSettings="false" />
         <GridLayout rows="*,auto">
             <ScrollView row="0">
@@ -59,9 +59,11 @@ export default Vue.extend({
     },
     data(): {
         selectedStationId: number | null;
+        visible: boolean;
     } {
         return {
             selectedStationId: null,
+            visible: false,
         };
     },
     computed: {
@@ -91,6 +93,7 @@ export default Vue.extend({
         }
 
         this.selectedStationId = connected[0].id;
+        this.visible = true;
     },
     methods: {
         async tryAgain(): Promise<void> {
@@ -112,18 +115,24 @@ export default Vue.extend({
             }
         },
         onCheckChange(id: number): void {
-            console.log("choose", id);
             this.selectedStationId = id;
+        },
+        onNavigatingFrom(): void {
+            console.log("nearby-stations: navigating-from");
+            this.visible = false;
         },
     },
     watch: {
         async nearbyStations(newValue: NearbyStation[], oldValue: NearbyStation[]) {
             if (newValue.length === 0) {
-                await this.$navigateTo(routes.onboarding.searchFailed, {
-                    props: {
-                        reconnecting: this.reconnecting,
-                    },
-                });
+                console.log("no-nearby-stations", this.visible);
+                if (this.visible) {
+                    await this.$navigateTo(routes.onboarding.searchFailed, {
+                        props: {
+                            reconnecting: this.reconnecting,
+                        },
+                    });
+                }
             }
         },
     },
