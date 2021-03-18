@@ -416,7 +416,7 @@ module.exports = {
     notRecording: "Not Recording",
     connected: "Connected",
     notConnected: "Not Connected",
-    memoryUsed: "Memory used",
+    memoryUsed: "Memory Used",
     memoryAvailable: "Available Memory",
     of: "of",
     deploy: "Deploy",
