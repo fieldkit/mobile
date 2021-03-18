@@ -69,14 +69,14 @@
             </GridLayout>
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
-            <GridLayout rows="auto" columns="30,*" class="ssid-container">
+            <GridLayout rows="auto" columns="30,120" class="ssid-container">
                 <Image v-if="stationAP" width="25" src="~/images/Icon_Connected_AP.png" rowSpan="2" col="0" />
                 <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
                 <Label
                     v-if="displayedSSID"
                     row="0"
                     col="1"
-                    class="m-l-10 size-12 ssid"
+                    class="size-12 ssid"
                     :text="_L('wifi') + ': ' + displayedSSID"
                     textWrap="false"
                 />
