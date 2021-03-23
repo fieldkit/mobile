@@ -80,7 +80,7 @@ import {
     truncateLogs,
 } from "@/lib";
 
-import { routes, fullRoutes, FullRoute } from "@/routes";
+import { fullRoutes, FullRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
@@ -161,6 +161,9 @@ export default Vue.extend({
             }
             return [];
         },
+    },
+    mounted() {
+        void this.loadFlows();
     },
     methods: {
         onPortalEnvChange(ev: { newIndex: number }): Promise<void> {
@@ -270,16 +273,14 @@ export default Vue.extend({
         async restartDiscovery(): Promise<void> {
             await Services.DiscoverStation().restart();
         },
-        openFlow(name: string): Promise<any> {
-            return this.$navigateTo(routes.reader.flow, {
-                clearHistory: true,
-                frame: "outer-frame",
-                props: {
+        async openFlow(name: string): Promise<void> {
+            await this.$navigateTo(
+                fullRoutes.flow({
                     flowName: name,
                     finished: new FullRoute("tabbed", "outer-frame", {}),
                     skipped: new FullRoute("tabbed", "outer-frame", {}),
-                },
-            });
+                })
+            );
         },
         async loadFlows(): Promise<void> {
             this.busy = true;

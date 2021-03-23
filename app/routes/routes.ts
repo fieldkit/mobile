@@ -180,6 +180,14 @@ export const fullRoutes = {
                 },
             }),
     },
+    flow: (props: { flowName: string; finished: FullRoute; skipped: FullRoute }) => {
+        return new FullRoute("tabbed", Frames.Outer, {
+            firstTab: {
+                index: 0,
+                route: new FullRoute("reader/flow", Frames.Stations, props),
+            },
+        });
+    },
     stations: new FullRoute("tabbed", Frames.Outer, {
         firstTab: {
             index: 0,
@@ -197,6 +205,12 @@ export const fullRoutes = {
             firstTab: {
                 index: 2,
                 route: new FullRoute("appSettings/accountAdd", Frames.Settings, {}),
+            },
+        }),
+        developer: new FullRoute("tabbed", Frames.Outer, {
+            firstTab: {
+                index: 2,
+                route: new FullRoute("appSettings/developer", Frames.Settings, {}),
             },
         }),
     },
