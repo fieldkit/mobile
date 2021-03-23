@@ -140,8 +140,6 @@ const actions = (services: ServiceRef) => {
             const portal = services.portal();
             const self = await portal.login(payload);
 
-            commit(MutationTypes.SET_CURRENT_USER, self);
-
             await services.db().addOrUpdateAccounts(userToRow(self));
 
             await dispatch(ActionTypes.LOAD_ACCOUNTS);

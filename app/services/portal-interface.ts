@@ -1,9 +1,8 @@
 import _ from "lodash";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { HttpResponse } from "@/wrappers/networking";
-import { AuthenticationError } from "@/lib/errors";
-import { ActionTypes } from "@/store/actions";
-import { Download, FileTypeUtils, CurrentUser } from "@/store/types";
+import { AuthenticationError } from "@/lib";
+import { ActionTypes, MutationTypes, Download, FileTypeUtils, CurrentUser } from "@/store";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
@@ -131,8 +130,26 @@ export default class PortalInterface {
         return this.store.state.portal.currentUser;
     }
 
+    private getUri(): Promise<string> {
+        return Promise.resolve(this.store.state.portal.env.baseUri);
+    }
+
+    private getIngestionUri(): Promise<string> {
+        return Promise.resolve(this.store.state.portal.env.ingestionUri);
+    }
+
+    private getCurrentToken(): string | null {
+        return this.currentUser?.token ?? null;
+    }
+
     public isLoggedIn(): boolean {
         return this.currentUser != null;
+    }
+
+    private requireToken(): string {
+        const token = this.getCurrentToken();
+        if (!token) throw new AuthenticationError(`unauthenticated`);
+        return token;
     }
 
     public async isAvailable(): Promise<boolean> {
@@ -191,9 +208,6 @@ export default class PortalInterface {
             .catch((error) => this.handleError(error))
             .then((response) => {
                 return this.handleTokenResponse(response);
-            })
-            .then(async (data) => {
-                return await this.whoAmI(data.token);
             });
     }
 
@@ -370,7 +384,12 @@ export default class PortalInterface {
                     progress: progress,
                 })
                 .then((response) => {
+                    if (response.statusCode == 401) {
+                        console.log(`invalid authentication: ${response.statusCode}`);
+                        return Promise.reject(new ApiUnexpectedStatus(`invalid authentication: ${response.statusCode}`));
+                    }
                     if (response.statusCode != 200) {
+                        console.log(`unexpected status: ${response.statusCode}`);
                         return Promise.reject(new ApiUnexpectedStatus(`unexpected status: ${response.statusCode}`));
                     }
                     return response;
@@ -476,34 +495,18 @@ export default class PortalInterface {
         });
     }
 
-    private getUri(): Promise<string> {
-        return Promise.resolve(this.store.state.portal.env.baseUri);
-    }
-
-    private getIngestionUri(): Promise<string> {
-        return Promise.resolve(this.store.state.portal.env.ingestionUri);
-    }
-
-    private requireToken(): string {
-        const token = this.getCurrentToken();
-        if (!token) throw new AuthenticationError(`unauthenticated`);
-        return token;
-    }
-
-    private getCurrentToken(): string | null {
-        return this.currentUser?.token ?? null;
-    }
-
-    private handleTokenResponse<V>(response: AxiosResponse<V>): Promise<{ token: string }> {
+    private async handleTokenResponse<V>(response: AxiosResponse<V>): Promise<CurrentUser> {
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
 
         // Headers should always be lower case, bug otherwise.
         const accessToken = response.headers["authorization"] as string; // eslint-disable-line
-        return Promise.resolve({
-            token: accessToken,
-        });
+        const self = await this.whoAmI(accessToken);
+
+        this.store.commit(MutationTypes.SET_CURRENT_USER, self);
+
+        return self;
     }
 
     private getHeaders<T>(req: QueryFields<T>): Promise<Record<string, string>> {
@@ -533,11 +536,14 @@ export default class PortalInterface {
         return await this.getHeaders<Q>(req).then((headers) => {
             return this.getUri().then((baseUri) => {
                 console.log(`portal query`, req.method || "GET", baseUri + req.url);
-                req.headers = headers;
-                req.url = baseUri + req.url;
+
+                const absoluteUrlAndHeaders = {
+                    headers: headers,
+                    url: baseUri + req.url,
+                };
 
                 // eslint-disable-next-line
-                const axiosRequest = _.extend(req as any, { timeout: 1000, connectTimeout: 3000 });
+                const axiosRequest = _.extend({}, req as any, absoluteUrlAndHeaders, { timeout: 1000, connectTimeout: 3000 });
 
                 let id: ReturnType<typeof setTimeout> | null = null;
                 if (req.connectTimeout) {
@@ -591,7 +597,7 @@ export default class PortalInterface {
         }
 
         const requestBody = {
-            refreshToken: token.refresh_token,
+            refreshToken: token.refresh_token, // eslint-disable-line
         };
 
         console.log(`refreshing token`);
@@ -604,8 +610,9 @@ export default class PortalInterface {
                     data: requestBody,
                 })
                 .then((response: AxiosResponse) => {
-                    return this.handleTokenResponse<V>(response).then(() => {
-                        return this.query<Q, V>(_.extend({ refreshed: true }, original));
+                    return this.handleTokenResponse<V>(response).then((self) => {
+                        console.log("retrying", original.url);
+                        return this.query<Q, V>(_.extend({}, original, { refreshed: true, token: self.token }));
                     });
                 })
                 .catch((error: AxiosError) => {
