@@ -153,18 +153,18 @@ export default class PortalInterface {
     }
 
     public async isAvailable(): Promise<boolean> {
-        return await this.getUri().then((baseUri) => {
-            console.log(`portal query`, "GET", baseUri + "/status");
-            return axios
-                .request({ url: baseUri + "/status" })
-                .then(() => {
-                    return true;
-                })
-                .catch(() => {
-                    console.log(`portal unavailable`);
-                    return false;
-                });
-        });
+        const baseUri = await this.getUri();
+
+        console.log(`portal query`, "GET", baseUri + "/status");
+        return axios
+            .request({ url: baseUri + "/status" })
+            .then(() => {
+                return true;
+            })
+            .catch(() => {
+                console.log(`portal unavailable`);
+                return false;
+            });
     }
 
     private async whoAmI(token: string): Promise<CurrentUser> {
@@ -288,31 +288,32 @@ export default class PortalInterface {
         const headers = {
             Authorization: this.requireToken(),
         };
-        return await this.getUri().then((baseUri) =>
-            this.conservify
-                .download({
-                    url: baseUri + url,
-                    path: local,
-                    headers: { ...headers },
-                    progress: progress,
-                })
-                .then((e) => {
-                    // Our library uses statusCode, axios uses status
-                    if (e.statusCode != 200) {
-                        return this.services
-                            .FileSystem()
-                            .getFile(local)
-                            .remove()
-                            .then(() => {
-                                return Promise.reject(new Error(`download failed: ${JSON.stringify(e.body)}`));
-                            });
-                    }
-                    return {
-                        // data: e.body,
-                        status: e.statusCode,
-                    };
-                })
-        );
+
+        const baseUri = await this.getUri();
+
+        return this.conservify
+            .download({
+                url: baseUri + url,
+                path: local,
+                headers: { ...headers },
+                progress: progress,
+            })
+            .then((e) => {
+                // Our library uses statusCode, axios uses status
+                if (e.statusCode != 200) {
+                    return this.services
+                        .FileSystem()
+                        .getFile(local)
+                        .remove()
+                        .then(() => {
+                            return Promise.reject(new Error(`download failed: ${JSON.stringify(e.body)}`));
+                        });
+                }
+                return {
+                    // data: e.body,
+                    status: e.statusCode,
+                };
+            });
     }
 
     public async uploadPreviouslyDownloaded(
@@ -374,27 +375,27 @@ export default class PortalInterface {
         delete headers["connection"];
         delete headers["content-length"];
 
-        return await this.getIngestionUri().then((url) =>
-            this.conservify
-                .upload({
-                    method: "POST",
-                    url: url,
-                    path: local.path,
-                    headers: { ...headers, ...defaultHeaders },
-                    progress: progress,
-                })
-                .then((response) => {
-                    if (response.statusCode == 401) {
-                        console.log(`invalid authentication: ${response.statusCode}`);
-                        return Promise.reject(new ApiUnexpectedStatus(`invalid authentication: ${response.statusCode}`));
-                    }
-                    if (response.statusCode != 200) {
-                        console.log(`unexpected status: ${response.statusCode}`);
-                        return Promise.reject(new ApiUnexpectedStatus(`unexpected status: ${response.statusCode}`));
-                    }
-                    return response;
-                })
-        );
+        const url = await this.getIngestionUri();
+
+        return this.conservify
+            .upload({
+                method: "POST",
+                url: url,
+                path: local.path,
+                headers: { ...headers, ...defaultHeaders },
+                progress: progress,
+            })
+            .then((response) => {
+                if (response.statusCode == 401) {
+                    console.log(`invalid authentication: ${response.statusCode}`);
+                    return Promise.reject(new ApiUnexpectedStatus(`invalid authentication: ${response.statusCode}`));
+                }
+                if (response.statusCode != 200) {
+                    console.log(`unexpected status: ${response.statusCode}`);
+                    return Promise.reject(new ApiUnexpectedStatus(`unexpected status: ${response.statusCode}`));
+                }
+                return response;
+            });
     }
 
     public async getStationNotes(stationId: number): Promise<PortalStationNotesReply> {
@@ -428,42 +429,37 @@ export default class PortalInterface {
             Authorization: this.requireToken(),
             "Content-Type": contentType,
         };
-        return await this.getUri().then((baseUri) => {
-            const url = `${baseUri}/stations/${stationId}/media?key=${key}`;
-            console.log("uploading:", url, baseUri, stationId, key);
+        const baseUri = await this.getUri();
+        const url = `${baseUri}/stations/${stationId}/media?key=${key}`;
+        console.log("uploading:", url, baseUri, stationId, key);
 
-            if (!url) {
-                throw new Error("bad url");
-            }
-            if (!path) {
-                throw new Error("bad path");
-            }
+        if (!url) throw new Error("bad url");
+        if (!path) throw new Error("bad path");
 
-            return this.conservify
-                .upload({
-                    url: url,
-                    method: "POST",
-                    path: path,
-                    headers: { ...headers },
-                    progress: (/*total: number, copied: number, info: never*/) => {
-                        // Do nothing.
-                    },
-                })
-                .then(
-                    (response: HttpResponse) => {
-                        console.log("station-media-upload:", response.body);
-                        let data: unknown = response.body;
-                        if (response.body instanceof Buffer) {
-                            data = JSON.parse(response.body.toString());
-                        }
-                        return {
-                            data: data as { id: number },
-                            status: response.statusCode,
-                        };
-                    },
-                    (err) => Promise.reject(err)
-                );
-        });
+        return this.conservify
+            .upload({
+                url: url,
+                method: "POST",
+                path: path,
+                headers: { ...headers },
+                progress: (/*total: number, copied: number, info: never*/) => {
+                    // Do nothing.
+                },
+            })
+            .then(
+                (response: HttpResponse) => {
+                    console.log("station-media-upload:", response.body);
+                    let data: unknown = response.body;
+                    if (response.body instanceof Buffer) {
+                        data = JSON.parse(response.body.toString());
+                    }
+                    return {
+                        data: data as { id: number },
+                        status: response.statusCode,
+                    };
+                },
+                (err) => Promise.reject(err)
+            );
     }
 
     public async downloadStationMedia(mediaId: number, path: string): Promise<{ data: Buffer; status: number }> {
@@ -471,28 +467,28 @@ export default class PortalInterface {
             Authorization: this.requireToken(),
         };
 
-        return await this.getUri().then((baseUri) => {
-            return this.conservify
-                .download({
-                    url: `${baseUri}/notes/media/${mediaId}`,
-                    method: "GET",
-                    path: path,
-                    headers: { ...headers },
-                    progress: (/*total: number, copied: number, info: never*/) => {
-                        // Do nothing.
-                    },
-                })
-                .then(
-                    (response: HttpResponse) => {
-                        // Our library uses statusCode, axios uses status
-                        return {
-                            data: response.body,
-                            status: response.statusCode,
-                        };
-                    },
-                    (err) => Promise.reject(err)
-                );
-        });
+        const baseUri = await this.getUri();
+
+        return this.conservify
+            .download({
+                url: `${baseUri}/notes/media/${mediaId}`,
+                method: "GET",
+                path: path,
+                headers: { ...headers },
+                progress: (/*total: number, copied: number, info: never*/) => {
+                    // Do nothing.
+                },
+            })
+            .then(
+                (response: HttpResponse) => {
+                    // Our library uses statusCode, axios uses status
+                    return {
+                        data: response.body,
+                        status: response.statusCode,
+                    };
+                },
+                (err) => Promise.reject(err)
+            );
     }
 
     private async handleTokenResponse<V>(response: AxiosResponse<V>): Promise<CurrentUser> {
@@ -533,55 +529,54 @@ export default class PortalInterface {
     }
 
     private async query<Q, V>(req: QueryFields<Q>): Promise<V> {
-        return await this.getHeaders<Q>(req).then((headers) => {
-            return this.getUri().then((baseUri) => {
-                console.log(`portal query`, req.method || "GET", baseUri + req.url);
+        const headers = await this.getHeaders<Q>(req);
+        const baseUri = await this.getUri();
 
-                const absoluteUrlAndHeaders = {
-                    headers: headers,
-                    url: baseUri + req.url,
-                };
+        console.log(`portal query`, req.method || "GET", baseUri + req.url);
 
+        const absoluteUrlAndHeaders = {
+            headers: headers,
+            url: baseUri + req.url,
+        };
+
+        // eslint-disable-next-line
+        const axiosRequest = _.extend({}, req as any, absoluteUrlAndHeaders, { timeout: 1000, connectTimeout: 3000 });
+
+        let id: ReturnType<typeof setTimeout> | null = null;
+        if (req.connectTimeout) {
+            const abort = axios.CancelToken.source();
+            if (abort) {
+                id = setTimeout(() => abort.cancel("timeout"), req.connectTimeout);
                 // eslint-disable-next-line
-                const axiosRequest = _.extend({}, req as any, absoluteUrlAndHeaders, { timeout: 1000, connectTimeout: 3000 });
+                axiosRequest.cancelToken = abort.token;
+            }
+        }
 
-                let id: ReturnType<typeof setTimeout> | null = null;
-                if (req.connectTimeout) {
-                    const abort = axios.CancelToken.source();
-                    if (abort) {
-                        id = setTimeout(() => abort.cancel("timeout"), req.connectTimeout);
-                        // eslint-disable-next-line
-                        axiosRequest.cancelToken = abort.token;
-                    }
+        const promised = axios.request(axiosRequest); // eslint-disable-line
+        if (promised == null) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
+        return promised
+            .finally(() => {
+                if (id) {
+                    clearTimeout(id);
                 }
-
-                const promised = axios.request(axiosRequest); // eslint-disable-line
-                if (promised == null) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
-                return promised
-                    .finally(() => {
-                        if (id) {
-                            clearTimeout(id);
-                        }
-                    })
-                    .then((response) => {
-                        console.log(`portal reply: ${JSON.stringify(response.data)}`);
-                        if (response.status == null) {
-                            throw new Error("query error, no data");
-                        }
-                        return response.data as V;
-                    })
-                    .catch((error: AxiosError) => {
-                        if (error && error.response) {
-                            if (error.response.status === 401) {
-                                return this.tryRefreshToken<Q, V>(req);
-                            }
-                            console.log(req.url, "portal error", error.response.status, error.response.data);
-                        }
-                        console.log(req.url, `portal error:`, error);
-                        throw error;
-                    });
+            })
+            .then((response) => {
+                console.log(`portal reply: ${JSON.stringify(response.data)}`);
+                if (response.status == null) {
+                    throw new Error("query error, no data");
+                }
+                return response.data as V;
+            })
+            .catch((error: AxiosError) => {
+                if (error && error.response) {
+                    if (error.response.status === 401) {
+                        return this.tryRefreshToken<Q, V>(req);
+                    }
+                    console.log(req.url, "portal error", error.response.status, error.response.data);
+                }
+                console.log(req.url, `portal error:`, error);
+                throw error;
             });
-        });
     }
 
     private async tryRefreshToken<Q, V>(original: QueryFields<Q>): Promise<V> {
@@ -602,26 +597,26 @@ export default class PortalInterface {
 
         console.log(`refreshing token`);
 
-        return await this.getUri().then((baseUri) =>
-            axios
-                .request({
-                    method: "POST",
-                    url: baseUri + "/refresh",
-                    data: requestBody,
-                })
-                .then((response: AxiosResponse) => {
-                    return this.handleTokenResponse<V>(response).then((self) => {
-                        console.log("retrying", original.url);
-                        return this.query<Q, V>(_.extend({}, original, { refreshed: true, token: self.token }));
-                    });
-                })
-                .catch((error: AxiosError) => {
-                    console.log("refresh failed", error);
-                    return this.logout().then(() => {
-                        return Promise.reject(error);
-                    });
-                })
-        );
+        const baseUri = await this.getUri();
+
+        return axios
+            .request({
+                method: "POST",
+                url: baseUri + "/refresh",
+                data: requestBody,
+            })
+            .then((response: AxiosResponse) => {
+                return this.handleTokenResponse<V>(response).then((self) => {
+                    console.log("retrying", original.url);
+                    return this.query<Q, V>(_.extend({}, original, { refreshed: true, token: self.token }));
+                });
+            })
+            .catch((error: AxiosError) => {
+                console.log("refresh failed", error);
+                return this.logout().then(() => {
+                    return Promise.reject(error);
+                });
+            });
     }
 
     private parseToken(token: string | null): { refresh_token: string } | null {
