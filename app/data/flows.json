@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro USB cable   |\n| E) Battery        |   |\n\n## + Phillips screwdriver (not included)",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB cable   |\n| E) Battery        |   |\n\n## + Phillips screwdriver (not included)",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -118,7 +118,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure them with screws.",
+                        "body": "# Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure with screws.\n\n## Use caution to avoid bending the Module Base pins, and make sure the pins never touch each other, as it could damage the board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_4_A_e9dc955a94.jpg"
@@ -144,13 +144,16 @@
                 },
                 "simple": [
                     {
-                        "body": "# Secure Inside Case\nPlace your assembled components inside the Case. Secure everything down with screws so it doesn't move around.\n\n## Note: You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
+                        "body": "# Secure Inside Case\nPlace your assembled components inside the Case. Screw everything down to minimize movement and risk of damage.\n\n## You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_5_A_ccf0984f18.png"
                             },
                             {
                                 "url": "/uploads/TI_5_B_920a8e61b4.png"
+                            },
+                            {
+                                "url": "/uploads/TI_20_e6fe720726.png"
                             }
                         ]
                     }
@@ -170,7 +173,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Battery\nInsert the battery cable to the top left of the Upper Board where it says “BATTERY”.",
+                        "body": "# Attach Battery\nInsert the Battery cable to the top left of the Upper Board where it says “BATTERY”.\n\n## Important: Before inserting, double check you've got it right. Inserting cables into the wrong sockets can permanently damage your FieldKit.",
                         "images": [
                             {
                                 "url": "/uploads/TI_6_A_501dfaea02.png"
@@ -196,7 +199,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Button\nInsert the button cable to the top right of the Upper Board where it says “BTN”.",
+                        "body": "# Attach Button\nInsert the Button cable to the top right of the Upper Board where it says “BTN”.\n\n## Important: Before inserting, double check you've got it right. Inserting cables into the wrong sockets can permanently damage your FieldKit.",
                         "images": [
                             {
                                 "url": "/uploads/TI_7_A_836b705122.png"
@@ -210,7 +213,7 @@
             },
             {
                 "id": "8",
-                "name": "onboarding.09",
+                "name": "onboarding.10",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -222,7 +225,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Assemble Cable Plate\nAdd the inserts into the glands, and screw them into the Cable Plate. \n\n## Note: Your Cable Plate depends on your sensor and power configuration. For solar gland, you'll need to snip the insert in order to thread the solar cable through.",
+                        "body": "# Assemble Cable Plate\nAdd the cables and inserts into the glands. Screw them into the Cable Plate.\n\n## Note: Cable Plate assembly depends on your sensor and power configuration, and can be pretty involved. Visit FieldKit.Org/Product-Guide/Set-Up-Station/#Assemble-Cable-Plate for detailed instructions.",
                         "images": [
                             {
                                 "url": "/uploads/TI_21_1c7cdf7182.png"
@@ -251,7 +254,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Plug in Micro USB Cable\nPlug in the Micro USB cable to a power source to charge \nthe Battery.",
+                        "body": "# Plug in Micro-USB Cable\nPlug in the Micro-USB cable to an external power source to charge \nthe Battery.",
                         "images": [
                             {
                                 "url": "/uploads/TI_8_A_5c71cc37f2.png"
@@ -265,7 +268,7 @@
             },
             {
                 "id": "10",
-                "name": "onboarding.10",
+                "name": "onboarding.11",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -277,7 +280,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Cable Plate to Case\nScrew the Cable Plate onto the Case.",
+                        "body": "# Attach Cable Plate to Case\nOnce you've attached your cables, inserts and glands to the Cable Plate, screw your Cable Plate onto your Case. \n\n## Ensure that the gasket is pressed into the groove to form a snug fit for optimum weather protection. ",
                         "images": [
                             {
                                 "url": "/uploads/TI_24_6362509d17.png"
@@ -291,7 +294,7 @@
             },
             {
                 "id": "11",
-                "name": "onboarding.11",
+                "name": "onboarding.09",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -303,13 +306,16 @@
                 },
                 "simple": [
                     {
-                        "body": "# Leave Station to Charge\nFlip the switch to the “ON” position. Leave Micro USB cable plugged in until the battery reads fully charged.",
+                        "body": "# Switch On and Leave Station to Charge\nFlip the switch to the “ON” position. Leave Micro-USB cable plugged in until the battery reads fully charged.",
                         "images": [
                             {
                                 "url": "/uploads/TI_15_A_NEW_x2_9759453cc0.png"
                             },
                             {
                                 "url": "/uploads/TI_15_B_NEW_x2_05f6fd4bb9.png"
+                            },
+                            {
+                                "url": "/uploads/TI_8_B_f3f2eaff13.png"
                             }
                         ]
                     }
@@ -407,7 +413,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach to Station\n\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.",
+                        "body": "# Attach to Station\n\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.\n\n## Visit FieldKit.Org/Product-Guide/Set-Up-Station/#Weather-Module-Setup for instructions on positioning instruments, managing cables and exploring mounting solutions. ",
                         "images": [
                             {
                                 "url": "/uploads/TI_38_5c371cef29.png"
