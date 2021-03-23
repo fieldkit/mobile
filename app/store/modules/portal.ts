@@ -79,6 +79,7 @@ const actions = (services: ServiceRef) => {
                 dispatch(ActionTypes.LOAD_PORTAL_ENVS),
             ]);
 
+            // These are for developers only, we never store passwords for users.
             const users = Config.defaultUsers;
             if (users.length > 0) {
                 try {

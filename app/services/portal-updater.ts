@@ -18,8 +18,9 @@ export default class PortalUpdater {
     }
 
     public start(): Promise<void> {
-        void promiseAfter(1 * OneMinute).then(() => {
-            void this.addOrUpdateStations();
+        void promiseAfter(1 * OneMinute).then(async () => {
+            await this.addOrUpdateStations();
+            void this.start();
         });
         return Promise.resolve();
     }

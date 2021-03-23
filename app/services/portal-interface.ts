@@ -388,7 +388,7 @@ export default class PortalInterface {
             .then((response) => {
                 if (response.statusCode == 401) {
                     console.log(`invalid authentication: ${response.statusCode}`);
-                    return Promise.reject(new ApiUnexpectedStatus(`invalid authentication: ${response.statusCode}`));
+                    return Promise.reject(new AuthenticationError(`invalid authentication: ${response.statusCode}`));
                 }
                 if (response.statusCode != 200) {
                     console.log(`unexpected status: ${response.statusCode}`);
