@@ -2,7 +2,8 @@
     <ActionBar backgroundColor="white" flat="true" class="action-bar">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
-                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
+                <NavigationButton v-show="false" />
+                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -10,7 +11,8 @@
                 <ActionItem ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" @tap="onSettings" />
             </template>
             <template v-else-if="canSave">
-                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
+                <NavigationButton v-show="false" />
+                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -18,7 +20,8 @@
                 <ActionItem ios.systemIcon="3" ios.position="right" android.systemIcon="ic_menu_edit" @tap="raiseSave" />
             </template>
             <template v-else>
-                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
+                <NavigationButton v-show="false" />
+                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -27,7 +30,7 @@
         </template>
         <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes" verticalAlignment="middle">
-                <StackLayout v-if="haveBackStack" col="0" class="back-icon" @tap="raiseBack">
+                <StackLayout v-if="canNavigateBack" col="0" class="back-icon" @tap="raiseBack">
                     <Image height="25" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
                 <GridLayout v-if="subtitle" col="1" rows="auto,auto" columns="*" verticalAlignment="middle">
@@ -113,26 +116,9 @@ export default Vue.extend({
     computed: {
         classes(): string {
             const c: string[] = [];
-            // if (this.bottomMargin || this.ios) c.push("m-b-20");
             if (this.ios) c.push("ios");
             if (!this.ios) c.push("android");
             return c.join(" ");
-        },
-        haveBackStack(): boolean {
-            if (!this.canNavigateBack) {
-                return false;
-            }
-            const frame = Frame.topmost();
-            if (frame) {
-                console.log("platform-header:backStack", frame.id, frame.backStack.length);
-                console.log(
-                    "platform-header:backStack",
-                    frame.id,
-                    frame.backStack.map((e) => e.entry)
-                );
-                return true; // frame.backStack.length > 0;
-            }
-            return true;
         },
     },
     created(): void {
@@ -153,7 +139,7 @@ export default Vue.extend({
 		*/
     },
     mounted(): void {
-        // eslint-disable-next-line
+        /* eslint-disable */
         if (false) {
             // https://docs.nativescript.org/ui/action-bar
             console.log(
@@ -168,7 +154,6 @@ export default Vue.extend({
                 this.classes
             );
         }
-        // eslint-disable-next-line
         if (true) {
             // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
             const frame = Frame.topmost();
@@ -195,7 +180,7 @@ export default Vue.extend({
                 this.onCancel(ev);
             } else {
                 console.log("platform-header:cancel (nav)");
-                this.$navigateBack();
+                this.$navigateBack({});
             }
         },
         raiseIcon(): void {

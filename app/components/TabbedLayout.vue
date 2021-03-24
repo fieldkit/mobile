@@ -140,7 +140,8 @@ export default Vue.extend({
                         frame: "stations-frame",
                         animated: false,
                         transition: {
-                            duration: 0,
+                            name: "fade",
+                            duration: 300,
                         },
                     });
                 } else {

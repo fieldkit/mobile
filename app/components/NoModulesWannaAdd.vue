@@ -26,7 +26,6 @@ export default Vue.extend({
         async addModules(): Promise<void> {
             // eslint-disable-next-line
             await this.$navigateTo(routes.onboarding.addModule, {
-                clearHistory: true,
                 props: {
                     stationId: this.stationId,
                 },

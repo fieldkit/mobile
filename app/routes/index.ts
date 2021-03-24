@@ -53,6 +53,10 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
                 _.extend(options, {
                     frame: pageOrRoute.frame,
                     props: pageOrRoute.props,
+                    transition: {
+                        name: "fade",
+                        duration: 0,
+                    },
                 })
             );
         } else if (pageOrRoute instanceof Route) {

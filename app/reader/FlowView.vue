@@ -1,16 +1,7 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom">
-        <template v-if="ready">
-            <PlatformHeader
-                :title="screen.header.title"
-                :subtitle="subtitle"
-                :icon="icon"
-                :canCancel="true"
-                :canNavigateSettings="false"
-                :canNavigateBack="screen.navOptions.backward.allowed"
-                :onBack="onBackward"
-                :onCancel="onCancel"
-            />
+        <PlatformHeader title="Onboarding" :onBack="onBackward" :canNavigateSettings="false" />
+        <StackLayout v-if="ready">
             <GridLayout rows="auto,*,auto" class="container">
                 <FlowProgress row="0" :progress="progress" />
                 <SimpleScreen
@@ -32,7 +23,10 @@
                     <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
                 </StackLayout>
             </GridLayout>
-        </template>
+        </StackLayout>
+        <StackLayout v-else>
+            <Label text="Loading" />
+        </StackLayout>
     </Page>
 </template>
 
@@ -102,6 +96,20 @@ export default Vue.extend({
         progress(): number {
             return this.nav.progress;
         },
+        title(): string {
+            if (this.nav.ready) {
+                if (this.screen && this.screen.header) {
+                    return this.screen.header.title;
+                }
+            }
+            return "Loading";
+        },
+        subtitle(): string | null {
+            if (this.header) {
+                return this.header.name;
+            }
+            return null;
+        },
         header(): ModuleHeader | undefined {
             return tryFindModuleHeader(this.flowName);
         },
@@ -111,16 +119,17 @@ export default Vue.extend({
             }
             return null;
         },
-        subtitle(): string | null {
-            if (this.header) {
-                return this.header.name;
-            }
-            return null;
-        },
     },
     async mounted(): Promise<void> {
-        console.log("flow: mounted", this.flowName);
-        console.log("flow: mounted", this.header);
+        try {
+            console.log("flow: mounted", this.flowName);
+            console.log("flow: mounted", "module-header", this.header);
+            if (this.screen) {
+                console.log("flow: mounted", "screen-header", this.screen.header);
+            }
+        } catch (error) {
+            console.log("error", error);
+        }
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flowName);
         this.timer = new Timer(2000, (frame) => {
