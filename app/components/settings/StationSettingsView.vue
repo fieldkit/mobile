@@ -14,9 +14,26 @@
                             textWrap="true"
                             @tap="selectFromMenu"
                         />
+                        <Label
+                            :class="'menu-text size-18 bottom-border forget-station'"
+                            :text="_L('forgetStation')"
+                            textWrap="true"
+                            @tap="forgetStationDialog"
+                        />
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
+
+            <DockLayout row="1" v-if="showForgetStationDialog" class="text-center">
+                <GridLayout rows="auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
+                    <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
+                    <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
+                    <GridLayout row="2" columns="*,*">
+                        <Label col="0" :text="_L('forgetStationOK')" class="size-16 m-t-10 bold" @tap="forgetStation" />
+                        <Label col="1" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
+                    </GridLayout>
+                </GridLayout>
+            </DockLayout>
         </GridLayout>
     </Page>
 </template>
@@ -31,16 +48,19 @@ import Firmware from "./StationSettingsFirmware.vue";
 import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
 import * as animations from "@/components/animations";
-import { AvailableStation } from "@/store";
+import { ActionTypes, AvailableStation } from "@/store";
+import StationListView from "~/components/StationListView.vue";
 
 export default Vue.extend({
     data(): {
         loggedIn: boolean;
         menuOptions: string[];
+        showForgetStationDialog: boolean;
     } {
         return {
             loggedIn: Services.PortalInterface().isLoggedIn(),
-            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
+            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle")],
+            showForgetStationDialog: false,
         };
     },
     props: {
@@ -115,6 +135,19 @@ export default Vue.extend({
                 },
             });
         },
+        forgetStationDialog(): void {
+            this.showForgetStationDialog = true;
+        },
+        async forgetStation(): Promise<void> {
+            this.showForgetStationDialog = false;
+            await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station);
+            await this.$navigateTo(StationListView, {
+                clearHistory: true,
+            });
+        },
+        cancelForgetStation(): void {
+            this.showForgetStationDialog = false;
+        },
     },
 });
 </script>
@@ -136,8 +169,27 @@ export default Vue.extend({
     border-bottom-width: 1;
 }
 
+.forget-station {
+    border-bottom-color: $fk-tertiary-red;
+    color: $fk-tertiary-red;
+}
+
 .full-width {
     width: 100%;
     margin-bottom: 10;
+}
+
+.deployed-dialog-container {
+    color: $fk-tertiary-red;
+    border-color: $fk-tertiary-red;
+    border-width: 1;
+    width: 300;
+    background-color: $background;
+    padding: 20;
+}
+
+.deployed-dialog-text {
+    margin-top: 20;
+    font-size: 18;
 }
 </style>
