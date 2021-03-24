@@ -1141,4 +1141,39 @@ export default class DatabaseInterface {
             })
             .catch((error) => Promise.reject(new Error(`error adding stored network: ${JSON.stringify(error)}`)));
     }
+
+    public async forgetStation(station: Station): Promise<void> {
+        await this.execute(`BEGIN TRANSACTION`);
+
+        try {
+            await this.execute("DELETE FROM downloads WHERE station_id = ?", [station.id]);
+            await this.execute("DELETE FROM fieldmedia WHERE station_id = ?", [station.id]);
+
+            const moduleIds = (await this.query("SELECT id FROM modules WHERE station_id = ?", [station.id])).map(
+                (item: { id: number }) => {
+                    return item.id;
+                }
+            );
+
+            const values = _.range(moduleIds.length)
+                .map(() => "?")
+                .join(",");
+
+            if (moduleIds) {
+                await this.execute("DELETE FROM modules_config WHERE module_id IN (" + values + ")", moduleIds);
+                await this.execute("DELETE FROM sensors WHERE module_id IN (" + values + ")", moduleIds);
+                await this.execute("DELETE FROM modules WHERE id IN (" + values + ")", moduleIds);
+            }
+            await this.execute("DELETE FROM notes WHERE station_id = ?", [station.id]);
+            await this.execute("DELETE FROM station_addresses WHERE station_id = ?", [station.id]);
+            await this.execute("DELETE FROM stations_config WHERE station_id = ?", [station.id]);
+            await this.execute("DELETE FROM streams WHERE station_id = ?", [station.id]);
+            await this.execute("DELETE FROM stations WHERE id = ?", [station.id]);
+
+            return this.execute(`COMMIT TRANSACTION`);
+        } catch (error) {
+            log.error(`error forgetting station JSON: ${JSON.stringify(error)}`);
+            return this.execute(`ROLLBACK TRANSACTION`);
+        }
+    }
 }
