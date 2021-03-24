@@ -3,7 +3,7 @@
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton v-show="false" />
-                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
+                <ActionItem v-show="canNavigateBack" text="Back" ios.position="left" @tap="raiseBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -12,7 +12,7 @@
             </template>
             <template v-else-if="canSave">
                 <NavigationButton v-show="false" />
-                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
+                <ActionItem v-show="canNavigateBack" text="Back" ios.position="left" @tap="raiseBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -21,7 +21,7 @@
             </template>
             <template v-else>
                 <NavigationButton v-show="false" />
-                <ActionItem text="Back" ios.position="left" @tap="raiseBack" v-show="canNavigateBack" />
+                <ActionItem v-show="canNavigateBack" text="Back" ios.position="left" @tap="raiseBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
