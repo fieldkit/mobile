@@ -425,6 +425,7 @@ export default class PortalInterface {
         path: string
     ): Promise<{ data: { id: number }; status: number }> {
         if (!key) throw new Error(`key is undefined`);
+
         const headers = {
             Authorization: this.requireToken(),
             "Content-Type": contentType,
