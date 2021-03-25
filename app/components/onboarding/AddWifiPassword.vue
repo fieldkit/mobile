@@ -120,4 +120,8 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.ns-ios TextField {
+    margin-top: 10;
+}
 </style>

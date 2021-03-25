@@ -35,8 +35,9 @@
                             fontSize="15"
                             boxType="circle"
                             @tap="selectName(networkName)"
+                            @checkedChange="$event.value !== (ssid === networkName) && selectName(networkName)"
                         />
-                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="networkName"></Label>
+                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="networkName" @tap="selectName(networkName)"></Label>
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
@@ -129,7 +130,8 @@ export default Vue.extend({
                 Utils.ad.dismissSoftInput();
             }
         },
-        selectName(name): void {
+        selectName(name: string): void {
+            console.log("select-name", name);
             this.ssid = name;
         },
     },
@@ -138,4 +140,8 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.ns-ios TextField {
+    margin-top: 10;
+}
 </style>
