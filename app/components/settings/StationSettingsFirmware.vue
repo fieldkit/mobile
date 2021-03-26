@@ -82,7 +82,7 @@
 import Vue from "vue";
 import { promiseAfter } from "@/lib";
 import { fullRoutes } from "@/routes";
-import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
+import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
@@ -163,6 +163,9 @@ export default Vue.extend({
                 await this.$services.StationFirmware().downloadFirmware((tp) => {
                     this.progress = tp.progress;
                 });
+
+                await this.$store.dispatch(ActionTypes.RELOAD_FIRMWARE);
+
                 this.downloading = {
                     checking: false,
                     failed: false,
