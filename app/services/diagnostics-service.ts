@@ -1,17 +1,9 @@
 import _ from "lodash";
 import { Device, Folder, File, knownFolders } from "@nativescript/core";
-import { copyLogs } from "@/lib/logging";
+import { uuidv4, copyLogs } from "@/lib";
 import { DiagnosticsDirectory, getRelativeTo, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import { Services } from "@/services";
 import Config, { Build } from "@/config";
-
-function uuidv4(): string {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        const r = (Math.random() * 16) | 0,
-            v = c == "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
 
 export interface DiagnosticsProgress {
     id: string;
