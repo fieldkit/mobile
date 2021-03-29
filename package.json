@@ -8,6 +8,7 @@
         "@nativescript/firebase": "^11.1.3",
         "@nativescript/geolocation": "^7.0.0",
         "@nativescript/imagepicker": "^1.0.3",
+        "@nstudio/nativescript-camera-plus": "^3.3.0",
         "@nstudio/nativescript-checkbox": "^2.0.4",
         "@sinonjs/fake-timers": "^6.0.1",
         "@types/unist": "^2.0.3",
