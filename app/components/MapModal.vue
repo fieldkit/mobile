@@ -32,6 +32,9 @@ export default Vue.extend({
     computed: {
         ...mapGetters({ mappedStations: "mappedStations" }),
     },
+    mounted(): void {
+        console.log("map-modal: mounted");
+    },
     methods: {
         onClose(): void {
             console.log("onClose");

@@ -1,9 +1,8 @@
 <template>
-    <GridLayout rows="auto" columns="*" id="mapbox-wrapper">
+    <GridLayout rows="auto" columns="*" id="mapbox-wrapper" @unloaded="onUnloaded">
         <Mapbox
             row="0"
             :accessToken="token"
-            mapStyle="mapbox://styles/mapbox/outdoors-v11"
             :height="height"
             zoomLevel="0"
             hideCompass="false"
@@ -13,23 +12,18 @@
             disableScroll="false"
             disableTilt="false"
             class="m-b-10"
+            mapStyle="mapbox://styles/mapbox/outdoors-v11"
             @mapReady="onMapReady"
-            v-if="!unavailable"
         />
-        <StackLayout
-            row="0"
-            height="35"
-            verticalAlignment="bottom"
-            horizontalAlignment="right"
-            class="toggle-container"
-            v-if="hasMap && !isIOS"
-        >
+
+        <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="!isIOS">
             <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
         </StackLayout>
 
         <StackLayout row="0" v-if="loading" class="loading">
             <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
         </StackLayout>
+
         <StackLayout row="0" v-if="unavailable" class="unavailable">
             <Label text="Map Not Available" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
         </StackLayout>
@@ -38,11 +32,11 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Promise from "bluebird";
 import Config from "@/config";
 import { routes } from "@/routes";
 import { isIOS } from "@nativescript/core";
 import { AvailableStation } from "@/store/types";
+import { uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationsMap",
@@ -66,6 +60,7 @@ export default Vue.extend({
     },
     data() {
         return {
+            key: uuidv4(),
             isIOS: isIOS,
             loading: true,
             unavailable: false,
@@ -74,41 +69,45 @@ export default Vue.extend({
             hasMap: false,
         };
     },
-    watch: {
-        mappedStations(this: any) {
-            this.showStations();
-        },
+    updated(): void {
+        console.log(this.key, "map: updated", this.isIOS);
+        this.showStations();
     },
-    mounted(this: any) {
-        console.log("StationsMap::mounted");
-        return Promise.delay(10000).then(() => {
-            if (!this.map) {
-                this.unavailable = true;
-            }
-        });
+    mounted(this: any): void {
+        console.log(this.key, "map: mounted");
+    },
+    beforeDestroy() {
+        console.log(this.key, "map: before-destroy");
+    },
+    destroyed() {
+        console.log(this.key, "map: destroyed");
     },
     methods: {
+        onUnloaded(): void {
+            console.log(this.key, "map: unloaded");
+        },
         onMapReady(this: any, ev) {
+            console.log(this.key, "map: map-ready");
             this.map = ev.map;
             this.showStations();
         },
         toggleModal(this: any) {
-            console.log("toggle-modal");
+            console.log(this.key, "map: toggle-modal");
             this.$emit("toggle-modal");
         },
         showStations(this: any) {
             if (!this.mappedStations) {
-                console.log("refresh map, no mappedStations");
+                console.log(this.key, "map: refresh, no mappedStations");
                 return;
             }
 
             if (!this.map) {
-                console.log("refresh map, no map");
+                console.log(this.key, "map: refresh, no map");
                 return;
             }
 
             if (!this.shown) {
-                console.log("refresh map");
+                console.log(this.key, "map: refreshing");
 
                 const markers = this.mappedStations.stations.map((station: any) => {
                     return {

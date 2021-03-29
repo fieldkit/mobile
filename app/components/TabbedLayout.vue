@@ -137,6 +137,7 @@ export default Vue.extend({
                 if (!firstTab.route) {
                     console.log(`update-selected: no tab`);
                     await this.$navigateTo(StationListView, {
+                        clearHistory: true,
                         frame: "stations-frame",
                         animated: false,
                         transition: {

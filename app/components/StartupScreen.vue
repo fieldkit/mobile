@@ -43,6 +43,14 @@ export default Vue.extend({
             console.log("developer", Config.env.developer);
 
             if (true) {
+                await this.$navigateTo(fullRoutes.stations, {
+                    clearHistory: true,
+                });
+
+                return;
+            }
+
+            if (false) {
                 await this.$navigateTo(fullRoutes.settings.developer, {
                     clearHistory: true,
                 });

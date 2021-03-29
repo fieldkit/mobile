@@ -41,6 +41,7 @@ import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
+import { uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationListView",
@@ -49,10 +50,15 @@ export default Vue.extend({
         NoStationsWannaAdd,
         StationsMap,
     },
-    data(): { busy: boolean; scanning: boolean } {
+    data(): {
+        busy: boolean;
+        scanning: boolean;
+        key: string;
+    } {
         return {
             busy: false,
             scanning: false,
+            key: uuidv4(),
         };
     },
     computed: {
@@ -60,6 +66,12 @@ export default Vue.extend({
         discovering(): DiscoveringStation[] {
             return this.$s.getters.discovering;
         },
+    },
+    mounted(): void {
+        console.log(this.key, "stations: mounted");
+    },
+    updated(): void {
+        console.log(this.key, "stations: updated");
     },
     methods: {
         getDeployStatus(station: AvailableStation): string {
