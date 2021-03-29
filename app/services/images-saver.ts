@@ -48,7 +48,9 @@ export default class ImagesSaver {
         await Camera.requestCameraPermissions();
 
         const asset = await Camera.takePicture({
-            keepAspectRatio: true,
+            width: 300,
+            height: 300,
+            keepAspectRatio: false,
             saveToGallery: true,
             allowsEditing: false,
         });
