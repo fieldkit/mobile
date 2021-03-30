@@ -104,18 +104,22 @@ const FlowView = Vue.extend({
             }
             return "Loading";
         },
-        subtitle(): string | null {
-            if (this.header) {
-                return this.header.name;
-            }
-            return null;
-        },
         header(): ModuleHeader | undefined {
             return tryFindModuleHeader(this.flow.name);
         },
+        subtitle(): string | null {
+            if (this.nav.ready) {
+                if (this.header) {
+                    return this.header.name;
+                }
+            }
+            return null;
+        },
         icon(): string | null {
-            if (this.header) {
-                return this.header.icon;
+            if (this.nav.ready) {
+                if (this.header) {
+                    return this.header.icon;
+                }
             }
             return null;
         },
