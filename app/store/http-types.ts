@@ -177,7 +177,7 @@ export function fixupModuleConfiguration(buffer: Buffer | null): ModuleConfigura
     try {
         return DataProto.ModuleConfiguration.decodeDelimited(buffer);
     } catch (error) {
-        console.log(`invalid-module-configuration: ${buffer.toString("hex")}`, error);
+        console.log(`invalid-module-configuration: ${buffer.toString("hex")}`);
         return null;
     }
 }
