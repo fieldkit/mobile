@@ -2,7 +2,7 @@
     <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10">
         <GridLayout v-for="module in station.modules" :key="module.id" rows="auto" columns="*">
             <template v-if="!module.internal">
-                <ModuleItem :station="station" :module="module"></ModuleItem>
+                <ModuleItem :station="station" :module="module" />
             </template>
         </GridLayout>
     </StackLayout>

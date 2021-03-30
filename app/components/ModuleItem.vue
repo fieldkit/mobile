@@ -70,7 +70,7 @@ import { getLastSeen, _T } from "@/lib";
 import { Module, Sensor, LegacyStation } from "@/store";
 import { isAndroid, Label } from "@nativescript/core";
 import { ModuleCalibration, StationCalibration } from "~/calibration";
-import { fullRoutes } from "~/routes";
+import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 
 export default Vue.extend({
     name: "ModuleItemView",
@@ -171,7 +171,8 @@ export default Vue.extend({
             if (!this.station.connected || !this.moduleCalibration) {
                 return Promise.resolve();
             }
-            await this.$navigateTo(fullRoutes.onboarding.recalibrate(this.station.id));
+            const route = await makeCalibrationRoute(this.stationCalibration, this.moduleCalibration);
+            await this.$navigateTo(route);
         },
     },
 });
