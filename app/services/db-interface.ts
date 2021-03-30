@@ -1103,17 +1103,13 @@ export default class DatabaseInterface {
 
     private async purgeTable(table: { name: string; status: string; purge: string; epoch: number }): Promise<void> {
         const before = await this.query<{ nlogs: number }>(table.status);
-        log.info(`${table.name} before ${JSON.stringify(before)}`);
 
         await this.execute(table.purge, [table.epoch]);
 
         const after = await this.query<{ nlogs: number }>(table.status);
-        log.info(`${table.name} after ${JSON.stringify(after)}`);
-
-        log.info(`${table.name} ready`);
 
         const times = await this.query(`SELECT MIN(time), MAX(time) FROM station_log`);
-        console.log(`times ${JSON.stringify(times)}`);
+        log.info(`${table.name} times ${JSON.stringify(before)} ${JSON.stringify(after)} ${JSON.stringify(times)}`);
     }
 
     public async getStoredNetworks(): Promise<StoredNetworkTableRow[]> {
