@@ -73,9 +73,11 @@ export default Vue.extend({
     },
     methods: {
         back(): void {
+            console.log("prepare:back");
             this.$emit("back");
         },
         done(): void {
+            console.log("prepare:done");
             this.$emit("done");
         },
     },

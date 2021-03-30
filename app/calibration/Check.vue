@@ -109,7 +109,8 @@ export default Vue.extend({
     },
     created() {
         if (this.calibrationPoints == 0) {
-            this.$emit("done");
+            console.log(`cal:skip check`);
+            this.$emit("done", true);
         }
     },
     methods: {

@@ -18,7 +18,7 @@
                         :step="activeStep"
                         :progress="progress"
                         :busy="busy"
-                        @done="() => onDone(activeStep)"
+                        @done="(ignore) => onDone(activeStep, ignore || false)"
                         @back="() => onBack(activeStep)"
                         @clear="() => onClear(activeStep)"
                         @calibrate="(ref) => onCalibrate(activeStep, ref)"
@@ -72,6 +72,7 @@ export default Vue.extend({
         cleared: boolean;
         failure: boolean;
         busy: boolean;
+        ignored: CalibrationStep[];
         completed: CalibrationStep[];
     } {
         return {
@@ -79,6 +80,7 @@ export default Vue.extend({
             cleared: false,
             failure: false,
             busy: false,
+            ignored: [],
             completed: [],
         };
     },
@@ -174,7 +176,11 @@ export default Vue.extend({
         getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
-        async onDone(step: CalibrationStep): Promise<void> {
+        async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
+            console.log("cal:", "done", this.completed.length);
+            if (ignoreNav) {
+                this.ignored.push(step);
+            }
             this.completed.push(step);
             if (this.getRemainingSteps().length > 0) {
                 return;
@@ -197,11 +203,14 @@ export default Vue.extend({
             await this.$navigateBack();
         },
         async onBack(step: CalibrationStep): Promise<void> {
-            console.log("cal:", "back", step, "completed", this.completed.length);
-            if (this.completed.length == 0) {
+            const remaining = _.without(this.completed, ...this.ignored);
+            console.log("cal:", "remaining", remaining.length, "completed", this.completed.length, "ignored", this.ignored.length);
+            if (remaining.length == 0) {
                 await this.navigateBack();
             }
+
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
+            console.log("cal:", "back", "completed", this.completed.length);
             return Promise.resolve();
         },
         async onClear(step: CalibrationStep): Promise<void> {
@@ -278,6 +287,7 @@ export default Vue.extend({
         async tryAgain(): Promise<void> {
             this.failure = false;
             this.completed = [];
+            this.ignored = [];
         },
         notifyCleared(): Promise<void> {
             this.cleared = true;
