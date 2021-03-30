@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="_L('fieldkitWifi')" :onBack="back" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
+        <GridLayout rows="*,auto" class="container">
             <ScrollView row="0" v-show="step == 0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0">
@@ -31,7 +31,7 @@
             </ScrollView>
 
             <StackLayout row="1" verticalAlignment="bottom">
-                <Button class="btn btn-primary" :text="_L('continue')" @tap="forward" />
+                <Button class="btn btn-primary btn-padded" :text="_L('continue')" @tap="forward" />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -99,12 +99,12 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 .skip {
+    width: 115;
     padding-top: 10;
     padding-bottom: 10;
     font-size: 14;
     font-weight: bold;
     text-align: center;
-    margin: 10;
 }
 .instruction {
     color: $fk-primary-black;
@@ -114,24 +114,6 @@ export default Vue.extend({
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
-}
-.option-container {
-    margin-top: 30;
-    margin-left: 30;
-    margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
 }
 .small {
     width: 50;

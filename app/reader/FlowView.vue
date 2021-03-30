@@ -2,7 +2,7 @@
     <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader title="Onboarding" :onBack="onBackward" :canNavigateSettings="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
-            <GridLayout rows="auto,*,auto" class="container">
+            <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
                 <SimpleScreen
                     row="1"
@@ -12,7 +12,7 @@
                     class="simple-screen-container"
                     v-bind:key="nav.key"
                 />
-                <StackLayout row="2" class="m-x-10">
+                <StackLayout row="2">
                     <Button
                         class="btn btn-primary btn-padded"
                         :text="screen.forward"
@@ -199,6 +199,10 @@ export default FlowView;
     font-weight: bold;
     text-align: center;
     // background-color: blue;
+}
+
+.btn-primary {
+    margin-bottom: 0;
 }
 
 .guide {
