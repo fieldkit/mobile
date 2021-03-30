@@ -73,32 +73,36 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.LOAD]: async ({ state, dispatch }: ActionParameters) => {
-            await Promise.all([
-                dispatch(ActionTypes.LOAD_SETTINGS),
-                dispatch(ActionTypes.LOAD_ACCOUNTS),
-                dispatch(ActionTypes.LOAD_PORTAL_ENVS),
-            ]);
+            try {
+                await Promise.all([
+                    dispatch(ActionTypes.LOAD_SETTINGS),
+                    dispatch(ActionTypes.LOAD_ACCOUNTS),
+                    dispatch(ActionTypes.LOAD_PORTAL_ENVS),
+                ]);
 
-            // These are for developers only, we never store passwords for users.
-            if (state.accounts.length == 0) {
-                const users = Config.defaultUsers;
-                if (users.length > 0) {
-                    try {
-                        console.log(`authenticating default-users`);
-                        void Promise.all(
-                            users.map(async (da) => {
-                                try {
-                                    await dispatch(new LoginAction(da.email, da.password));
-                                    console.log(`authenticated: ${JSON.stringify(da.email)}`);
-                                } catch (error) {
-                                    console.log(`default-user failed: ${JSON.stringify(error)}`);
-                                }
-                            })
-                        );
-                    } catch (error) {
-                        console.log(`failed: ${JSON.stringify(error)}`);
+                // These are for developers only, we never store passwords for users.
+                if (state.accounts.length == 0) {
+                    const users = Config.defaultUsers;
+                    if (users.length > 0) {
+                        try {
+                            console.log(`authenticating default-users`);
+                            void Promise.all(
+                                users.map(async (da) => {
+                                    try {
+                                        await dispatch(new LoginAction(da.email, da.password));
+                                        console.log(`authenticated: ${JSON.stringify(da.email)}`);
+                                    } catch (error) {
+                                        console.log(`default-user failed: ${JSON.stringify(error)}`);
+                                    }
+                                })
+                            );
+                        } catch (error) {
+                            console.log(`failed: ${JSON.stringify(error)}`);
+                        }
                     }
                 }
+            } catch (error) {
+                console.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.LOAD_SETTINGS]: async ({ commit, dispatch, state }: ActionParameters) => {

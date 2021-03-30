@@ -163,12 +163,16 @@ const getters = {};
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
-                .db()
-                .getAllNotes()
-                .then((all) => all.map((row) => Notes.fromRow(row)))
-                .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
+        [ActionTypes.LOAD]: async ({ commit, dispatch, state }: ActionParameters) => {
+            try {
+                await services
+                    .db()
+                    .getAllNotes()
+                    .then((all) => all.map((row) => Notes.fromRow(row)))
+                    .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
+            } catch (error) {
+                console.log(`error loading notes:`, error);
+            }
         },
         [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters) => {
             //

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import {CommonLocations, PhoneLocation, PhoneNetwork, StoredNetworkTableRow} from "../types";
+import { CommonLocations, PhoneLocation, PhoneNetwork, StoredNetworkTableRow } from "../types";
 import { MutationTypes, RenameStationMutation } from "../mutations";
 import { ActionTypes, RefreshNetworkAction, NetworkChangedAction, StationRepliedAction } from "../actions";
 import { Station } from "../types";
@@ -55,8 +55,12 @@ const actions = (services: ServiceRef) => {
                 commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(statusReply.ssid, statusReply.create));
             }
         },
-        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
-            return dispatch(ActionTypes.LOAD_STORED_NETWORKS);
+        [ActionTypes.LOAD]: async ({ dispatch }: ActionParameters) => {
+            try {
+                await dispatch(ActionTypes.LOAD_STORED_NETWORKS);
+            } catch (error) {
+                console.log(`error loading stored networks:`, error);
+            }
         },
         [ActionTypes.LOAD_STORED_NETWORKS]: async ({ commit, dispatch, state }: ActionParameters) => {
             await services
@@ -73,7 +77,7 @@ const actions = (services: ServiceRef) => {
                 .addStoredNetwork(name)
                 .then((res) => dispatch(ActionTypes.LOAD_STORED_NETWORKS))
                 .catch((e) => console.log(ActionTypes.ADD_STORED_NETWORKS, e));
-        }
+        },
     };
 };
 

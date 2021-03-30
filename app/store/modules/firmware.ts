@@ -61,7 +61,11 @@ class UpgradeProgressMutation {
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.LOAD]: async ({ commit, dispatch, state }: ActionParameters) => {
-            await dispatch(ActionTypes.RELOAD_FIRMWARE);
+            try {
+                await dispatch(ActionTypes.RELOAD_FIRMWARE);
+            } catch (error) {
+                console.log(`error loading firmware:`, error);
+            }
         },
         [ActionTypes.AUTHENTICATED]: async ({ commit, dispatch, state }: ActionParameters) => {
             await dispatch(ActionTypes.FIRMWARE_REFRESH);

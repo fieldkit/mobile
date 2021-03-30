@@ -18,10 +18,14 @@ const getters = {};
 const actions = (_services: ServiceRef) => {
     return {
         [ActionTypes.LOAD]: ({ commit }: ActionParameters) => {
-            const appSettings = new AppSettings();
-            const token = appSettings.getString("accessToken");
-            if (token) {
-                commit(MutationTypes.LOGIN, token);
+            try {
+                const appSettings = new AppSettings();
+                const token = appSettings.getString("accessToken");
+                if (token) {
+                    commit(MutationTypes.LOGIN, token);
+                }
+            } catch (error) {
+                console.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters) => {

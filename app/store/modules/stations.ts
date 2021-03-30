@@ -406,8 +406,12 @@ type ActionParameters = ActionContext<StationsState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
-            return dispatch(ActionTypes.LOAD_STATIONS);
+        [ActionTypes.LOAD]: async ({ dispatch }: ActionParameters) => {
+            try {
+                await dispatch(ActionTypes.LOAD_STATIONS);
+            } catch (error) {
+                console.log(`error loading firmware:`, error);
+            }
         },
         [ActionTypes.LOAD_STATIONS]: async ({ commit, dispatch }: ActionParameters) => {
             await loadStationsFromDatabase(services.db()).then((stations) => {

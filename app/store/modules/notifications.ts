@@ -35,8 +35,12 @@ const getters = {
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
-            return dispatch(ActionTypes.LOAD_NOTIFICATIONS);
+        [ActionTypes.LOAD]: async ({ dispatch }: ActionParameters) => {
+            try {
+                await dispatch(ActionTypes.LOAD_NOTIFICATIONS);
+            } catch (error) {
+                console.log(`error loading notifications:`, error);
+            }
         },
         [ActionTypes.LOAD_NOTIFICATIONS]: async ({ commit, dispatch, state }: ActionParameters) => {
             const rawNotifications = await services.db().getAllNotifications();
