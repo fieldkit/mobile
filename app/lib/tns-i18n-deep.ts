@@ -3,14 +3,17 @@ import { Application, Device } from "@nativescript/core";
 var strRender = require("str-render");
 
 export default function (defaultLang) {
-    var lang = Device.language;
-    var defaults = require("~/i18n/" + defaultLang);
-    var strings = {};
+    const lang = Device.language;
+    const defaults = require("~/i18n/" + defaultLang);
+
+    let strings = {};
     try {
         strings = require("~/i18n/" + lang);
-    } catch (e) {}
+    } catch (e) {
+        console.log("error loading/missing:", lang);
+    }
 
-    var _L = function (strName, ...replacers) {
+    const _L = function (strName, ...replacers) {
         var res;
         if (strings.hasOwnProperty(strName)) {
             res = strings[strName];
@@ -29,7 +32,7 @@ export default function (defaultLang) {
         return strRender(res, "%s", ...replacers);
     };
 
-    var applicationResources = Application.getResources();
+    const applicationResources = Application.getResources();
     applicationResources._L = _L;
     Application.setResources(_L);
     Application.setResources(applicationResources);
