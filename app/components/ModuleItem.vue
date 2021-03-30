@@ -56,6 +56,12 @@
                         :class="moduleCalibration.canCalibrate && moduleCalibration.needsCalibration ? 'needs-calibration' : ''"
                     />
                     <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="unit size-12 m-t-10" />
+                    <Label
+                        :text="getUncalibratedDisplayReading(sensor)"
+                        verticalAlignment="bottom"
+                        class="size-12 m-l-20 m-t-10 uncalibrated"
+                        v-if="beta"
+                    />
                 </FlexboxLayout>
                 <Label :text="getSensorName(sensor)" textWrap="true" class="sensor-name size-14" />
             </WrapLayout>
@@ -71,6 +77,7 @@ import { Module, Sensor, LegacyStation } from "@/store";
 import { isAndroid, Label } from "@nativescript/core";
 import { ModuleCalibration, StationCalibration } from "~/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
+import Config from "@/config";
 
 export default Vue.extend({
     name: "ModuleItemView",
@@ -90,6 +97,9 @@ export default Vue.extend({
         };
     },
     computed: {
+        beta(): boolean {
+            return Config.beta;
+        },
         stationCalibration(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.station.id];
         },
@@ -103,6 +113,12 @@ export default Vue.extend({
                 return "--";
             }
             return sensor.reading.toFixed(1);
+        },
+        getUncalibratedDisplayReading(sensor: Sensor): string {
+            if (!_.isNumber(sensor.uncalibrated)) {
+                return "--";
+            }
+            return sensor.uncalibrated.toFixed(1);
         },
         getDisplayIcon(sensor: Sensor): string {
             if (sensor.trend) {
@@ -199,6 +215,11 @@ export default Vue.extend({
 }
 
 .unit {
+    margin-left: 2;
+    margin-bottom: 3;
+}
+
+.uncalibrated {
     margin-left: 2;
     margin-bottom: 3;
 }
