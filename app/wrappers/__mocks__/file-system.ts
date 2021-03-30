@@ -47,7 +47,7 @@ export default class FileSystem {
         return Promise.resolve([]);
     }
 
-    public deleteFolder(path: string): Promise<void> {
+    public deleteFolder(_path: string): Promise<void> {
         return Promise.resolve();
     }
 }

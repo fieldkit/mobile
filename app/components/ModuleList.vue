@@ -15,14 +15,14 @@ import ModuleItem from "~/components/ModuleItem.vue";
 
 export default Vue.extend({
     name: "ModuleListView",
+    components: {
+        ModuleItem,
+    },
     props: {
         station: {
             type: Object as () => LegacyStation,
             required: true,
         },
-    },
-    components: {
-        ModuleItem,
     },
 });
 </script>

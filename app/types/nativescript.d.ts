@@ -1,5 +1,5 @@
-import { navigateBack, ModalOptions, NavigationEntryVue } from "nativescript-vue";
-import { Vue, VueConstructor } from "vue/types/vue";
+import { navigateBack, ModalOptions } from "nativescript-vue";
+import { Vue } from "vue/types/vue";
 import { NavigateToFunc } from "@/routes/navigate";
 import { Services } from "@/services";
 import { OurStore } from "@/store";

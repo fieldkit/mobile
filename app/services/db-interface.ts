@@ -78,7 +78,7 @@ export default class DatabaseInterface {
         return this.query<DownloadTableRow>("SELECT * FROM downloads WHERE device_id = ? AND uploaded IS NULL", [deviceId]);
     }
 
-    public getStationGenerationDownloads(deviceId: string, generationId: string): Promise<DownloadTableRow[]> {
+    public getStationGenerationDownloads(_deviceId: string, generationId: string): Promise<DownloadTableRow[]> {
         return this.query<DownloadTableRow>("SELECT * FROM downloads WHERE generation = ?", [generationId]);
     }
 

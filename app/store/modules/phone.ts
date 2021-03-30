@@ -75,7 +75,7 @@ const actions = (services: ServiceRef) => {
             await services
                 .db()
                 .addStoredNetwork(name)
-                .then((res) => dispatch(ActionTypes.LOAD_STORED_NETWORKS))
+                .then(() => dispatch(ActionTypes.LOAD_STORED_NETWORKS))
                 .catch((e) => console.log(ActionTypes.ADD_STORED_NETWORKS, e));
         },
     };

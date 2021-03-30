@@ -170,7 +170,7 @@ export const fullRoutes = {
                 route: new FullRoute("onboarding/start", Frames.Stations, {}),
             },
         }),
-        recalibrate: (stationId: number) =>
+        recalibrate: (stationId: number): FullRoute =>
             new FullRoute("tabbed", Frames.Outer, {
                 firstTab: {
                     index: 0,
@@ -180,7 +180,7 @@ export const fullRoutes = {
                 },
             }),
     },
-    flow: (props: { flowName: string; finished: FullRoute; skipped: FullRoute }) => {
+    flow: (props: { flowName: string; finished: FullRoute; skipped: FullRoute }): FullRoute => {
         return new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,
