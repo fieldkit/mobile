@@ -41,11 +41,11 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
         if (pageOrRoute instanceof FullRoute) {
             const route = namedRoutes[pageOrRoute.name];
             const page = route.page as any;
-            const firstNavigation = !_.some(_.keys(store.state.nav.frames));
+            const haveTabs = _.keys(store.state.nav.frames).length >= 3;
             // Verify top route is for TabbedLayout
             const firstTab = pageOrRoute.props.firstTab as FirstTab;
-            console.log("nav:full-route", "first-nav", firstNavigation, "tabbed-nav", firstTab);
-            if (firstNavigation || !firstTab) {
+            console.log("nav:full-route", "have-tabs", haveTabs, "tabbed-nav", firstTab);
+            if (!haveTabs || !firstTab) {
                 console.log("nav:navigating to tabbed-layout");
                 store.commit(
                     new NavigationMutation(
@@ -71,6 +71,7 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
                     )
                 );
             } else {
+                console.log("nav:using existing tabbed-layout");
                 await navFn(firstTab.route, null);
                 getBus().$emit("nav:tab", firstTab.index);
             }
