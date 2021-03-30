@@ -1,7 +1,7 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader title="Onboarding" :onBack="onBackward" :canNavigateSettings="false" />
-        <StackLayout v-if="ready">
+        <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto" class="container">
                 <FlowProgress row="0" :progress="progress" />
                 <SimpleScreen
@@ -37,12 +37,12 @@ import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
 import { FullRoute } from "@/routes";
 import { Timer } from "@/lib";
-import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
+import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
 import * as utils from "@nativescript/core/utils/utils";
 
-export default Vue.extend({
+const FlowView = Vue.extend({
     name: "FlowView",
     components: {
         PlatformHeader,
@@ -50,8 +50,8 @@ export default Vue.extend({
         SimpleScreen,
     },
     props: {
-        flowName: {
-            type: String,
+        flow: {
+            type: Object as PropType<NavigationProps>,
             required: true,
         },
         finished: {
@@ -73,10 +73,6 @@ export default Vue.extend({
                     props: {},
                 };
             },
-        },
-        step: {
-            type: Number,
-            default: 0,
         },
     },
     data(): {
@@ -115,7 +111,7 @@ export default Vue.extend({
             return null;
         },
         header(): ModuleHeader | undefined {
-            return tryFindModuleHeader(this.flowName);
+            return tryFindModuleHeader(this.flow.name);
         },
         icon(): string | null {
             if (this.header) {
@@ -125,8 +121,10 @@ export default Vue.extend({
         },
     },
     async mounted(): Promise<void> {
+        const flows = await getFlows();
+        this.nav = new FlowNavigator(flows, this.flow);
         try {
-            console.log("flow: mounted", this.flowName);
+            console.log("flow: mounted", this.flow);
             console.log("flow: mounted", "module-header", this.header);
             if (this.screen) {
                 console.log("flow: mounted", "screen-header", this.screen.header);
@@ -134,8 +132,6 @@ export default Vue.extend({
         } catch (error) {
             console.log("error", error);
         }
-        const flows = await getFlows();
-        this.nav = new FlowNavigator(flows, this.flowName);
         this.timer = new Timer(2000, (frame) => {
             this.frame = frame;
         });
@@ -143,23 +139,26 @@ export default Vue.extend({
     methods: {
         async onForward(): Promise<void> {
             console.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
-            await this.nav.move(this.screen.navOptions.forward).then(async (done) => {
-                if (done) {
+            await this.nav.move(this.screen.navOptions.forward).then(async (maybeProps) => {
+                if (maybeProps) {
+                    console.log("flow-view: forward:props", maybeProps);
+                    await this.$navigateTo(FlowView, {
+                        frame: "stations-frame", // TODO Can we infer this?
+                        props: {
+                            flow: maybeProps,
+                            finished: this.finished,
+                            skipped: this.skipped,
+                        },
+                    });
+                } else {
                     console.log("flow-view: done");
                     await this.leave(this.finished);
                 }
                 return;
             });
         },
-        async onBackward(): Promise<boolean> {
-            if (this.screen.navOptions.backward.navigateBack) {
-                console.log("flow-view: navigate-back", this.screen.name);
-                await this.$navigateBack();
-                return true;
-            } else {
-                console.log("flow-view: backward", this.screen.name, this.screen.navOptions.backward);
-                return await this.nav.move(this.screen.navOptions.backward);
-            }
+        async onBackward(): Promise<void> {
+            await this.$navigateBack();
         },
         onNavigatingFrom(): void {
             console.log("flow: leaving");
@@ -186,6 +185,8 @@ export default Vue.extend({
         },
     },
 });
+
+export default FlowView;
 </script>
 
 <style scoped lang="scss">

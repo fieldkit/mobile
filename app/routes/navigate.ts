@@ -23,7 +23,12 @@ export type RouteTable = {
 };
 
 export class FullRoute {
-    constructor(public readonly name: string, public readonly frame: string, public readonly props: Record<string, unknown>) {}
+    constructor(
+        public readonly name: string,
+        public readonly frame: string,
+        public readonly props: Record<string, unknown>,
+        public readonly options?: { backstackVisible?: boolean }
+    ) {}
 }
 
 export class Route {

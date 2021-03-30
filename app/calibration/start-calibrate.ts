@@ -33,7 +33,10 @@ export async function makeCalibrationRoute(stationCal: StationCalibration, modul
     }
 
     return new FullRoute("reader/flow", "stations-frame", {
-        flowName: flowName,
+        flow: {
+            name: flowName,
+            index: 0,
+        },
         icon: moduleCommon.icon,
         finished: calibrateRoute,
         skipped: calibrateRoute,

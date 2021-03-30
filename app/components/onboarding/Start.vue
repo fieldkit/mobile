@@ -85,9 +85,7 @@ export default Vue.extend({
             if (this.step > 0) {
                 this.step -= 1;
             } else {
-                await this.$navigateTo(fullRoutes.onboarding.assemble, {
-                    step: -1,
-                });
+                await this.$navigateBack();
             }
         },
         async skip(): Promise<any> {

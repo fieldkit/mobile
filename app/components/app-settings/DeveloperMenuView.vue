@@ -276,7 +276,9 @@ export default Vue.extend({
         async openFlow(name: string): Promise<void> {
             await this.$navigateTo(
                 fullRoutes.flow({
-                    flowName: name,
+                    flow: {
+                        name: name,
+                    },
                     finished: new FullRoute("tabbed", "outer-frame", {}),
                     skipped: new FullRoute("tabbed", "outer-frame", {}),
                 })

@@ -50,14 +50,18 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
             );
             await navigateTo(
                 page,
-                _.extend(options, {
-                    frame: pageOrRoute.frame,
-                    props: pageOrRoute.props,
-                    transition: {
-                        name: "fade",
-                        duration: 0,
+                _.extend(
+                    options,
+                    {
+                        frame: pageOrRoute.frame,
+                        props: pageOrRoute.props,
+                        transition: {
+                            name: "fade",
+                            duration: 0,
+                        },
                     },
-                })
+                    pageOrRoute.options
+                )
             );
         } else if (pageOrRoute instanceof Route) {
             const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
@@ -74,7 +78,7 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
             const withDefaults = addDefaults(options, { frame: undefined });
-            console.log("nav:vue", pageOrRoute.name, withDefaults);
+            console.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",

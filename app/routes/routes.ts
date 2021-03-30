@@ -162,11 +162,14 @@ export const fullRoutes = {
             firstTab: {
                 index: 0,
                 route: new FullRoute("reader/flow", Frames.Stations, {
-                    flowName: "onboarding",
+                    flow: {
+                        name: "onboarding",
+                        index: 0,
+                    },
                     finished: new FullRoute("tabbed", "outer-frame", {
                         firstTab: {
                             index: 0,
-                            route: new FullRoute("onboarding/assembled", Frames.Stations, {}),
+                            route: new FullRoute("onboarding/assembled", Frames.Stations, {}, { backstackVisible: false }),
                         },
                     }),
                     skipped: new FullRoute("tabbed", "outer-frame", {
@@ -194,7 +197,7 @@ export const fullRoutes = {
                 },
             }),
     },
-    flow: (props: { flowName: string; finished: FullRoute; skipped: FullRoute }): FullRoute => {
+    flow: (props: { flow: { name: string }; finished: FullRoute; skipped: FullRoute }): FullRoute => {
         return new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,
