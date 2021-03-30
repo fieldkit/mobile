@@ -841,5 +841,10 @@ module.exports = {
     startCalibrationStep2: "To complete setup, calibrate each sensor module for accurate data readings.",
     tapStationToRecalibrate: "Tap the station you want to recalibrate:",
     calibrationRequiredHeading: "Calibration Required",
-    calibrationRequiredText: "calibration Required Text"
+    calibrationRequiredText: "calibration Required Text",
+	onboarding: {
+		assembled: {
+			message: "Success!"
+		}
+	}
 };

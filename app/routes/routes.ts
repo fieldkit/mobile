@@ -11,7 +11,7 @@ import StationSettingsWiFiSchedule from "../components/settings/StationSettingsW
 import StationSettingsFirmware from "../components/settings/StationSettingsFirmware.vue";
 import Calibrate from "../calibration/Calibrate.vue";
 
-import AssembleStation from "../components/onboarding/AssembleStationView.vue";
+import StationAssembled from "../components/onboarding/StationAssembled.vue";
 import OnboardingStartView from "../components/onboarding/Start.vue";
 import OnboardingSearchingView from "../components/onboarding/Searching.vue";
 import OnboardingNearbyStationsView from "../components/onboarding/NearbyStations.vue";
@@ -100,7 +100,7 @@ export const routes = {
 
     // Onboarding
     onboarding: {
-        assembleStation: new Route(AssembleStation, Frames.Stations),
+        assembled: new Route(StationAssembled, Frames.Stations),
         start: new Route(OnboardingStartView, Frames.Stations),
         searching: new Route(OnboardingSearchingView, Frames.Stations),
         nearby: new Route(OnboardingNearbyStationsView, Frames.Stations),
@@ -161,7 +161,21 @@ export const fullRoutes = {
         assemble: new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,
-                route: new FullRoute("onboarding/assembleStation", Frames.Stations, {}),
+                route: new FullRoute("reader/flow", Frames.Stations, {
+                    flowName: "onboarding",
+                    finished: new FullRoute("tabbed", "outer-frame", {
+                        firstTab: {
+                            index: 0,
+                            route: new FullRoute("onboarding/assembled", Frames.Stations, {}),
+                        },
+                    }),
+                    skipped: new FullRoute("tabbed", "outer-frame", {
+                        firstTab: {
+                            index: 0,
+                            route: new FullRoute("onboarding/start", Frames.Stations, {}),
+                        },
+                    }),
+                }),
             },
         }),
         start: new FullRoute("tabbed", Frames.Outer, {

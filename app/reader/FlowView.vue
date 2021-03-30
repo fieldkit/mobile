@@ -74,6 +74,10 @@ export default Vue.extend({
                 };
             },
         },
+        step: {
+            type: Number,
+            default: 0,
+        },
     },
     data(): {
         nav: FlowNavigator;

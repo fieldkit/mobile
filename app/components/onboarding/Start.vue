@@ -85,10 +85,8 @@ export default Vue.extend({
             if (this.step > 0) {
                 this.step -= 1;
             } else {
-                await this.$navigateTo(routes.onboarding.assembleStation, {
-                    props: {
-                        stepParam: 8,
-                    },
+                await this.$navigateTo(fullRoutes.onboarding.assemble, {
+                    step: -1,
                 });
             }
         },

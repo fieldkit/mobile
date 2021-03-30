@@ -89,7 +89,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { routes, fullRoutes } from "@/routes";
+import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { email } from "vuelidate/lib/validators";
 
@@ -150,7 +150,7 @@ export default Vue.extend({
             this.form.v.confirmPassword.sameAs = this.form.password != this.form.confirmPassword;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
+            await this.$navigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
         },
         invalid(): boolean {
             this.checkName();
