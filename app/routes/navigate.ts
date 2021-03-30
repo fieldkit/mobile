@@ -36,3 +36,8 @@ export class Route {
 
     constructor(public readonly page: Component, public readonly frame: string | undefined = undefined) {}
 }
+
+export interface FirstTab {
+    index: number;
+    route: FullRoute | null;
+}

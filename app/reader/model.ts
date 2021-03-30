@@ -112,7 +112,7 @@ export class FlowNavigator {
     private readonly name: string;
     private readonly screens: Screen[];
     private readonly visible: VisibleScreen;
-    private readonly index;
+    private readonly index: number;
 
     static None = new FlowNavigator({ data: { flows: [], screens: [] } }, new NavigationProps(""));
 
@@ -155,19 +155,19 @@ export class FlowNavigator {
         return new VisibleScreen(screen, navOptions);
     }
 
-    public async move(option: NavigationOption): Promise<NavigationProps | null> {
+    public move(option: NavigationOption): Promise<NavigationProps | null> {
         switch (option) {
             case NavigationOption.Nope:
                 throw new Error(`invalid navigation: Nope`);
             case NavigationOption.Done: {
-                return null;
+                return Promise.resolve(null);
             }
             case NavigationOption.Skip: {
-                return null;
+                return Promise.resolve(null);
             }
             case NavigationOption.Forward: {
                 if (this.index == this.screens.length - 1) throw new Error("invalid nav forward");
-                return new NavigationProps(this.name, this.index + 1);
+                return Promise.resolve(new NavigationProps(this.name, this.index + 1));
             }
         }
 

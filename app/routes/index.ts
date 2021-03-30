@@ -7,13 +7,15 @@ import { NavigationMutation } from "@/store/mutations";
 import { Store } from "@/store/our-store";
 import { Frame } from "@nativescript/core";
 
-import { Route, FullRoute, NavigateOptions } from "./navigate";
+import { Route, FullRoute, NavigateOptions, FirstTab } from "./navigate";
 
 import { routes, fullRoutes, namedRoutes } from "./routes";
 
 export * from "./navigate";
 
 export { routes, fullRoutes };
+
+import { getBus } from "@/components/NavigationBus";
 
 export type NavigateToFunc = (
     component: VueConstructor | Route | FullRoute,
@@ -35,34 +37,43 @@ function addDefaults(options: NavigateOptions | null, overrides: { frame: string
 
 export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     /* eslint-disable */
-    return async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {
+    const navFn = async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {
         if (pageOrRoute instanceof FullRoute) {
-            console.log("nav:full-route");
             const route = namedRoutes[pageOrRoute.name];
             const page = route.page as any;
-            store.commit(
-                new NavigationMutation(
-                    pageOrRoute.frame || "<no-frame>",
-                    pageOrRoute.name || "<no-name>",
-                    page.options.__file || "<no-file>",
-                    true
-                )
-            );
-            await navigateTo(
-                page,
-                _.extend(
-                    options,
-                    {
-                        frame: pageOrRoute.frame,
-                        props: pageOrRoute.props,
-                        transition: {
-                            name: "fade",
-                            duration: 0,
+            const firstNavigation = !_.some(_.keys(store.state.nav.frames));
+            // Verify top route is for TabbedLayout
+            const firstTab = pageOrRoute.props.firstTab as FirstTab;
+            console.log("nav:full-route", "first-nav", firstNavigation, "tabbed-nav", firstTab);
+            if (firstNavigation || !firstTab) {
+                console.log("nav:navigating to tabbed-layout");
+                store.commit(
+                    new NavigationMutation(
+                        pageOrRoute.frame || "<no-frame>",
+                        pageOrRoute.name || "<no-name>",
+                        page.options.__file || "<no-file>",
+                        true
+                    )
+                );
+                await navigateTo(
+                    page,
+                    _.extend(
+                        options,
+                        {
+                            frame: pageOrRoute.frame,
+                            props: pageOrRoute.props,
+                            transition: {
+                                name: "fade",
+                                duration: 0,
+                            },
                         },
-                    },
-                    pageOrRoute.options
-                )
-            );
+                        pageOrRoute.options
+                    )
+                );
+            } else {
+                await navFn(firstTab.route, null);
+                getBus().$emit("nav:tab", firstTab.index);
+            }
         } else if (pageOrRoute instanceof Route) {
             const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
             const page = pageOrRoute.page as any;
@@ -90,4 +101,6 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute, withDefaults);
         }
     };
+
+    return navFn;
 }

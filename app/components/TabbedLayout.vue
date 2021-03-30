@@ -56,15 +56,11 @@ import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
-import { routes, Route, FullRoute } from "@/routes";
-import StationListView from "../components/StationListView.vue";
-import DataSync from "../components/DataSyncView.vue";
-import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
-
-interface FirstTab {
-    index: number;
-    route: FullRoute | null;
-}
+import { routes, Route, FirstTab } from "@/routes";
+import StationListView from "@/components/StationListView.vue";
+import DataSync from "@/components/DataSyncView.vue";
+import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
+import { getBus } from "@/components/NavigationBus";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -92,16 +88,21 @@ export default Vue.extend({
         };
     },
     created(): void {
-        console.log(`tabbed: created ${JSON.stringify(this.firstTab)}`, this.tab);
+        console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
         this.$s.commit(new NavigationMutation("stations-frame", "StationListView", "", false));
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", "", false));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", "", false));
+
+        getBus().$on("nav:tab", (tab: number) => {
+            console.log("nav:tab", tab);
+            this.tab = tab;
+        });
     },
     mounted(): void {
-        console.log(`tabbed: mounted ${JSON.stringify(this.firstTab)}`, this.tab);
+        console.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
     },
     updated(): void {
-        console.log(`tabbed: updated ${JSON.stringify(this.firstTab)}`, this.tab);
+        console.log(`tabbed-layout: updated ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
     },
     methods: {
         tabIndexToFrame(index: number): string {
@@ -123,11 +124,11 @@ export default Vue.extend({
             /* eslint-disable */
             const view = <BottomNavigation>args.object;
             this.tab = view.selectedIndex;
-            console.log("tab-changed", this.tab);
+            console.log("tabbed-layout: tab-changed", this.tab, this.ready);
         },
         async updateSelected(): Promise<void> {
             /* eslint-disable */
-            console.log(`update-selected: updating`);
+            console.log(`tabbed-layout: update-selected`, this.tab, this.ready);
 
             const firstTab: FirstTab = this.firstTab;
 
@@ -135,7 +136,7 @@ export default Vue.extend({
                 this.tab = this.firstTab.index;
 
                 if (!firstTab.route) {
-                    console.log(`update-selected: no tab`);
+                    console.log(`tabbed-layout: update-selected: no tab`);
                     await this.$navigateTo(StationListView, {
                         clearHistory: true,
                         frame: "stations-frame",
@@ -149,7 +150,7 @@ export default Vue.extend({
                     await this.$navigateTo(firstTab.route, {});
                 }
             } else {
-                console.log(`update-selected: no first tab`);
+                console.log(`tabbed-layout: update-selected: no first tab`);
             }
         },
         isSameView(frameId: string, page: any): boolean {
@@ -163,7 +164,7 @@ export default Vue.extend({
         },
         async tapStations(): Promise<void> {
             const frame: Frame = Frame.getFrameById("stations-frame");
-            console.log(`tab: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            console.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 0) {
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView)) {
@@ -177,7 +178,7 @@ export default Vue.extend({
         },
         async tapData(): Promise<void> {
             const frame = Frame.getFrameById("data-frame");
-            console.log(`tab: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            console.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 1) {
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync)) {
@@ -191,7 +192,7 @@ export default Vue.extend({
         },
         async tapSettings(): Promise<void> {
             const frame = Frame.getFrameById("settings-frame");
-            console.log(`tab: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            console.log(`tabbed-layout: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 2) {
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
@@ -205,9 +206,9 @@ export default Vue.extend({
         },
         bottomLoaded(): void {
             if (this.ready) {
-                console.log("tabbed: bottom-loaded (skip)");
+                console.log("tabbed-layout: bottom-loaded (skip)", this.tab);
             } else {
-                console.log("tabbed: bottom-loaded");
+                console.log("tabbed-layout: bottom-loaded", this.tab);
                 // eslint-disable-next-line
                 this.updateSelected();
                 this.ready = true;

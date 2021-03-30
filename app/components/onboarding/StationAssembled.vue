@@ -14,14 +14,11 @@ import { routes } from "@/routes";
 import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
-    data(): {} {
-        return {};
-    },
-    async mounted() {
+    async mounted(): Promise<void> {
+        /* eslint-disable */
         await promiseAfter(3000);
         await this.$navigateTo(routes.onboarding.start, {});
     },
-    methods: {},
 });
 </script>
 
