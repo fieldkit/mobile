@@ -3,7 +3,6 @@
         <StationsMap
             id="stations-modal-map"
             :mappedStations="mappedStations"
-            :allowModal="false"
             :height="height"
             @toggle-modal="onClose"
             @opened-details="onOpenedDetails"

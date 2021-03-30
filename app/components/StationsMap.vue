@@ -53,10 +53,6 @@ export default Vue.extend({
         mappedStations: {
             type: Object,
         },
-        allowModal: {
-            type: Boolean,
-            default: true,
-        },
     },
     data() {
         return {
