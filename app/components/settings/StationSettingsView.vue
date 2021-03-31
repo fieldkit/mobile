@@ -50,6 +50,7 @@ import EndDeploy from "./StationSettingsEndDeploy.vue";
 import * as animations from "@/components/animations";
 import { ActionTypes, AvailableStation } from "@/store";
 import StationListView from "~/components/StationListView.vue";
+import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -140,10 +141,10 @@ export default Vue.extend({
         },
         async forgetStation(): Promise<void> {
             this.showForgetStationDialog = false;
-            await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station);
             await this.$navigateTo(StationListView, {
                 clearHistory: true,
             });
+            void promiseAfter(1000).then(() => this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id));
         },
         cancelForgetStation(): void {
             this.showForgetStationDialog = false;

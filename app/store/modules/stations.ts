@@ -456,11 +456,9 @@ const actions = (services: ServiceRef) => {
             }
             await services.db().updateLastSyncedAt(payload.userId);
         },
-        [ActionTypes.FORGET_STATION]: async ({ commit, dispatch }: ActionParameters, station: Station) => {
-            await services
-                .db()
-                .forgetStation(station)
-                .then(() => dispatch(ActionTypes.LOAD));
+        [ActionTypes.FORGET_STATION]: async ({ commit, dispatch }: ActionParameters, stationId: number) => {
+            await services.db().forgetStation(stationId);
+            await dispatch(ActionTypes.LOAD);
         },
     };
 };
