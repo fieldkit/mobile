@@ -9,7 +9,7 @@
                         <Label
                             v-for="(option, i) in menuOptions"
                             :key="option"
-                            :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
+                            class="menu-text size-18"
                             :text="option"
                             textWrap="true"
                             @tap="selectFromMenu"
@@ -60,7 +60,7 @@ export default Vue.extend({
     } {
         return {
             loggedIn: Services.PortalInterface().isLoggedIn(),
-            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle")],
+            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
             showForgetStationDialog: false,
         };
     },
