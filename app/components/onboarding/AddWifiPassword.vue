@@ -82,7 +82,7 @@ export default Vue.extend({
                     ssid: this.ssid,
                     password: this.password,
                 },
-                []
+                this.currentStation.networks.length === 2 ? [this.currentStation.networks[1]] : this.currentStation.networks
             );
             await this.$s.dispatch(action).then(
                 () => {

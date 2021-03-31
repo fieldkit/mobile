@@ -23,8 +23,13 @@
             />
             <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4" />
             <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold">
-                <Label col="0" :text="_L('addFieldNotes')"  class="action-btn m-r-15" @tap="addFieldNotes"/>
-                <GridLayout col="1" columns="auto,auto" @tap="toggleMenu">
+                <Label col="0" :text="_L('addFieldNotes')" class="action-btn m-r-15" @tap="addFieldNotes" />
+                <GridLayout
+                    v-if="!notification.satisfiedAt && notification.silenced === false"
+                    col="1"
+                    columns="auto,auto"
+                    @tap="toggleMenu"
+                >
                     <Label col="0" :text="_L('dismiss')" class="action-btn" />
                     <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2" :class="isAndroid ? 'm-t-2' : 'm-t-8'" />
                 </GridLayout>
@@ -108,8 +113,8 @@ export default Vue.extend({
             this.$emit("satisfy", this.notification);
         },
         addFieldNotes() {
-            this.$emit('addFieldNotes', this.notification);
-        }
+            this.$emit("addFieldNotes", this.notification);
+        },
     },
 });
 </script>

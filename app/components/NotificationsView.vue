@@ -105,9 +105,11 @@ export default Vue.extend({
         },
         dismiss(notification) {
             this.$s.dispatch(ActionTypes.DISMISS_NOTIFICATION, { key: notification.key, silenced: true });
+            this.toggleMenu(notification);
         },
         satisfy(notification) {
             this.$s.dispatch(ActionTypes.SATISFY_NOTIFICATION, { key: notification.key });
+            this.toggleMenu(notification);
         },
         async addFieldNotes(notification): Promise<void> {
             if (notification.station.id) {
