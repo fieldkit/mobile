@@ -47,17 +47,13 @@
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5" />
                             <Label :text="_L('photosInstruction')" class="lighter size-14" />
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in photos" :key="photo.path" class="photo-display">
-                                    <StackLayout v-if="photoCache[photo.path]">
-                                        <Image
-                                            :src="photoCache[photo.path]"
-                                            stretch="aspectFit"
-                                            decodeWidth="400"
-                                            decodeHeight="400"
-                                            loadMode="async"
-                                        />
-                                    </StackLayout>
-                                    <StackLayout v-if="!photoCache[photo.path] && photo.path">
+                                <StackLayout
+                                    v-for="(photo, index) in photos"
+                                    :key="photo.path"
+                                    class="photo-display"
+                                    @tap="onTapPhoto(photo)"
+                                >
+                                    <StackLayout v-if="photo.path">
                                         <Image
                                             :src="rebaseAbsolutePath(photo.path)"
                                             stretch="aspectFit"
@@ -67,44 +63,11 @@
                                         />
                                     </StackLayout>
                                 </StackLayout>
-                                <StackLayout class="photo-btn" @tap="onPhotoTap">
+                                <StackLayout class="photo-btn" @tap="onAddPhoto">
                                     <Image src="~/images/Icon_Add_Button.png" width="20" opacity="0.25" class="photo-btn-img" />
                                 </StackLayout>
                             </WrapLayout>
                         </StackLayout>
-
-                        <!--
-                        <StackLayout class="m-t-30">
-                            <Label :text="_L('additionalNotes')" class="size-16 bold m-b-5"></Label>
-                            <Label :text="_L('addDetails')" class="lighter size-14 m-b-10" textWrap="true"></Label>
-                        </StackLayout>
-
-                        <GridLayout rows="auto" columns="*" v-for="(note, index) in form.additional" :key="index" class="m-b-10">
-                            <GridLayout row="0" rows="auto,auto" columns="90*,10*" class="additional-note-section" />
-                            <GridLayout row="0" rows="auto" columns="*,15">
-                                <GridLayout col="0" rows="auto,auto" columns="90*,10*" class="p-t-20 p-b-10 p-l-10 p-r-10" :dataNote="note" @tap="onEditTap">
-                                    <Label row="0" col="0" :text="note.title" class="size-16 m-b-5"></Label>
-                                    <Label row="1" col="0" :text="note.value" v-if="note.value" class="size-12 m-b-10"></Label>
-                                    <Image rowSpan="2" col="1" v-if="note.audioFile" src="~/images/Icon_Mic.png" width="17" />
-                                </GridLayout>
-                                <Image
-                                    col="1"
-                                    horizontalAlignment="right"
-                                    verticalAlignment="top"
-                                    src="~/images/Icon_Close_Circle.png"
-                                    width="15"
-                                    class="m-t-5"
-                                    :dataNote="note"
-                                    @tap="removeAdditionalNote"
-                                />
-                            </GridLayout>
-                        </GridLayout>
-
-                        <FlexboxLayout class="m-b-20">
-                            <Image src="~/images/Icon_Add_Button.png" width="20" />
-                            <Label :text="_L('addNote')" class="bold m-t-10 p-l-5" @tap="createAdditionalNote"></Label>
-                        </FlexboxLayout>
-						-->
                     </StackLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -134,7 +97,7 @@ import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
-import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, AttachNoteMediaMutation } from "@/store";
+import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, RemoveNoteMediaMutation, AttachNoteMediaMutation } from "@/store";
 import * as animations from "../animations";
 
 export default Vue.extend({
@@ -142,9 +105,6 @@ export default Vue.extend({
         ...SharedComponents,
         ConnectionStatusHeader,
         NoteDisplay,
-    },
-    data(): {} {
-        return {};
     },
     computed: {
         notes(): Notes {
@@ -251,9 +211,20 @@ export default Vue.extend({
                 }),
             ]);
         },
-        onPhotoTap(ev: any): Promise<any> {
+        async onTapPhoto(photo: NoteMedia) {
+            const confirm = await Dialogs.confirm({
+                title: "Do you want to remove this photo?",
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            });
+            if (!confirm) {
+                return;
+            }
+            this.$s.commit(new RemoveNoteMediaMutation(this.stationId, null, photo));
+            await this.$s.dispatch(new SaveNotesAction(this.stationId));
+        },
+        onAddPhoto(): Promise<any> {
             return Promise.all([
-                animations.pressed(ev),
                 Dialogs.action({
                     message: _L("addPhoto"),
                     cancelButtonText: _L("cancel"),
