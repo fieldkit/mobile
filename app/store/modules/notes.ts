@@ -43,7 +43,8 @@ export class Notes {
         public readonly location: string = "",
         public readonly notes: { [index: string]: NoteData } = {},
         public readonly photos: NoteMedia[] = [],
-        public readonly audio: NoteMedia[] = []
+        public readonly audio: NoteMedia[] = [],
+        public readonly removed: NoteMedia[] = []
     ) {}
 
     public get studyObjective(): NoteForm {
@@ -91,18 +92,21 @@ export class Notes {
         const allNotes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const notesAudio = _.flatten(allNotes.map((n) => n.audio));
         const notesPhotos = _.flatten(allNotes.map((n) => n.photos));
-        return [...this.photos, ...notesPhotos, ...notesAudio];
+        return [...this.photos, ...notesPhotos, ...notesAudio, ...this.removed];
     }
 
     public changeLocation(newLocation: string): Notes {
-        return new Notes(this.stationId, this.createdAt, new Date(), true, newLocation, this.notes, this.photos, this.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, newLocation, this.notes, this.photos, this.audio, this.removed);
     }
 
     public removeMedia(key: string | null, media: NoteMedia): Notes {
         if (!key) {
             const newPhotos = NoteMedia.except(this.photos, media);
             const newAudio = NoteMedia.except(this.audio, media);
-            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhotos, newAudio);
+            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhotos, newAudio, [
+                ...this.removed,
+                media,
+            ]);
         }
 
         const newNotes = { ...this.notes };
@@ -110,44 +114,77 @@ export class Notes {
         const newPhotos = NoteMedia.except(old.photos, media);
         const newAudio = NoteMedia.except(old.audio, media);
         newNotes[key] = new NoteData(old.body, newPhotos, newAudio);
-        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio, [
+            ...this.removed,
+            media,
+        ]);
     }
 
     public attachAudio(key: string | null, audio: NoteMedia): Notes {
         if (!key) {
             const newAudio = _.uniqBy([...this.audio, audio], (m) => m.path);
-            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, this.photos, newAudio);
+            return new Notes(
+                this.stationId,
+                this.createdAt,
+                new Date(),
+                true,
+                this.location,
+                this.notes,
+                this.photos,
+                newAudio,
+                this.removed
+            );
         }
 
         const newNotes = { ...this.notes };
         const old = this.notes[key] || new NoteData();
         const newAudio = _.uniqBy([...old.audio, audio], (m) => m.path);
         newNotes[key] = new NoteData(old.body, old.photos, newAudio);
-        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio, this.removed);
     }
 
     public attachPhoto(key: string | null, photo: NoteMedia): Notes {
         if (!key) {
             const newPhotos = _.uniqBy([...this.photos, photo], (m) => m.path);
-            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhotos, this.audio);
+            return new Notes(
+                this.stationId,
+                this.createdAt,
+                new Date(),
+                true,
+                this.location,
+                this.notes,
+                newPhotos,
+                this.audio,
+                this.removed
+            );
         }
 
         const newNotes = { ...this.notes };
         const old = this.notes[key] || new NoteData();
         const newPhotos = _.uniqBy([...old.photos, photo], (m) => m.path);
         newNotes[key] = new NoteData(old.body, newPhotos, old.audio);
-        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio, this.removed);
     }
 
     public saved(): Notes {
-        return new Notes(this.stationId, this.createdAt, this.updatedAt, false, this.location, this.notes, this.photos, this.audio);
+        return new Notes(
+            this.stationId,
+            this.createdAt,
+            this.updatedAt,
+            false,
+            this.location,
+            this.notes,
+            this.photos,
+            this.audio,
+            this.removed
+        );
     }
 
     public updateNote(key: string, update: NoteUpdate): Notes {
         const newNotes = { ...this.notes };
         const old = this.notes[key] || new NoteData();
         newNotes[key] = new NoteData(update.body, old.photos, old.audio);
-        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio, this.removed);
     }
 
     public static fromRow(row: NotesTableRow): Notes {
