@@ -1,6 +1,6 @@
 <template>
     <StackLayout class="simple-screen">
-        <Markdown :text="screen.body" />
+        <Markdown :text="screen.body" class="markdown" />
 
         <StackLayout v-if="image" class="image-container">
             <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
@@ -41,4 +41,14 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.markdown {
+    // background-color: blue;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.image-container {
+    // background-color: orange;
+}
 </style>

@@ -60,7 +60,6 @@ GridLayout {
 
 .md-list {
     // background-color: #00a0a0;
-    margin-top: 20;
 }
 
 .md-list-item {
@@ -76,13 +75,9 @@ GridLayout {
     margin-right: 10;
 }
 
-.md-seq-value {
-}
-
 .md-grid {
     // background-color: #00aa00;
     font-size: 14;
-    margin-top: 20;
     margin-bottom: 20;
     text-align: left;
 }
