@@ -284,17 +284,19 @@ export default class PortalInterface {
         });
     }
 
-    public async downloadFirmware(url: string, local: string, progress: ProgressFunc): Promise<{ status: number }> {
+    public async downloadFirmware(url: string, path: string, progress: ProgressFunc): Promise<{ status: number }> {
         const headers = {
             Authorization: this.requireToken(),
         };
 
         const baseUri = await this.getUri();
 
+        const local = this.fs.getRelativeFile(path);
+
         return this.conservify
             .download({
                 url: baseUri + url,
-                path: local,
+                path: local.path,
                 headers: { ...headers },
                 progress: progress,
             })
@@ -303,7 +305,7 @@ export default class PortalInterface {
                 if (e.statusCode != 200) {
                     return this.services
                         .FileSystem()
-                        .getFile(local)
+                        .getFile(local.path)
                         .remove()
                         .then(() => {
                             return Promise.reject(new Error(`download failed: ${JSON.stringify(e.body)}`));

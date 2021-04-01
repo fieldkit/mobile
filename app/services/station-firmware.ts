@@ -64,9 +64,9 @@ export default class StationFirmware {
             .listFirmware(moduleName)
             .then((firmware) => {
                 return firmware.firmwares.map((f) => {
-                    const local = this.services.FileSystem().getFolder("firmware").getFile(`${moduleName}-${f.id}.bin`);
+                    const relative = `firmware/${moduleName}-${f.id}.bin`;
                     return _.extend(f, {
-                        path: local.path,
+                        path: relative,
                     });
                 });
             });
@@ -87,7 +87,7 @@ export default class StationFirmware {
             )
         );
 
-        const local = this.services.FileSystem().getFile(firmware.path);
+        const local = this.services.FileSystem().getRelativeFile(firmware.path);
         if (!local.exists || local.size == 0 || force === true) {
             log.info(`downloading firmware: ${JSON.stringify(firmware)}`);
             const downloadProgress = transformProgress(progressCallback, (p) => p);
@@ -100,8 +100,8 @@ export default class StationFirmware {
     }
 
     public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
-        const hasBootloader = await this.services.Database().hasBootloader();
-        if (!hasBootloader) {
+        const shouldPurge = await this.shouldPurge();
+        if (shouldPurge) {
             console.log("deleting firmware folder");
             await this.services.FileSystem().deleteFolder("firmware");
             console.log("deleting firmware rows");
@@ -119,7 +119,7 @@ export default class StationFirmware {
     }
 
     private async deleteFirmware(fw: { path: string }): Promise<void> {
-        const local = this.services.FileSystem().getFile(fw.path);
+        const local = this.services.FileSystem().getRelativeFile(fw.path);
         if (local && local.exists) {
             log.info("removing", fw.path, local.exists, local.size);
             await local.remove();
@@ -143,7 +143,8 @@ export default class StationFirmware {
                     }
                     log.info("firmware", firmware);
                     const uploadProgress = transformProgress(progressCallback, (p) => p);
-                    return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
+                    const local = this.services.FileSystem().getRelativeFile(firmware.path);
+                    return this.services.QueryStation().uploadFirmware(url, local.path, uploadProgress);
                 });
         });
     }
@@ -157,12 +158,26 @@ export default class StationFirmware {
                     return false;
                 }
                 log.info("firmware", firmware, firmware.path);
-                const local = this.services.FileSystem().getFile(firmware.path);
+                const local = this.services.FileSystem().getRelativeFile(firmware.path);
                 if (!local.exists || local.size == 0) {
                     log.info("firmware", local.exists, local.size, firmware.path);
                     return false;
                 }
                 return true;
             });
+    }
+
+    private async shouldPurge(): Promise<boolean> {
+        const hasBootloader = await this.services.Database().hasBootloader();
+        if (!hasBootloader) {
+            return true;
+        }
+        const all = await this.services.Database().getAllFirmware();
+        for (const fw of all) {
+            if (fw.path[0] == "/") {
+                return true;
+            }
+        }
+        return false;
     }
 }

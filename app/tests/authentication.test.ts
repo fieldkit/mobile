@@ -47,7 +47,6 @@ describe("Authentication", () => {
                             module: "module",
                             profile: "profile",
                             etag: "etag",
-                            path: "atph",
                             meta: "",
                             buildTime: 0,
                             buildNumber: 100,

@@ -133,7 +133,7 @@ export function getRelativeTo(dir: string, path: string): string {
 
 export function getAppRelative(path: string): string {
     const modified = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
-    if (modified.length == 0) throw new Error(`error creating relative path`);
+    if (modified.length == 0) throw new Error(`error creating relative path: ${path}`);
     return modified;
 }
 
