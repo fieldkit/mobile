@@ -3,6 +3,7 @@ import _ from "lodash";
 export interface SimpleScreen {
     body: string;
     images: { url: string }[];
+    logo?: { url: string } | null | undefined;
 }
 
 export interface Header {

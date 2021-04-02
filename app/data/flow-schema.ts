@@ -26,6 +26,12 @@ const screenSchema = yup.object().shape({
                     url: yup.string().required(),
                 })
             ),
+            logo: yup
+                .object()
+                .shape({
+                    url: yup.string().required(),
+                })
+                .nullable(),
         })
     ),
 });

@@ -1,10 +1,23 @@
 <template>
     <StackLayout class="simple-screen">
-        <Markdown :text="screen.body" class="markdown" />
+        <template v-if="logo">
+            <StackLayout class="image-container">
+                <Image verticalAlignment="middle" :src="'~/images/reader' + logo.url" stretch="aspectFit" />
+            </StackLayout>
 
-        <StackLayout v-if="image" class="image-container">
-            <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
-        </StackLayout>
+            <StackLayout v-if="image" class="image-container">
+                <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
+            </StackLayout>
+
+            <Markdown :text="screen.body" class="markdown" />
+        </template>
+        <template v-else>
+            <Markdown :text="screen.body" class="markdown" />
+
+            <StackLayout v-if="image" class="image-container">
+                <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
+            </StackLayout>
+        </template>
     </StackLayout>
 </template>
 
@@ -29,6 +42,9 @@ export default Vue.extend({
         },
     },
     computed: {
+        logo(): { url: string } | null | undefined {
+            return this.screen.logo;
+        },
         image(): { url: string } | null {
             if (this.screen.images.length == 0) {
                 return null;

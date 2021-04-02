@@ -33,6 +33,7 @@ export async function download(baseUrl: string): Promise<FlowFile> {
                 simple {
                     body
                     images { url }
+					logo { url }
                 }
             }
         }

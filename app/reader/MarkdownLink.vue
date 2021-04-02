@@ -1,5 +1,5 @@
 <template>
-    <WrapLayout @tap="onOpen" class="md-link">
+    <WrapLayout class="md-link" @tap="onOpen">
         <slot></slot>
     </WrapLayout>
 </template>
