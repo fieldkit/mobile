@@ -7,10 +7,13 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { MdNode } from "./parsing";
+import MarkdownLink from "./MarkdownLink.vue";
 
 export default Vue.extend({
     name: "MarkdownNode",
-    components: {},
+    components: {
+        MarkdownLink,
+    },
     props: {
         node: {
             type: Object as PropType<MdNode>,
@@ -23,12 +26,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-StackLayout {
-}
-
-GridLayout {
-}
-
 .md-tree {
     // background-color: #a0a0a0;
     padding: 20;
@@ -39,20 +36,20 @@ GridLayout {
 
 .md-heading {
     color: $fk-primary-black;
+    font-family: "AvenirLTPro-Medium";
     text-align: center;
     font-weight: bold;
     margin-bottom: 20;
 }
 
 .md-heading-1 {
-    // background-color: #ddbb00;
+    // background-color: #0dbb00;
     font-size: 18;
     line-height: 4;
 }
 
 .md-heading-2 {
-    // background-color: #aabb00;
-    font-family: "AvenirLTPro-Medium";
+    // background-color: #00aa00;
     text-color: #6a6d71;
     font-size: 12;
     line-height: 4;
@@ -76,7 +73,6 @@ GridLayout {
 }
 
 .md-grid {
-    // background-color: #00aa00;
     font-size: 14;
     margin-bottom: 20;
     text-align: left;
@@ -84,6 +80,7 @@ GridLayout {
 
 .md-paragraph {
     // background-color: #8383aa;
+    text-align: center;
     font-size: 18;
     line-height: 4;
     margin-bottom: 20;

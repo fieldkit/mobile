@@ -37,6 +37,58 @@ describe("reader parsing", () => {
             });
         });
 
+        it.only("should parse simple links", async () => {
+            const actual = await transform("This is an [example link](http://example.com/).");
+
+            expect(actual).toEqual({
+                type: "StackLayout",
+                props: {
+                    class: "md-tree",
+                },
+                children: [
+                    {
+                        type: "FlexboxLayout",
+                        props: {
+                            class: "md-paragraph",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "This is an ",
+                                    textWrap: true,
+                                },
+                            },
+                            {
+                                type: "MarkdownLink",
+                                props: {
+                                    target: "http://example.com/",
+                                },
+                                children: [
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "example link",
+                                            textWrap: true,
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                type: "Label",
+                                props: {
+                                    text: ".",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
         it("should parse simple list", async () => {
             const actual = await transform("1. Item\n2. Item\n3. Item\n");
 

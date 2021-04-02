@@ -144,13 +144,25 @@ function createContext(): Context {
         text: (node, parent, context): MdNode => {
             return { type: "Label", props: { text: node.value, textWrap: true } };
         },
+        link: (node, parent, context): MdNode => {
+            const children = basic(node, parent, context);
+            return { type: "MarkdownLink", props: { target: node.url }, children: children };
+        },
         paragraph: (node, parent, context): MdNode => {
             const children = basic(node, parent, context);
-            return { type: "StackLayout", props: { class: "md-paragraph" }, children: children };
+            return {
+                type: "FlexboxLayout",
+                props: { class: "md-paragraph", justifyContent: "center", flexWrap: "wrap" },
+                children: children,
+            };
         },
         heading: (node, parent, context): MdNode => {
             const children = basic(node, parent, context);
-            return { type: "StackLayout", props: { class: `md-heading md-heading-${node.depth}` }, children: children };
+            return {
+                type: "FlexboxLayout",
+                props: { class: `md-heading md-heading-${node.depth}`, justifyContent: "center", flexWrap: "wrap" },
+                children: children,
+            };
         },
     };
 

@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB cable   |\n| E) Battery        |   |\n\n## + Phillips screwdriver (not included)",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB cable   |\n| E) Battery        |   |",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -225,7 +225,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Assemble Cable Plate\nAdd the cables and inserts into the glands. Screw them into the Cable Plate.\n\n## Note: Cable Plate assembly depends on your sensor and power configuration, and can be pretty involved. Visit FieldKit.Org/Product-Guide/Set-Up-Station/#Assemble-Cable-Plate for detailed instructions.",
+                        "body": "# Assemble Cable Plate\nAdd the cables and inserts into the glands. Screw them into the Cable Plate.\n\n## Note: Cable Plate assembly depends on your sensor and power configuration, and can be pretty involved. Visit [the product guide](https://fieldkit.org/Product-Guide/Set-Up-Station/#Assemble-Cable-Plate) for detailed instructions.",
                         "images": [
                             {
                                 "url": "/uploads/TI_21_1c7cdf7182.png"
