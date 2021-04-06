@@ -1,6 +1,6 @@
 <template>
-    <Page @navigatingFrom="onNavigatingFrom">
-        <PlatformHeader title="Onboarding" :onBack="onBackward" :canNavigateSettings="false" />
+    <Page @navigatingFrom="onNavigatingFrom" :actionBarHidden="title == null">
+        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" v-if="title" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
@@ -96,13 +96,13 @@ const FlowView = Vue.extend({
         progress(): number {
             return this.nav.progress;
         },
-        title(): string {
+        title(): string | null {
             if (this.nav.ready) {
                 if (this.screen && this.screen.header) {
                     return this.screen.header.title;
                 }
             }
-            return "Loading";
+            return null;
         },
         header(): ModuleHeader | undefined {
             return tryFindModuleHeader(this.flow.name);
