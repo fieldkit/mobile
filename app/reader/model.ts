@@ -18,7 +18,7 @@ export interface Screen {
     skip: string | null;
     guideTitle: string | null;
     guideUrl: string | null;
-    header: Header;
+    header: Header | null;
     simple: SimpleScreen[];
 }
 
@@ -75,7 +75,7 @@ export class VisibleScreen {
         return this.screen.skip;
     }
 
-    public get header(): Header {
+    public get header(): Header | null {
         return this.screen.header;
     }
 

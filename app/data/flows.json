@@ -281,8 +281,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
-                "guideTitle": null,
-                "guideUrl": null,
+                "guideTitle": "Click here for setup steps in the Product Guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -885,7 +885,7 @@
                         "body": "# Three-Point Transfer Calibration\nMake sure you have 3 temperature sources and a standard thermometer.\n\n## We recommend using the following sources in this order: a cup of ice water (0°C), room temperature air, and a cup of boiling water (100°C).",
                         "images": [
                             {
-                                "url": "/uploads/TI_13_Wat_Temp_3_7e67a24363.png"
+                                "url": "/uploads/Image_from_i_OS_13_1_d4f56f3f14.jpg"
                             }
                         ],
                         "logo": null
@@ -909,7 +909,10 @@
                         "body": "# Three-point Transfer Calibration\n\nGather together a cup of water, an aquarium air pump, tubing and airstone, and a standard Dissolved Oxygen meter or test kit.",
                         "images": [
                             {
-                                "url": "/uploads/DO_3_Point_Intro_NEW_4d949981b3.png"
+                                "url": "/uploads/Image_from_i_OS_20_1_3fcc3d6b6c.jpg"
+                            },
+                            {
+                                "url": "/uploads/Image_from_i_OS_14_1_cb602a19a3.jpg"
                             }
                         ],
                         "logo": null
@@ -934,6 +937,29 @@
                         "images": [],
                         "logo": {
                             "url": "/uploads/TI_12_A_02a7dac8c0.png"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "45",
+                "name": "onboarding.00",
+                "locale": "en_US",
+                "forward": "Get Started",
+                "skip": "Skip instructions",
+                "guideTitle": "",
+                "guideUrl": "",
+                "header": null,
+                "simple": [
+                    {
+                        "body": "#Welcome!\n\nOur mobile app makes it easy to set up and deploy your FieldKit station.",
+                        "images": [
+                            {
+                                "url": "/uploads/Fieldkit_Panel_04_1500px_a9dcbe9502.png"
+                            }
+                        ],
+                        "logo": {
+                            "url": "/uploads/Copy_of_fieldkit_Logo_final_08f480a530.svg"
                         }
                     }
                 ]
