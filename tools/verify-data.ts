@@ -24,9 +24,13 @@ async function downloadAllPhotos(urls: string[]): Promise<any> {
         console.log("downloading", url, path);
         await saveToFile(url, path);
 
-        const loaded = await Jimp.read(path);
-        await loaded.resize(800, 800);
-        await loaded.writeAsync(path);
+        try {
+            const loaded = await Jimp.read(path);
+            await loaded.resize(800, 800);
+            await loaded.writeAsync(path);
+        } catch (error) {
+            console.log("resize error", error);
+        }
     }
 }
 
@@ -34,9 +38,21 @@ async function main() {
     const incoming = await download(baseUrl);
 
     if (!_.includes(process.argv, "--json")) {
-        const urls = _.flatten(_.flatten(incoming.data.screens.map((s) => s.simple.map((ss) => ss.images.map((i) => i.url)))));
+        const imageUrls = _.flatten(_.flatten(incoming.data.screens.map((s) => s.simple.map((ss) => ss.images.map((i) => i.url)))));
+        const logoUrls = _.flatten(
+            _.flatten(
+                incoming.data.screens.map((s) =>
+                    s.simple.map((ss) => {
+                        if (ss.logo) {
+                            return [ss.logo.url];
+                        }
+                        return [];
+                    })
+                )
+            )
+        );
 
-        await downloadAllPhotos(urls);
+        await downloadAllPhotos(_.concat(imageUrls, logoUrls));
     }
 
     console.log("looks good!");

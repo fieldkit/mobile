@@ -1,11 +1,11 @@
 <template>
     <StackLayout class="simple-screen">
         <template v-if="logo">
-            <StackLayout class="image-container">
+            <StackLayout class="logo-image-container">
                 <Image verticalAlignment="middle" :src="'~/images/reader' + logo.url" stretch="aspectFit" />
             </StackLayout>
 
-            <StackLayout v-if="image" class="image-container">
+            <StackLayout v-if="image" class="welcome-image-container">
                 <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" stretch="aspectFit" />
             </StackLayout>
 
@@ -64,7 +64,16 @@ export default Vue.extend({
     padding-top: 0;
 }
 
+.logo-image-container {
+    margin-top: 20;
+    height: 30;
+}
+
 .image-container {
     // background-color: orange;
+}
+
+.welcome-image-container {
+    height: 300;
 }
 </style>
