@@ -953,13 +953,9 @@
                 "simple": [
                     {
                         "body": "# Welcome!\n\nOur mobile app makes it easy to set up and deploy your FieldKit station.",
-                        "images": [
-                            {
-                                "url": "/uploads/Fieldkit_Panel_04_1500px_a9dcbe9502.png"
-                            }
-                        ],
+                        "images": [],
                         "logo": {
-                            "url": "/uploads/fieldkit_Logo_final_ac28b5ba44.png"
+                            "url": "/uploads/welcome_screen_combined_cb405b2813.png"
                         }
                     }
                 ]
