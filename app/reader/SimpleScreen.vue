@@ -66,7 +66,7 @@ export default Vue.extend({
 
 .logo-image-container {
     margin-top: 20;
-    height: 30;
+    width: 50%;
 }
 
 .image-container {
