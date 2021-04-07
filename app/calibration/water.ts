@@ -331,10 +331,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step0.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step0.prepare1.instructions"),
                     done: _T("calibration.water.dox.step0.prepare1.done"),
-                    images: [
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_1.jpg" },
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_2.jpg" },
-                    ],
+                    images: [{ path: "~/images/cal/water/dissolved_oxygen/cal_water_do_1.jpg" }],
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
@@ -358,10 +355,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step1.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step1.prepare1.instructions"),
                     done: _T("calibration.water.dox.step1.prepare1.done"),
-                    images: [
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_3.jpg" },
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_4.jpg" },
-                    ],
+                    images: [{ path: "~/images/cal/water/dissolved_oxygen/cal_water_do_2.jpg" }],
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
@@ -385,10 +379,7 @@ const Do3 = (): CalibrationStrategy => {
                     heading: _T("calibration.water.dox.step2.prepare1.heading"),
                     instructions: _T("calibration.water.dox.step2.prepare1.instructions"),
                     done: _T("calibration.water.dox.step2.prepare1.done"),
-                    images: [
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_5.jpg" },
-                        { path: "~/images/cal/water/dissolved_oxygen/cal_water_do_6.jpg" },
-                    ],
+                    images: [{ path: "~/images/cal/water/dissolved_oxygen/cal_water_do_3.jpg" }],
                 }),
                 new WaitVisual(Wait, {
                     ...doxCommon,
