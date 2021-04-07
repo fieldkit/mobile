@@ -1,33 +1,38 @@
 <template>
     <GridLayout rows="*,auto">
-        <StackLayout row="0" v-if="calibrationPoints > 0">
-            <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
+        <ScrollView>
+            <StackLayout row="0" v-if="calibrationPoints > 0">
+                <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
-            <StackLayout class="field-container">
-                <Label text="Calibration Method" textWrap="true" class="field-label" />
-                <Label text="Three-point Method" textWrap="true" class="field-value" v-if="calibrationPoints == 3" />
-                <Label text="Not Calibrated" textWrap="true" class="field-value" v-else />
+                <StackLayout class="field-container">
+                    <Label text="Calibration Method" textWrap="true" class="field-label" />
+                    <Label text="Three-point Method" textWrap="true" class="field-value" v-if="calibrationPoints == 3" />
+                    <Label text="Not Calibrated" textWrap="true" class="field-value" v-else />
+                </StackLayout>
+
+                <StackLayout class="field-container">
+                    <GridLayout rows="auto" columns="auto,auto">
+                        <Label row="0" col="0" text="Standard Values" textWrap="true" class="field-label" />
+                        <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
+                    </GridLayout>
+                    <Label :text="calibratedStandards" textWrap="true" class="field-value" />
+                </StackLayout>
+
+                <StackLayout class="field-container">
+                    <Label text="Last Calibrated" textWrap="true" class="field-label" />
+                    <Label :text="calibratedDate" textWrap="true" class="field-value" />
+                </StackLayout>
+
+                <StackLayout class="field-container">
+                    <Label
+                        text="Please check the Product Guide for the suggested re-calibration intervals for each sensor."
+                        textWrap="true"
+                    />
+                </StackLayout>
+
+                <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="!busy" @tap="clear" />
             </StackLayout>
-
-            <StackLayout class="field-container">
-                <GridLayout rows="auto" columns="auto,auto">
-                    <Label row="0" col="0" text="Standard Values" textWrap="true" class="field-label" />
-                    <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
-                </GridLayout>
-                <Label :text="calibratedStandards" textWrap="true" class="field-value" />
-            </StackLayout>
-
-            <StackLayout class="field-container">
-                <Label text="Last Calibrated" textWrap="true" class="field-label" />
-                <Label :text="calibratedDate" textWrap="true" class="field-value" />
-            </StackLayout>
-
-            <StackLayout class="field-container">
-                <Label text="Please check the Product Guide for the suggested re-calibration intervals for each sensor." textWrap="true" />
-            </StackLayout>
-
-            <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="!busy" @tap="clear" />
-        </StackLayout>
+        </ScrollView>
         <StackLayout row="1">
             <Button class="btn btn-primary btn-padded" :isEnabled="!busy" :text="visual.done" @tap="done" />
         </StackLayout>
@@ -163,7 +168,7 @@ export default Vue.extend({
 }
 
 .field-container {
-    padding: 20;
+    padding: 10;
 }
 
 .field-label {
