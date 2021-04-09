@@ -20,8 +20,8 @@
                 </GridLayout>
             </StackLayout>
             <StackLayout row="2" verticalAlignment="bottom">
-                <Button class="btn btn-primary" text="Calibrate Again" @tap="tryAgain" />
-                <Label text="Calibrate Later" class="skip" textWrap="true" @tap="skip" />
+                <Button class="btn btn-primary" :text="_L('calibration.failure.again')" @tap="tryAgain" />
+                <Label :text="_L('calibration.failure.later')" class="skip" textWrap="true" @tap="skip" />
             </StackLayout>
         </GridLayout>
     </StackLayout>

@@ -519,6 +519,10 @@ module.exports = {
         lorem: "Lorem ipsum"
     },
 	calibration: {
+		failure: {
+			again: "Calibrate Again",
+			later: "Calibrate Later",
+		},
 		water: {
 			ph: {
 				title: "Set Up",
@@ -835,13 +839,14 @@ module.exports = {
 					},
 				}
 			},
-		}
+		},
+		calibrated: "Calibrated",
+		cleared: "Cleared",
 	},
     calibrationFailed: "Calibration Failed",
     calibrationErrorOccured: "An error has ocurred during calibration. Please double check the standards you have gathered and read the instructions carefully. If the problem persists, please contact technical support.",
     uncalibrated: "Uncalibrated",
     noCalibrationNeeded: "No calibration needed",
-    calibrated: "Calibrated",
     startCalibrationStep1: "Let's set up your station before you deploy!",
     startCalibrationStep2: "To complete setup, calibrate each sensor module for accurate data readings.",
     tapStationToRecalibrate: "Tap the station you want to recalibrate:",

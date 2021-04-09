@@ -8,8 +8,8 @@
                 @back="() => onBack(activeStep)"
             />
             <StackLayout>
-                <Success v-if="cleared" text="Cleared" />
-                <Success v-if="success" :text="_L('calibrated')" />
+                <Success v-if="cleared" text="_L('calibration.cleared')" />
+                <Success v-if="success" :text="_L('calibration.calibrated')" />
                 <Failure v-if="failure" @try-again="tryAgain" @skip="skip" :moduleId="sensor.moduleId" />
                 <template v-if="!(success || failure) && sensor">
                     <component
@@ -42,6 +42,7 @@ import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/
 import { WaterCalValue } from "./water";
 
 import { LegacyStation } from "@/store";
+import { navigateBackToBookmark } from "@/routes";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -187,16 +188,12 @@ export default Vue.extend({
             }
             await this.notifySuccess();
 
-            // TODO There HAS to be a better way.
-            await this.navigateBack();
-            await this.navigateBack();
+            await navigateBackToBookmark(this, "stations-frame");
         },
         async skip(): Promise<void> {
             console.log("cal:", "skip", this.fromSettings);
 
-            // TODO There HAS to be a better way.
-            await this.$navigateBack();
-            await this.$navigateBack();
+            await navigateBackToBookmark(this, "stations-frame");
         },
         async navigateBack(): Promise<void> {
             console.log("cal:", "navigate-back", this.fromSettings);

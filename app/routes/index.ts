@@ -35,6 +35,19 @@ function addDefaults(options: NavigateOptions | null, overrides: { frame: string
     return _.extend({}, defaults, options);
 }
 
+export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
+    const frameToNav = frameId || Frame.topmost().id;
+    const frame = Frame.getFrameById(frameToNav);
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        if (entryProps.props?.bookmark === true) {
+            void vue.$navigateBack({ frame: frameToNav }, a);
+            return true;
+        }
+    }
+    return false;
+}
+
 export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     /* eslint-disable */
     const navFn = async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {

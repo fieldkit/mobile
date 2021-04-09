@@ -126,6 +126,7 @@ export default Vue.extend({
             await this.$navigateTo(Modules, {
                 props: {
                     stationId: this.stationId,
+                    bookmark: true,
                 },
             });
         },
