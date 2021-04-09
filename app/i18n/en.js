@@ -851,5 +851,8 @@ module.exports = {
 		assembled: {
 			message: "Success!"
 		}
+	},
+	titles: {
+		loading: "Loading"
 	}
 };

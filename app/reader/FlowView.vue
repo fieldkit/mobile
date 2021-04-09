@@ -1,6 +1,6 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom" :actionBarHidden="title == null">
-        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" v-if="title" />
+        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
@@ -37,7 +37,7 @@ import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
 import { FullRoute } from "@/routes";
-import { Timer } from "@/lib";
+import { _T, Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
@@ -103,7 +103,7 @@ const FlowView = Vue.extend({
                     return this.screen.header.title;
                 }
             }
-            return null;
+            return _T("titles.loading");
         },
         header(): ModuleHeader | undefined {
             return tryFindModuleHeader(this.flow.name);
