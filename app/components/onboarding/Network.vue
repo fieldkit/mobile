@@ -100,7 +100,8 @@ export default Vue.extend({
         async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
                 // Skipping dataSync
-                await this.$navigateTo(routes.onboarding.dataSync, {
+                // await this.$navigateTo(routes.onboarding.dataSync, {
+                await this.$navigateTo(routes.onboarding.completeSettings, {
                     props: {
                         stationId: this.stationId,
                         remote: true,

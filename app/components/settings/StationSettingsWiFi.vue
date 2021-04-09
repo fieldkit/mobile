@@ -36,7 +36,7 @@ export default Vue.extend({
         menuOptions: string[];
     } {
         return {
-            menuOptions: [_L("network"), _L("uploadSchedule")],
+            menuOptions: [_L("network") /*, _L("uploadSchedule")*/],
         };
     },
     props: {

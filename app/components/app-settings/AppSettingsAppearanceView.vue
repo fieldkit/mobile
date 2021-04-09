@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.help.help')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.appearance.appearance')" :canNavigateBack="true" :canNavigateSettings="false" />
         <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
                 <SettingsItemSlider
