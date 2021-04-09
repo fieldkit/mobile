@@ -4,35 +4,35 @@
         <ScrollView>
             <StackLayout>
                 <SettingsItemIconText
+                    v-show="false"
                     :link="'data'"
                     :text="'appSettings.data.data'"
                     :imageSrc="'~/images/icon_connections.png'"
                     :cssClass="'top-bordered-item'"
-                    v-show="false"
                 />
                 <SettingsItemIconText
+                    v-show="false"
                     :link="'notifications'"
                     :text="'appSettings.notifications.notifications'"
                     :imageSrc="'~/images/icon_settings_notifications.png'"
-                    v-show="false"
                 />
                 <SettingsItemIconText
+                    v-show="false"
                     :link="'units'"
                     :text="'appSettings.units.units'"
                     :imageSrc="'~/images/icons_units.png'"
-                    v-show="false"
                 />
                 <SettingsItemIconText
+                    v-show="false"
                     :link="'permissions'"
                     :text="'appSettings.permissions.permissions'"
                     :imageSrc="'~/images/icon_permissions.png'"
-                    v-show="false"
                 />
                 <SettingsItemIconText
+                    v-show="false"
                     :link="'appearance'"
                     :text="'appSettings.appearance.appearance'"
                     :imageSrc="'~/images/icon_lightmode_settings.png'"
-                    v-show="false"
                 />
                 <SettingsItemIconText
                     :link="'account'"

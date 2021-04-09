@@ -35,6 +35,7 @@ function addDefaults(options: NavigateOptions | null, overrides: { frame: string
     return _.extend({}, defaults, options);
 }
 
+// eslint-disable-next-line
 export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
     const frameToNav = frameId || Frame.topmost().id;
     const frame = Frame.getFrameById(frameToNav);
