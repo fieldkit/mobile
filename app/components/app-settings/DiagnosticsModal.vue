@@ -73,7 +73,7 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 .container {
-    height: 30%;
+    height: 50%;
 }
 
 .bar-container {

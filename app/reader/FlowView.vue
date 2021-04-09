@@ -4,14 +4,15 @@
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
-                <SimpleScreen
-                    row="1"
-                    v-if="screen.simple.length >= 1"
-                    :screen="screen.simple[0]"
-                    :frame="frame"
-                    class="simple-screen-container"
-                    v-bind:key="nav.key"
-                />
+                <ScrollView row="1">
+                    <SimpleScreen
+                        v-if="screen.simple.length >= 1"
+                        :screen="screen.simple[0]"
+                        :frame="frame"
+                        class="simple-screen-container"
+                        v-bind:key="nav.key"
+                    />
+                </ScrollView>
                 <StackLayout row="2">
                     <Button
                         class="btn btn-primary btn-padded"
@@ -24,7 +25,7 @@
                 </StackLayout>
             </GridLayout>
         </StackLayout>
-        <StackLayout v-else>
+        <StackLayout v-else class="loading">
             <Label text="Loading" />
         </StackLayout>
     </Page>
@@ -229,5 +230,9 @@ export default FlowView;
 }
 
 .simple-screen-container {
+}
+
+.loading {
+    padding: 20;
 }
 </style>
