@@ -18,7 +18,7 @@ const screenSchema = yup.object().shape({
         .object()
         .shape({
             title: yup.string().required(),
-            subtitle: yup.string().required(),
+            subtitle: yup.string().nullable(),
         })
         .nullable(),
     simple: yup.array().of(
