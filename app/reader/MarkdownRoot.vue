@@ -42,7 +42,7 @@ export default Vue.extend({
             return null;
         },
         getRowSpec(node: MdNode, index: number): string {
-            console.log("markdown:node", node);
+            // console.log("markdown:node", node);
             const sizing = this.findSizing(node);
             return sizing || "auto";
         },

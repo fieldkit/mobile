@@ -7,6 +7,7 @@ import {
 } from "@nativescript/core";
 import DiscoverStation from "./discover-station";
 import { zoned } from "@/lib";
+import { getBus } from "@/components/NavigationBus";
 
 function wrap(fn: (args: unknown) => void): (args: unknown) => void {
     return async (args) => {
@@ -80,6 +81,7 @@ export default function (discoverStation: () => DiscoverStation): void {
         Application.orientationChangedEvent,
         wrap((args: OrientationChangedEventData) => {
             console.log("lifecycle: orientationChangedEvent", args.newValue);
+            getBus().$emit("orientation:change", args.newValue);
         })
     );
 

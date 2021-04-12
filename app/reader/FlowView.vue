@@ -4,14 +4,25 @@
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
-                <SimpleScreen
-                    row="1"
-                    v-if="screen.simple.length >= 1"
-                    :screen="screen.simple[0]"
-                    :frame="frame"
-                    v-bind:key="nav.key"
-                    class="simple-screen"
-                />
+
+                <template v-if="screen.simple.length >= 1">
+                    <ByOrientation row="1">
+                        <template v-slot:landscape>
+                            <ScrollView>
+                                <SimpleScreen
+                                    :screen="screen.simple[0]"
+                                    :frame="frame"
+                                    v-bind:key="nav.key"
+                                    class="simple-screen scrolling"
+                                />
+                            </ScrollView>
+                        </template>
+                        <template v-slot:portrait>
+                            <SimpleScreen :screen="screen.simple[0]" :frame="frame" v-bind:key="nav.key" class="simple-screen" />
+                        </template>
+                    </ByOrientation>
+                </template>
+
                 <StackLayout row="2">
                     <Button
                         class="btn btn-primary btn-padded"
@@ -34,19 +45,26 @@
 import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
-import PlatformHeader from "@/components/PlatformHeader";
+import ByOrientation from "./ByOrientation.vue";
+import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
 import { _T, Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
 import * as utils from "@nativescript/core/utils/utils";
+import { Screen } from "@nativescript/core";
+
+function isLandscape(): boolean {
+    return Screen.mainScreen.widthDIPs > Screen.mainScreen.heightDIPs;
+}
 
 const FlowView = Vue.extend({
     name: "FlowView",
     components: {
         PlatformHeader,
         FlowProgress,
+        ByOrientation,
         SimpleScreen,
     },
     props: {
@@ -87,6 +105,9 @@ const FlowView = Vue.extend({
         };
     },
     computed: {
+        landscape(): boolean {
+            return isLandscape();
+        },
         ready(): boolean {
             return this.nav.ready;
         },
@@ -232,5 +253,10 @@ export default FlowView;
 
 .simple-screen {
     padding: 10;
+}
+
+::v-deep .scrolling Image {
+    // background-color: orange;
+    width: 50%;
 }
 </style>

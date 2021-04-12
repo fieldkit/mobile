@@ -33,7 +33,4 @@ export default Vue.extend({
     padding-bottom: 0;
     padding-top: 0;
 }
-
-/deep/ Image {
-}
 </style>
