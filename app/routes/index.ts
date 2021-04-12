@@ -58,7 +58,7 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
             const haveTabs = _.keys(store.state.nav.frames).length >= 3;
             // Verify top route is for TabbedLayout
             const firstTab = pageOrRoute.props.firstTab as FirstTab;
-            console.log("nav:full-route", "have-tabs", haveTabs, "tabbed-nav", firstTab);
+            console.log("nav:full-route", "have-tabs", haveTabs, "first-tab", firstTab);
             if (!haveTabs || !firstTab) {
                 console.log("nav:navigating to tabbed-layout");
                 store.commit(

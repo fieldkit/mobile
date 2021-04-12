@@ -78,9 +78,6 @@ export default Vue.extend({
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
     },
-    mounted(): void {
-        console.log("can-show", this.canShow);
-    },
     methods: {
         onFocus(): void {
             this.focus = true;

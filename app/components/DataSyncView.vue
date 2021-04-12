@@ -173,7 +173,6 @@ export default Vue.extend({
     },
     computed: {
         syncs(): StationSyncStatus[] {
-            console.log("SYNCS", this.$s.getters.syncs);
             return this.$s.getters.syncs;
         },
         userLoggedIn(): boolean {

@@ -21,8 +21,6 @@ function getFirstRoute(services: Services): FullRoute {
         const skipCount = appSettings.getNumber("skipCount");
         console.log(`${JSON.stringify({ completedSetup, skipCount })}`);
         return completedSetup || skipCount > 2 ? tabbed : onboarding;
-    } else {
-        console.log(`no user`, "a");
     }
 
     return fullRoutes.login;

@@ -154,7 +154,7 @@ export default Vue.extend({
                 this.classes
             );
         }
-        if (true) {
+        if (false) {
             // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
             const frame = Frame.topmost();
             if (frame) {
