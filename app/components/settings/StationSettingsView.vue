@@ -15,7 +15,7 @@
                             @tap="selectFromMenu"
                         />
                         <Label
-                            :class="'menu-text size-18 bottom-border forget-station'"
+                            class="menu-text size-18 bottom-border"
                             :text="_L('forgetStation')"
                             textWrap="true"
                             @tap="forgetStationDialog"
@@ -169,11 +169,6 @@ export default Vue.extend({
 .bottom-border {
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;
-}
-
-.forget-station {
-    border-bottom-color: $fk-tertiary-red;
-    color: $fk-tertiary-red;
 }
 
 .full-width {
