@@ -1142,6 +1142,10 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error adding stored network: ${JSON.stringify(error)}`)));
     }
 
+    public async forgettingStation(stationId: number): Promise<void> {
+        await this.execute("UPDATE stations SET forgetting = ? WHERE id = ?", [true, stationId]);
+    }
+
     public async forgetStation(stationId: number): Promise<void> {
         await this.execute(`BEGIN TRANSACTION`);
 

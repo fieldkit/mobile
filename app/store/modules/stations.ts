@@ -24,6 +24,7 @@ import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, Downlo
 import { HttpStatusReply, ModuleConfiguration } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
 import { ServiceRef, DatabaseInterface } from "@/services";
+import { promiseAfter } from "@/lib";
 
 export const AvailableStationsSorter = (available: AvailableStation[]): AvailableStation[] => {
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
@@ -37,6 +38,7 @@ function makeAvailableStations(state: StationsState, rootState: GlobalState): Av
     const deviceIds = _.keys(stations);
     const available = _(deviceIds)
         .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+        .filter((s) => !s.forgetting)
         .value();
 
     /*
@@ -173,6 +175,7 @@ class StationStatusFactory {
             id: null,
             userId: null,
             archived: false,
+            forgetting: false,
             deviceId: deviceId,
             generationId: generationId,
             name: this.statusReply.status.identity.name,
@@ -335,6 +338,7 @@ class StationDatabaseFactory {
             generationId: stationRow.generationId,
             name: stationRow.name,
             archived: stationRow.archived,
+            forgetting: stationRow.forgetting,
             batteryLevel: stationRow.batteryLevel,
             consumedMemory: stationRow.consumedMemory,
             totalMemory: stationRow.totalMemory,
@@ -457,6 +461,11 @@ const actions = (services: ServiceRef) => {
             await services.db().updateLastSyncedAt(payload.userId);
         },
         [ActionTypes.FORGET_STATION]: async ({ commit, dispatch }: ActionParameters, stationId: number) => {
+            await services.db().forgettingStation(stationId);
+            await dispatch(ActionTypes.LOAD);
+
+            await promiseAfter(500);
+
             await services.db().forgetStation(stationId);
             await dispatch(ActionTypes.LOAD);
         },

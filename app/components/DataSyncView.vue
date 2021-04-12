@@ -3,7 +3,6 @@
         <PlatformHeader :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
 
         <ScrollView>
-            <NoStationsWannaAdd v-if="syncs.length == 0" :image="true" />
             <StackLayout class="sync-panel-container" v-if="syncs.length > 0">
                 <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
                     <GridLayout rows="auto" columns="*,30" @tap="onToggle(sync)">
@@ -143,6 +142,7 @@
                     </GridLayout>
                 </StackLayout>
             </StackLayout>
+            <NoStationsWannaAdd v-else :image="true" />
         </ScrollView>
     </Page>
 </template>
@@ -157,7 +157,6 @@ import Config from "@/config";
 
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
-import * as application from "@nativescript/core/application";
 
 const log = Config.logger("DataSyncView");
 
@@ -174,18 +173,12 @@ export default Vue.extend({
     },
     computed: {
         syncs(): StationSyncStatus[] {
+            console.log("SYNCS", this.$s.getters.syncs);
             return this.$s.getters.syncs;
         },
         userLoggedIn(): boolean {
             return this.$s.state.portal.accounts.length > 0;
         },
-    },
-    created: function () {
-        if (application.android) {
-            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                args.cancel = true; //this cancels the normal backbutton behaviour
-            });
-        }
     },
     methods: {
         onPageLoaded(): void {

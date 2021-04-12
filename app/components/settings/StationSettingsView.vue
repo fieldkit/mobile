@@ -1,7 +1,7 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('stationSettings.title')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
+        <PlatformHeader :title="_L('stationSettings.title')" :subtitle="stationName" :canNavigateSettings="false" />
+        <GridLayout rows="auto,*" v-if="!forgotten">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <StackLayout class="p-t-10">
@@ -50,18 +50,22 @@ import EndDeploy from "./StationSettingsEndDeploy.vue";
 import * as animations from "@/components/animations";
 import { ActionTypes, AvailableStation } from "@/store";
 import StationListView from "~/components/StationListView.vue";
-import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
     data(): {
         loggedIn: boolean;
         menuOptions: string[];
         showForgetStationDialog: boolean;
+        stationName: string | null;
+        forgotten: boolean;
     } {
+        const station = this.$s.getters.availableStationsById[this.stationId];
         return {
             loggedIn: Services.PortalInterface().isLoggedIn(),
             menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
             showForgetStationDialog: false,
+            stationName: station.name,
+            forgotten: false,
         };
     },
     props: {
@@ -142,10 +146,11 @@ export default Vue.extend({
         },
         async forgetStation(): Promise<void> {
             this.showForgetStationDialog = false;
+            this.forgotten = true;
             await this.$navigateTo(StationListView, {
                 clearHistory: true,
             });
-            void promiseAfter(1000).then(() => this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id));
+            await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id);
         },
         cancelForgetStation(): void {
             this.showForgetStationDialog = false;

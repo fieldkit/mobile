@@ -4,6 +4,7 @@ export interface StationTableRow {
     generationId: string;
     name: string;
     archived: boolean;
+    forgetting: boolean;
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;

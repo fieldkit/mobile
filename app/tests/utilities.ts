@@ -440,6 +440,7 @@ export function createStation(id: number, name: string): Station {
         generationId: generationId,
         name: name,
         archived: false,
+        forgetting: false,
         batteryLevel: 50,
         consumedMemory: 0,
         totalMemory: 0,

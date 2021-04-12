@@ -257,6 +257,7 @@ export interface StationCreationFields {
     generationId: string;
     name: string;
     archived: boolean;
+    forgetting: boolean;
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;
@@ -287,6 +288,7 @@ export class Station implements StationCreationFields {
     public readonly generationId: string;
     public readonly name: string;
     public readonly archived: boolean;
+    public readonly forgetting: boolean;
     public readonly batteryLevel: number | null;
     public readonly consumedMemory: number | null;
     public readonly totalMemory: number | null;
@@ -308,6 +310,7 @@ export class Station implements StationCreationFields {
         this.generationId = o.generationId;
         this.name = o.name;
         this.archived = o.archived;
+        this.forgetting = o.forgetting;
         this.batteryLevel = o.batteryLevel;
         this.consumedMemory = o.consumedMemory;
         this.totalMemory = o.totalMemory;
@@ -499,6 +502,7 @@ export class AvailableStation {
     public readonly id: number;
     public readonly deviceId: string;
     public readonly connected: boolean;
+    public readonly forgetting: boolean;
     public readonly url: string | null;
     public readonly streams: Stream[] = [];
     public readonly downloads: Download[] = [];
@@ -527,6 +531,7 @@ export class AvailableStation {
         this.downloads = station.downloads || [];
         this.networks = station.networks;
         this.schedules = station.schedules;
+        this.forgetting = station.forgetting;
 
         this.connected = nearby != null;
         this.url = nearby?.url || null;
