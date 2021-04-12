@@ -42,7 +42,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });
@@ -58,16 +58,30 @@ export default Vue.extend({
                 return;
             }
 
-            if (this.$s.getters.stationCalibrations[1]) {
-                await this.$navigateTo(fullRoutes.onboarding.recalibrate(1), {
-                    clearHistory: true,
-                });
+            if (false) {
+                if (this.$s.getters.stationCalibrations[1]) {
+                    await this.$navigateTo(fullRoutes.onboarding.recalibrate(1), {
+                        clearHistory: true,
+                    });
+
+                    return;
+                }
+            }
+
+            if (true) {
+                await this.$navigateTo(
+                    fullRoutes.flow({
+                        flow: {
+                            name: "onboarding",
+                        },
+                        finished: new FullRoute("tabbed", "outer-frame", {}),
+                        skipped: new FullRoute("tabbed", "outer-frame", {}),
+                    })
+                );
 
                 return;
             }
         }
-
-        console.log("first navigate");
 
         try {
             await this.$navigateTo(getFirstRoute(services), {

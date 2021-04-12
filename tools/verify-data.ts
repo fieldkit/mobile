@@ -26,7 +26,7 @@ async function downloadAllPhotos(urls: string[]): Promise<any> {
 
         try {
             const loaded = await Jimp.read(path);
-            await loaded.resize(800, 800);
+            await loaded.resize(800, Jimp.AUTO);
             await loaded.writeAsync(path);
         } catch (error) {
             console.log("resize error", error);

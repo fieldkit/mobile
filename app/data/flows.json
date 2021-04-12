@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB cable   |\n| E) Battery        |   |",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB Cable   |\n| E) Battery        | J) Phillips Screwdriver |",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -279,9 +279,9 @@
                 "id": "10",
                 "name": "onboarding.11",
                 "locale": "en_US",
-                "forward": "Next",
-                "skip": "Skip this step",
-                "guideTitle": "Click here for setup steps in the Product Guide",
+                "forward": "Complete Station Assembly",
+                "skip": "",
+                "guideTitle": "View Product Guide for setup instructions",
                 "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/",
                 "header": {
                     "title": "Assemble Station",
@@ -933,15 +933,16 @@
                 },
                 "simple": [
                     {
-                        "body": "Hello\n\n![Dropper Image](0)\n\nWorld!",
+                        "body": "\n\n![Logo](1)\n\n![Welcome](0)\n\nWorld!",
                         "images": [
                             {
                                 "url": "/uploads/Fieldkit_Panel_04_1500px_a9dcbe9502.png"
+                            },
+                            {
+                                "url": "/uploads/fieldkit_Logo_final_ac28b5ba44.png"
                             }
                         ],
-                        "logo": {
-                            "url": "/uploads/fieldkit_Logo_final_ac28b5ba44.png"
-                        }
+                        "logo": null
                     }
                 ]
             },
@@ -953,14 +954,49 @@
                 "skip": "Skip instructions",
                 "guideTitle": "",
                 "guideUrl": "",
-                "header": null,
+                "header": {
+                    "title": "Welcome!",
+                    "subtitle": null
+                },
                 "simple": [
                     {
-                        "body": "# Welcome!\n\nOur mobile app makes it easy to set up and deploy your FieldKit station.",
-                        "images": [],
-                        "logo": {
-                            "url": "/uploads/welcome_screen_combined_cb405b2813.png"
-                        }
+                        "body": "![Logo](0:auto)\n\n![Welcome](1)\n\n# Welcome!\n\nOur mobile app makes it easy to set up and deploy your FieldKit station.",
+                        "images": [
+                            {
+                                "url": "/uploads/fieldkit_Logo_final_ac28b5ba44.png"
+                            },
+                            {
+                                "url": "/uploads/Fieldkit_Panel_04_1500px_a9dcbe9502.png"
+                            }
+                        ],
+                        "logo": null
+                    }
+                ]
+            },
+            {
+                "id": "46",
+                "name": "examples.03",
+                "locale": "en_US",
+                "forward": "Forward",
+                "skip": null,
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "A",
+                    "subtitle": "B"
+                },
+                "simple": [
+                    {
+                        "body": "Hello\n\n![Dropper Image](0,1)\n\nWorld!",
+                        "images": [
+                            {
+                                "url": "/uploads/Image_from_i_OS_13_1_d4f56f3f14.jpg"
+                            },
+                            {
+                                "url": "/uploads/Image_from_i_OS_14_1_cb602a19a3.jpg"
+                            }
+                        ],
+                        "logo": null
                     }
                 ]
             }

@@ -4,15 +4,14 @@
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">
                 <FlowProgress row="0" :progress="progress" />
-                <ScrollView row="1">
-                    <SimpleScreen
-                        v-if="screen.simple.length >= 1"
-                        :screen="screen.simple[0]"
-                        :frame="frame"
-                        class="simple-screen-container"
-                        v-bind:key="nav.key"
-                    />
-                </ScrollView>
+                <SimpleScreen
+                    row="1"
+                    v-if="screen.simple.length >= 1"
+                    :screen="screen.simple[0]"
+                    :frame="frame"
+                    v-bind:key="nav.key"
+                    class="simple-screen"
+                />
                 <StackLayout row="2">
                     <Button
                         class="btn btn-primary btn-padded"
@@ -129,11 +128,9 @@ const FlowView = Vue.extend({
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flow);
         try {
-            console.log("flow: mounted", this.flow);
-            console.log("flow: mounted", "module-header", this.header);
-            if (this.screen) {
-                console.log("flow: mounted", "screen-header", this.screen.header);
-            }
+            console.log("flow: mounted", "flow", this.flow);
+            console.log("flow: mounted", "module", this.header);
+            console.log("flow: mounted", "screen", this.screen);
         } catch (error) {
             console.log("error", error);
         }
@@ -229,10 +226,11 @@ export default FlowView;
     margin: 0;
 }
 
-.simple-screen-container {
-}
-
 .loading {
     padding: 20;
+}
+
+.simple-screen {
+    padding: 10;
 }
 </style>

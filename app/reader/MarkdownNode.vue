@@ -1,23 +1,35 @@
 <template>
-    <component :is="node.type" v-bind="node.props">
-        <MarkdownNode v-for="(child, index) in node.children" :key="index" :node="child" />
+    <component :is="node.type" v-bind="node.props" :screen="screen" :frame="frame">
+        <MarkdownNode v-for="(child, index) in node.children" :key="index" :node="child" :screen="screen" :frame="frame" />
     </component>
 </template>
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { MdNode } from "./parsing";
+import MarkdownRoot from "./MarkdownRoot.vue";
 import MarkdownLink from "./MarkdownLink.vue";
+import MarkdownImage from "./MarkdownImage.vue";
 
 export default Vue.extend({
     name: "MarkdownNode",
     components: {
+        MarkdownRoot,
         MarkdownLink,
+        MarkdownImage,
     },
     props: {
         node: {
             type: Object as PropType<MdNode>,
             required: true,
+        },
+        frame: {
+            type: Number,
+            required: true,
+        },
+        screen: {
+            type: Object,
+            required: false,
         },
     },
 });

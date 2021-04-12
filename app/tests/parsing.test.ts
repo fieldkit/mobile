@@ -13,15 +13,39 @@ describe("reader parsing", () => {
             const actual = await transform("Hello, world");
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Hello, world",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 0,
                         },
                         children: [
                             {
@@ -37,21 +61,197 @@ describe("reader parsing", () => {
             });
         });
 
-        it.only("should parse simple links", async () => {
-            const actual = await transform("This is an [example link](http://example.com/).");
+        it("should parse text surrounded by image", async () => {
+            const actual = await transform("Hello, world\n\n![Alt](0)\n\nBye, world!\n");
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Hello, world",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 1,
+                                row: 1,
+                            },
+                            children: [
+                                {
+                                    type: "MarkdownImage",
+                                    props: {
+                                        indices: [0],
+                                        alternate: "Alt",
+                                        sizing: "*",
+                                    },
+                                    children: [],
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 2,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Bye, world!",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
                         type: "FlexboxLayout",
                         props: {
                             class: "md-paragraph",
-                            flexWrap: "wrap",
                             justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 0,
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Hello, world",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        type: "FlexboxLayout",
+                        props: {
+                            class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 1,
+                            row: 1,
+                        },
+                        children: [
+                            {
+                                type: "MarkdownImage",
+                                props: {
+                                    indices: [0],
+                                    alternate: "Alt",
+                                    sizing: "*",
+                                },
+                                children: [],
+                            },
+                        ],
+                    },
+                    {
+                        type: "FlexboxLayout",
+                        props: {
+                            class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 2,
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Bye, world!",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
+        it("should parse simple links", async () => {
+            const actual = await transform("This is an [example link](http://example.com/).");
+
+            expect(actual).toEqual({
+                type: "MarkdownRoot",
+                props: {
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "This is an ",
+                                        textWrap: true,
+                                    },
+                                },
+                                {
+                                    type: "MarkdownLink",
+                                    props: {
+                                        target: "http://example.com/",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "example link",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: ".",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+                children: [
+                    {
+                        type: "FlexboxLayout",
+                        props: {
+                            class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 0,
                         },
                         children: [
                             {
@@ -93,85 +293,183 @@ describe("reader parsing", () => {
             const actual = await transform("1. Item\n2. Item\n3. Item\n");
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "StackLayout",
+                            props: {
+                                class: "md-list",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        class: "md-list-item",
+                                    },
+                                    children: [
+                                        {
+                                            type: "FlexboxLayout",
+                                            props: {
+                                                class: "md-paragraph",
+                                                justifyContent: "center",
+                                                flexWrap: "wrap",
+                                                images: 0,
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        text: "Item",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        class: "md-list-item",
+                                    },
+                                    children: [
+                                        {
+                                            type: "FlexboxLayout",
+                                            props: {
+                                                class: "md-paragraph",
+                                                justifyContent: "center",
+                                                flexWrap: "wrap",
+                                                images: 0,
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        text: "Item",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        class: "md-list-item",
+                                    },
+                                    children: [
+                                        {
+                                            type: "FlexboxLayout",
+                                            props: {
+                                                class: "md-paragraph",
+                                                justifyContent: "center",
+                                                flexWrap: "wrap",
+                                                images: 0,
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        text: "Item",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
                         type: "StackLayout",
                         props: {
                             class: "md-list",
+                            row: 0,
                         },
                         children: [
                             {
+                                type: "StackLayout",
+                                props: {
+                                    class: "md-list-item",
+                                },
                                 children: [
                                     {
+                                        type: "FlexboxLayout",
+                                        props: {
+                                            class: "md-paragraph",
+                                            justifyContent: "center",
+                                            flexWrap: "wrap",
+                                            images: 0,
+                                        },
                                         children: [
                                             {
+                                                type: "Label",
                                                 props: {
                                                     text: "Item",
                                                     textWrap: true,
                                                 },
-                                                type: "Label",
                                             },
                                         ],
-                                        props: {
-                                            class: "md-paragraph",
-                                        },
-                                        type: "StackLayout",
                                     },
                                 ],
-                                props: {
-                                    class: "md-list-item",
-                                },
-                                type: "StackLayout",
                             },
                             {
+                                type: "StackLayout",
+                                props: {
+                                    class: "md-list-item",
+                                },
                                 children: [
                                     {
+                                        type: "FlexboxLayout",
+                                        props: {
+                                            class: "md-paragraph",
+                                            justifyContent: "center",
+                                            flexWrap: "wrap",
+                                            images: 0,
+                                        },
                                         children: [
                                             {
+                                                type: "Label",
                                                 props: {
                                                     text: "Item",
                                                     textWrap: true,
                                                 },
-                                                type: "Label",
                                             },
                                         ],
-                                        props: {
-                                            class: "md-paragraph",
-                                        },
-                                        type: "StackLayout",
                                     },
                                 ],
-                                props: {
-                                    class: "md-list-item",
-                                },
-                                type: "StackLayout",
                             },
                             {
+                                type: "StackLayout",
+                                props: {
+                                    class: "md-list-item",
+                                },
                                 children: [
                                     {
+                                        type: "FlexboxLayout",
+                                        props: {
+                                            class: "md-paragraph",
+                                            justifyContent: "center",
+                                            flexWrap: "wrap",
+                                            images: 0,
+                                        },
                                         children: [
                                             {
+                                                type: "Label",
                                                 props: {
                                                     text: "Item",
                                                     textWrap: true,
                                                 },
-                                                type: "Label",
                                             },
                                         ],
-                                        props: {
-                                            class: "md-paragraph",
-                                        },
-                                        type: "StackLayout",
                                     },
                                 ],
-                                props: {
-                                    class: "md-list-item",
-                                },
-                                type: "StackLayout",
                             },
                         ],
                     },
@@ -195,15 +493,131 @@ A            | B
 `);
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-heading md-heading-1",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Heading",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-heading md-heading-2",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                row: 1,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Another header",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 2,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Paragraph of text, hello there how are you doing I hope this finds you well.",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "GridLayout",
+                            props: {
+                                class: "md-grid",
+                                rows: "auto",
+                                columns: "*,*",
+                                row: 3,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 0,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "A",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "A",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 1,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "B",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "B",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-heading md-heading-1",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            row: 0,
                         },
                         children: [
                             {
@@ -216,9 +630,12 @@ A            | B
                         ],
                     },
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-heading md-heading-2",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            row: 1,
                         },
                         children: [
                             {
@@ -231,9 +648,13 @@ A            | B
                         ],
                     },
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 2,
                         },
                         children: [
                             {
@@ -251,6 +672,7 @@ A            | B
                             class: "md-grid",
                             rows: "auto",
                             columns: "*,*",
+                            row: 3,
                         },
                         children: [
                             {
@@ -260,13 +682,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "LEFT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -290,13 +705,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "RIGHT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -330,9 +738,67 @@ A            | B
 `);
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "GridLayout",
+                            props: {
+                                class: "md-grid",
+                                rows: "auto",
+                                columns: "*,*",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 0,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "A",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "A",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 1,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "B",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "B",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
@@ -341,6 +807,7 @@ A            | B
                             class: "md-grid",
                             rows: "auto",
                             columns: "*,*",
+                            row: 0,
                         },
                         children: [
                             {
@@ -350,13 +817,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "LEFT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -380,13 +840,6 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    /*{
-                                        type: "Label",
-                                        props: {
-                                            text: "RIGHT",
-                                            textWrap: true,
-                                        },
-                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -421,9 +874,130 @@ A            | B
 `);
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "GridLayout",
+                            props: {
+                                class: "md-grid",
+                                rows: "auto",
+                                columns: "*,*",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 0,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "GridLayout",
+                                            props: {
+                                                class: "md-grid",
+                                                rows: "auto,auto,auto",
+                                                columns: "auto,*",
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 0,
+                                                        col: 0,
+                                                        text: "1.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 1,
+                                                        col: 0,
+                                                        text: "2.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 2,
+                                                        col: 0,
+                                                        text: "3.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 0,
+                                                        col: 1,
+                                                        text: "Flour",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 1,
+                                                        col: 1,
+                                                        text: "Water",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 2,
+                                                        col: 1,
+                                                        text: "Salt",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 1,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "500g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "220g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "1/4 tsp",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
@@ -432,6 +1006,7 @@ A            | B
                             class: "md-grid",
                             rows: "auto",
                             columns: "*,*",
+                            row: 0,
                         },
                         children: [
                             {
@@ -561,9 +1136,130 @@ A            | B
 `);
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "GridLayout",
+                            props: {
+                                class: "md-grid",
+                                rows: "auto",
+                                columns: "*,*",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 0,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "GridLayout",
+                                            props: {
+                                                class: "md-grid",
+                                                rows: "auto,auto,auto",
+                                                columns: "auto,*",
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 0,
+                                                        col: 0,
+                                                        text: "1.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 1,
+                                                        col: 0,
+                                                        text: "2.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 2,
+                                                        col: 0,
+                                                        text: "3.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 0,
+                                                        col: 1,
+                                                        text: "Flour",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 1,
+                                                        col: 1,
+                                                        text: "Water",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 2,
+                                                        col: 1,
+                                                        text: "Salt",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 1,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "500g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "220g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "1/4 tsp",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
@@ -572,6 +1268,7 @@ A            | B
                             class: "md-grid",
                             rows: "auto",
                             columns: "*,*",
+                            row: 0,
                         },
                         children: [
                             {
@@ -708,15 +1405,214 @@ Tables don't need to line up exactly in this editor, though that makes things ea
 `);
 
             expect(actual).toEqual({
-                type: "StackLayout",
+                type: "MarkdownRoot",
                 props: {
-                    class: "md-tree",
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-heading md-heading-1",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Heading",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-heading md-heading-2",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                row: 1,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Another header",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 2,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "Paragraph of text, hello there how are you doing I hope this finds you well.",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                        {
+                            type: "GridLayout",
+                            props: {
+                                class: "md-grid",
+                                rows: "auto",
+                                columns: "*,*",
+                                row: 3,
+                            },
+                            children: [
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 0,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "GridLayout",
+                                            props: {
+                                                class: "md-grid",
+                                                rows: "auto,auto,auto",
+                                                columns: "auto,*",
+                                            },
+                                            children: [
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 0,
+                                                        col: 0,
+                                                        text: "1.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 1,
+                                                        col: 0,
+                                                        text: "2.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-key",
+                                                        row: 2,
+                                                        col: 0,
+                                                        text: "3.",
+                                                        textWrap: false,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 0,
+                                                        col: 1,
+                                                        text: "Flour",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 1,
+                                                        col: 1,
+                                                        text: "Water",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                                {
+                                                    type: "Label",
+                                                    props: {
+                                                        class: "md-seq-value",
+                                                        row: 2,
+                                                        col: 1,
+                                                        text: "Salt",
+                                                        textWrap: true,
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "StackLayout",
+                                    props: {
+                                        col: 1,
+                                        class: "md-column",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "500g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "220g",
+                                                textWrap: true,
+                                            },
+                                        },
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "1/4 tsp",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-paragraph",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                images: 0,
+                                row: 4,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text:
+                                            "Tables don't need to line up exactly in this editor, though that makes things easier to read.",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
                 },
                 children: [
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-heading md-heading-1",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            row: 0,
                         },
                         children: [
                             {
@@ -729,9 +1625,12 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                         ],
                     },
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-heading md-heading-2",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            row: 1,
                         },
                         children: [
                             {
@@ -744,9 +1643,13 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                         ],
                     },
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 2,
                         },
                         children: [
                             {
@@ -764,6 +1667,7 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                             class: "md-grid",
                             rows: "auto",
                             columns: "*,*",
+                            row: 3,
                         },
                         children: [
                             {
@@ -878,9 +1782,13 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                         ],
                     },
                     {
-                        type: "StackLayout",
+                        type: "FlexboxLayout",
                         props: {
                             class: "md-paragraph",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            images: 0,
+                            row: 4,
                         },
                         children: [
                             {

@@ -8,7 +8,7 @@ export interface SimpleScreen {
 
 export interface Header {
     title: string;
-    subtitle: string;
+    subtitle: string | null;
 }
 
 export interface Screen {

@@ -95,7 +95,11 @@ function createSequences(children: MdNode[]): MdNode[] {
     return children;
 }
 
-function createContext(): Context {
+interface CustomContext extends Context {
+    images: number;
+}
+
+function createContext(): CustomContext {
     function basic(node, parent, context) {
         return (node.children || []).map((child) => {
             return context.handle(child, node, context);
@@ -133,6 +137,20 @@ function createContext(): Context {
 
             return { type: "GridLayout", props: { class: "md-grid", rows: "auto", columns: "*,*" }, children: wrapped };
         },
+        image: (node, parent, context: CustomContext): MdNode => {
+            context.images++;
+            const sizing = node.url.split(":");
+            const indices = sizing[0].split(",").map((s) => Number(s));
+            return {
+                type: "MarkdownImage",
+                props: {
+                    indices: indices,
+                    alternate: node.alt,
+                    sizing: sizing.length == 2 ? sizing[1] : "*",
+                },
+                children: [],
+            };
+        },
         listItem: (node, parent, context): MdNode => {
             const children = basic(node, parent, context);
             return { type: "StackLayout", props: { class: "md-list-item" }, children: children };
@@ -149,10 +167,17 @@ function createContext(): Context {
             return { type: "MarkdownLink", props: { target: node.url }, children: children };
         },
         paragraph: (node, parent, context): MdNode => {
+            const imagesBefore = context.images;
             const children = basic(node, parent, context);
+
             return {
                 type: "FlexboxLayout",
-                props: { class: "md-paragraph", justifyContent: "center", flexWrap: "wrap" },
+                props: {
+                    class: "md-paragraph",
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                    images: context.images - imagesBefore,
+                },
                 children: children,
             };
         },
@@ -166,10 +191,11 @@ function createContext(): Context {
         },
     };
 
-    const context: Context = {
+    const context: CustomContext = {
         handlers: handlers,
         stack: [],
         enter: enter,
+        images: 0,
         handle: zwitch("type", {
             unknown: basic,
             handlers: handlers,
@@ -188,20 +214,46 @@ function createContext(): Context {
     return context;
 }
 
-function compiler(this: any, options) {
-    this.Compiler = (tree, file) => {
-        const context = createContext();
-        return context.handle(tree, null, context);
+function compiler(hasImages: boolean) {
+    return function (this: any) {
+        this.Compiler = (tree, file) => {
+            const context = createContext();
+            const finished = context.handle(tree, null, context) as unknown;
+            // Backwards compatibility.
+            if (context.images == 0 && hasImages) {
+                (finished as MdNode[]).push({
+                    type: "MarkdownImage",
+                    props: {
+                        indices: [],
+                        alternate: "Images",
+                        images: 1,
+                        sizing: "*",
+                    },
+                });
+            }
+            return finished;
+        };
     };
 }
 
-export async function transform(text: string): Promise<MdNode> {
+export async function transform(text: string, hasImages = false): Promise<MdNode> {
     // This is unavailable when we're running under NativeScript.
     global.process.cwd = function () {
         return "/";
     };
 
     const processor = unified().use(markdown).use(gfm);
-    const done = await processor.use(compiler).process(text);
-    return { type: "StackLayout", props: { class: "md-tree" }, children: done.result as MdNode[] };
+    const done = await processor.use(compiler(hasImages)).process(text);
+    const children = done.result as MdNode[];
+    const withRows = children.map((node, i) => {
+        _.extend(node.props, { row: i });
+        return node;
+    });
+    return {
+        type: "MarkdownRoot",
+        props: {
+            parsed: withRows,
+        },
+        children: withRows,
+    };
 }

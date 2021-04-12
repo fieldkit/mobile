@@ -1,11 +1,12 @@
 <template>
-    <MarkdownNode v-if="tree" :node="tree" />
+    <MarkdownNode v-if="tree" :node="tree" :screen="screen" :frame="frame" />
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import MarkdownNode from "./MarkdownNode.vue";
 import { transform, MdNode } from "./parsing";
+import { SimpleScreen } from "./model";
 
 export default Vue.extend({
     name: "Markdown",
@@ -17,6 +18,14 @@ export default Vue.extend({
             type: String,
             required: true,
         },
+        screen: {
+            type: Object as PropType<SimpleScreen>,
+            required: false,
+        },
+        frame: {
+            type: Number,
+            required: true,
+        },
     },
     data(): {
         tree: MdNode | null;
@@ -26,7 +35,9 @@ export default Vue.extend({
         };
     },
     async mounted(): Promise<void> {
-        this.tree = await transform(this.text);
+        // eslint-disable-next-line
+        const hasImages = this.screen.images.length > 0;
+        this.tree = await transform(this.text, hasImages);
     },
 });
 </script>
