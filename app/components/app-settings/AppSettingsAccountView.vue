@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.account.accounts')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
+        <GridLayout rows="*,auto" class="container">
             <ScrollView row="0" class="">
                 <StackLayout>
                     <StackLayout v-for="account in accounts" :key="account.email" class="account-container">
@@ -213,5 +213,10 @@ export default Vue.extend({
 
 .account-email {
     font-size: 18;
+}
+
+.container {
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
 }
 </style>

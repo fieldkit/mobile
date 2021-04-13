@@ -1,5 +1,5 @@
 <template>
-    <Page @navigatingFrom="onNavigatingFrom" :actionBarHidden="title == null">
+    <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*,auto">

@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.help.help')" :canNavigateSettings="false" />
-        <ScrollView class="m-r-20 m-l-20">
+        <ScrollView>
             <StackLayout>
                 <SettingsItemText :link="'helpAppVersion'" :text="'appSettings.help.appVersion'" :cssClass="'top-bordered-item'" />
                 <SettingsItemSlider
