@@ -9,10 +9,11 @@
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
                         <Label
                             :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber"
-                            class="size-15 m-x-15 m-b-20"
+                            class="size-15 m-x-15 m-b-5"
                             textWrap="true"
                             v-if="stationFirmware"
                         />
+                        <Label :text="stationFirmware.version" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="stationFirmware" />
                         <Label
                             :text="_L('firmwareNumber') + ': --'"
                             class="size-15 m-x-15 m-b-20"
