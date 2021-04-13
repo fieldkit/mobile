@@ -40,4 +40,12 @@ export class Route {
 export interface FirstTab {
     index: number;
     route: FullRoute | null;
+    flow?: {
+        flow: {
+            name: string;
+            index: number;
+        };
+        skipped: FullRoute;
+        finished: FullRoute;
+    };
 }

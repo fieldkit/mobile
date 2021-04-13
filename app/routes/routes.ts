@@ -161,24 +161,24 @@ export const fullRoutes = {
         assemble: new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,
-                route: new FullRoute("reader/flow", Frames.Stations, {
+                flow: {
                     flow: {
                         name: "onboarding",
                         index: 0,
                     },
-                    finished: new FullRoute("tabbed", "outer-frame", {
+                    finished: new FullRoute("tabbed", Frames.Outer, {
                         firstTab: {
                             index: 0,
                             route: new FullRoute("onboarding/assembled", Frames.Stations, {}, { backstackVisible: false }),
                         },
                     }),
-                    skipped: new FullRoute("tabbed", "outer-frame", {
+                    skipped: new FullRoute("tabbed", Frames.Outer, {
                         firstTab: {
                             index: 0,
                             route: new FullRoute("onboarding/start", Frames.Stations, {}),
                         },
                     }),
-                }),
+                },
             },
         }),
         start: new FullRoute("tabbed", Frames.Outer, {

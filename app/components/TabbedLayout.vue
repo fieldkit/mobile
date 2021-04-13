@@ -61,6 +61,7 @@ import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
 import { getBus } from "@/components/NavigationBus";
+import FlowView from "@/reader/FlowView.vue";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -95,7 +96,9 @@ export default Vue.extend({
 
         getBus().$on("nav:tab", (tab: number) => {
             console.log("nav:tab", tab);
-            this.tab = tab;
+            if (this.tab != tab) {
+                this.tab = tab;
+            }
         });
     },
     mounted(): void {
@@ -123,8 +126,10 @@ export default Vue.extend({
         onSelectedIndexChanged(args: any): void {
             /* eslint-disable */
             const view = <BottomNavigation>args.object;
-            this.tab = view.selectedIndex;
-            console.log("tabbed-layout: tab-changed", this.tab, this.ready);
+            if (this.tab != view.selectedIndex) {
+                this.tab = view.selectedIndex;
+                console.log("tabbed-layout: tab-changed", this.tab, this.ready);
+            }
         },
         async updateSelected(): Promise<void> {
             /* eslint-disable */
@@ -133,24 +138,28 @@ export default Vue.extend({
             const firstTab: FirstTab = this.firstTab;
 
             if (firstTab) {
-                this.tab = this.firstTab.index;
+                if (this.tab != this.firstTab.index) {
+                    this.tab = this.firstTab.index;
+                }
 
-                if (!firstTab.route) {
-                    console.log(`tabbed-layout: update-selected: no tab`);
+                if (firstTab.flow) {
+                    await this.$navigateTo(FlowView, {
+                        clearHistory: true,
+                        frame: "stations-frame",
+                        props: firstTab.flow,
+                        animated: false,
+                    });
+                } else if (firstTab.route) {
+                    console.log(`tabbed-layout: update-selected: have ${JSON.stringify(firstTab.route)}`);
+                    await this.$navigateTo(firstTab.route, {});
+                } else {
+                    console.log(`tabbed-layout: update-selected: default tab`);
                     await this.$navigateTo(StationListView, {
                         clearHistory: true,
                         frame: "stations-frame",
                         animated: false,
-                        transition: {
-                            name: "fade",
-                            duration: 300,
-                        },
                     });
-                } else {
-                    await this.$navigateTo(firstTab.route, {});
                 }
-            } else {
-                console.log(`tabbed-layout: update-selected: no first tab`);
             }
         },
         isSameView(frameId: string, page: any): boolean {
@@ -209,9 +218,11 @@ export default Vue.extend({
                 console.log("tabbed-layout: bottom-loaded (skip)", this.tab);
             } else {
                 console.log("tabbed-layout: bottom-loaded", this.tab);
-                // eslint-disable-next-line
-                this.updateSelected();
-                this.ready = true;
+                this.$nextTick(() => {
+                    // eslint-disable-next-line
+                    this.updateSelected();
+                    this.ready = true;
+                });
             }
         },
     },
