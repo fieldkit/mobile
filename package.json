@@ -1,7 +1,9 @@
 {
-    "description": "FieldKit",
-    "license": "SEE LICENSE IN <your-license-filename>",
-    "repository": "<fill-your-repository-here>",
+    "name": "fieldkit-mobile",
+    "version": "2.1.0",
+    "description": "FieldKit Mobile App",
+    "license": "BSD-3-Clause License (See LICENSE)",
+    "repository": "https://github.com/fieldkit/mobile",
     "dependencies": {
         "@nativescript/camera": "^5.0.8",
         "@nativescript/core": "^7.3.0",
@@ -112,8 +114,6 @@
         "webpack-dev-server": "^3.11.2",
         "yup": "^0.31.1"
     },
-    "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
-    "readme": "NativeScript Application",
     "scripts": {
         "test": "jest",
         "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",

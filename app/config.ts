@@ -117,6 +117,7 @@ function getConfig(): FinalConfig {
 }
 
 export const Build = {
+    version: FK_VERSION || "Unknown Version",
     buildJob: FK_BUILD_JOB || "",
     buildTime: FK_BUILD_TIMESTAMP || "",
     buildNumber: FK_BUILD_NUMBER || "",

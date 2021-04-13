@@ -24,6 +24,7 @@ declare global {
 
     const TNS_ENV: string;
 
+    const FK_VERSION: string;
     const FK_BUILD_TIMESTAMP: string;
     const FK_BUILD_NUMBER: string;
     const FK_BUILD_TAG: string;

@@ -16,11 +16,6 @@ const { NativeScriptWorkerPlugin } = require("nativescript-worker-loader/NativeS
 
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
-const gitHash = require("child_process").execSync("git rev-parse HEAD").toString().trim();
-const gitBranch = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-
-console.log("git:", gitHash, gitBranch);
-
 const hashSalt = Date.now().toString();
 
 const smp = new SpeedMeasurePlugin();
@@ -28,6 +23,25 @@ const smp = new SpeedMeasurePlugin();
 const haveSqliteCommercial = () => {
     return fs.existsSync("node_modules/nativescript-sqlite-commercial");
 };
+
+const gitHash = require("child_process").execSync("git log -1 --format=%h").toString().trim();
+const gitBranchParsed = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+const gitBranch = process.env.GIT_LOCAL_BRANCH || gitBranchParsed;
+
+console.log("git:", gitHash, gitBranch);
+
+const packageJson = require("./package.json");
+
+function buildVersion() {
+    const prel = process.env.BUILD_NUMBER || 0;
+    return `${packageJson.version}-${gitBranch}.${prel}-${gitHash}`;
+}
+
+const version = buildVersion();
+
+fs.writeFileSync("version.txt", version);
+
+console.log("version:", version);
 
 module.exports = (env) => {
     // Add your custom Activities, Services and other android app components here.
@@ -318,6 +332,7 @@ module.exports = (env) => {
                 "global.isIOS": platform === "ios",
                 TNS_ENV: JSON.stringify(mode),
                 process: "global.process",
+                FK_VERSION: JSON.stringify(version),
                 FK_BUILD_TIMESTAMP: JSON.stringify(process.env.BUILD_TIMESTAMP),
                 FK_BUILD_NUMBER: JSON.stringify(process.env.BUILD_NUMBER),
                 FK_BUILD_TAG: JSON.stringify(process.env.BUILD_TAG),

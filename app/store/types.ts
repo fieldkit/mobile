@@ -274,7 +274,6 @@ export interface StationCreationFields {
 export class FirmwareInfo {
     constructor(
         public readonly version: string,
-        public readonly build: string,
         public readonly simpleNumber: number,
         public readonly time: number,
         public readonly hash: string
@@ -399,7 +398,7 @@ export class Station implements StationCreationFields {
                 console.log(`${this.id || "<null>"} ${this.name} malformed status reply, no firmware`, statusReply);
                 return null;
             }
-            return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
+            return new FirmwareInfo(fw.version, Number(fw.number), fw.timestamp, fw.hash);
         } catch (error: unknown) {
             console.log(`no firmwareInfo`, error);
             return null;

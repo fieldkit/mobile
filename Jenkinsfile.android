@@ -5,12 +5,13 @@ conservifyProperties([ disableConcurrentBuilds() ])
 timestamps {
     node ("jenkins-aws-ubuntu") {
         try {
+			def scm
+
             stage ('git') {
-                checkout scm
+                scm = checkout scm
             }
 
 			stage ("android-sdk") {
-				//sh "rm -rf android-sdk"
 				sh "rm -f android-sdk-setup.sh*"
 				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
 				sh "bash android-sdk-setup.sh"
@@ -31,7 +32,11 @@ timestamps {
 
             stage ('build') {
                 def props = readProperties(file: "private/gradle.properties")
-                sh """
+
+				def (remote, branch) = scm.GIT_BRANCH.tokenize('/')
+
+				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
+					sh """
 export PATH=$PATH:node_modules/.bin
 export ANDROID_HOME=`pwd`/android-sdk
 export LANG=en_US.UTF-8
@@ -46,6 +51,7 @@ env
 make clean-secrets
 make android-release
 """
+				}
             }
 
             stage ('archive') {

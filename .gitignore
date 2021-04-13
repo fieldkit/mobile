@@ -57,3 +57,5 @@ commercial-sqlite-2.4.0.zip
 ./sqlite.d.ts
 
 app/tests/replay-cases
+
+version.txt

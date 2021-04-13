@@ -5,12 +5,18 @@ conservifyProperties([ disableConcurrentBuilds() ])
 timestamps {
     node ("jenkins-aws-ubuntu") {
         try {
+			def scm
+
             stage ('git') {
-                checkout scm
+                scm = checkout scm
             }
 
             stage ('build') {
-                sh "PATH=$PATH:node_modules/.bin make jenkins"
+				def (remote, branch) = scm.GIT_BRANCH.tokenize('/')
+
+				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
+					sh "PATH=$PATH:node_modules/.bin make jenkins"
+				}
             }
 
             notifySuccess()

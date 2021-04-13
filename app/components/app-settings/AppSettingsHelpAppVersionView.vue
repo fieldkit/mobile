@@ -3,21 +3,16 @@
         <PlatformHeader :title="_L('appSettings.help.appVersion')" :canNavigateSettings="false" />
         <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
-                <StackLayout class="top-bordered-item bottom-bordered-item">
+                <StackLayout class="top-bordered-item bottom-bordered-item" @tap="openGit">
                     <Label :text="_L('appSettings.help.version')" class="size-16 m-2 m-t-15" />
                     <StackLayout orientation="horizontal">
-                        <Label :text="storeVersion" class="size-12 m-2 m-t-0" />
-                        <Label :text="versions.buildTag" class="size-12 m-2 m-t-0" />
-                    </StackLayout>
-                    <Label :text="_L('appSettings.help.gitHash')" class="size-16 m-2 m-t-15" @tap="openGit" />
-                    <StackLayout orientation="horizontal" @tap="openGit">
-                        <Label :text="versions.gitHash.substring(0, 8)" class="size-12 m-2 m-t-0 hash-prefix" />
-                        <Label :text="versions.gitHash.substring(8)" class="size-12 m-2 m-t-0 hash-suffix" />
+                        <Label :text="versions.version" class="size-12 m-2 m-t-0 field-value" />
                     </StackLayout>
                     <Label :text="_L('appSettings.help.updatesTitle')" class="size-16 m-2 m-t-30" />
                     <Label :text="_L('appSettings.help.updatesDescription')" class="size-12 m-2 m-t-0 m-b-15" textWrap="true" />
                 </StackLayout>
                 <SettingsItemSlider
+                    v-if="false"
                     :title="'appSettings.help.downloadUpdatesTitle'"
                     :description="'appSettings.help.downloadUpdatesDescription'"
                     v-model="currentSettings.help.downloadUpdates"
@@ -62,7 +57,8 @@ export default Vue.extend({
         const versionName = await appVersion.getVersionName();
         const versionCode = await appVersion.getVersionCode();
         const appId = await appVersion.getAppId();
-        console.log(`versions: ${versionName} ${versionCode} ${appId} ${JSON.stringify(Build)}`);
+        console.log(`versions: ${versionName} ${versionCode} ${appId}`);
+        console.log(`versions: ${JSON.stringify(Build)}`);
         this.storeVersion = versionName;
     },
     methods: {
@@ -97,10 +93,7 @@ export default Vue.extend({
     border-top-width: 1;
 }
 
-.hash-prefix {
+.field-value {
     font-weight: bold;
-}
-.hash-suffix {
-    color: #a0a0a0;
 }
 </style>

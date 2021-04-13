@@ -11,6 +11,7 @@ import Vuex from "vuex";
 protobuf.configure();
 
 const windowAny = window as any;
+windowAny.FK_VERSION = "";
 windowAny.FK_BUILD_TIMESTAMP = "";
 windowAny.FK_BUILD_NUMBER = "";
 windowAny.FK_BUILD_TAG = "";

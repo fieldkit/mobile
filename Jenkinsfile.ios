@@ -5,8 +5,10 @@ conservifyProperties([ disableConcurrentBuilds() ])
 timestamps {
     node ("osx") {
         try {
+			def scm
+
             stage ('git') {
-                checkout scm
+                scm = checkout scm
             }
 
             stage ("configuration") {
@@ -20,8 +22,11 @@ timestamps {
             }
 
             stage ('build') {
-                withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {
-                  sh """
+				def (remote, branch) = scm.GIT_BRANCH.tokenize('/')
+
+				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
+					withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {
+						sh """
 export PATH=$PATH:$HOME/tools/node/bin:node_modules/.bin
 set +x
 export APP_IOS_KEYCHAIN_PASSWORD=${APP_IOS_KEYCHAIN_PASSWORD}
@@ -32,7 +37,8 @@ env
 make clean-secrets
 make ios-release
 """
-              }
+				}
+				}
             }
 
             stage ('archive') {
