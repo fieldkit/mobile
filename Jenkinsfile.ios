@@ -5,10 +5,10 @@ conservifyProperties([ disableConcurrentBuilds() ])
 timestamps {
     node ("osx") {
         try {
-			def scm
+			def scmInfo
 
             stage ('git') {
-                scm = checkout scm
+                scmInfo = checkout scm
             }
 
             stage ("configuration") {
@@ -21,8 +21,8 @@ timestamps {
 				}
             }
 
-            stage ('build') {
-				def (remote, branch) = scm.GIT_BRANCH.tokenize('/')
+			stage ('build') {
+				def (remote, branch) = scmInfo.GIT_BRANCH.tokenize('/')
 
 				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
 					withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {
@@ -37,9 +37,9 @@ env
 make clean-secrets
 make ios-release
 """
+					}
 				}
-				}
-            }
+			}
 
             stage ('archive') {
                 archiveArtifacts artifacts: 'platforms/ios/build/Debug-iphoneos/*.ipa, platforms/ios/build/Release-iphoneos/*.ipa'

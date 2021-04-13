@@ -9,9 +9,13 @@ properties([
 timestamps {
     node ("jenkins-aws-ubuntu") {
         try {
+			def scmInfo
+
             stage ('git') {
-                checkout scm
+                scmInfo = checkout scm
             }
+
+			def (remote, branch) = scmInfo.GIT_BRANCH.tokenize('/')
 
             stage ('npm') {
 				sh "rm -rf node_modules/*/.git node_modules/fk-*-protocol"
@@ -28,11 +32,15 @@ timestamps {
             }
 
             stage ('webpack:ios') {
-				sh "make ios-webpack"
+				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
+					sh "make ios-webpack"
+				}
             }
 
             stage ('webpack:android') {
-				sh "make android-webpack"
+				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
+					sh "make android-webpack"
+				}
             }
 
             notifySuccess()
