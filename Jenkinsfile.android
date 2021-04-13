@@ -55,6 +55,10 @@ make android-release
             }
 
             stage ('archive') {
+				def version = readFile('version.txt')
+
+				currentBuild.description = version
+
                 archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/release/*.apk, platforms/android/app/build/outputs/bundle/release/*.aab'
             }
 
