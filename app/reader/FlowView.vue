@@ -237,6 +237,17 @@ export default FlowView;
     // background-color: orange;
 }
 
+.ns-ios .guide {
+    padding-top: 20;
+    padding-bottom: 20;
+}
+
+.ns-ios .skip {
+    // background-color: orange;
+    padding-top: 20;
+    padding-bottom: 20;
+}
+
 .center-container {
     padding: 0;
     margin: 0;
