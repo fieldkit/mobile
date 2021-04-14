@@ -44,7 +44,7 @@ make ios-release
             stage ('archive') {
 				def version = readFile('version.txt')
 
-				currentBuild.description = version
+				currentBuild.description = version.trim()
 
                 archiveArtifacts artifacts: 'platforms/ios/build/Debug-iphoneos/*.ipa, platforms/ios/build/Release-iphoneos/*.ipa'
             }
