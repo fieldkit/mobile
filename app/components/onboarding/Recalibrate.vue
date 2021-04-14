@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true">
-        <GridLayout rows="auto,*,auto">
+        <GridLayout rows="auto,*">
             <GridLayout row="0" rows="auto,auto">
                 <StackLayout row="0" verticalAlignment="middle">
                     <ConnectionStatusHeader :connected="station.connected" />
@@ -19,35 +19,31 @@
                     <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
                 </GridLayout>
             </GridLayout>
+            <SkipLayout
+                row="1"
+                :buttonLabel="_L('done')"
+                :buttonEnabled="done"
+                @button="goToStations"
+                :skipLabel="done ? _L('goToStations') : _L('setupLater')"
+                @skip="goToStations"
+                :scrolling="true"
+            >
+                <StackLayout v-if="station.modules.length > 0">
+                    <GridLayout rows="*" columns="*">
+                        <StackLayout row="0" verticalAlignment="middle">
+                            <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
+                            <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
 
-            <ScrollView row="1" v-if="station.modules.length > 0">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
-                        <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
+                            <CalibratingModules :station="station" @selected="calibrateModule" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
 
-                        <CalibratingModules :station="station" @selected="calibrateModule" />
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
-
-            <StackLayout row="1" v-else>
-                <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" />
-                <Label :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
-            </StackLayout>
-
-            <StackLayout row="2" verticalAlignment="bottom" v-if="station.modules.length > 0">
-                <Button class="btn btn-primary" :text="_L('done')" :isEnabled="done" @tap="goToStations" />
-                <Label :text="done ? _L('goToStations') : _L('setupLater')" class="skip" @tap="goToStations" textWrap="true" />
-            </StackLayout>
-
-            <StackLayout row="0" rowSpan="3" v-if="loading" height="100%" backgroundColor="white" verticalAlignment="middle">
-                <GridLayout rows="auto, auto" columns="*">
-                    <StackLayout row="0" id="loading-circle-blue"></StackLayout>
-                    <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4" textWrap="true" />
-                </GridLayout>
-            </StackLayout>
+                <StackLayout v-else>
+                    <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" />
+                    <Label :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
+                </StackLayout>
+            </SkipLayout>
         </GridLayout>
     </Page>
 </template>
@@ -76,10 +72,8 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): { loading: boolean } {
-        return {
-            loading: false,
-        };
+    data(): {} {
+        return {};
     },
     computed: {
         station(): StationCalibration {
@@ -121,25 +115,6 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-
-#loading-circle-blue,
-#loading-circle-white {
-    width: 75;
-    height: 75;
-    background: $fk-gray-white;
-    border-width: 2;
-    border-radius: 60%;
-}
-
-#loading-circle-white {
-    border-color: $fk-gray-white;
-    clip-path: circle(100% at 50% 0);
-}
-
-#loading-circle-blue {
-    border-color: $fk-secondary-blue;
-}
-
 .skip {
     padding-top: 10;
     padding-bottom: 10;
@@ -162,9 +137,5 @@ export default Vue.extend({
 .small {
     width: 50;
     margin: 20;
-}
-
-.btn-primary {
-    margin-bottom: 0;
 }
 </style>

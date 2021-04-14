@@ -1,40 +1,32 @@
 <template>
     <Page @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="_L('fieldkitWifi')" :onBack="back" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto" class="container">
-            <ScrollView row="0" v-show="step == 0">
-                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
-                    <StackLayout row="0">
-                        <Label class="instruction" :text="_L('introConnectStep1')" lineHeight="4" textWrap="true"></Label>
-                        <Label class="instruction" :text="_L('introConnectStep2')" lineHeight="4" textWrap="true"></Label>
 
-                        <GridLayout rows="*" columns="*">
-                            <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-A.jpg" v-if="frame % 2 == 0"></Image>
-                            <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-B.jpg" v-if="frame % 2 == 1"></Image>
-                        </GridLayout>
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+        <SkipLayout :buttonLabel="_L('continue')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrolling="true">
+            <GridLayout rows="auto" columns="*" verticalAlignment="middle" v-show="step == 0">
+                <StackLayout row="0">
+                    <Label class="instruction" :text="_L('introConnectStep1')" lineHeight="4" textWrap="true"></Label>
+                    <Label class="instruction" :text="_L('introConnectStep2')" lineHeight="4" textWrap="true"></Label>
 
-            <ScrollView row="0" v-show="step == 1">
-                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
-                    <StackLayout row="0">
-                        <Label class="title text-center m-b-20" :text="_L('connectYourStation')" textWrap="true"></Label>
+                    <GridLayout rows="*" columns="*">
+                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-A.jpg" v-if="frame % 2 == 0"></Image>
+                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-B.jpg" v-if="frame % 2 == 1"></Image>
+                    </GridLayout>
+                </StackLayout>
+            </GridLayout>
 
-                        <Label class="instruction" :text="_L('connectStep1')" lineHeight="4" textWrap="true"></Label>
+            <GridLayout rows="auto" columns="*" verticalAlignment="middle" v-show="step == 1">
+                <StackLayout row="0">
+                    <Label class="title text-center m-b-20" :text="_L('connectYourStation')" textWrap="true"></Label>
 
-                        <GridLayout rows="*" columns="*">
-                            <Image width="75%" verticalAlignment="middle" src="~/images/TI_10-A.jpg"></Image>
-                        </GridLayout>
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+                    <Label class="instruction" :text="_L('connectStep1')" lineHeight="4" textWrap="true"></Label>
 
-            <StackLayout row="1" verticalAlignment="bottom">
-                <Button class="btn btn-primary btn-padded" :text="_L('continue')" @tap="forward" />
-                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
-            </StackLayout>
-        </GridLayout>
+                    <GridLayout rows="*" columns="*">
+                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_10-A.jpg"></Image>
+                    </GridLayout>
+                </StackLayout>
+            </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 
@@ -98,14 +90,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.skip {
-    width: 115;
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-}
 .instruction {
     color: $fk-primary-black;
     text-align: center;
@@ -129,8 +113,5 @@ export default Vue.extend({
 }
 .red-text {
     color: $fk-primary-red;
-}
-.btn-primary {
-    margin-bottom: 0;
 }
 </style>

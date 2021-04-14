@@ -1,26 +1,16 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView row="0">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout row="0">
-                        <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
 
-                        <Label class="instruction" :text="_L('reconnectInstruction')" lineHeight="4" textWrap="true"></Label>
+        <SkipLayout row="1" :buttonLabel="_L('done')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrolling="true">
+            <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
 
-                        <GridLayout rows="*" columns="*">
-                            <Image width="75%" verticalAlignment="middle" src="~/images/TI_10-A.jpg"></Image>
-                        </GridLayout>
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+            <Label class="instruction" :text="_L('reconnectInstruction')" lineHeight="4" textWrap="true"></Label>
 
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" @tap="forward"></Button>
-                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
-            </StackLayout>
-        </GridLayout>
+            <GridLayout rows="*" columns="*">
+                <Image width="75%" verticalAlignment="middle" src="~/images/TI_10-A.jpg"></Image>
+            </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 
@@ -62,15 +52,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    background-color: white;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    margin: 10;
-}
 .instruction {
     color: $fk-primary-black;
     text-align: center;
@@ -102,7 +83,6 @@ export default Vue.extend({
     width: 50;
     margin: 20;
 }
-
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;

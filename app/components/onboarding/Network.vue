@@ -1,55 +1,48 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('chooseWifiSettings')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView row="0">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <ConnectionStatusHeader :connected="currentStation.connected" />
-                        <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
-                        <StackLayout v-if="remote">
-                            <NetworkTypeItem
-                                :selected="selected === REMOTE_SELECTED"
-                                :remote="true"
-                                :recommended="true"
-                                @tapped="select(REMOTE_SELECTED)"
-                            ></NetworkTypeItem>
-                            <NetworkTypeItem
-                                :selected="selected === CONNECTED_SELECTED"
-                                :remote="false"
-                                :recommended="false"
-                                @tapped="select(CONNECTED_SELECTED)"
-                            ></NetworkTypeItem>
-                        </StackLayout>
 
-                        <StackLayout v-if="!remote">
-                            <NetworkTypeItem
-                                :selected="selected === CONNECTED_SELECTED"
-                                :remote="false"
-                                :recommended="true"
-                                @tapped="select(CONNECTED_SELECTED)"
-                            ></NetworkTypeItem>
+        <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                            <NetworkTypeItem
-                                :selected="selected === REMOTE_SELECTED"
-                                :remote="true"
-                                :recommended="false"
-                                @tapped="select(REMOTE_SELECTED)"
-                            ></NetworkTypeItem>
-                        </StackLayout>
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
-
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10 m-b-25">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="_L('next')"
-                    @tap="forward"
-                    :isEnabled="currentStation.connected && selected !== NO_SELECTION"
-                />
+        <SkipLayout
+            row="0"
+            :buttonLabel="_L('next')"
+            :buttonEnabled="currentStation.connected && selected !== NO_SELECTION"
+            @button="forward"
+            :scrolling="true"
+        >
+            <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
+            <StackLayout v-if="remote">
+                <NetworkTypeItem
+                    :selected="selected === REMOTE_SELECTED"
+                    :remote="true"
+                    :recommended="true"
+                    @tapped="select(REMOTE_SELECTED)"
+                ></NetworkTypeItem>
+                <NetworkTypeItem
+                    :selected="selected === CONNECTED_SELECTED"
+                    :remote="false"
+                    :recommended="false"
+                    @tapped="select(CONNECTED_SELECTED)"
+                ></NetworkTypeItem>
             </StackLayout>
-        </GridLayout>
+
+            <StackLayout v-if="!remote">
+                <NetworkTypeItem
+                    :selected="selected === CONNECTED_SELECTED"
+                    :remote="false"
+                    :recommended="true"
+                    @tapped="select(CONNECTED_SELECTED)"
+                ></NetworkTypeItem>
+
+                <NetworkTypeItem
+                    :selected="selected === REMOTE_SELECTED"
+                    :remote="true"
+                    :recommended="false"
+                    @tapped="select(REMOTE_SELECTED)"
+                ></NetworkTypeItem>
+            </StackLayout>
+        </SkipLayout>
     </Page>
 </template>
 

@@ -210,6 +210,16 @@ export const fullRoutes = {
                 route: new FullRoute("onboarding/start", Frames.Stations, {}),
             },
         }),
+        addModule: (stationId: number): FullRoute => {
+            return new FullRoute("tabbed", Frames.Outer, {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("onboarding/addModule", Frames.Stations, {
+                        stationId: stationId,
+                    }),
+                },
+            });
+        },
         recalibrate: (stationId: number): FullRoute =>
             new FullRoute("tabbed", Frames.Outer, {
                 firstTab: {

@@ -1,20 +1,13 @@
 <template>
     <Page class="page" actionBarHidden="true">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <StackLayout row="0">
-                <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
-                    <GridLayout rows="auto, auto" columns="*">
-                        <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
-                        <Label row="1" class="instruction" :text="_L('completeSettings')" lineHeight="4" textWrap="true"></Label>
-                    </GridLayout>
-                </StackLayout>
-            </StackLayout>
 
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10 m-b-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" @tap="forward"></Button>
-            </StackLayout>
-        </GridLayout>
+        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="true" @button="forward" :scrolling="true">
+            <GridLayout rows="auto,auto" columns="*">
+                <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
+                <Label row="1" class="instruction" :text="_L('completeSettings')" lineHeight="4" textWrap="true"></Label>
+            </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 

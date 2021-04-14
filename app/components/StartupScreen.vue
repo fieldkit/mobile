@@ -40,6 +40,18 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
+            if (true) {
+                await this.$navigateTo(fullRoutes.onboarding.start);
+
+                return;
+            }
+
+            if (false) {
+                await this.$navigateTo(fullRoutes.onboarding.addModule(1));
+
+                return;
+            }
+
             if (false) {
                 await this.$navigateTo(fullRoutes.stations, {
                     clearHistory: true,
@@ -66,7 +78,7 @@ export default Vue.extend({
                 }
             }
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(
                     fullRoutes.flow({
                         flow: {

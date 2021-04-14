@@ -8,7 +8,7 @@
             :onCancel="onNavCancel"
             :canNavigateSettings="false"
         />
-        <GridLayout rows="auto,*,auto">
+        <GridLayout rows="auto,*">
             <StackLayout row="0" v-if="!linkedFromStation">
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
@@ -16,7 +16,7 @@
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <ScrollView row="1" :rowSpan="linkedFromStation ? 2 : 1">
+            <SkipLayout row="1" :buttonLabel="_L('continue')" :buttonEnabled="notes.valid" @button="goToReview">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="m-x-20">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
@@ -70,17 +70,7 @@
                         </StackLayout>
                     </StackLayout>
                 </FlexboxLayout>
-            </ScrollView>
-
-            <StackLayout row="2" v-if="!linkedFromStation">
-                <Button
-                    class="btn btn-primary btn-padded m-b-10"
-                    :text="_L('continue')"
-                    automationText="nextButton"
-                    :isEnabled="notes.valid"
-                    @tap="goToReview"
-                />
-            </StackLayout>
+            </SkipLayout>
         </GridLayout>
     </Page>
 </template>

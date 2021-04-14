@@ -7,7 +7,8 @@
             :onCancel="onNavCancel"
             :canNavigateSettings="false"
         />
-        <GridLayout rows="auto,*,auto">
+
+        <GridLayout rows="auto,*">
             <StackLayout row="0">
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout col="0" class="top-line"></StackLayout>
@@ -15,7 +16,7 @@
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <ScrollView row="1">
+            <SkipLayout row="1" :buttonLabel="_L('continue')" :buttonEnabled="currentStation.connected && valid()" @button="goToNext">
                 <FlexboxLayout flexDirection="column" justifyContent="flex-start">
                     <StackLayout>
                         <Mapbox
@@ -76,17 +77,7 @@
                         </StackLayout>
                     </GridLayout>
                 </FlexboxLayout>
-            </ScrollView>
-
-            <StackLayout row="2">
-                <Button
-                    class="btn btn-primary btn-padded m-b-10"
-                    :text="_L('continue')"
-                    :isEnabled="currentStation.connected && valid()"
-                    automationText="nextButton"
-                    @tap="goToNext"
-                ></Button>
-            </StackLayout>
+            </SkipLayout>
         </GridLayout>
     </Page>
 </template>

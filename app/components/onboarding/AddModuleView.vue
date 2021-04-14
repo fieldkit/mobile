@@ -1,11 +1,11 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <GridLayout rows="auto,*,80">
+    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <PlatformHeader :title="currentStation.name" :canNavigateSettings="false" />
+
+        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="goNext">
+            <ConnectionStatusHeader :connected="currentStation.connected" />
+
             <GridLayout row="0" rows="auto,auto" columns="*" class="">
-                <StackLayout row="0" verticalAlignment="middle">
-                    <ConnectionStatusHeader :connected="currentStation.connected" />
-                    <Label class="m-y-20 title text-center" :text="currentStation.name" textWrap="true"></Label>
-                </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
                     <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" />
                     <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
@@ -18,10 +18,7 @@
                     <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
                 </GridLayout>
             </StackLayout>
-            <StackLayout row="2" class="m-x-10">
-                <Button class="btn btn-primary btn-padded" :text="_L('next')" @tap="goNext"></Button>
-            </StackLayout>
-        </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 

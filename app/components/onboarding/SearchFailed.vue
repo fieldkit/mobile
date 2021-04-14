@@ -1,29 +1,23 @@
 <template>
-    <Page actionBarHidden="true">
-        <GridLayout rows="*,170">
-            <ScrollView row="0">
-                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <GridLayout rows="*" columns="*">
-                            <StackLayout row="0" verticalAlignment="middle">
-                                <Image width="60" class="m-b-20" src="~/images/Icon_Soft_error.png" />
-                                <Label class="title m-t-20 m-b-10 text-center" :text="_L('havingProblems')" textWrap="true"></Label>
+    <Page>
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-                                <Label class="instruction" :text="_L('problemStep1')" lineHeight="4" textWrap="true"></Label>
-                                <Label class="instruction" :text="_L('problemStep2')" lineHeight="4" textWrap="true"></Label>
-                                <Label class="instruction" :text="_L('problemStep3')" lineHeight="4" textWrap="true"></Label>
-                            </StackLayout>
-                        </GridLayout>
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+        <SkipLayout
+            :buttonLabel="_L('tryAgain')"
+            @button="forward"
+            :skipLabel="_L('skipStep')"
+            @skip="skip"
+            :helpLabel="_L('getHelp')"
+            @help="getHelp"
+            :scrolling="true"
+        >
+            <Image width="60" class="m-b-20" src="~/images/Icon_Soft_error.png" />
+            <Label class="title m-t-20 m-b-10 text-center" :text="_L('havingProblems')" textWrap="true"></Label>
 
-            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('tryAgain')" @tap="forward"></Button>
-                <Button class="btn btn-secondary" :text="_L('getHelp')" @tap="getHelp"></Button>
-                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
-            </StackLayout>
-        </GridLayout>
+            <Label class="instruction" :text="_L('problemStep1')" lineHeight="4" textWrap="true"></Label>
+            <Label class="instruction" :text="_L('problemStep2')" lineHeight="4" textWrap="true"></Label>
+            <Label class="instruction" :text="_L('problemStep3')" lineHeight="4" textWrap="true"></Label>
+        </SkipLayout>
     </Page>
 </template>
 

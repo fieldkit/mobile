@@ -2,37 +2,37 @@
     <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
-            <GridLayout rows="auto,*,auto">
+            <GridLayout rows="auto,*">
                 <FlowProgress row="0" :progress="progress" />
 
-                <template v-if="screen.simple.length >= 1">
-                    <ByOrientation row="1">
-                        <template v-slot:landscape>
-                            <ScrollView>
-                                <SimpleScreen
-                                    :screen="screen.simple[0]"
-                                    :frame="frame"
-                                    v-bind:key="nav.key"
-                                    class="simple-screen scrolling"
-                                />
-                            </ScrollView>
-                        </template>
-                        <template v-slot:portrait>
-                            <SimpleScreen :screen="screen.simple[0]" :frame="frame" v-bind:key="nav.key" class="simple-screen" />
-                        </template>
-                    </ByOrientation>
-                </template>
-
-                <StackLayout row="2">
-                    <Button
-                        class="btn btn-primary btn-padded"
-                        :text="screen.forward"
-                        :isEnabled="screen.navOptions.forward.allowed"
-                        @tap="onForward"
-                    />
-                    <Label v-if="screen.guide" :text="screen.guide.title" class="guide" textWrap="true" @tap="onGuide(screen.guide.url)" />
-                    <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
-                </StackLayout>
+                <SkipLayout
+                    :buttonLabel="screen.forward"
+                    :buttonEnabled="screen.navOptions.forward.allowed"
+                    :skipLabel="screen.skip"
+                    :helpLabel="screen.guide"
+                    @button="onForward"
+                    @help="onGuide(screen.guide.url)"
+                    @skip="onSkip"
+                    row="1"
+                >
+                    <template v-if="screen.simple.length >= 1">
+                        <ByOrientation row="1">
+                            <template v-slot:landscape>
+                                <ScrollView>
+                                    <SimpleScreen
+                                        :screen="screen.simple[0]"
+                                        :frame="frame"
+                                        v-bind:key="nav.key"
+                                        class="simple-screen scrolling"
+                                    />
+                                </ScrollView>
+                            </template>
+                            <template v-slot:portrait>
+                                <SimpleScreen :screen="screen.simple[0]" :frame="frame" v-bind:key="nav.key" class="simple-screen" />
+                            </template>
+                        </ByOrientation>
+                    </template>
+                </SkipLayout>
             </GridLayout>
         </StackLayout>
         <StackLayout v-else class="loading">
@@ -46,6 +46,7 @@ import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import ByOrientation from "./ByOrientation.vue";
+import SkipLayout from "@/components/SkipLayout.vue";
 import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
 import { _T, Timer } from "@/lib";
@@ -64,6 +65,7 @@ const FlowView = Vue.extend({
     components: {
         PlatformHeader,
         FlowProgress,
+        SkipLayout,
         ByOrientation,
         SimpleScreen,
     },
@@ -214,6 +216,7 @@ export default FlowView;
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+/*
 .skip {
     width: 115;
     padding-top: 10;
@@ -247,6 +250,7 @@ export default FlowView;
     padding-top: 20;
     padding-bottom: 20;
 }
+*/
 
 .center-container {
     padding: 0;

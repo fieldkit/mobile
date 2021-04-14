@@ -1,27 +1,22 @@
 <template>
     <Page class="page">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView :row="0">
-                <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
-                    <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-                    <StackLayout row="1" class="text-center m-b-30">
-                        <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
-                        <Label :text="ssid" textWrap="true" class="size-16" />
-                    </StackLayout>
+        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="addNetwork" :scrolling="true">
+            <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                    <StackLayout row="3" class="p-20">
-                        <Label :text="_L('networkPasswordHint')" />
-                        <LabeledTextField class="input" v-model="password" :secure="true" :canShow="true" />
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+            <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
+                <StackLayout row="1" class="text-center m-b-30">
+                    <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
+                    <Label :text="ssid" textWrap="true" class="size-16" />
+                </StackLayout>
 
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" :isEnabled="canAdd && !busy" @tap="addNetwork" />
-            </StackLayout>
-        </GridLayout>
+                <StackLayout row="3" class="p-20">
+                    <Label :text="_L('networkPasswordHint')" />
+                    <LabeledTextField class="input" v-model="password" :secure="true" :canShow="true" />
+                </StackLayout>
+            </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 

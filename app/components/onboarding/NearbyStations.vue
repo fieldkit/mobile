@@ -1,38 +1,30 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader title="Onboarding" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView row="0">
-                <StackLayout>
-                    <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true" />
 
-                    <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true" />
+        <SkipLayout :buttonLabel="_L('next')" @button="forward" :skipLabel="_L('noStationTryAgain')" @skip="tryAgain" :scrolling="true">
+            <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true" />
 
-                    <!-- Why is this here? -->
-                    <StackLayout class="m-t-10" />
+            <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true" />
 
-                    <GridLayout rows="auto" columns="30,*" class="option-container" v-for="station in nearbyStations" :key="station.id">
-                        <CheckBox
-                            col="0"
-                            :checked="station.selected"
-                            :isEnabled="!station.selected"
-                            fillColor="#2C3E50"
-                            onCheckColor="#2C3E50"
-                            onTintColor="#2C3E50"
-                            fontSize="18"
-                            boxType="circle"
-                            @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
-                        />
-                        <Label col="1" class="m-t-5 m-l-5" :text="station.name" />
-                    </GridLayout>
-                </StackLayout>
-            </ScrollView>
+            <!-- Why is this here? -->
+            <StackLayout class="m-t-10" />
 
-            <StackLayout row="1" verticalAlignment="bottom">
-                <Button class="btn btn-primary" :text="_L('next')" :isEnabled="true" @tap="forward" />
-                <Label :text="_L('noStationTryAgain')" class="skip" @tap="tryAgain" textWrap="true" />
-            </StackLayout>
-        </GridLayout>
+            <GridLayout rows="auto" columns="30,*" class="option-container" v-for="station in nearbyStations" :key="station.id">
+                <CheckBox
+                    col="0"
+                    :checked="station.selected"
+                    :isEnabled="!station.selected"
+                    fillColor="#2C3E50"
+                    onCheckColor="#2C3E50"
+                    onTintColor="#2C3E50"
+                    fontSize="18"
+                    boxType="circle"
+                    @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
+                />
+                <Label col="1" class="m-t-5 m-l-5" :text="station.name" />
+            </GridLayout>
+        </SkipLayout>
     </Page>
 </template>
 
@@ -142,14 +134,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    margin: 10;
-}
 .instruction {
     color: $fk-primary-black;
     text-align: center;
@@ -181,7 +165,6 @@ export default Vue.extend({
     width: 50;
     margin: 20;
 }
-
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
@@ -192,8 +175,5 @@ export default Vue.extend({
 }
 .red-text {
     color: $fk-primary-red;
-}
-.btn-primary {
-    margin-bottom: 0;
 }
 </style>

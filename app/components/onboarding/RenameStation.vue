@@ -1,61 +1,58 @@
 <template>
     <Page class="page" @loaded="onPageLoaded">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView row="0">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                        <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
+        <SkipLayout
+            :buttonLabel="_L('saveNewName')"
+            :buttonEnabled="currentStation.connected && !busy"
+            @button="rename"
+            :skipLabel="_L('skipStep')"
+            @skip="skip"
+            :scrolling="true"
+        >
+            <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                        <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
+            <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
-                        <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                            <TextField
-                                col="0"
-                                textWrap="true"
-                                class="size-16 no-border-input"
-                                :hint="_L('stationNameHint')"
-                                v-model="form.name"
-                                keyboardType="_L('stationNameHint')"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                @blur="validate"
-                            />
-                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-                        </GridLayout>
+            <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
-                        <Label
-                            class="validation-error"
-                            id="no-name"
-                            :text="_L('nameRequired')"
-                            textWrap="true"
-                            :visibility="form.v.required ? 'visible' : 'collapsed'"
-                        />
-                        <Label
-                            class="validation-error"
-                            id="name-too-long"
-                            :text="_L('nameOver40')"
-                            textWrap="true"
-                            :visibility="form.v.long ? 'visible' : 'collapsed'"
-                        />
-                        <Label
-                            class="validation-error"
-                            id="name-not-printable"
-                            :text="_L('nameNotPrintable')"
-                            textWrap="true"
-                            :visibility="form.v.characters ? 'visible' : 'collapsed'"
-                        />
-                    </StackLayout>
-                </GridLayout>
-            </ScrollView>
+            <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
+                <TextField
+                    col="0"
+                    textWrap="true"
+                    class="size-16 no-border-input"
+                    :hint="_L('stationNameHint')"
+                    v-model="form.name"
+                    keyboardType="_L('stationNameHint')"
+                    autocorrect="false"
+                    autocapitalizationType="none"
+                    @blur="validate"
+                />
+                <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
+            </GridLayout>
 
-            <StackLayout row="1" verticalAlignment="bottom">
-                <Button class="btn btn-primary" :text="_L('saveNewName')" @tap="rename" :isEnabled="currentStation.connected && !busy" />
-                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
-            </StackLayout>
-        </GridLayout>
+            <Label
+                class="validation-error"
+                id="no-name"
+                :text="_L('nameRequired')"
+                textWrap="true"
+                :visibility="form.v.required ? 'visible' : 'collapsed'"
+            />
+            <Label
+                class="validation-error"
+                id="name-too-long"
+                :text="_L('nameOver40')"
+                textWrap="true"
+                :visibility="form.v.long ? 'visible' : 'collapsed'"
+            />
+            <Label
+                class="validation-error"
+                id="name-not-printable"
+                :text="_L('nameNotPrintable')"
+                textWrap="true"
+                :visibility="form.v.characters ? 'visible' : 'collapsed'"
+            />
+        </SkipLayout>
     </Page>
 </template>
 <script lang="ts">

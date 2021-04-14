@@ -1,40 +1,34 @@
 <template>
     <Page class="page">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto">
-            <ScrollView row="0">
-                <StackLayout>
-                    <ConnectionStatusHeader :connected="currentStation.connected" />
-                    <Label class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold" :text="_L('dataSyncStationTitle')" textWrap="true"></Label>
-                    <Label class="m-20 text-center" :text="_L('dataSyncStationInfo')" lineHeight="4" textWrap="true"></Label>
-                    <SettingsItemSlider
-                        :title="'appSettings.data.autoSyncStationTitle'"
-                        :description="'appSettings.data.autoSyncStationDescription'"
-                        :cssClass="'top-bordered-item'"
-                        class="m-l-20 m-r-20 m-t-30"
-                        v-model="currentSettings.data.autoSyncStation"
-                        v-on:change="saveSettings"
-                    />
-                    <SettingsItemSlider
-                        :title="'appSettings.data.autoSyncPortalTitle'"
-                        :description="'appSettings.data.autoSyncPortalDescription'"
-                        class="m-l-20 m-r-20"
-                        v-model="currentSettings.data.autoSyncPortal"
-                        v-on:change="saveSettings"
-                    />
-                    <SettingsItemSlider
-                        :title="'appSettings.data.mobileDataUsageTitle'"
-                        :description="'appSettings.data.mobileDataUsageDescription'"
-                        class="m-l-20 m-r-20"
-                        v-model="currentSettings.data.mobileDataUsage"
-                        v-on:change="saveSettings"
-                    />
-                </StackLayout>
-            </ScrollView>
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-5 m-b-25">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" @tap="forward" :isEnabled="currentStation.connected" />
-            </StackLayout>
-        </GridLayout>
+        <SkipLayout row="0" :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="forward" :scrolling="true">
+            <ConnectionStatusHeader :connected="currentStation.connected" />
+
+            <Label class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold" :text="_L('dataSyncStationTitle')" textWrap="true"></Label>
+            <Label class="m-20 text-center" :text="_L('dataSyncStationInfo')" lineHeight="4" textWrap="true"></Label>
+            <SettingsItemSlider
+                :title="'appSettings.data.autoSyncStationTitle'"
+                :description="'appSettings.data.autoSyncStationDescription'"
+                :cssClass="'top-bordered-item'"
+                class="m-l-20 m-r-20 m-t-30"
+                v-model="currentSettings.data.autoSyncStation"
+                v-on:change="saveSettings"
+            />
+            <SettingsItemSlider
+                :title="'appSettings.data.autoSyncPortalTitle'"
+                :description="'appSettings.data.autoSyncPortalDescription'"
+                class="m-l-20 m-r-20"
+                v-model="currentSettings.data.autoSyncPortal"
+                v-on:change="saveSettings"
+            />
+            <SettingsItemSlider
+                :title="'appSettings.data.mobileDataUsageTitle'"
+                :description="'appSettings.data.mobileDataUsageDescription'"
+                class="m-l-20 m-r-20"
+                v-model="currentSettings.data.mobileDataUsage"
+                v-on:change="saveSettings"
+            />
+        </SkipLayout>
     </Page>
 </template>
 <script lang="ts">

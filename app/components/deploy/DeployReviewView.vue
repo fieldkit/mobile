@@ -1,7 +1,7 @@
 <template>
     <Page class="page plain" @loaded="onPageLoaded">
         <PlatformHeader :title="_L('deploymentReview')" :subtitle="currentStation.name" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*,auto">
+        <GridLayout rows="auto,*">
             <StackLayout row="0">
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
@@ -9,7 +9,12 @@
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <ScrollView row="1">
+            <SkipLayout
+                row="1"
+                :buttonLabel="buttonLabel"
+                :buttonEnabled="currentStation.connected"
+                @button="() => deployStation(currentStation)"
+            >
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="review-section">
                         <Label :text="_L('stationCoordinates')" class="size-16 bold m-b-10" />
@@ -106,17 +111,7 @@
                     </GridLayout>
 					-->
                 </FlexboxLayout>
-            </ScrollView>
-
-            <StackLayout row="2">
-                <Button
-                    class="btn btn-primary btn-padded m-20"
-                    :text="currentStation.connected ? _L('record') : _L('mustBeConnectedToRecord')"
-                    :isEnabled="currentStation.connected"
-                    textWrap="true"
-                    @tap="(ev) => deployStation(ev, currentStation)"
-                />
-            </StackLayout>
+            </SkipLayout>
         </GridLayout>
     </Page>
 </template>
@@ -141,10 +136,18 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): {} {
-        return {};
+    data(): { busy: boolean } {
+        return {
+            busy: false,
+        };
     },
     computed: {
+        buttonLabel(this: any): string {
+            if (this.busy) {
+                return _L("processing");
+            }
+            return this.currentStation.connected ? _L("record") : _L("mustBeConnectedToRecord");
+        },
         notes(this: any): Notes {
             return this.$s.state.notes.stations[this.stationId];
         },
@@ -184,17 +187,20 @@ export default Vue.extend({
                 }),
             ]);
         },
-        deployStation(ev: any, station: Station): Promise<any> {
-            ev.object.text = _L("processing");
-
-            return this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
-                return this.$navigateTo(routes.station.detail, {
-                    props: {
-                        stationId: this.stationId,
-                        redirectedFromDeploy: true,
-                    },
+        async deployStation(station: Station): Promise<void> {
+            this.busy = true;
+            try {
+                await this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
+                    return this.$navigateTo(routes.station.detail, {
+                        props: {
+                            stationId: this.stationId,
+                            redirectedFromDeploy: true,
+                        },
+                    });
                 });
-            });
+            } finally {
+                this.busy = false;
+            }
         },
         rebaseAbsolutePath(path: string): string {
             return rebaseAbsolutePath(path);
