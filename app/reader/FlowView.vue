@@ -9,7 +9,7 @@
                     :buttonLabel="screen.forward"
                     :buttonEnabled="screen.navOptions.forward.allowed"
                     :skipLabel="screen.skip"
-                    :helpLabel="screen.guide.label"
+                    :helpLabel="helpLabel"
                     @button="onForward"
                     @help="onGuide(screen.guide.url)"
                     @skip="onSkip"
@@ -135,6 +135,12 @@ const FlowView = Vue.extend({
                 if (this.header) {
                     return this.header.name;
                 }
+            }
+            return null;
+        },
+        helpLabel(): string | null {
+            if (this.screen.guide) {
+                return this.screen.guide.title;
             }
             return null;
         },
