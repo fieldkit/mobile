@@ -16,7 +16,14 @@
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <SkipLayout row="1" :buttonLabel="_L('continue')" :buttonEnabled="notes.valid" @button="goToReview">
+            <SkipLayout
+                row="1"
+                :buttonLabel="_L('continue')"
+                :buttonEnabled="notes.valid"
+                :buttonVisible="!linkedFromStation"
+                :scrolling="true"
+                @button="goToReview"
+            >
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="m-x-20">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
