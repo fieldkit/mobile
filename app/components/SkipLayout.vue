@@ -10,11 +10,11 @@
         </StackLayout>
         <StackLayout row="1">
             <Button
+                v-if="buttonVisible"
                 class="btn btn-primary btn-padded"
                 :text="buttonLabel"
                 :isEnabled="buttonEnabled"
                 @tap="onButton"
-                v-if="buttonVisible"
             />
             <Label v-if="helpLabel" :text="helpLabel" class="guide" textWrap="true" @tap="onHelp" />
             <Label v-if="skipLabel" :text="skipLabel" class="skip" textWrap="true" @tap="onSkip" />
