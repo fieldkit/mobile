@@ -2,21 +2,23 @@
     <Page class="page">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="addNetwork" :scrolling="true">
-            <ConnectionStatusHeader :connected="currentStation.connected" />
+        <GridLayout rows="auto,*">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
-                <StackLayout row="1" class="text-center m-b-30">
-                    <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
-                    <Label :text="ssid" textWrap="true" class="size-16" />
-                </StackLayout>
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="addNetwork" :scrolling="true">
+                <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
+                    <StackLayout row="1" class="text-center m-b-30">
+                        <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
+                        <Label :text="ssid" textWrap="true" class="size-16" />
+                    </StackLayout>
 
-                <StackLayout row="3" class="p-20">
-                    <Label :text="_L('networkPasswordHint')" />
-                    <LabeledTextField class="input" v-model="password" :secure="true" :canShow="true" />
-                </StackLayout>
-            </GridLayout>
-        </SkipLayout>
+                    <StackLayout row="3" class="p-20">
+                        <Label :text="_L('networkPasswordHint')" />
+                        <LabeledTextField class="input" v-model="password" :secure="true" :canShow="true" />
+                    </StackLayout>
+                </GridLayout>
+            </SkipLayout>
+        </GridLayout>
     </Page>
 </template>
 

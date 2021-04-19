@@ -2,43 +2,45 @@
     <Page class="page">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="next" :scrolling="true">
-            <ConnectionStatusHeader :connected="currentStation.connected" />
+        <GridLayout rows="auto,*">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
-                <StackLayout row="1" class="text-center m-b-30">
-                    <Label :text="_L('wifiNameTitle')" textWrap="true" class="size-18 m-b-10 bold" />
-                    <Label :text="_L('wifiNameBig')" textWrap="true" class="size-16 m-b-10" />
-                    <Label :text="_L('wifiNameSmall')" textWrap="true" class="size-12" />
-                </StackLayout>
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="next" :scrolling="true">
+                <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
+                    <StackLayout row="1" class="text-center m-b-30">
+                        <Label :text="_L('wifiNameTitle')" textWrap="true" class="size-18 m-b-10 bold" />
+                        <Label :text="_L('wifiNameBig')" textWrap="true" class="size-16 m-b-10" />
+                        <Label :text="_L('wifiNameSmall')" textWrap="true" class="size-12" />
+                    </StackLayout>
 
-                <StackLayout row="2" class="p-20">
-                    <Label :text="_L('networkNameHint')" />
-                    <TextField class="input" v-model="ssid" autocorrect="false" autocapitalizationType="none" />
-                </StackLayout>
+                    <StackLayout row="2" class="p-20">
+                        <Label :text="_L('networkNameHint')" />
+                        <TextField class="input" v-model="ssid" autocorrect="false" autocapitalizationType="none" />
+                    </StackLayout>
 
-                <StackLayout row="3" class="p-20">
-                    <Label :text="_L('savedNetworks')" class="size-16 bold" />
-                    <Label v-if="storedNetworks.length == 0" :text="_L('noSavedNetworks')" class="size-14" />
-                </StackLayout>
-            </GridLayout>
-            <GridLayout columns="30,*" class="p-t-10 m-l-20" v-for="(networkName, i) in storedNetworks" v-bind:key="i">
-                <CheckBox
-                    row="0"
-                    col="0"
-                    :class="isIOS ? 'm-l-5' : ''"
-                    :checked="ssid === networkName"
-                    fillColor="#2c3e50"
-                    onCheckColor="#2c3e50"
-                    onTintColor="#d8dce0"
-                    fontSize="15"
-                    boxType="circle"
-                    @tap="selectName(networkName)"
-                    @checkedChange="$event.value !== (ssid === networkName) && selectName(networkName)"
-                />
-                <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="networkName" @tap="selectName(networkName)"></Label>
-            </GridLayout>
-        </SkipLayout>
+                    <StackLayout row="3" class="p-20">
+                        <Label :text="_L('savedNetworks')" class="size-16 bold" />
+                        <Label v-if="storedNetworks.length == 0" :text="_L('noSavedNetworks')" class="size-14" />
+                    </StackLayout>
+                </GridLayout>
+                <GridLayout columns="30,*" class="p-t-10 m-l-20" v-for="(networkName, i) in storedNetworks" v-bind:key="i">
+                    <CheckBox
+                        row="0"
+                        col="0"
+                        :class="isIOS ? 'm-l-5' : ''"
+                        :checked="ssid === networkName"
+                        fillColor="#2c3e50"
+                        onCheckColor="#2c3e50"
+                        onTintColor="#d8dce0"
+                        fontSize="15"
+                        boxType="circle"
+                        @tap="selectName(networkName)"
+                        @checkedChange="$event.value !== (ssid === networkName) && selectName(networkName)"
+                    />
+                    <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="networkName" @tap="selectName(networkName)"></Label>
+                </GridLayout>
+            </SkipLayout>
+        </GridLayout>
     </Page>
 </template>
 
