@@ -107,7 +107,7 @@ export default Vue.extend({
         calibratedDate(): string | null {
             const unix = this.sensor.moduleCalibration?.calibration?.time;
             if (unix) {
-                return moment(unix).format("MM/DD/YYYY h:mm:ss a");
+                return moment(unix * 1000).format("MM/DD/YYYY h:mm:ss a");
             }
             return null;
         },
