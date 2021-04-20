@@ -19,6 +19,14 @@
                 </StackLayout>
 
                 <StackLayout class="field-container">
+                    <GridLayout rows="auto" columns="auto,auto">
+                        <Label row="0" col="0" text="Raw Sensor Values" textWrap="true" class="field-label" />
+                        <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
+                    </GridLayout>
+                    <Label :text="sensorValues" textWrap="true" class="field-value" />
+                </StackLayout>
+
+                <StackLayout class="field-container">
                     <Label text="Last Calibrated" textWrap="true" class="field-label" />
                     <Label :text="calibratedDate" textWrap="true" class="field-value" />
                 </StackLayout>
@@ -101,6 +109,14 @@ export default Vue.extend({
                 ?.map((p) => {
                     if (!p.references) throw new Error();
                     return p.references[0].toFixed(2); // prettyReading
+                })
+                .join(", ");
+        },
+        sensorValues(): string | undefined {
+            return this.sensor.moduleCalibration?.calibration?.points
+                ?.map((p) => {
+                    if (!p.uncalibrated) throw new Error();
+                    return p.uncalibrated[0].toFixed(2); // prettyReading
                 })
                 .join(", ");
         },
