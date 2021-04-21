@@ -59,7 +59,7 @@
                 </StackLayout>
             </ScrollView>
             <StackLayout row="1" class="m-r-20 m-l-20">
-                <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logoutAll"></Button>
+                <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.removeAll')" @tap="logoutAll"></Button>
             </StackLayout>
         </GridLayout>
     </Page>

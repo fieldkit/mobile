@@ -16,8 +16,20 @@
                     />
 
                     <template v-if="m.canCalibrate">
-                        <Label row="1" col="1" :text="_L('uncalibrated')" class="size-14 red-text module-status" v-if="!m.isCalibrated" />
-                        <Label row="1" col="1" :text="_L('calibrated')" class="size-14 gray-text module-status" v-if="m.isCalibrated" />
+                        <Label
+                            row="1"
+                            col="1"
+                            :text="_L('calibration.uncalibrated')"
+                            class="size-14 red-text module-status"
+                            v-if="!m.isCalibrated"
+                        />
+                        <Label
+                            row="1"
+                            col="1"
+                            :text="_L('calibration.calibrated')"
+                            class="size-14 gray-text module-status"
+                            v-if="m.isCalibrated"
+                        />
                         <Image
                             rowSpan="2"
                             col="2"
