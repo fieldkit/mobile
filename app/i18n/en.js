@@ -857,6 +857,11 @@ module.exports = {
 	onboarding: {
 		assembled: {
 			message: "Success!"
+		},
+		network: {
+			wifi: {
+				caseSensitive: 'Note: The WiFi network name and password are case sensitive.'
+			}
 		}
 	},
 	titles: {

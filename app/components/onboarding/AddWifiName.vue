@@ -7,15 +7,18 @@
 
             <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="next" :scrolling="true">
                 <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
-                    <StackLayout row="1" class="text-center m-b-30">
+                    <StackLayout row="0" class="text-center m-b-30">
                         <Label :text="_L('wifiNameTitle')" textWrap="true" class="size-18 m-b-10 bold" />
                         <Label :text="_L('wifiNameBig')" textWrap="true" class="size-16 m-b-10" />
                         <Label :text="_L('wifiNameSmall')" textWrap="true" class="size-12" />
                     </StackLayout>
 
-                    <StackLayout row="2" class="p-20">
+                    <StackLayout row="1" class="p-20">
                         <Label :text="_L('networkNameHint')" />
                         <TextField class="input" v-model="ssid" autocorrect="false" autocapitalizationType="none" />
+                    </StackLayout>
+                    <StackLayout row="2" class="p-20">
+                        <Label :text="_L('onboarding.network.wifi.caseSensitive')" textWrap="true" class="size-12" />
                     </StackLayout>
 
                     <StackLayout row="3" class="p-20">
