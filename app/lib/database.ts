@@ -1,3 +1,4 @@
+/*
 import _ from "lodash";
 import Sqlite, { Database } from "@/wrappers/sqlite";
 import { sqliteToJs, serializePromiseChain } from "./utilities";
@@ -400,3 +401,4 @@ export class SaveReadingsTask extends Task {
         await this.aggregators[this.deviceId].process(db, this.readings);
     }
 }
+*/

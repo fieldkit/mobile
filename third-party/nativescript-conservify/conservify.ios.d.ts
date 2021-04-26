@@ -40,8 +40,8 @@ declare class OpenedFile {
     private fs;
     private file;
     constructor(cfy: Conservify, file: PbFile);
-    info(): Promise<{}>;
-    delimited(listener: any): Promise<{}>;
+    info(): Promise<unknown>;
+    delimited(listener: any): Promise<unknown>;
 }
 export declare class Conservify implements ActiveTasks, OtherPromises {
     private logger;

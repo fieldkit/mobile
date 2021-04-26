@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Bluebird from "bluebird";
+import { translate } from "@/lib/tns-i18n-deep";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 // eslint-disable-next-line
@@ -84,9 +85,9 @@ export function getLabelledElapsedTime(a: Date, b: Date): LabelledElapsedTime {
     const hoursStr = hours < 10 ? `0${hours}` : hours;
 
     if (days > 1) {
-        return new LabelledElapsedTime(`${days}:${hoursStr}:${minutesStr}`, _L("daysHrsMin"));
+        return new LabelledElapsedTime(`${days}:${hoursStr}:${minutesStr}`, translate("daysHrsMin"));
     } else {
-        return new LabelledElapsedTime(`${hoursStr}:${minutesStr}:${secondsStr}`, _L("hrsMinSec"));
+        return new LabelledElapsedTime(`${hoursStr}:${minutesStr}:${secondsStr}`, translate("hrsMinSec"));
     }
 }
 
@@ -137,7 +138,7 @@ export function getFormattedTime(date: Date): string {
 
 export function _T(key: string): string {
     try {
-        const value: string | undefined = _L(key);
+        const value: string | undefined = translate(key);
         if (value) {
             return value;
         }
@@ -172,6 +173,7 @@ export function _T(key: string): string {
         return node;
     } catch (err) {
         console.log(`error translating key: ${key}`);
+        console.log(err);
         return key;
     }
 }

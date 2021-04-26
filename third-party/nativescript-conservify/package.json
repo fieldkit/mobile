@@ -46,16 +46,18 @@
 	"license": "Apache-2.0",
 	"homepage": "https://github.com/jlewallen/nativescript-conservify",
 	"devDependencies": {
-		"@types/node": "^12.11.7",
-		"nativescript": "^6.1.2",
-		"prompt": "^1.0.0",
+		"@types/node": "^12.20.10",
+		"nativescript": "^8.0.1",
+		"prompt": "^1.1.0",
 		"rimraf": "^2.6.3",
-		"semver": "^5.6.0",
-		"tns-core-modules": "^6.0.0",
-		"tns-platform-declarations": "^6.0.0",
-		"tslint": "^5.12.1",
-		"typescript": "~3.4.5"
+		"semver": "^7.3.5",
+		"tns-core-modules": "^6.5.27",
+		"tns-platform-declarations": "^6.5.15",
+		"tslint": "^5.20.1",
+		"typescript": "^4.2.4"
 	},
-	"dependencies": {},
+	"dependencies": {
+		"@nativescript/core": "^8.0.3"
+	},
 	"bootstrapper": "nativescript-plugin-seed"
 }

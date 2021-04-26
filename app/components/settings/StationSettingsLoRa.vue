@@ -67,7 +67,6 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import Networks from "./StationSettingsNetworks.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
@@ -75,7 +74,6 @@ import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        Networks,
         ConnectionNote,
         ConnectionStatusHeader,
     },

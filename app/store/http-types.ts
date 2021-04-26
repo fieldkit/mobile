@@ -6,6 +6,19 @@ import Long from "long";
 
 const HttpReply = AppProto.HttpReply;
 
+export interface CurrentUser {
+    portalId: number;
+    name: string;
+    email: string;
+    usedAt: Date | null;
+    token: string | null;
+    transmission: {
+        token: string;
+        url: string;
+    } | null;
+    lastSync: Date | null;
+}
+
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
     value: number;
@@ -29,7 +42,9 @@ export interface AtlasStatus {
     };
 }
 
-export type ModuleConfiguration = DataProto.ModuleConfiguration;
+type ModuleConfiguration = DataProto.ModuleConfiguration;
+
+export { ModuleConfiguration };
 
 export interface ModuleCapabilities {
     name: string;

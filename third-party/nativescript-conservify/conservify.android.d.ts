@@ -5,8 +5,8 @@ declare class OpenedFile {
     fs: any;
     file: any;
     constructor(cfy: Conservify, file: any);
-    info(): Promise<{}>;
-    delimited(listener: any): Promise<{}>;
+    info(): Promise<unknown>;
+    delimited(listener: any): Promise<unknown>;
 }
 export declare class Conservify {
     logger: any;

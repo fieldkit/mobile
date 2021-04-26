@@ -1,14 +1,9 @@
-import { Color } from "color";
-import { placeholderColorProperty } from "ui/editable-text-base/editable-text-base-common";
-import { Font } from "ui/styling/font";
-import { backgroundColorProperty, colorProperty, fontInternalProperty, Length, paddingBottomProperty, paddingLeftProperty, paddingRightProperty, paddingTopProperty, } from "ui/styling/style-properties";
-import { letterSpacingProperty, textAlignmentProperty, textDecorationProperty, textTransformProperty, } from "ui/text-base";
-import * as types from "utils/types";
-import { layout } from "utils/utils-common";
-import { DropDownBase, hintProperty, itemsPaddingProperty, itemsProperty, itemsTextAlignmentProperty, selectedIndexProperty, } from "./drop-down-common";
+import { Color, Device, Font, letterSpacingProperty, placeholderColorProperty, textAlignmentProperty, textDecorationProperty, textTransformProperty } from "@nativescript/core";
+import { DropDownBase, Length, Utils, backgroundColorProperty, colorProperty, fontInternalProperty, hintProperty, itemsPaddingProperty, itemsProperty, itemsTextAlignmentProperty, paddingBottomProperty, paddingLeftProperty, paddingRightProperty, paddingTopProperty, selectedIndexProperty } from "./drop-down-common";
 export * from "./drop-down-common";
 const TOOLBAR_HEIGHT = 44;
 const HINT_COLOR = new Color("#3904041E");
+const NEW_PICKER_STYLE_ROW_INSET = parseFloat(Device.osVersion) >= 14.0 ? 16 : 0;
 export class DropDown extends DropDownBase {
     createNativeView() {
         const dropDown = TNSDropDownLabel.initWithOwner(new WeakRef(this));
@@ -178,24 +173,16 @@ export class DropDown extends DropDownBase {
         _setTextAttributes(this.nativeView, this.style);
     }
     [paddingTopProperty.setNative](value) {
-        this._setPadding({
-            top: layout.toDeviceIndependentPixels(this.effectivePaddingTop),
-        });
+        this._setPadding({ top: Utils.layout.toDeviceIndependentPixels(this.effectivePaddingTop) });
     }
     [paddingRightProperty.setNative](value) {
-        this._setPadding({
-            right: layout.toDeviceIndependentPixels(this.effectivePaddingRight),
-        });
+        this._setPadding({ right: Utils.layout.toDeviceIndependentPixels(this.effectivePaddingRight) });
     }
     [paddingBottomProperty.setNative](value) {
-        this._setPadding({
-            bottom: layout.toDeviceIndependentPixels(this.effectivePaddingBottom),
-        });
+        this._setPadding({ bottom: Utils.layout.toDeviceIndependentPixels(this.effectivePaddingBottom) });
     }
     [paddingLeftProperty.setNative](value) {
-        this._setPadding({
-            left: layout.toDeviceIndependentPixels(this.effectivePaddingLeft),
-        });
+        this._setPadding({ left: Utils.layout.toDeviceIndependentPixels(this.effectivePaddingLeft) });
     }
     _setPadding(newPadding) {
         const nativeView = this.nativeView;
@@ -203,9 +190,7 @@ export class DropDown extends DropDownBase {
         nativeView.padding = Object.assign(padding, newPadding);
     }
     _showHideAccessoryView() {
-        this.ios.inputAccessoryView = this._accessoryViewVisible
-            ? this._toolbar
-            : null;
+        this.ios.inputAccessoryView = (this._accessoryViewVisible ? this._toolbar : null);
     }
 }
 var TapHandler = /** @class */ (function (_super) {
@@ -247,7 +232,7 @@ var DropDownListDataSource = /** @class */ (function (_super) {
     };
     DropDownListDataSource.prototype.pickerViewNumberOfRowsInComponent = function (pickerView, component) {
         var owner = this._owner.get();
-        return owner && owner.items ? owner.items.length : 0;
+        return (owner && owner.items) ? owner.items.length : 0;
     };
     var DropDownListDataSource_1;
     DropDownListDataSource = DropDownListDataSource_1 = __decorate([
@@ -281,9 +266,7 @@ var DropDownListPickerDelegateImpl = /** @class */ (function (_super) {
         var itemsPaddingBottom;
         var itemsPaddingLeft;
         if (owner.nativeView.itemsPadding !== itemsPaddingProperty.defaultValue) {
-            var itemsPadding = owner.nativeView.itemsPadding
-                .split(/[ ,]+/)
-                .map(function (s) { return Length.parse(s); });
+            var itemsPadding = owner.nativeView.itemsPadding.split(/[ ,]+/).map(function (s) { return Length.parse(s); });
             if (itemsPadding.length === 1) {
                 itemsPaddingTop = itemsPadding[0];
                 itemsPaddingRight = itemsPadding[0];
@@ -317,15 +300,13 @@ var DropDownListPickerDelegateImpl = /** @class */ (function (_super) {
         }
         label.padding = {
             top: Length.toDevicePixels(itemsPaddingTop, 0),
-            right: Length.toDevicePixels(itemsPaddingRight, 0),
+            right: NEW_PICKER_STYLE_ROW_INSET + Length.toDevicePixels(itemsPaddingRight, 0),
             bottom: Length.toDevicePixels(itemsPaddingBottom, 0),
-            left: Length.toDevicePixels(itemsPaddingLeft, 0),
+            left: NEW_PICKER_STYLE_ROW_INSET + Length.toDevicePixels(itemsPaddingLeft, 0)
         };
         label.font = style.fontInternal.getUIFont(label.font);
-        var itemsTextAlignment = owner.nativeView.itemsTextAlignment ===
-            itemsTextAlignmentProperty.defaultValue
-            ? style.textAlignment
-            : owner.nativeView.itemsTextAlignment;
+        var itemsTextAlignment = (owner.nativeView.itemsTextAlignment === itemsTextAlignmentProperty.defaultValue)
+            ? style.textAlignment : owner.nativeView.itemsTextAlignment;
         switch (itemsTextAlignment) {
             case "initial":
             case "left":
@@ -351,7 +332,7 @@ var DropDownListPickerDelegateImpl = /** @class */ (function (_super) {
                     eventName: DropDownBase.selectedIndexChangedEvent,
                     object: owner,
                     oldIndex: oldIndex,
-                    newIndex: row,
+                    newIndex: row
                 });
             }
         }
@@ -379,6 +360,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
         return label;
     };
     Object.defineProperty(TNSDropDownLabel.prototype, "inputView", {
+        // @ts-ignore
         get: function () {
             return this._inputView;
         },
@@ -389,6 +371,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(TNSDropDownLabel.prototype, "inputAccessoryView", {
+        // @ts-ignore
         get: function () {
             return this._inputAccessoryView;
         },
@@ -399,6 +382,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(TNSDropDownLabel.prototype, "canBecomeFirstResponder", {
+        // @ts-ignore
         get: function () {
             return true;
         },
@@ -406,6 +390,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
         configurable: true
     });
     Object.defineProperty(TNSDropDownLabel.prototype, "canResignFirstResponder", {
+        // @ts-ignore
         get: function () {
             return true;
         },
@@ -452,8 +437,8 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
     TNSDropDownLabel.prototype.setText = function (value) {
         var actualText = value || this._hint || "";
         var owner = this._owner.get();
-        this._hasText = !types.isNullOrUndefined(value) && value !== "";
-        this.text = actualText === "" ? " " : actualText; // HACK: If empty use <space> so the label does not collapse
+        this._hasText = !Utils.isNullOrUndefined(value) && value !== "";
+        this.text = (actualText === "" ? " " : actualText); // HACK: If empty use <space> so the label does not collapse
         this._refreshColor();
         _setTextAttributes(owner.nativeView, owner.style);
     };
@@ -484,7 +469,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
                 var owner = this._owner.get();
                 owner.notify({
                     eventName: DropDownBase.openedEvent,
-                    object: owner,
+                    object: owner
                 });
             }
             this._isInputViewOpened = true;
@@ -498,7 +483,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
             this._isInputViewOpened = false;
             owner.notify({
                 eventName: DropDownBase.closedEvent,
-                object: owner,
+                object: owner
             });
         }
         return result;
@@ -512,9 +497,7 @@ var TNSDropDownLabel = /** @class */ (function (_super) {
         }
     };
     TNSDropDownLabel.prototype._refreshColor = function () {
-        this.textColor = this._hasText
-            ? this._internalColor
-            : this._internalPlaceholderColor;
+        this.textColor = (this._hasText ? this._internalColor : this._internalPlaceholderColor);
     };
     var TNSDropDownLabel_1;
     __decorate([
@@ -548,9 +531,7 @@ function _setTextAttributes(nativeView, style) {
     if (nativeView.textColor && attributes.size > 0) {
         attributes.set(NSForegroundColorAttributeName, nativeView.textColor);
     }
-    const text = types.isNullOrUndefined(nativeView.text)
-        ? ""
-        : nativeView.text.toString();
+    const text = Utils.isNullOrUndefined(nativeView.text) ? "" : nativeView.text.toString();
     let sourceString;
     switch (style.textTransform) {
         case "uppercase":
@@ -567,10 +548,7 @@ function _setTextAttributes(nativeView, style) {
     }
     if (attributes.size > 0) {
         const result = NSMutableAttributedString.alloc().initWithString(sourceString);
-        result.setAttributesRange(attributes, {
-            location: 0,
-            length: sourceString.length,
-        });
+        result.setAttributesRange(attributes, { location: 0, length: sourceString.length });
         nativeView.attributedText = result;
     }
     else {

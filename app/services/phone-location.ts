@@ -1,17 +1,17 @@
 import { Enums } from "@nativescript/core";
 import { GeoLocation, QueryLocationParams } from "@/wrappers/geolocation";
 import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
-import { Store } from "@/store/our-store";
+import { OurStore } from "@/store/our-store";
 import { promiseAfter, unixNow, zoned } from "@/lib";
 import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");
 
 export default class PhoneLocationWatcher {
-    private store: Store;
+    private store: OurStore;
     private geolocation: GeoLocation;
 
-    constructor(store: Store) {
+    constructor(store: OurStore) {
         this.store = store;
         this.geolocation = new GeoLocation();
     }

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.encodeBody = exports.ConnectionError = exports.FileSystemError = void 0;
 var FileSystemError = (function (_super) {
     __extends(FileSystemError, _super);
     function FileSystemError(message, path) {

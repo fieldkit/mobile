@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
+import { _T } from "@/lib";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
@@ -30,10 +31,10 @@ export class NotesState {
 
 export class Notes {
     public readonly help = {
-        [Keys.StudyObjective]: new NoteHelp(_L("studyObjective"), _L("studyObjectiveInstruction")),
-        [Keys.SitePurpose]: new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")),
-        [Keys.SiteCriteria]: new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")),
-        [Keys.SiteDescription]: new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")),
+        [Keys.StudyObjective]: new NoteHelp(_T("studyObjective"), _T("studyObjectiveInstruction")),
+        [Keys.SitePurpose]: new NoteHelp(_T("siteLocation"), _T("siteLocationInstruction")),
+        [Keys.SiteCriteria]: new NoteHelp(_T("siteCriteria"), _T("siteCriteriaInstruction")),
+        [Keys.SiteDescription]: new NoteHelp(_T("siteDescription"), _T("siteDescriptionInstruction")),
     };
     constructor(
         public readonly stationId: number,

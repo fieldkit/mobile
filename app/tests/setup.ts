@@ -10,6 +10,7 @@ import Vuex from "vuex";
 (protobuf.util as any).Long = null;
 protobuf.configure();
 
+/*
 const windowAny = window as any;
 windowAny.FK_VERSION = "";
 windowAny.FK_BUILD_TIMESTAMP = "";
@@ -18,14 +19,17 @@ windowAny.FK_BUILD_TAG = "";
 windowAny.FK_BUILD_JOB = "";
 windowAny.FK_GIT_COMMIT = "";
 windowAny.FK_GIT_BRANCH = "";
+*/
 
 Vue.use(Vuex);
 
+/*
 window["__extends"] = _.extend;
 
 window._L = (key: string) => {
     return "unknown";
 };
+*/
 
 jest.mock("@nativescript/core");
 

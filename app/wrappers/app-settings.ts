@@ -1,32 +1,24 @@
-interface Settings {
-    getString(key: string): string;
-    getNumber(key: string): number;
-    setString(key: string, value: string): void;
-    setNumber(key: string, value: number): void;
-    remove(key: string): void;
-}
-
 // eslint-disable-next-line
-const appSettings = require("tns-core-modules/application-settings") as Settings;
+import { ApplicationSettings } from "@nativescript/core";
 
 export default class AppSettings {
     public getString(key: string): string {
-        return appSettings.getString(key);
+        return ApplicationSettings.getString(key) ;
     }
 
     public setString(key: string, value: string): void {
-        appSettings.setString(key, value);
+        ApplicationSettings.setString(key, value);
     }
 
     public getNumber(key: string): number {
-        return appSettings.getNumber(key);
+        return ApplicationSettings.getNumber(key);
     }
 
     public setNumber(key: string, value: number): void {
-        appSettings.setNumber(key, value);
+        ApplicationSettings.setNumber(key, value);
     }
 
     public remove(key: string): void {
-        appSettings.remove(key);
+        ApplicationSettings.remove(key);
     }
 }

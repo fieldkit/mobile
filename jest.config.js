@@ -18,6 +18,13 @@ module.exports = {
             diagnostics: true,
             tsconfig: "tsconfig.json",
         },
+        FK_VERSION: "tests",
+        FK_BUILD_TIMESTAMP: "",
+        FK_BUILD_NUMBER: "",
+        FK_BUILD_TAG: "",
+        FK_BUILD_JOB: "",
+        FK_GIT_COMMIT: "",
+        FK_GIT_BRANCH: "",
     },
     transform: {
         "^.+\\.ts$": "ts-jest",

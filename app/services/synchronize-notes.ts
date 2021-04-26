@@ -2,8 +2,8 @@ import _ from "lodash";
 import moment from "moment";
 import FileSystem from "@/wrappers/file-system";
 import { ActionTypes } from "../store/actions";
+import { OurStore } from "../store/our-store";
 import { UpdateNoteMutation, AttachNoteMediaMutation } from "../store/mutations";
-import { Store } from "../store/our-store";
 import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";
 import { serializePromiseChain, getPathTimestamp, rebaseAbsolutePath } from "@/lib";
@@ -15,7 +15,7 @@ export class MergedNotes {
 const EarlyDate: Date = new Date(-8640000000000000);
 
 export default class SynchronizeNotes {
-    constructor(private readonly portal: PortalInterface, private readonly store: Store, private readonly fs: FileSystem) {}
+    constructor(private readonly portal: PortalInterface, private readonly store: OurStore, private readonly fs: FileSystem) {}
 
     public async synchronize(ids: Ids): Promise<void> {
         await this.portal

@@ -1,10 +1,10 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
-import { LegacyStation, Module, ModuleConfiguration } from "../store/types";
+import { LegacyStation, Module } from "../store/types";
 import { _T, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 
-export { ModuleConfiguration };
+export type ModuleConfiguration = DataProto.ModuleConfiguration;
 
 export class Ids {
     private static c = 0;

@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import PlatformHeader from "@/components/PlatformHeader";
+import PlatformHeader from "@/components/PlatformHeader.vue";
 
 export default Vue.extend({
     name: "Header",
