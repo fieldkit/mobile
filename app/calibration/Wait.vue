@@ -3,11 +3,17 @@
         <StackLayout row="0">
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
-                        <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
+            <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
 
             <StackLayout class="form">
-                <Label col="1" class="m-t-5 m-l-5 m-b-20 size-16 text-center" :text="_T(form.label)" textWrap="true" v-if="!doneWaiting"/>
-                <Label col="1" class="m-t-5 m-l-5 m-b-20 size-16 text-center" :text="_L('calibrationDoneHeading')" textWrap="true" v-if="doneWaiting"/>
+                <Label col="1" class="m-t-5 m-l-5 m-b-20 size-16 text-center" :text="_T(form.label)" textWrap="true" v-if="!doneWaiting" />
+                <Label
+                    col="1"
+                    class="m-t-5 m-l-5 m-b-20 size-16 text-center"
+                    :text="_L('calibrationDoneHeading')"
+                    textWrap="true"
+                    v-if="doneWaiting"
+                />
 
                 <GridLayout rows="auto,auto" columns="*" height="200">
                     <StackLayout row="0" class="sensor-circular-border m-t-20" height="200" width="200">
