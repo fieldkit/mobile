@@ -490,6 +490,7 @@ module.exports = {
             accounts: "Accounts",
             addAccount: "Add Account",
             logoutAll: "Log Out All Accounts",
+            removeAll: "Remove All Accounts",
             email: 'Email',
             password: 'Password',
             resetPassword: 'Reset Password',
@@ -840,6 +841,7 @@ module.exports = {
 				}
 			},
 		},
+		unalibrated: "Unalibrated",
 		calibrated: "Calibrated",
 		cleared: "Cleared",
 	},
@@ -859,6 +861,11 @@ module.exports = {
 	onboarding: {
 		assembled: {
 			message: "Success!"
+		},
+		network: {
+			wifi: {
+				caseSensitive: 'Note: The WiFi network name and password are case sensitive.'
+			}
 		}
 	},
 	titles: {

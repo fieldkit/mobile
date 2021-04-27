@@ -2,57 +2,60 @@
     <Page class="page" @loaded="onPageLoaded">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout
-            :buttonLabel="_L('saveNewName')"
-            :buttonEnabled="currentStation.connected && !busy"
-            @button="rename"
-            :skipLabel="_L('skipStep')"
-            @skip="skip"
-            :scrolling="true"
-        >
-            <ConnectionStatusHeader :connected="currentStation.connected" />
+        <GridLayout rows="auto,*">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
+            <SkipLayout
+                row="1"
+                :buttonLabel="_L('saveNewName')"
+                :buttonEnabled="currentStation.connected && !busy"
+                @button="rename"
+                :skipLabel="_L('skipStep')"
+                @skip="skip"
+                :scrolling="true"
+            >
+                <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
-            <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
+                <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
-            <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                <TextField
-                    col="0"
+                <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
+                    <TextField
+                        col="0"
+                        textWrap="true"
+                        class="size-16 no-border-input"
+                        :hint="_L('stationNameHint')"
+                        v-model="form.name"
+                        keyboardType="_L('stationNameHint')"
+                        autocorrect="false"
+                        autocapitalizationType="none"
+                        @blur="validate"
+                    />
+                    <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
+                </GridLayout>
+
+                <Label
+                    class="validation-error"
+                    id="no-name"
+                    :text="_L('nameRequired')"
                     textWrap="true"
-                    class="size-16 no-border-input"
-                    :hint="_L('stationNameHint')"
-                    v-model="form.name"
-                    keyboardType="_L('stationNameHint')"
-                    autocorrect="false"
-                    autocapitalizationType="none"
-                    @blur="validate"
+                    :visibility="form.v.required ? 'visible' : 'collapsed'"
                 />
-                <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-            </GridLayout>
-
-            <Label
-                class="validation-error"
-                id="no-name"
-                :text="_L('nameRequired')"
-                textWrap="true"
-                :visibility="form.v.required ? 'visible' : 'collapsed'"
-            />
-            <Label
-                class="validation-error"
-                id="name-too-long"
-                :text="_L('nameOver40')"
-                textWrap="true"
-                :visibility="form.v.long ? 'visible' : 'collapsed'"
-            />
-            <Label
-                class="validation-error"
-                id="name-not-printable"
-                :text="_L('nameNotPrintable')"
-                textWrap="true"
-                :visibility="form.v.characters ? 'visible' : 'collapsed'"
-            />
-        </SkipLayout>
+                <Label
+                    class="validation-error"
+                    id="name-too-long"
+                    :text="_L('nameOver40')"
+                    textWrap="true"
+                    :visibility="form.v.long ? 'visible' : 'collapsed'"
+                />
+                <Label
+                    class="validation-error"
+                    id="name-not-printable"
+                    :text="_L('nameNotPrintable')"
+                    textWrap="true"
+                    :visibility="form.v.characters ? 'visible' : 'collapsed'"
+                />
+            </SkipLayout>
+        </GridLayout>
     </Page>
 </template>
 <script lang="ts">

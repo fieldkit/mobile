@@ -9,7 +9,13 @@
             <slot></slot>
         </StackLayout>
         <StackLayout row="1">
-            <Button class="btn btn-primary btn-padded" :text="buttonLabel" :isEnabled="buttonEnabled" @tap="onButton" />
+            <Button
+                v-if="buttonVisible"
+                class="btn btn-primary btn-padded"
+                :text="buttonLabel"
+                :isEnabled="buttonEnabled"
+                @tap="onButton"
+            />
             <Label v-if="helpLabel" :text="helpLabel" class="guide" textWrap="true" @tap="onHelp" />
             <Label v-if="skipLabel" :text="skipLabel" class="skip" textWrap="true" @tap="onSkip" />
         </StackLayout>
@@ -26,6 +32,10 @@ export default Vue.extend({
             required: true,
         },
         buttonEnabled: {
+            type: Boolean,
+            default: true,
+        },
+        buttonVisible: {
             type: Boolean,
             default: true,
         },

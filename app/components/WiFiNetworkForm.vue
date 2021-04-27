@@ -1,8 +1,11 @@
 <template>
-    <StackLayout>
-        <StackLayout class="m-t-20">
+    <GridLayout rows="auto,auto,auto,auto">
+        <StackLayout row="0" class="p-20">
             <LabeledTextField v-model="form.ssid" :label="_L('networkNameHint')" @blur="checkSsid" />
             <Label v-show="v.ssid.required" class="validation-error" horizontalAlignment="left" :text="_L('required')" textWrap="true" />
+        </StackLayout>
+
+        <StackLayout row="1" class="p-20">
             <LabeledTextField
                 v-model="form.password"
                 :label="_L('networkPasswordHint')"
@@ -19,8 +22,14 @@
             />
         </StackLayout>
 
-        <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="enabled" @tap="addNetwork" />
-    </StackLayout>
+        <StackLayout row="2" class="p-20">
+            <Label :text="_L('onboarding.network.wifi.caseSensitive')" textWrap="true" class="size-12" />
+        </StackLayout>
+
+        <StackLayout row="3" class="">
+            <Button class="btn btn-primary" :text="_L('save')" :isEnabled="enabled" @tap="addNetwork" />
+        </StackLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">

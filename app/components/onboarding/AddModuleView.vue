@@ -2,23 +2,25 @@
     <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
         <PlatformHeader :title="currentStation.name" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="goNext">
-            <ConnectionStatusHeader :connected="currentStation.connected" />
+        <GridLayout rows="auto,*">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <GridLayout row="0" rows="auto,auto" columns="*" class="">
-                <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
-                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" />
-                    <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
-                    <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="goNext">
+                <GridLayout row="0" rows="auto,auto" columns="*" class="">
+                    <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
+                        <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" />
+                        <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
+                        <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
+                    </GridLayout>
                 </GridLayout>
-            </GridLayout>
-            <StackLayout row="1">
-                <Label order="2" class="instruction" :text="_L('assembleStep4')" lineHeight="4" textWrap="true"></Label>
-                <GridLayout order="4" rows="*" columns="*">
-                    <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
-                </GridLayout>
-            </StackLayout>
-        </SkipLayout>
+                <StackLayout row="1">
+                    <Label order="2" class="instruction" :text="_L('assembleStep4')" lineHeight="4" textWrap="true"></Label>
+                    <GridLayout order="4" rows="*" columns="*">
+                        <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
+                    </GridLayout>
+                </StackLayout>
+            </SkipLayout>
+        </GridLayout>
     </Page>
 </template>
 
