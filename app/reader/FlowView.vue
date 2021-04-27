@@ -9,7 +9,7 @@
                     :buttonLabel="screen.forward"
                     :buttonEnabled="screen.navOptions.forward.allowed"
                     :skipLabel="screen.skip"
-                    :helpLabel="screen.guide.label"
+                    :helpLabel="screen.guide.title"
                     @button="onForward"
                     @help="onGuide(screen.guide.url)"
                     @skip="onSkip"
