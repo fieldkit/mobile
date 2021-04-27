@@ -546,7 +546,7 @@ module.exports = {
 						instructions: "Place the pH probe in a cup with the first standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -563,7 +563,7 @@ module.exports = {
 						instructions: "Place the pH probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -580,7 +580,7 @@ module.exports = {
 						instructions: "Place the pH probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -609,7 +609,7 @@ module.exports = {
 						instructions: "Place the conductivity probe in a cup with the first standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -626,7 +626,7 @@ module.exports = {
 						instructions: "Place the conductivity probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -643,7 +643,7 @@ module.exports = {
 						instructions: "Place the conductivity probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -798,7 +798,7 @@ module.exports = {
 						instructions: "Place the ORP probe in a cup with the first standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -815,7 +815,7 @@ module.exports = {
 						instructions: "Place the ORP probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -832,7 +832,7 @@ module.exports = {
 						instructions: "Place the ORP probe in a cup with the next standard.",
 						done: "Start Timer",
 					},
-					standard: "Enter the value below based on your standard:",
+					standard: "As you wait for the sensor value to stablize, enter the standard value.",
 					calibrate: {
 						heading: "",
 						done: "Calibrate",
@@ -852,6 +852,10 @@ module.exports = {
     tapStationToRecalibrate: "Tap the station you want to recalibrate:",
     calibrationRequiredHeading: "Calibration Required",
     calibrationRequiredText: "calibration Required Text",
+    calibrationSensorValue: "Sensor Value",
+    calibrationStandardValue: "Standard Value",
+    calibrationDoneHeading: "Tap the Calibrate button to record the sensor value and the standard value.",
+    calibrationDoneHint: "Recording these values together allows us to later calibrate the sensor.",
 	onboarding: {
 		assembled: {
 			message: "Success!"

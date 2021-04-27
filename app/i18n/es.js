@@ -530,5 +530,9 @@ module.exports = {
             licenses: "Licenses"
         },
         lorem: "Lorem ipsum"
-    }
+    },
+    calibrationSensorValue: "Sensor Value",
+    calibrationStandardValue: "Standard Value",
+    calibrationDoneHeading: "Tap the Calibrate button to record the sensor value and the standard value.",
+    calibrationDoneHint: "Recording these values together allows us to later calibrate the sensor.",
 };
