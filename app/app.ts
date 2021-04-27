@@ -16,7 +16,7 @@ import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
 
-import { _T, initializeLogging } from "./lib";
+import { _L, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
 import { navigatorFactory } from "./routes";
@@ -97,9 +97,7 @@ function configureVueJs(services: typeof Services): Store {
 
     // Pass i18n's global variable to Vue
     // eslint-disable-next-line
-    Vue.prototype._L = _T;
-    // eslint-disable-next-line
-    Vue.prototype._T = _T;
+    Vue.prototype._L = _L;
 
     // Enable use of dev tools on developer machine.
     if (Config.debugging.machine) {

@@ -49,7 +49,7 @@ import ByOrientation from "./ByOrientation.vue";
 import SkipLayout from "@/components/SkipLayout.vue";
 import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
-import { _T, Timer } from "@/lib";
+import { _L, Timer } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
@@ -125,7 +125,7 @@ const FlowView = Vue.extend({
                     return this.screen.header.title;
                 }
             }
-            return _T("titles.loading");
+            return _L("titles.loading");
         },
         header(): ModuleHeader | undefined {
             return tryFindModuleHeader(this.flow.name);

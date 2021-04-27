@@ -136,7 +136,7 @@ export function getFormattedTime(date: Date): string {
     return `${hour}:${minutes}${suffix}`;
 }
 
-export function _T(key: string): string {
+export function _L(key: string): string {
     try {
         const value: string | undefined = translate(key);
         if (value) {
@@ -155,7 +155,7 @@ export function _T(key: string): string {
             return key;
         }
 
-        let node = _T(word);
+        let node = _L(word);
         while (parts.length > 0) {
             word = parts.shift()!; // eslint-disable-line
             if (!word) {

@@ -6,7 +6,7 @@
             <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
 
             <StackLayout class="form">
-                <Label col="1" class="m-t-5 m-l-5 heading" :text="_T(form.label)" textWrap="true" />
+                <Label col="1" class="m-t-5 m-l-5 heading" :text="_L(form.label)" textWrap="true" />
 
                 <TextField
                     v-model="form.value"

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module } from "../store/types";
-import { _T, notEmpty, unixNow, CalibrationError } from "@/lib";
+import { _L, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 
 export type ModuleConfiguration = DataProto.ModuleConfiguration;
@@ -149,7 +149,7 @@ export class ModuleCalibration {
 
     constructor(module: Module, configuration: ModuleConfiguration | null, haveStrategies: boolean) {
         this.moduleKey = module.name;
-        this.name = _T(module.name + ".name");
+        this.name = _L(module.name + ".name");
         this.position = module.position || 0;
         this.image = module.image;
         this.canCalibrate = haveStrategies;

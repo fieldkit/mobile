@@ -68,6 +68,7 @@ import Bluebird from "bluebird";
 import Config from "@/config";
 
 import {
+    _L,
     promiseAfter,
     serializePromiseChain,
     DownloadsDirectory,

@@ -31,6 +31,7 @@ import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import { Build } from "@/config";
 import { Utils } from "@nativescript/core";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data(): {
