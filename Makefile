@@ -1,4 +1,5 @@
 ANDROID ?= $(HOME)/android-sdk/tools/bin
+PROJECT_DIR ?= $(shell pwd)
 BUILD_TYPE ?= beta
 APP ?= .
 
@@ -160,13 +161,13 @@ checks: setup
 	$(MAKE) cycle-checks
 
 android-webpack:
-	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/@nativescript/webpack/dist/bin/index.js build --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=$(PROJECT_DIR)/node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android
 
 android-webpack-watch:
-	NODE_OPTIONS="--max_old_space_size=4096 --preserve-symlinks" webpack-dev-server --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android
+	NODE_OPTIONS="--max_old_space_size=4096 --preserve-symlinks" webpack-dev-server --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=$(PROJECT_DIR)/node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android
 
 ios-webpack:
-	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --env.ios --no-cache
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/@nativescript/webpack/dist/bin/index.js build --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=$(PROJECT_DIR)/node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --env.ios --no-cache
 
 ios-webpack-watch:
-	NODE_OPTIONS="--max_old_space_size=4096 --preserve-symlinks" webpack-dev-server --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.ios
+	NODE_OPTIONS="--max_old_space_size=4096 --preserve-symlinks" webpack-dev-server --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=$(PROJECT_DIR)/node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.ios
