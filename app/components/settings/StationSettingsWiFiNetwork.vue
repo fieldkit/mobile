@@ -60,12 +60,13 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 import { Dialogs } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import WiFiNetworkForm from "@/components/WiFiNetworkForm.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-import WiFiNetworkForm from "~/components/WiFiNetworkForm.vue";
+import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data(): {

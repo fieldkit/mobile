@@ -36,7 +36,7 @@ import Config from "@/config";
 import { routes } from "@/routes";
 import { isIOS } from "@nativescript/core";
 import { AvailableStation } from "@/store/types";
-import { uuidv4 } from "@/lib";
+import { _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationsMap",

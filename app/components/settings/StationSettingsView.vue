@@ -39,9 +39,9 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import Services from "@/services/singleton";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import StationListView from "@/components/StationListView.vue";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
 import Firmware from "./StationSettingsFirmware.vue";
@@ -49,7 +49,8 @@ import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
 import * as animations from "@/components/animations";
 import { ActionTypes, AvailableStation } from "@/store";
-import StationListView from "~/components/StationListView.vue";
+import Services from "@/services/singleton";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data(): {

@@ -25,10 +25,11 @@
 import Vue from "vue";
 import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
 import * as animations from "../animations";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data() {

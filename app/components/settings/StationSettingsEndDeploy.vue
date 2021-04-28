@@ -32,8 +32,9 @@
 import Vue from "vue";
 import { Dialogs } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import { AvailableStation, ActionTypes } from "@/store";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     name: "StationSettingsEndDeploy",

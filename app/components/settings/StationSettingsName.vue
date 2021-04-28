@@ -61,7 +61,7 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { RenameStationAction, AvailableStation } from "@/store";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {

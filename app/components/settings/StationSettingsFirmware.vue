@@ -81,13 +81,13 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { promiseAfter } from "@/lib";
-import { fullRoutes } from "@/routes";
-import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import { fullRoutes } from "@/routes";
+import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
+import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
     components: {

@@ -27,8 +27,9 @@ import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import StationName from "./StationSettingsName.vue";
 import CaptureSchedule from "./StationSettingsCaptureSchedule.vue";
-import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import * as animations from "../animations";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data() {

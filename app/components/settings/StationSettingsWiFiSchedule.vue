@@ -29,13 +29,12 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import SettingsItemSlider from "../app-settings/SettingsItemSlider.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import { AvailableStation } from "@/store";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import SettingsItemSlider from "../app-settings/SettingsItemSlider.vue";
+import { ActionTypes, AvailableStation } from "@/store";
 
 export default Vue.extend({
     data(): {

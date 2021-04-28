@@ -88,7 +88,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Timer, getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/lib";
+import { _L, Timer, getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/lib";
 import { LegacyStation } from "@/store";
 
 interface OtherData {

@@ -16,11 +16,11 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import CalibratingModules from "../onboarding/CalibratingModules.vue";
 
 export default Vue.extend({
     components: {

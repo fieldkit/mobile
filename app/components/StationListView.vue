@@ -41,7 +41,7 @@ import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
-import { uuidv4 } from "@/lib";
+import { _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationListView",
