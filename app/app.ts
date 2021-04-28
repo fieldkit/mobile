@@ -5,9 +5,9 @@ initializeI18n("en");
 
 // It's important to import this way and avoid mixing zone.js with the
 // dist paths, from what I can tell.
-import "zone.js/dist/zone";
-import "zone.js/dist/zone-error";
-import "zone.js/dist/zone-bluebird";
+// import "zone.js/dist/zone";
+// import "zone.js/dist/zone-error";
+// import "zone.js/dist/zone-bluebird";
 
 import _ from "lodash";
 import moment from "moment";
