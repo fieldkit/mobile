@@ -61,9 +61,10 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { fullRoutes } from "@/routes";
-import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
+import SharedComponents from "@/components/shared";
+import { fullRoutes } from "@/routes";
+import { _L } from "@/lib";
 import { email } from "vuelidate/lib/validators";
 
 export default Vue.extend({
