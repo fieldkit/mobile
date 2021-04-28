@@ -11,33 +11,28 @@
                             :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber"
                             class="size-15 m-x-15 m-b-5"
                             textWrap="true"
-                            v-if="stationFirmware"
                         />
-                        <Label :text="stationFirmware.version" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="stationFirmware" />
+                        <Label :text="stationFirmware.version" class="size-15 m-x-15 m-b-5" textWrap="true" v-if="stationFirmware" />
                         <Label
-                            :text="_L('firmwareNumber') + ': --'"
+                            :text="stationFirmware.time | prettyUnixTime"
                             class="size-15 m-x-15 m-b-20"
                             textWrap="true"
-                            v-if="!stationFirmware"
+                            v-if="stationFirmware"
                         />
 
                         <template v-if="!missingFirmware">
                             <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
                             <Label
                                 :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber"
-                                class="size-15 m-x-15 m-b-20"
+                                class="size-15 m-x-15 m-b-5"
                                 textWrap="true"
-                                v-if="availableFirmware && availableFirmware.simpleNumber"
                             />
-                            <Label
-                                :text="_L('firmwareNumber') + ': --'"
-                                class="size-15 m-x-15 m-b-20"
-                                textWrap="true"
-                                v-if="!availableFirmware || !availableFirmware.simpleNumber"
-                            />
+                            <Label :text="availableFirmware.version" class="size-15 m-x-15 m-b-5" textWrap="true" />
+                            <Label :text="availableFirmware.buildTimeUnix | prettyUnixTime" class="size-15 m-x-15 m-b-20" textWrap="true" />
                         </template>
 
                         <Label v-if="!missingFirmware && !updateAvailable" :text="_L('upToDate')" class="size-20 m-x-15" />
+
                         <Button
                             v-if="updateAvailable"
                             :text="_L('upgradeFirmware')"
@@ -81,7 +76,6 @@
 
 <script lang="ts">
 import _ from "lodash";
-import moment from "moment";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
@@ -90,13 +84,6 @@ import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { fullRoutes } from "@/routes";
 import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import { promiseAfter } from "@/lib";
-
-function parseMeta(raw: string | Record<string, string>): Record<string, string> {
-    if (_.isString(raw)) {
-        return JSON.parse(raw);
-    }
-    return raw;
-}
 
 export default Vue.extend({
     components: {
@@ -152,26 +139,17 @@ export default Vue.extend({
         updateAvailable(): boolean {
             const available = this.$s.state.firmware.available;
             const station = this.$s.state.firmware.stations[this.stationId];
-            console.log("comparing", "station", this.stationId, station, "available", available);
             if (available && station) {
-                const availableMeta = parseMeta(available.meta);
-                const availableTime = moment.utc(availableMeta["Build-Time"], "YYYYMMDD_hhmmss");
-                const availableUnix = availableTime.unix();
-                const availableVersion = available?.simpleNumber || 0;
-                const stationVersion = station?.simpleNumber || 0;
+                const availableNumber = available?.simpleNumber || 0;
+                const stationNumber = station?.simpleNumber || 0;
+                const availableUnix = available?.buildTimeUnix || 0;
                 const stationUnix = station?.time || 0;
-                console.log(
-                    "comparing",
-                    "station",
-                    stationVersion,
-                    "unix",
-                    stationUnix,
-                    "available",
-                    availableVersion,
-                    "unix",
-                    availableUnix
-                );
-                return Number(availableUnix) > Number(stationUnix);
+                const canUpdate = Number(availableUnix) > Number(stationUnix);
+                console.log(`firmware: can=${canUpdate} station: ${station.version} unix=${stationUnix} number=${stationNumber}`);
+                console.log(`firmware: can=${canUpdate} available: ${available.version} unix=${availableUnix} number=${availableNumber}`);
+                return canUpdate;
+            } else {
+                console.log(`missing available or station firmware`);
             }
             return false;
         },

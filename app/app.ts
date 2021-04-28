@@ -49,6 +49,13 @@ function configureVueJs(services: typeof Services): Store {
         return value.toFixed(2);
     });
 
+    Vue.filter("prettyUnixTime", (value: number | Date | undefined): string => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value * 1000).format("MM/DD/YYYY hh:mm:ss");
+    });
+
     Vue.filter("prettyTime", (value: number | Date | undefined): string => {
         if (!value) {
             return "N/A";

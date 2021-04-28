@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import moment from "moment";
 import { ActionContext, Module } from "vuex";
 import { Station, FirmwareInfo } from "../types";
 import { FirmwareTableRow } from "../row-types";
@@ -7,7 +8,17 @@ import { ActionTypes, UpgradeStationFirmwareAction } from "../actions";
 import { MutationTypes } from "../mutations";
 import { ServiceRef, TransferProgress } from "@/services";
 
+function parseMeta(raw: string | Record<string, string>): Record<string, string> {
+    if (_.isString(raw)) {
+        return JSON.parse(raw) as Record<string, string>;
+    }
+    return raw;
+}
+
 export class AvailableFirmware {
+    public readonly buildTimeUnix: number;
+    public readonly version: string;
+
     constructor(
         public readonly id: number,
         public readonly time: Date,
@@ -15,7 +26,12 @@ export class AvailableFirmware {
         public readonly path: string,
         public readonly meta: Record<string, string> | string,
         public readonly simpleNumber: number
-    ) {}
+    ) {
+        const availableMeta = parseMeta(meta);
+        const availableTime = moment.utc(availableMeta["Build-Time"], "YYYYMMDD_hhmmss");
+        this.buildTimeUnix = availableTime.unix();
+        this.version = availableMeta["Build-Version"];
+    }
 
     public static fromRow(row: FirmwareTableRow): AvailableFirmware {
         return new AvailableFirmware(row.id, new Date(row.buildTime), row.url, row.path, row.meta, Number(row.buildNumber));
