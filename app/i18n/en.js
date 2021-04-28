@@ -536,6 +536,10 @@ module.exports = {
 					clear: "Clear Calibration",
 					done: "Next",
 				},
+				strategy0: {
+					heading: "pH Calibration",
+					help: "pH Calibration,"
+				},
 				step0: {
 					prepare0: {
 						heading: "",
@@ -598,6 +602,10 @@ module.exports = {
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
 					clear: "Clear Calibration",
 					done: "Next",
+				},
+				strategy0: {
+					heading: "Conductivity Calibration",
+					help: "Conductivity Calibration,"
 				},
 				step0: {
 					prepare0: {
@@ -662,6 +670,10 @@ module.exports = {
 					clear: "Clear Calibration",
 					done: "Next",
 				},
+				strategy0: {
+					heading: "Dissolved Oxygen Calibration",
+					help: "Dissolved Oxygen Calibration,"
+				},
 				step0: {
 					prepare0: {
 						heading: "",
@@ -724,6 +736,10 @@ module.exports = {
 					calibrated: "This sensor is already calibrated. You can clear the calibration below to return the module's state to factory defaults.",
 					clear: "Clear Calibration",
 					done: "Next",
+				},
+				strategy0: {
+					heading: "Water Temperature Calibration",
+					help: "Water Temperature Calibration,"
 				},
 				step0: {
 					prepare0: {
@@ -788,6 +804,10 @@ module.exports = {
 					clear: "Clear Calibration",
 					done: "Next",
 				},
+				strategy0: {
+					heading: "ORP Calibration",
+					help: "ORP Calibration,"
+				},
 				step0: {
 					prepare0: {
 						heading: "",
@@ -841,7 +861,7 @@ module.exports = {
 				}
 			},
 		},
-		unalibrated: "Unalibrated",
+		uncalibrated: "Uncalibrated",
 		calibrated: "Calibrated",
 		cleared: "Cleared",
 	},
