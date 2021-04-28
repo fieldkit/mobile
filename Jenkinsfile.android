@@ -2,6 +2,14 @@
 
 conservifyProperties([ disableConcurrentBuilds() ])
 
+def getBranch(scmInfo) {
+	def (remoteOrBranch, branch) = scmInfo.GIT_BRANCH.tokenize('/')
+	if (branch) {
+		return branch;
+	}
+	return remoteOrBranch;
+}
+
 timestamps {
     node ("jenkins-aws-ubuntu") {
         try {
@@ -33,7 +41,7 @@ timestamps {
             stage ('build') {
                 def props = readProperties(file: "private/gradle.properties")
 
-				def (remote, branch) = scmInfo.GIT_BRANCH.tokenize('/')
+				def branch = getBranch(scmInfo)
 
 				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
 					sh """

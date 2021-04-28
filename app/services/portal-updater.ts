@@ -1,6 +1,6 @@
 import { Station, PortalError } from "../store/types";
 import { PortalErrorAction, PortalReplyAction } from "../store/actions";
-import { Store } from "../store/our-store";
+import { OurStore } from "../store/our-store";
 import { FileSystem } from "@/services";
 import SynchronizeNotes from "./synchronize-notes";
 import PortalInterface, { Ids, AxiosError } from "./portal-interface";
@@ -13,7 +13,7 @@ const OneMinute = 60 * 1000;
 export default class PortalUpdater {
     private synchronizeNotes: SynchronizeNotes;
 
-    constructor(private readonly portal: PortalInterface, private readonly store: Store, fs: FileSystem) {
+    constructor(private readonly portal: PortalInterface, private readonly store: OurStore, fs: FileSystem) {
         this.synchronizeNotes = new SynchronizeNotes(portal, store, fs);
     }
 

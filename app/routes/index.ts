@@ -1,11 +1,10 @@
 import _ from "lodash";
 
 import { VueConstructor } from "vue/types/vue";
-import { Page } from "@nativescript/core";
+import { Page, Frame } from "@nativescript/core";
 import { NavigationEntryVue } from "nativescript-vue";
 import { NavigationMutation } from "@/store/mutations";
-import { Store } from "@/store/our-store";
-import { Frame } from "@nativescript/core";
+import { OurStore } from "@/store/our-store";
 
 import { Route, FullRoute, NavigateOptions, FirstTab } from "./navigate";
 
@@ -49,18 +48,24 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | null): 
     return false;
 }
 
-export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
+let tabsReady = false;
+
+getBus().$on("nav:tabs-ready", () => {
+    console.log("nav:tabs-ready");
+    tabsReady = true;
+});
+
+export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
     /* eslint-disable */
     const navFn = async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {
         if (pageOrRoute instanceof FullRoute) {
             const route = namedRoutes[pageOrRoute.name];
             const page = route.page as any;
-            const haveTabs = _.keys(store.state.nav.frames).length >= 3;
             // Verify top route is for TabbedLayout
             const firstTab = pageOrRoute.props.firstTab as FirstTab;
-            console.log("nav:full-route", "have-tabs", haveTabs, "first-tab", firstTab);
-            if (!haveTabs || !firstTab) {
-                console.log("nav:navigating to tabbed-layout");
+            console.log(`nav:full-route: have-tabs: ${tabsReady} firstTab ${firstTab}`);
+            if (!tabsReady || !firstTab) {
+                console.log(`nav:navigating to tabbed-layout`);
                 store.commit(
                     new NavigationMutation(
                         pageOrRoute.frame || "<no-frame>",
@@ -85,7 +90,7 @@ export function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
                     )
                 );
             } else {
-                console.log("nav:using existing tabbed-layout");
+                console.log(`nav:using existing tabbed-layout`);
                 await navFn(firstTab.route, null);
                 getBus().$emit("nav:tab", firstTab.index);
             }

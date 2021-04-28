@@ -72,7 +72,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { getLastSeen, _T } from "@/lib";
+import { getLastSeen, _L } from "@/lib";
 import { Module, Sensor, LegacyStation } from "@/store";
 import { isAndroid, Label } from "@nativescript/core";
 import { ModuleCalibration, StationCalibration } from "~/calibration";
@@ -138,10 +138,10 @@ export default Vue.extend({
             return _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
         },
         getModuleName(): string {
-            return _T(this.module.name + ".name");
+            return _L(this.module.name + ".name");
         },
         getSensorName(sensor: Sensor): string {
-            return _T(this.module.name + ".sensors." + sensor.name);
+            return _L(this.module.name + ".sensors." + sensor.name);
         },
         getModuleImage(): string {
             const statusString = this.station.connected ? "" : "Gray_";

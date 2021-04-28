@@ -68,6 +68,7 @@ import Bluebird from "bluebird";
 import Config from "@/config";
 
 import {
+    _L,
     promiseAfter,
     serializePromiseChain,
     DownloadsDirectory,
@@ -85,7 +86,6 @@ import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
 
-import Recalibrate from "../onboarding/Recalibrate.vue";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 import SharedComponents from "@/components/shared";
 
@@ -120,7 +120,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        Recalibrate,
     },
     computed: {
         beta(): boolean {
@@ -214,7 +213,7 @@ export default Vue.extend({
             return Services.PortalUpdater()
                 .addOrUpdateStations()
                 .then(() => {
-                    return alert({
+                    return Dialogs.alert({
                         title: _L("devOptions"),
                         message: "Done",
                         okButtonText: _L("ok"),
@@ -236,7 +235,7 @@ export default Vue.extend({
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
-                            return alert({
+                            return Dialogs.alert({
                                 title: _L("devOptions"),
                                 message: "Done",
                                 okButtonText: _L("ok"),
@@ -256,7 +255,7 @@ export default Vue.extend({
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
-                            return alert({
+                            return Dialogs.alert({
                                 title: _L("devOptions"),
                                 message: "Done",
                                 okButtonText: _L("ok"),
@@ -335,7 +334,7 @@ export default Vue.extend({
 
             await truncateLogs();
 
-            await alert({
+            await Dialogs.alert({
                 title: _L("devOptions"),
                 message: "Logs deleted.",
                 okButtonText: _L("ok"),
@@ -350,7 +349,7 @@ export default Vue.extend({
             await this.deleteDB();
             await this.deleteFiles();
 
-            await alert({
+            await Dialogs.alert({
                 title: _L("devOptions"),
                 message: _L("dbDeleted"),
                 okButtonText: _L("ok"),
@@ -384,7 +383,7 @@ export default Vue.extend({
                 .catch((res) => {
                     console.log("error removing files", res, res ? res.stack : null);
 
-                    alert({
+                    Dialogs.alert({
                         title: _L("devOptions"),
                         message: _L("errorRemovingFiles"),
                         okButtonText: _L("ok"),

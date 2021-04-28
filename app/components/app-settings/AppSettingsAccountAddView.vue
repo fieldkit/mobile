@@ -23,6 +23,7 @@ import LoginForm from "../LoginForm.vue";
 import RegisterForm from "../RegisterForm.vue";
 import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
+import { Dialogs } from "@nativescript/core";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
@@ -55,7 +56,7 @@ export default Vue.extend({
                     .catch((error) => {
                         console.log("error", error);
                         this.busy = false;
-                        return alert(_L("loginFailed"));
+                        return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {
                 // this.busy = false;

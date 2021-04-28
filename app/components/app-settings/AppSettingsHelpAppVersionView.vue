@@ -30,17 +30,15 @@ import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import { Build } from "@/config";
-import * as appVersion from "nativescript-appversion";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data(): {
         versions: typeof Build;
-        storeVersion: string | null;
     } {
         return {
             versions: Build,
-            storeVersion: null,
         };
     },
     computed: {
@@ -54,12 +52,7 @@ export default Vue.extend({
         SettingsItemText,
     },
     async mounted(): Promise<void> {
-        const versionName = await appVersion.getVersionName();
-        const versionCode = await appVersion.getVersionCode();
-        const appId = await appVersion.getAppId();
-        console.log(`versions: ${versionName} ${versionCode} ${appId}`);
         console.log(`versions: ${JSON.stringify(Build)}`);
-        this.storeVersion = versionName;
     },
     methods: {
         async saveSettings(): Promise<void> {
@@ -73,7 +66,7 @@ export default Vue.extend({
             }).then((yesNo) => {
                 if (yesNo) {
                     console.log(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
-                    utils.openUrl(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
+                    Utils.openUrl(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
                 }
             });
         },

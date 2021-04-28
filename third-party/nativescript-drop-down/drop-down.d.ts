@@ -13,72 +13,58 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ***************************************************************************** */
-import { ObservableArray } from "data/observable-array";
-import { EventData } from "data/observable";
-import { CoercibleProperty, Property, View } from "ui/core/view";
-import { GestureTypes } from "ui/gestures/gestures";
-import { ItemsSource } from "ui/list-picker";
-import { TextAlignment } from "ui/text-base";
+import {
+    CoercibleProperty,
+    EventData,
+    GestureTypes,
+    ItemsSource,
+    ObservableArray,
+    Property,
+    TextAlignment,
+    View
+} from "@nativescript/core";
 
 export interface SelectedIndexChangedEventData extends EventData {
-  oldIndex: number;
-  newIndex: number;
+    oldIndex: number;
+    newIndex: number;
 }
 
 export interface ValueItem<T> {
-  value: T;
-  display: string;
+    value: T;
+    display: string;
 }
 
 export class DropDown extends View {
-  public static openedEvent: "opened";
-  public static closedEvent: "closed";
-  public static selectedIndexChangedEvent: "selectedIndexChanged";
+    public static openedEvent: "opened";
+    public static closedEvent: "closed";
+    public static selectedIndexChangedEvent: "selectedIndexChanged";
 
-  public items: any[] | ItemsSource;
-  public selectedIndex: number;
-  public itemsTextAlignment: TextAlignment;
-  public itemsPadding: string;
-  public hint: string;
-  public accessoryViewVisible: boolean; /* iOS ONLY! */
+    public items: any[] | ItemsSource;
+    public selectedIndex: number;
+    public itemsTextAlignment: TextAlignment; 
+    public itemsPadding: string;
+    public hint: string;
+    public accessoryViewVisible: boolean; /* iOS ONLY! */
 
-  public ios: any; /* UILabel */
-  public android: any; /*android.widget.Spinner */
+    public ios: any; /* UILabel */
+    public android: any; /*android.widget.Spinner */
 
-  public on(
-    eventNames: string,
-    callback: (data: EventData) => void,
-    thisArg?: any
-  );
-  public on(
-    event: "opened",
-    callback: (args: EventData) => void,
-    thisArg?: any
-  );
-  public on(
-    event: "closed",
-    callback: (args: EventData) => void,
-    thisArg?: any
-  );
-  public on(
-    event: "selectedIndexChanged",
-    callback: (args: SelectedIndexChangedEventData) => void,
-    thisArg?: any
-  );
+    public on(eventNames: string, callback: (data: EventData) => void, thisArg?: any);
+    public on(event: "opened", callback: (args: EventData) => void, thisArg?: any);
+    public on(event: "closed", callback: (args: EventData) => void, thisArg?: any);
+    public on(event: "selectedIndexChanged", callback: (args: SelectedIndexChangedEventData) => void, thisArg?: any);
 
-  public open();
-  public close();
+    public open();
+    public close();
 }
 
-export class ValueList<T>
-  extends ObservableArray<ValueItem<T>>
-  implements ItemsSource {
-  public getDisplay(index: number): string;
-  public getValue(index: number): T;
-  public getIndex(value: T): number;
-
-  constructor(items: ValueItem<T>[]);
-  constructor();
+export  class ValueList<T> extends ObservableArray<ValueItem<T>> implements ItemsSource {
+    public getDisplay(index: number): string;
+    public getValue(index: number): T;
+    public getIndex(value: T): number;
+    
+    constructor(items: ValueItem<T>[]);
+    constructor();
 }
 
 export const selectedIndexProperty: CoercibleProperty<DropDown, number>;

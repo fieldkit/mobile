@@ -1,7 +1,7 @@
-import i18n from "@/lib/tns-i18n-deep";
+import { initializeI18n } from "@/lib/tns-i18n-deep";
 // Note: i18n detects the preferred language on the phone,
 // and this default language initialization does not override that
-i18n("en");
+initializeI18n("en");
 
 // It's important to import this way and avoid mixing zone.js with the
 // dist paths, from what I can tell.
@@ -15,9 +15,8 @@ import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
-import RadGauge from "nativescript-ui-gauge/vue";
 
-import { _T, initializeLogging } from "./lib";
+import { _L, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
 import { navigatorFactory } from "./routes";
@@ -27,7 +26,9 @@ import { MapboxView } from "nativescript-mapbox";
 import { DropDown } from "nativescript-drop-down";
 import { CheckBox } from "@nstudio/nativescript-checkbox";
 
-import StartupScreen from "./components/StartupScreen";
+import BottomNavigation from "@nativescript-community/ui-material-bottom-navigation/vue";
+
+import StartupScreen from "./components/StartupScreen.vue";
 
 function configureVueJs(services: typeof Services): Store {
     Vue.registerElement("DropDown", () => DropDown);
@@ -92,13 +93,11 @@ function configureVueJs(services: typeof Services): Store {
     });
 
     Vue.use(Vuex);
-    Vue.use(RadGauge);
+    Vue.use(BottomNavigation);
 
     // Pass i18n's global variable to Vue
     // eslint-disable-next-line
     Vue.prototype._L = _L;
-    // eslint-disable-next-line
-    Vue.prototype._T = _T;
 
     // Enable use of dev tools on developer machine.
     if (Config.debugging.machine) {

@@ -2,6 +2,14 @@
 
 conservifyProperties([ disableConcurrentBuilds() ])
 
+def getBranch(scmInfo) {
+	def (remoteOrBranch, branch) = scmInfo.GIT_BRANCH.tokenize('/')
+	if (branch) {
+		return branch;
+	}
+	return remoteOrBranch;
+}
+
 timestamps {
     node ("osx") {
         try {
@@ -22,7 +30,7 @@ timestamps {
             }
 
 			stage ('build') {
-				def (remote, branch) = scmInfo.GIT_BRANCH.tokenize('/')
+				def branch = getBranch(scmInfo)
 
 				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
 					withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {

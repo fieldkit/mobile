@@ -1,6 +1,4 @@
-import { Color } from "@nativescript/core";
-import { ContentView } from "@nativescript/core";
-import { Property } from "@nativescript/core";
+import { Color, ContentView, Property } from "@nativescript/core";
 export declare enum MapStyle {
     DARK,
     OUTDOORS,

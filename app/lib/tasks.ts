@@ -1,3 +1,4 @@
+/*
 import _ from "lodash";
 import { DataServices } from "./data-services";
 
@@ -162,3 +163,6 @@ class WorkerTaskQueuer implements TaskQueuer {
         this.ctx.postMessage(task);
     }
 }
+*/
+
+export class TaskQueue {}

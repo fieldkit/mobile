@@ -1,67 +1,70 @@
 <template>
-    <Page actionBarHidden="true">
-        <BottomNavigation
-            id="bottom-nav"
-            ref="bottomNavigation"
-            :selectedIndex="tab"
-            @selectedIndexChanged="onSelectedIndexChanged"
-            @loaded="bottomLoaded"
-        >
-            <TabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
-                <TabStripItem @tap="tapStations">
-                    <Image
-                        width="22"
-                        height="22"
-                        :src="tab == 0 ? '~/images/Icon_Station_active2.png' : '~/images/Icon_Station_inactive2.png'"
-                    />
-                    <Label text="Stations" />
-                </TabStripItem>
-                <TabStripItem @tap="tapData">
-                    <Image
-                        width="22"
-                        height="22"
-                        :src="tab == 1 ? '~/images/Icon_DataSync_active2.png' : '~/images/Icon_DataSync_inactive2.png'"
-                    />
-                    <Label text="Data" />
-                </TabStripItem>
-                <TabStripItem @tap="tapSettings">
-                    <Image
-                        width="22"
-                        height="22"
-                        :src="tab == 2 ? '~/images/Icon_Settings_active2.png' : '~/images/Icon_Settings_inactive2.png'"
-                    />
-                    <Label text="Settings" />
-                </TabStripItem>
-            </TabStrip>
-            <TabContentItem>
-                <Frame id="stations-frame">
-                    <StationListView />
-                </Frame>
-            </TabContentItem>
-            <TabContentItem>
-                <Frame id="data-frame">
-                    <DataSync />
-                </Frame>
-            </TabContentItem>
-            <TabContentItem>
-                <Frame id="settings-frame">
-                    <AppSettingsView />
-                </Frame>
-            </TabContentItem>
-        </BottomNavigation>
+    <Page actionBarHidden="true" @loaded="onPageLoaded">
+        <GridLayout rows="*">
+            <MDBottomNavigation
+                v-if="loaded"
+                id="bottom-nav"
+                ref="bottomNavigation"
+                :selectedIndex="tab"
+                @selectedIndexChanged="onSelectedIndexChanged"
+                @loaded="bottomLoaded"
+            >
+                <MDTabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
+                    <MDTabStripItem @tap="tapStations">
+                        <Image
+                            width="22"
+                            height="22"
+                            :src="tab == 0 ? '~/images/Icon_Station_active2.png' : '~/images/Icon_Station_inactive2.png'"
+                        />
+                        <Label text="Stations" />
+                    </MDTabStripItem>
+                    <MDTabStripItem @tap="tapData">
+                        <Image
+                            width="22"
+                            height="22"
+                            :src="tab == 1 ? '~/images/Icon_DataSync_active2.png' : '~/images/Icon_DataSync_inactive2.png'"
+                        />
+                        <Label text="Data" />
+                    </MDTabStripItem>
+                    <MDTabStripItem @tap="tapSettings">
+                        <Image
+                            width="22"
+                            height="22"
+                            :src="tab == 2 ? '~/images/Icon_Settings_active2.png' : '~/images/Icon_Settings_inactive2.png'"
+                        />
+                        <Label text="Settings" />
+                    </MDTabStripItem>
+                </MDTabStrip>
+                <MDTabContentItem>
+                    <Frame id="stations-frame">
+                        <StationListView />
+                    </Frame>
+                </MDTabContentItem>
+                <MDTabContentItem>
+                    <Frame id="data-frame">
+                        <DataSync />
+                    </Frame>
+                </MDTabContentItem>
+                <MDTabContentItem>
+                    <Frame id="settings-frame">
+                        <AppSettingsView />
+                    </Frame>
+                </MDTabContentItem>
+            </MDBottomNavigation>
+        </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
-import { BottomNavigation } from "@nativescript/core";
-import { NavigationMutation } from "@/store";
+import { BottomNavigation } from "@nativescript-community/ui-material-bottom-navigation";
 import { routes, Route, FirstTab } from "@/routes";
+import { getBus } from "@/components/NavigationBus";
 import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
-import { getBus } from "@/components/NavigationBus";
 import FlowView from "@/reader/FlowView.vue";
+import { promiseAfter } from "@/lib";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -81,25 +84,19 @@ export default Vue.extend({
     },
     data(): {
         tab: number;
+        loaded: boolean;
         ready: boolean;
     } {
         return {
             tab: 0,
+            loaded: false,
             ready: false,
         };
     },
     created(): void {
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
-        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", "", false));
-        this.$s.commit(new NavigationMutation("data-frame", "DataSync", "", false));
-        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", "", false));
 
-        getBus().$on("nav:tab", (tab: number) => {
-            console.log("nav:tab", tab);
-            if (this.tab != tab) {
-                this.tab = tab;
-            }
-        });
+        getBus().$on("nav:tab", this.onTabChangedRequired);
     },
     mounted(): void {
         console.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
@@ -108,6 +105,22 @@ export default Vue.extend({
         console.log(`tabbed-layout: updated ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
     },
     methods: {
+        onTabChangedRequired(tab: number) {
+            console.log("nav:tab", tab);
+            if (this.tab != tab) {
+                this.tab = tab;
+            }
+        },
+        onPageLoaded(): void {
+            console.log(`tabbed-layout: page-loaded`);
+
+            // HACK For some reason BottomNavigation is just blank at
+            // startup, like the render is happening before things are setup
+            // and then aren't checked again.
+            void promiseAfter(100).then(() => {
+                this.loaded = true;
+            });
+        },
         tabIndexToFrame(index: number): string {
             const frames = ["stations-frame", "data-frame", "settings-frame"];
             if (index < 0 || index >= frames.length) throw new Error(`invalid frame index`);
@@ -128,12 +141,12 @@ export default Vue.extend({
             const view = <BottomNavigation>args.object;
             if (this.tab != view.selectedIndex) {
                 this.tab = view.selectedIndex;
-                console.log("tabbed-layout: tab-changed", this.tab, this.ready);
+                console.log(`tabbed-layout: tab-changed:`, this.tab, this.ready);
             }
         },
         async updateSelected(): Promise<void> {
             /* eslint-disable */
-            console.log(`tabbed-layout: update-selected`, this.tab, this.ready);
+            console.log(`tabbed-layout: update-selected:`, this.tab, this.ready);
 
             const firstTab: FirstTab = this.firstTab;
 
@@ -224,6 +237,7 @@ export default Vue.extend({
                     this.ready = true;
                 });
             }
+            getBus().$emit("nav:tabs-ready");
         },
     },
 });

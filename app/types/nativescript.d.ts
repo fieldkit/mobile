@@ -31,4 +31,7 @@ declare global {
     const FK_BUILD_JOB: string;
     const FK_GIT_COMMIT: string;
     const FK_GIT_BRANCH: string;
+
+    // eslint-disable-next-line
+    interface Event {}
 }

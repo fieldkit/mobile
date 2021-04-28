@@ -1,3 +1,4 @@
+/*
 import _ from "lodash";
 // import Services from "@/services/singleton";
 
@@ -37,3 +38,4 @@ try {
 } catch (error) {
     console.log(`worker:error: ${JSON.stringify(error)}`);
 }
+*/

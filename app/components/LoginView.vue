@@ -20,10 +20,11 @@
 
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
+import { Dialogs } from "@nativescript/core";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
-import { fullRoutes } from "@/routes";
 import { LoginAction } from "@/store/actions";
+import { fullRoutes } from "@/routes";
 
 export default Vue.extend({
     name: "LoginView",
@@ -59,7 +60,7 @@ export default Vue.extend({
                     .catch((error) => {
                         console.log("error", error);
                         this.busy = false;
-                        return alert(_L("loginFailed"));
+                        return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {
                 this.busy = false;

@@ -3,7 +3,7 @@
         <StackLayout verticalAlignment="middle">
             <GridLayout rows="auto,auto">
                 <Image row="0" src="~/images/Icon_Success.png" class="small" stretch="aspectFit" />
-                <Label row="1" class="instruction" :text="_T('onboarding.assembled.message')" lineHeight="4" textWrap="true" />
+                <Label row="1" class="instruction" :text="_L('onboarding.assembled.message')" lineHeight="4" textWrap="true" />
             </GridLayout>
         </StackLayout>
     </Page>

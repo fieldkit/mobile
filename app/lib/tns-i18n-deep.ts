@@ -1,42 +1,46 @@
 import { Application, Device } from "@nativescript/core";
 
-var strRender = require("str-render");
+const strRender = require("str-render");
 
-export default function (defaultLang) {
+const i18n = {
+    defaults: {},
+    strings: {},
+};
+
+export function translate(strName, ...replacers): string {
+    let res;
+
+    if (i18n.strings.hasOwnProperty(strName)) {
+        res = i18n.strings[strName];
+    } else if (i18n.defaults.hasOwnProperty(strName)) {
+        res = i18n.defaults[strName];
+    } else {
+        res = deepAccessUsingString(i18n.strings, strName);
+        if (res === undefined) {
+            res = deepAccessUsingString(i18n.defaults, strName);
+        }
+    }
+
+    if (res === undefined) {
+        res = "";
+    }
+
+    return strRender(res, "%s", ...replacers);
+}
+
+export function initializeI18n(defaultLang: string) {
     const lang = Device.language;
-    const defaults = require("~/i18n/" + defaultLang);
 
-    let strings = {};
+    i18n.defaults = require("~/i18n/" + defaultLang);
+
     try {
-        strings = require("~/i18n/" + lang);
+        i18n.strings = require("~/i18n/" + lang);
     } catch (e) {
         console.log("error loading/missing:", lang);
     }
 
-    const _L = function (strName, ...replacers) {
-        var res;
-        if (strings.hasOwnProperty(strName)) {
-            res = strings[strName];
-        } else if (defaults.hasOwnProperty(strName)) {
-            res = defaults[strName];
-        } else {
-            res = deepAccessUsingString(strings, strName);
-            if (res === undefined) {
-                res = deepAccessUsingString(defaults, strName);
-            }
-        }
-        if (res === undefined) {
-            res = "";
-        }
-
-        return strRender(res, "%s", ...replacers);
-    };
-
     const applicationResources = Application.getResources();
-    applicationResources._L = _L;
-    Application.setResources(_L);
     Application.setResources(applicationResources);
-    global._L = _L;
 }
 
 function deepAccessUsingString(obj, key) {

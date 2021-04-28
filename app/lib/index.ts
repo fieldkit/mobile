@@ -4,7 +4,6 @@ export * from "./fs";
 export * from "./timer";
 export * from "./errors";
 export * from "./testing";
-export * from "./database";
 export * from "./logging";
 
 import * as nsutils from "@nativescript/core/utils/utils";

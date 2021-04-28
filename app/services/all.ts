@@ -15,7 +15,7 @@ import FileSystem from "@/wrappers/file-system";
 import Conservify from "@/wrappers/networking";
 import { DiscoveryEvents } from "./discovery-events";
 import { TaskQueue } from "@/lib/tasks";
-import { OurStore } from "@/store";
+import type { OurStore } from "../store/our-store";
 
 export {
     PortalInterface,

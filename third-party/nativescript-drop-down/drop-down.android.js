@@ -1,24 +1,18 @@
-import { Color } from "color";
-import { placeholderColorProperty } from "ui/editable-text-base/editable-text-base-common";
-import { Label } from "ui/label";
-import { StackLayout } from "ui/layouts/stack-layout";
-import { textAlignmentProperty, textDecorationProperty, } from "ui/text-base";
-import { backgroundColorProperty, colorProperty, fontInternalProperty, fontSizeProperty, } from "ui/styling/style-properties";
-import * as types from "utils/types";
-import { DropDownBase, hintProperty, itemsPaddingProperty, itemsProperty, itemsTextAlignmentProperty, selectedIndexProperty, } from "./drop-down-common";
+import { Color, Label, StackLayout, Utils, fontInternalProperty, fontSizeProperty, placeholderColorProperty, textAlignmentProperty, textDecorationProperty } from "@nativescript/core";
+import { DropDownBase, backgroundColorProperty, colorProperty, hintProperty, itemsPaddingProperty, itemsProperty, itemsTextAlignmentProperty, selectedIndexProperty } from "./drop-down-common";
 export * from "./drop-down-common";
-const LABELVIEWID = "spinner-label";
-export var RealizedViewType;
+var RealizedViewType;
 (function (RealizedViewType) {
     RealizedViewType[RealizedViewType["ItemView"] = 0] = "ItemView";
     RealizedViewType[RealizedViewType["DropDownView"] = 1] = "DropDownView";
 })(RealizedViewType || (RealizedViewType = {}));
+const LABELVIEWID = "spinner-label";
 export class DropDown extends DropDownBase {
     constructor() {
         super(...arguments);
         this._realizedItems = [
             new Map(),
-            new Map(),
+            new Map()
         ];
     }
     createNativeView() {
@@ -43,7 +37,7 @@ export class DropDown extends DropDownBase {
         const nativeView = this.nativeView;
         nativeView.adapter.owner = new WeakRef(this);
         nativeView.itemSelectedListener.owner = new WeakRef(this);
-        if (!types.isNullOrUndefined(this.selectedIndex)) {
+        if (!Utils.isNullOrUndefined(this.selectedIndex)) {
             this.android.setSelection(this.selectedIndex + 1);
         }
         nativeView.itemsTextAlignment = itemsTextAlignmentProperty.defaultValue;
@@ -79,7 +73,7 @@ export class DropDown extends DropDownBase {
         this._propagateStylePropertyToRealizedViews("backgroundColor", value, true);
     }
     [colorProperty.setNative](value) {
-        if (!types.isNullOrUndefined(value)) {
+        if (!Utils.isNullOrUndefined(value)) {
             this._propagateStylePropertyToRealizedViews("color", value, false);
         }
     }
@@ -87,7 +81,7 @@ export class DropDown extends DropDownBase {
         this._propagateStylePropertyToRealizedViews("fontInternal", value, true);
     }
     [fontSizeProperty.setNative](value) {
-        if (!types.isNullOrUndefined(value)) {
+        if (!Utils.isNullOrUndefined(value)) {
             this._propagateStylePropertyToRealizedViews("fontSize", value, true);
         }
     }
@@ -136,7 +130,7 @@ export class DropDown extends DropDownBase {
         return null;
     }
     [selectedIndexProperty.setNative](value) {
-        const actualIndex = types.isNullOrUndefined(value) ? 0 : value + 1;
+        const actualIndex = (Utils.isNullOrUndefined(value) ? 0 : value + 1);
         this.nativeView.setSelection(actualIndex);
     }
     _getRealizedView(convertView, realizedViewType) {
@@ -164,12 +158,10 @@ export class DropDown extends DropDownBase {
         for (const item of realizedItems) {
             item.forEach((view) => {
                 if (isIncludeHintIn || !view.isHintViewIn) {
-                    if (property === "textAlignment" ||
-                        property === "textDecoration" ||
-                        property === "fontInternal" ||
-                        property === "fontSize" ||
-                        property === "color" ||
-                        property === "placeholderColor") {
+                    if (property === "textAlignment" || property === "textDecoration"
+                        || property === "fontInternal" || property === "fontSize"
+                        || property === "color"
+                        || property === "placeholderColor") {
                         const label = view.getViewById(LABELVIEWID);
                         label.style[property] = value;
                     }
@@ -228,7 +220,7 @@ function initializeTNSSpinner() {
         this._isOpenedIn = true;
         owner.notify({
             eventName: DropDownBase.openedEvent,
-            object: owner,
+            object: owner
         });
         return _super.prototype.performClick.call(this);
     };
@@ -238,7 +230,7 @@ function initializeTNSSpinner() {
             var owner = this.owner.get();
             owner.notify({
                 eventName: DropDownBase.closedEvent,
-                object: owner,
+                object: owner
             });
             this._isOpenedIn = false;
         }
@@ -322,21 +314,15 @@ function initializeDropDownAdapter() {
                 label.style.placeholderColor = owner.style.placeholderColor;
             }
             label.style.textDecoration = owner.style.textDecoration;
-            label.style.textAlignment =
-                owner.nativeView.itemsTextAlignment !==
-                    itemsTextAlignmentProperty.defaultValue && realizedViewType === 1
-                    ? owner.nativeView.itemsTextAlignment
-                    : owner.style.textAlignment;
+            label.style.textAlignment = owner.nativeView.itemsTextAlignment !== itemsTextAlignmentProperty.defaultValue
+                && realizedViewType === 1 ? owner.nativeView.itemsTextAlignment : owner.style.textAlignment;
             label.style.fontInternal = owner.style.fontInternal;
             if (owner.style.fontSize) {
                 label.style.fontSize = owner.style.fontSize;
             }
             view.style.backgroundColor = owner.style.backgroundColor;
-            view.style.padding =
-                owner.nativeView.itemsPadding !== itemsPaddingProperty.defaultValue &&
-                    realizedViewType === 1
-                    ? owner.nativeView.itemsPadding
-                    : owner.style.padding;
+            view.style.padding = owner.nativeView.itemsPadding !== itemsPaddingProperty.defaultValue
+                && realizedViewType === 1 ? owner.nativeView.itemsPadding : owner.style.padding;
             view.style.height = owner.style.height;
             if (realizedViewType === RealizedViewType.DropDownView) {
                 view.style.opacity = owner.style.opacity;
@@ -352,8 +338,8 @@ function initializeDropDownAdapter() {
                 }
                 view.isHintViewIn = true;
                 // HACK: if there is no hint defined, make the view in the drop down virtually invisible.
-                if (realizedViewType === RealizedViewType.DropDownView &&
-                    (types.isNullOrUndefined(owner.hint) || owner.hint === "")) {
+                if (realizedViewType === RealizedViewType.DropDownView
+                    && (Utils.isNullOrUndefined(owner.hint) || owner.hint === "")) {
                     view.height = 1;
                 }
                 // END HACK
@@ -381,14 +367,14 @@ function initializeDropDownItemSelectedListener() {
     DropDownItemSelectedListenerImpl.prototype.onItemSelected = function (parent, convertView, index, id) {
         var owner = this.owner.get();
         var oldIndex = owner.selectedIndex;
-        var newIndex = index === 0 ? null : index - 1;
+        var newIndex = (index === 0 ? null : index - 1);
         owner.selectedIndex = newIndex;
         if (newIndex !== oldIndex) {
             owner.notify({
                 eventName: DropDownBase.selectedIndexChangedEvent,
                 object: owner,
                 oldIndex: oldIndex,
-                newIndex: newIndex,
+                newIndex: newIndex
             });
             // Seems if the user does not select an item the control reuses the views on the next open.
             // So it should be safe to clear the cache once the user selects an item (and not when the dropdown is closed)

@@ -91,6 +91,7 @@
 import Vue from "vue";
 import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
+import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
 
 const ErrorUserEmailRegistered = "user-email-registered";
@@ -199,12 +200,11 @@ export default Vue.extend({
             }
         },
         alert(message: string): Promise<void> {
-            alert({
+            return Dialogs.alert({
                 title: "FieldKit",
                 okButtonText: _L("ok"),
                 message: message,
             });
-            return Promise.resolve();
         },
     },
 });

@@ -131,12 +131,11 @@ export default Vue.extend({
             }
         },
         alert(message: string): Promise<void> {
-            alert({
+            return Dialogs.alert({
                 title: "FieldKit",
                 okButtonText: _L("ok"),
                 message: message,
             });
-            return Promise.resolve();
         },
         async forgotPassword(): Promise<void> {
             await Dialogs.prompt({

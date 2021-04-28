@@ -25,7 +25,6 @@
 import Vue from "vue";
 import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
-import Networks from "./StationSettingsNetworks.vue";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
 import * as animations from "@/components/animations";
@@ -47,7 +46,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        Networks,
         WiFiNetwork,
         WiFiSchedule,
         ConnectionStatusHeader,

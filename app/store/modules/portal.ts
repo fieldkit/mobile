@@ -3,12 +3,13 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
 import { ActionTypes, LoginAction, ChangePortalEnvAction, SyncAccountAction, RemoveAccountAction } from "../actions";
-import { PortalEnv, CurrentUser } from "../types";
+import { PortalEnv } from "../types";
+import { CurrentUser } from "../http-types";
 import { MutationTypes } from "../mutations";
 import { AccountsTableRow, SettingsTableRow } from "../row-types";
 import Config from "@/config";
 
-export { CurrentUser };
+export type { CurrentUser };
 
 const fkprd: PortalEnv = {
     name: "fkprd",
