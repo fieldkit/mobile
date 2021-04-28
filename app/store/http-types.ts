@@ -1,8 +1,9 @@
 /* eslint @typescript-eslint/no-non-null-assertion: "off" */
+import Long from "long";
+import { Buffer } from "buffer";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
-import Long from "long";
 
 const HttpReply = AppProto.HttpReply;
 

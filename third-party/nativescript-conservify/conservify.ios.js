@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Conservify = void 0;
+var buffer_1 = require("buffer");
 var conservify_common_1 = require("./conservify.common");
 __exportStar(require("./conservify.common"), exports);
 var MyNetworkingListener = (function (_super) {
@@ -107,7 +108,7 @@ var UploadListener = (function (_super) {
                     }
                     else {
                         if (transfer_1.base64EncodeResponseBody) {
-                            return Buffer.from(body, "base64");
+                            return buffer_1.Buffer.from(body, "base64");
                         }
                         return body;
                     }
@@ -181,7 +182,7 @@ var DownloadListener = (function (_super) {
                     }
                     else {
                         if (transfer_2.base64EncodeResponseBody) {
-                            return Buffer.from(body, "base64");
+                            return buffer_1.Buffer.from(body, "base64");
                         }
                         return body;
                     }

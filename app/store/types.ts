@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { Buffer } from "buffer";
 import { decodeAndPrepare, HttpStatusReply, ReplyStream, NetworkInfo, ModuleConfiguration } from "./http-types";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";

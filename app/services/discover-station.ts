@@ -5,6 +5,7 @@ import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
 import { promiseAfter, zoned } from "@/lib";
+import { Buffer } from "buffer";
 import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");

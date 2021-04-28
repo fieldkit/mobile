@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { Buffer } from "buffer";
 import Vue from "vue";
 import { ActionContext, Module as VuexModule } from "vuex";
 import { MutationTypes } from "../mutations";

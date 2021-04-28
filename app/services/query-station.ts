@@ -7,6 +7,7 @@ import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/typ
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
 import { StationError } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
+import { Buffer } from "buffer";
 
 const HttpQuery = AppProto.HttpQuery;
 const HttpReply = AppProto.HttpReply;
