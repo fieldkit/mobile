@@ -13,7 +13,7 @@ export class AvailableFirmware {
         public readonly time: Date,
         public readonly url: string,
         public readonly path: string,
-        public readonly meta: Record<string, unknown>,
+        public readonly meta: Record<string, string> | string,
         public readonly simpleNumber: number
     ) {}
 

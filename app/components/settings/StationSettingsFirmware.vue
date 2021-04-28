@@ -80,6 +80,8 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
+import moment from "moment";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
@@ -88,6 +90,13 @@ import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { fullRoutes } from "@/routes";
 import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import { promiseAfter } from "@/lib";
+
+function parseMeta(raw: string | Record<string, string>): Record<string, string> {
+    if (_.isString(raw)) {
+        return JSON.parse(raw);
+    }
+    return raw;
+}
 
 export default Vue.extend({
     components: {
@@ -141,14 +150,28 @@ export default Vue.extend({
             return !this.availableFirmware || !this.availableFirmware.simpleNumber;
         },
         updateAvailable(): boolean {
-            const local = this.$s.state.firmware.available;
+            const available = this.$s.state.firmware.available;
             const station = this.$s.state.firmware.stations[this.stationId];
-            console.log("comparing", "station", this.stationId, station, "locally", local);
-            if (local && station) {
-                const localVersion = local?.simpleNumber || 0;
+            console.log("comparing", "station", this.stationId, station, "available", available);
+            if (available && station) {
+                const availableMeta = parseMeta(available.meta);
+                const availableTime = moment.utc(availableMeta["Build-Time"], "YYYYMMDD_hhmmss");
+                const availableUnix = availableTime.unix();
+                const availableVersion = available?.simpleNumber || 0;
                 const stationVersion = station?.simpleNumber || 0;
-                console.log("comparing", "station", stationVersion, "locally", localVersion);
-                return Number(localVersion) > Number(stationVersion);
+                const stationUnix = station?.time || 0;
+                console.log(
+                    "comparing",
+                    "station",
+                    stationVersion,
+                    "unix",
+                    stationUnix,
+                    "available",
+                    availableVersion,
+                    "unix",
+                    availableUnix
+                );
+                return Number(availableUnix) > Number(stationUnix);
             }
             return false;
         },
