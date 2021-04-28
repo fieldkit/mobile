@@ -1,25 +1,29 @@
 <template>
     <StackLayout height="100%" verticalAlignment="middle" class="container">
-        <GridLayout rows="auto,*,auto">
-            <StackLayout row="0">
-                <Image src="~/images/Icon_Warning_error.png" class="small"></Image>
-                <Label :text="_L('calibrationFailed')" class="instruction-heading"></Label>
-            </StackLayout>
-            <StackLayout row="1" class="information-container">
-                <Label :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true" />
-                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="table" v-if="rows.length >= 3">
-                    <Label row="0" col="0" text="Expected" class="column-heading" />
-                    <Label row="0" col="1" text="Measured" class="column-heading" />
+        <GridLayout rows="*,auto">
+            <ScrollView row="0">
+                <GridLayout rows="auto,*">
+                    <StackLayout row="0">
+                        <Image src="~/images/Icon_Warning_error.png" class="small"></Image>
+                        <Label :text="_L('calibrationFailed')" class="instruction-heading"></Label>
+                    </StackLayout>
+                    <StackLayout row="1" class="information-container">
+                        <Label :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true" />
+                        <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="table" v-if="rows.length >= 3">
+                            <Label row="0" col="0" text="Expected" class="column-heading" />
+                            <Label row="0" col="1" text="Measured" class="column-heading" />
 
-                    <Label row="1" col="0" :text="rows[0].expected | prettyReading" class="column-value" />
-                    <Label row="1" col="1" :text="rows[0].measured | prettyReading" class="column-value" />
-                    <Label row="2" col="0" :text="rows[1].expected | prettyReading" class="column-value" />
-                    <Label row="2" col="1" :text="rows[1].measured | prettyReading" class="column-value" />
-                    <Label row="3" col="0" :text="rows[2].expected | prettyReading" class="column-value" />
-                    <Label row="3" col="1" :text="rows[2].measured | prettyReading" class="column-value" />
+                            <Label row="1" col="0" :text="rows[0].expected | prettyReading" class="column-value" />
+                            <Label row="1" col="1" :text="rows[0].measured | prettyReading" class="column-value" />
+                            <Label row="2" col="0" :text="rows[1].expected | prettyReading" class="column-value" />
+                            <Label row="2" col="1" :text="rows[1].measured | prettyReading" class="column-value" />
+                            <Label row="3" col="0" :text="rows[2].expected | prettyReading" class="column-value" />
+                            <Label row="3" col="1" :text="rows[2].measured | prettyReading" class="column-value" />
+                        </GridLayout>
+                    </StackLayout>
                 </GridLayout>
-            </StackLayout>
-            <StackLayout row="2" verticalAlignment="bottom">
+            </ScrollView>
+            <StackLayout row="1" verticalAlignment="bottom">
                 <Button class="btn btn-primary" :text="_L('calibration.failure.again')" @tap="tryAgain" />
                 <Label :text="_L('calibration.failure.later')" class="skip" textWrap="true" @tap="skip" />
             </StackLayout>
