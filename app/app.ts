@@ -49,7 +49,7 @@ function configureVueJs(services: typeof Services): Store {
         return value.toFixed(2);
     });
 
-    Vue.filter("prettyUnixTime", (value: number | Date | undefined): string => {
+    Vue.filter("prettyUnixTime", (value: number | undefined): string => {
         if (!value) {
             return "N/A";
         }
