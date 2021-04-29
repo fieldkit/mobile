@@ -49,7 +49,7 @@ import ByOrientation from "./ByOrientation.vue";
 import SkipLayout from "@/components/SkipLayout.vue";
 import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
-import { _L, Timer } from "@/lib";
+import { _L, Timer, logAnalytics } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
@@ -166,10 +166,13 @@ const FlowView = Vue.extend({
         this.timer = new Timer(2000, (frame) => {
             this.frame = frame;
         });
+
+        await logAnalytics("flow_open", { name: this.flow.name });
     },
     methods: {
         async onForward(): Promise<void> {
             console.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
+            await logAnalytics("flow_forward", { name: this.flow.name });
             await this.nav.move(this.screen.navOptions.forward).then(async (maybeProps) => {
                 if (maybeProps) {
                     console.log("flow-view: forward:props", maybeProps);
@@ -200,6 +203,7 @@ const FlowView = Vue.extend({
         },
         async onSkip(): Promise<void> {
             console.log("flow-view: skip", this.screen.name);
+            await logAnalytics("flow_skip", { name: this.flow.name });
             await this.nav.move(NavigationOption.Skip);
             await this.leave(this.skipped);
         },
