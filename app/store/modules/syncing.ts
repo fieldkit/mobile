@@ -27,6 +27,8 @@ import {
 import { ServiceRef, CalculatedSize } from "@/services";
 import { serializePromiseChain, logChanges, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
 
+import { logAnalytics } from "@/lib";
+
 export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
     return _.orderBy(syncs, [(sync) => SortableStationSorter(sync)]);
 };
@@ -78,6 +80,8 @@ const actions = (services: ServiceRef) => {
             if (anyOffline.length > 0) {
                 throw new Error("refusing to download from offline urls");
             }
+
+            await logAnalytics("station_download");
 
             state.busy[sync.deviceId] = true;
 
@@ -139,6 +143,8 @@ const actions = (services: ServiceRef) => {
             if (state.busy[sync.deviceId]) {
                 throw new Error("refusing to upload while already busy");
             }
+
+            await logAnalytics("station_upload");
 
             state.busy[sync.deviceId] = true;
 

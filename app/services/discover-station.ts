@@ -4,7 +4,7 @@ import { Connectivity } from "@/wrappers/connectivity";
 import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
-import { promiseAfter, zoned } from "@/lib";
+import { promiseAfter, zoned, logAnalytics } from "@/lib";
 import { Buffer } from "buffer";
 import Config from "@/config";
 
@@ -140,7 +140,9 @@ export default class DiscoverStation {
         return this.monitoring;
     }
 
-    public restart(): Promise<void> {
+    public async restart(): Promise<void> {
+        await logAnalytics("discovery_restart");
+
         return this.stopServiceDiscovery({ suspending: false }).then(() => promiseAfter(500).then(() => this.startServiceDiscovery()));
     }
 
@@ -159,6 +161,8 @@ export default class DiscoverStation {
             serviceTypeSelf: null,
         };
 
+        await logAnalytics("discovery_start");
+
         // options.serviceNameSelf = Device.uuid;
         // options.serviceTypeSelf = "_fk._tcp";
 
@@ -170,12 +174,14 @@ export default class DiscoverStation {
     }
 
     public async stopServiceDiscovery(options: StopOptions | null): Promise<void> {
+        await logAnalytics("discovery_stop");
+
         await this.conservify.stop(options || { suspending: true });
 
         this.monitoring = false;
     }
 
-    public onFoundService(info: FoundService): void {
+    public async onFoundService(info: FoundService): Promise<void> {
         const key = this.makeKey(info);
         const station = new DiscoveredStation(info);
 
@@ -187,13 +193,17 @@ export default class DiscoverStation {
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
+        await logAnalytics("discovery_found");
+
         void this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
 
         return;
     }
 
-    public onLostService(info: LostService): void {
+    public async onLostService(info: LostService): Promise<void> {
         log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
+
+        await logAnalytics("discovery_lost");
 
         void this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name });
 
@@ -211,11 +221,13 @@ export default class DiscoverStation {
         };
     }
 
-    public onUdpMessage(message: UdpMessage): Promise<void> {
+    public async onUdpMessage(message: UdpMessage): Promise<void> {
         try {
             const decoded = this.decodeUdpMessage(message);
 
             log.info("udp-decoded:", JSON.stringify(decoded));
+
+            await logAnalytics("discovery_udp");
 
             const found: FoundService = {
                 name: decoded.deviceId,

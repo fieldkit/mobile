@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { onlyAllowEvery } from "@/lib";
+import { onlyAllowEvery, logAnalytics } from "@/lib";
 import { FirmwareResponse, Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
@@ -128,6 +128,8 @@ export default class StationFirmware {
 
     public async upgradeStation(url: string, progressCallback: ProgressCallback): Promise<FirmwareResponse> {
         log.info("upgrade", url);
+
+        await logAnalytics("station_upgrade", { url: url });
 
         return await this.haveFirmware().then((yes: boolean) => {
             if (!yes) {

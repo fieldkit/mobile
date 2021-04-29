@@ -5,7 +5,7 @@ import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
-import { StationError } from "@/lib";
+import { StationError, logAnalytics } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 import { Buffer } from "buffer";
 
@@ -244,6 +244,8 @@ export default class QueryStation {
     }
 
     public async uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
+        await logAnalytics("station_firmware_upload");
+
         return await this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .upload({
@@ -253,8 +255,11 @@ export default class QueryStation {
                     progress: progress,
                     defaultTimeout: 30,
                 })
-                .then((response) => {
+                .then(async (response) => {
                     console.log("upload-firmware:", response.body);
+
+                    await logAnalytics("station_firmware_uploaded");
+
                     return JSON.parse(response.body.toString()) as FirmwareResponse;
                 });
         });
@@ -359,9 +364,10 @@ export default class QueryStation {
      */
     private async stationQuery(url: string, message: AppProto.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
-        return await this.trackActivity(finalOptions, () => {
+        return await this.trackActivity(finalOptions, async () => {
             const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
+            await logAnalytics("station_querying", { url: url });
 
             return this.catchErrors(
                 this.conservify
@@ -380,7 +386,8 @@ export default class QueryStation {
             }
 
             const decoded = this.getResponseBody(response);
-            return await this.handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
+            return await this.handlePotentialBusyReply(decoded, url, message).then(async (finalReply) => {
+                await logAnalytics("station_queried", { url: url });
                 log.verbose(url, "query success", finalReply);
                 return finalReply;
             });

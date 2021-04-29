@@ -22,6 +22,8 @@ import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
 
+import { logAnalytics } from "@/lib";
+
 export class NearbyState {
     stations: { [index: string]: NearbyStation } = {};
     expired: { [index: string]: NearbyStation } = {};
@@ -313,12 +315,12 @@ const actions = (services: ServiceRef) => {
                     }
                 );
         },
-        [ActionTypes.DEPLOY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        [ActionTypes.DEPLOY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
             commit(MutationTypes.STATION_QUERIED, info);
-            return services
+            await services
                 .queryStation()
                 .startDataRecording(info.url)
                 .then(
@@ -333,6 +335,8 @@ const actions = (services: ServiceRef) => {
                         return Promise.reject(error);
                     }
                 );
+
+            await logAnalytics("station_deply");
         },
         [ActionTypes.END_STATION_DEPLOYMENT]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
