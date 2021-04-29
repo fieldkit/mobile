@@ -111,10 +111,10 @@ export default Vue.extend({
                 this.tab = tab;
             }
         },
-        onPageLoaded(): void {
+        async onPageLoaded(): void {
             console.log(`tabbed-layout: page-loaded`);
 
-            logAnalytics("tabbed_loaded");
+            await logAnalytics("tabbed_loaded");
 
             // HACK For some reason BottomNavigation is just blank at
             // startup, like the render is happening before things are setup
@@ -190,7 +190,7 @@ export default Vue.extend({
             const frame: Frame = Frame.getFrameById("stations-frame");
             console.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 0) {
-                logAnalytics("tabbed_tap_stations");
+                await logAnalytics("tabbed_tap_stations");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView)) {
@@ -206,7 +206,7 @@ export default Vue.extend({
             const frame = Frame.getFrameById("data-frame");
             console.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 1) {
-                logAnalytics("tabbed_tap_data");
+                await logAnalytics("tabbed_tap_data");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync)) {
@@ -222,7 +222,7 @@ export default Vue.extend({
             const frame = Frame.getFrameById("settings-frame");
             console.log(`tabbed-layout: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 2) {
-                logAnalytics("tabbed_tap_settings");
+                await logAnalytics("tabbed_tap_settings");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
