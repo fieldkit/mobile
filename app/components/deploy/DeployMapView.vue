@@ -90,14 +90,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { isIOS } from "@nativescript/core";
-import Config from "@/config";
-import { routes } from "@/routes";
-import { ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store/actions";
-import { Schedule, Station, Notes } from "@/store";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
+import { Schedule, Station, Notes, ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store";
+import { routes } from "@/routes";
+import { _L } from "@/lib";
+import Config from "@/config";
 
 export default Vue.extend({
     components: {

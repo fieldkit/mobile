@@ -97,6 +97,8 @@ import NoteDisplay from "./NoteDisplay.vue";
 import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, RemoveNoteMediaMutation, AttachNoteMediaMutation } from "@/store";
 import * as animations from "../animations";
 
+import { _L } from "@/lib";
+
 export default Vue.extend({
     components: {
         ...SharedComponents,

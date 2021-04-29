@@ -123,7 +123,7 @@ import { ActionTypes, Station, Notes, NoteForm } from "@/store";
 import * as animations from "../animations";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import { rebaseAbsolutePath } from "@/lib/fs";
+import { _L, rebaseAbsolutePath } from "@/lib";
 
 export default Vue.extend({
     components: {
