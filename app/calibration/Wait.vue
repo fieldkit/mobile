@@ -33,24 +33,24 @@
                     </StackLayout>
                     <GridLayout row="0" height="75" verticalAlignment="bottom" backgroundColor="white">
                         <StackLayout orientation="horizontal" class="input-wrap" verticalAlignment="top">
-                <TextField
+                            <TextField
                                 width="34%"
                                 verticalAlignment="center"
-                    v-model="form.value"
-                    autocorrect="false"
-                    autocapitalizationType="none"
+                                v-model="form.value"
+                                autocorrect="false"
+                                autocapitalizationType="none"
                                 class="reference-field size-24 m-t-5 m-r-10"
                                 keyboardType="number"
-                    @textChange="onChange()"
-                />
-                <Label
+                                @textChange="onChange()"
+                            />
+                            <Label
                                 verticalAlignment="center"
                                 width="66%"
                                 class="size-14"
                                 :text="_L('calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
-                    textWrap="true"
-                />
-            </StackLayout>
+                                textWrap="true"
+                            />
+                        </StackLayout>
                     </GridLayout>
                 </GridLayout>
             </StackLayout>
@@ -62,12 +62,12 @@
                     <Label class="size-20 m-b-5" :text="elapsedMs | prettyDuration"></Label>
                     <Label class="size-14" :text="elapsedMs | prettyDurationLabel"></Label>
                 </StackLayout>
-        </StackLayout>
+            </StackLayout>
             <StackLayout class="done-hint" v-if="doneWaiting">
                 <Label class="size-16" :text="_L('calibrationDoneHint')" textWrap="true"></Label>
             </StackLayout>
         </StackLayout>
-        <StackLayout row="1">
+        <StackLayout row="1" class="buttons-container">
             <Button
                 class="btn btn-primary btn-padded"
                 :text="visual.done"
@@ -217,6 +217,7 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+@import "~/_app-common";
 
 .instruction-heading {
     color: $fk-primary-black;
@@ -273,5 +274,9 @@ export default Vue.extend({
 .timer {
     border-left-width: 1;
     border-left-color: $fk-gray-lighter;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>

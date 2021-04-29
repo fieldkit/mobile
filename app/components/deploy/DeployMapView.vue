@@ -16,7 +16,13 @@
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <SkipLayout row="1" :buttonLabel="_L('continue')" :buttonEnabled="currentStation.connected && valid()" @button="goToNext">
+            <SkipLayout
+                row="1"
+                :buttonLabel="_L('continue')"
+                :buttonEnabled="currentStation.connected && valid()"
+                @button="goToNext"
+                :scrolling="true"
+            >
                 <FlexboxLayout flexDirection="column" justifyContent="flex-start">
                     <StackLayout>
                         <Mapbox

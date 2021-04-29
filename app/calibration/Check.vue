@@ -41,7 +41,7 @@
                 <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="!busy" @tap="clear" />
             </StackLayout>
         </ScrollView>
-        <StackLayout row="1">
+        <StackLayout row="1" class="buttons-container">
             <Button class="btn btn-primary btn-padded" :isEnabled="!busy" :text="visual.done" @tap="done" />
         </StackLayout>
     </GridLayout>

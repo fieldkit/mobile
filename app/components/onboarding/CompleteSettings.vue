@@ -2,8 +2,8 @@
     <Page class="page" actionBarHidden="true">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="true" @button="forward" :scrolling="true">
-            <GridLayout rows="auto,auto" columns="*">
+        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="true" @button="forward">
+            <GridLayout rows="5*,4*" columns="*">
                 <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
                 <Label row="1" class="instruction" :text="_L('completeSettings')" lineHeight="4" textWrap="true"></Label>
             </GridLayout>

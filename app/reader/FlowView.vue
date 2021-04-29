@@ -222,41 +222,6 @@ export default FlowView;
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-/*
-.skip {
-    width: 115;
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: blue;
-}
-
-.btn-primary {
-    margin-bottom: 0;
-}
-
-.guide {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: orange;
-}
-
-.ns-ios .guide {
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-.ns-ios .skip {
-    // background-color: orange;
-    padding-top: 20;
-    padding-bottom: 20;
-}
-*/
 
 .center-container {
     padding: 0;

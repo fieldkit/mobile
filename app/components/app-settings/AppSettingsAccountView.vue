@@ -17,7 +17,7 @@
                             <StackLayout col="1" row="0">
                                 <Label :text="account.email" textWrap="true" class="account-email" />
                                 <Label text="Logged In" textWrap="true" class="account-subtitle" v-if="account.token" />
-                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else="" />
+                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else />
                             </StackLayout>
 
                             <FlexboxLayout

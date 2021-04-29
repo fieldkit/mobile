@@ -32,7 +32,7 @@
                 </StackLayout>
             </GridLayout>
         </ScrollView>
-        <StackLayout row="1">
+        <StackLayout row="1" class="buttons-container">
             <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="confirmStrategy" :isEnabled="enabled" />
         </StackLayout>
     </GridLayout>
@@ -136,5 +136,9 @@ export default Vue.extend({
 }
 .btn-padded {
     margin-top: 10;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>

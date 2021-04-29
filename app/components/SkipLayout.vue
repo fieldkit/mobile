@@ -8,7 +8,7 @@
         <StackLayout v-else row="0">
             <slot></slot>
         </StackLayout>
-        <StackLayout row="1">
+        <StackLayout row="1" class="buttons-container">
             <Button
                 v-if="buttonVisible"
                 class="btn btn-primary btn-padded"
@@ -16,7 +16,7 @@
                 :isEnabled="buttonEnabled"
                 @tap="onButton"
             />
-            <Label v-if="helpLabel" :text="helpLabel" class="guide" textWrap="true" @tap="onHelp" />
+            <Label v-if="helpLabel" :text="helpLabel" class="skip" textWrap="true" @tap="onHelp" />
             <Label v-if="skipLabel" :text="skipLabel" class="skip" textWrap="true" @tap="onSkip" />
         </StackLayout>
     </GridLayout>
@@ -68,6 +68,7 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+@import "~/_app-common";
 
 .skip {
     padding-top: 10;
@@ -104,5 +105,9 @@ export default Vue.extend({
 
 GridLayout {
     // background-color: orange;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>

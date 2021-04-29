@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="50" columns="*" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
+    <GridLayout rows="50" columns="*" class="bottom-bordered-item" :class="cssClass + ' label-container'" @tap="goToRoute()">
         <Label :text="_L(text)" class="size-16 m-5 v-middle" row="0" col="1" verticalAlignment="center" />
     </GridLayout>
 </template>
@@ -42,8 +42,8 @@ export default Vue.extend({
     border-bottom-width: 1;
 }
 
-.top-bordered-item {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 1;
+.label-container {
+    padding-left: 10;
+    padding-right: 10;
 }
 </style>

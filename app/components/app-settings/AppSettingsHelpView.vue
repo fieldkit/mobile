@@ -50,3 +50,6 @@ export default Vue.extend({
     },
 });
 </script>
+<style scoped lang="scss">
+@import "~/_app-variables";
+</style>

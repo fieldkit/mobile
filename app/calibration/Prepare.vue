@@ -8,7 +8,7 @@
 
                 <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
             </StackLayout>
-            <StackLayout row="1">
+            <StackLayout row="1" class="buttons-container">
                 <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
             </StackLayout>
         </GridLayout>
@@ -102,5 +102,9 @@ export default Vue.extend({
 }
 .illo {
     margin: 20;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>
