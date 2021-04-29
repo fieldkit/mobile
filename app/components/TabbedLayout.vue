@@ -111,7 +111,7 @@ export default Vue.extend({
                 this.tab = tab;
             }
         },
-        async onPageLoaded(): void {
+        async onPageLoaded(): Promise<void> {
             console.log(`tabbed-layout: page-loaded`);
 
             await logAnalytics("tabbed_loaded");
