@@ -3,11 +3,13 @@ import { initializeI18n } from "@/lib/tns-i18n-deep";
 // and this default language initialization does not override that
 initializeI18n("en");
 
+global["__Zone_disable_blocking"] = true;
+
 // It's important to import this way and avoid mixing zone.js with the
 // dist paths, from what I can tell.
-// import "zone.js/dist/zone";
-// import "zone.js/dist/zone-error";
-// import "zone.js/dist/zone-bluebird";
+require("zone.js/dist/zone");
+require("zone.js/dist/zone-error");
+require("zone.js/dist/zone-bluebird");
 
 import _ from "lodash";
 import moment from "moment";
