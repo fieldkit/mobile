@@ -16,7 +16,7 @@ export function getZone() {
 export async function zoned(options: { force?: boolean }, callback: () => Promise<void>): Promise<void> {
     const zone = getZone();
     if (!zone) {
-        console.log("zone: warning no zone");
+        // console.log("zone: warning no zone");
         await callback();
         return;
     }
