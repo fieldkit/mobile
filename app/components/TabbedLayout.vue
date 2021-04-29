@@ -64,7 +64,7 @@ import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
 import FlowView from "@/reader/FlowView.vue";
-import { promiseAfter } from "@/lib";
+import { promiseAfter, logAnalytics } from "@/lib";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -113,6 +113,8 @@ export default Vue.extend({
         },
         onPageLoaded(): void {
             console.log(`tabbed-layout: page-loaded`);
+
+            logAnalytics("tabbed_loaded");
 
             // HACK For some reason BottomNavigation is just blank at
             // startup, like the render is happening before things are setup
@@ -188,6 +190,8 @@ export default Vue.extend({
             const frame: Frame = Frame.getFrameById("stations-frame");
             console.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 0) {
+                logAnalytics("tabbed_tap_stations");
+
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView)) {
                     await this.$navigateTo(StationListView, {
@@ -202,6 +206,8 @@ export default Vue.extend({
             const frame = Frame.getFrameById("data-frame");
             console.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 1) {
+                logAnalytics("tabbed_tap_data");
+
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync)) {
                     await this.$navigateTo(DataSync, {
@@ -216,6 +222,8 @@ export default Vue.extend({
             const frame = Frame.getFrameById("settings-frame");
             console.log(`tabbed-layout: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 2) {
+                logAnalytics("tabbed_tap_settings");
+
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
                     await this.$navigateTo(AppSettingsView, {
