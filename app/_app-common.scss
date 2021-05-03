@@ -114,8 +114,41 @@ TextField {
 }
 
 .buttons-container {
+	margin: 0;
+	padding-top: 5;
     padding-left: 20;
     padding-right: 20;
     padding-bottom: 5;
-	// background-color: orange;
+    // background-color: #afefaf;
+
+	Button {
+		margin: 0;
+		padding: 10;
+	}
+
+    .help-label {
+		margin-top: 10;
+		padding: 10;
+        font-size: 14;
+        font-weight: bold;
+        text-align: center;
+        height: 40;
+		// background-color: #efafef;
+    }
+
+    .skip-label {
+		margin-top: 10;
+		padding: 10;
+        font-size: 14;
+        font-weight: bold;
+        text-align: center;
+        height: 40;
+		// background-color: #efafaf;
+    }
+
+	.buttons-small-container {
+		margin: 0;
+		padding: 0;
+		// background-color: #efefaf;
+	}
 }

@@ -16,8 +16,10 @@
                 :isEnabled="buttonEnabled"
                 @tap="onButton"
             />
-            <Label v-if="helpLabel" :text="helpLabel" class="skip" textWrap="true" @tap="onHelp" />
-            <Label v-if="skipLabel" :text="skipLabel" class="skip" textWrap="true" @tap="onSkip" />
+            <StackLayout class="buttons-small-container">
+                <Label v-if="helpLabel" :text="helpLabel" class="help-label" textWrap="true" @tap="onHelp" />
+                <Label v-if="skipLabel" :text="skipLabel" class="skip-label" textWrap="true" @tap="onSkip" />
+            </StackLayout>
         </StackLayout>
     </GridLayout>
 </template>
@@ -69,45 +71,4 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 @import "~/_app-common";
-
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: blue;
-}
-
-.btn-primary {
-    margin-bottom: 0;
-}
-
-.guide {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: orange;
-}
-
-.ns-ios .guide {
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-.ns-ios .skip {
-    // background-color: orange;
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-GridLayout {
-    // background-color: orange;
-}
-
-// Declared in common
-.buttons-container {
-}
 </style>
