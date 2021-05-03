@@ -10,6 +10,8 @@
                 :buttonLabel="_L('next')"
                 :buttonEnabled="currentStation.connected && selected !== NO_SELECTION"
                 @button="forward"
+                :skipLabel="_L('skipStep')"
+                @skip="skip"
                 :scrolling="true"
             >
                 <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
@@ -112,11 +114,18 @@ export default Vue.extend({
                 });
             }
         },
+        async skip(): Pormise<void> {
+            await this.$navigateTo(routes.onboarding.completeSettings, {
+                props: {
+                    stationId: this.stationId,
+                    remote: false,
+                },
+            });
+        },
         select(value: number): void {
             this.selected = value;
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
             await this.$navigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.stationId,

@@ -10,6 +10,8 @@
                 :buttonLabel="_L('next')"
                 :buttonEnabled="currentStation.connected && selected !== NO_SELECTION"
                 @button="forward"
+                :skipLabel="_L('skipStep')"
+                @skip="skip"
                 :scrolling="true"
             >
                 <Label class="m-t-20 text-center size-18 bold" :text="_L('deploymentLocation')" textWrap="true"></Label>
@@ -91,6 +93,14 @@ export default Vue.extend({
                 props: {
                     stationId: this.stationId,
                     remote: this.selected === this.REMOTE_SELECTED,
+                },
+            });
+        },
+        async skip(): Pormise<void> {
+            await this.$navigateTo(routes.onboarding.completeSettings, {
+                props: {
+                    stationId: this.stationId,
+                    remote: false,
                 },
             });
         },

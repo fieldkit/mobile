@@ -54,15 +54,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    background-color: white;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    margin: 10;
-}
 .instruction {
     color: $fk-primary-black;
     text-align: center;
@@ -71,49 +62,5 @@ export default Vue.extend({
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
-}
-.option-container {
-    margin-top: 30;
-    margin-left: 30;
-    margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
-.small {
-    width: 50;
-    margin: 20;
-}
-
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-.gray-text {
-    color: $fk-gray-hint;
-}
-.red-text {
-    color: $fk-primary-red;
-}
-.btn-secondary {
-    font-size: 18;
-    text-transform: none;
-    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
-    font-weight: bold;
-    border-color: $fk-primary-red;
-    border-width: 1;
-    background-color: white;
-    padding: 0;
 }
 </style>
