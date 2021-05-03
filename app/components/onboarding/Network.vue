@@ -114,7 +114,7 @@ export default Vue.extend({
                 });
             }
         },
-        async skip(): Pormise<void> {
+        async skip(): Promise<void> {
             await this.$navigateTo(routes.onboarding.completeSettings, {
                 props: {
                     stationId: this.stationId,
