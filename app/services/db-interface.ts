@@ -960,7 +960,7 @@ export default class DatabaseInterface {
                             station: JSON.parse(row.station) as Record<string, unknown>,
                         };
                     } catch (error) {
-                        log.error(`error deserializing notifications JSON: ${JSON.stringify(error)}`);
+                        log.error(`error deserializing notifications JSON:`, error);
                         log.error(`JSON: ${JSON.stringify(row)}`);
                         throw error;
                     }

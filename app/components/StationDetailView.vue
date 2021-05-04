@@ -204,7 +204,12 @@ export default Vue.extend({
         void this.completeSetup();
     },
     async created(): Promise<void> {
-        await this.$s.dispatch(ActionTypes.LOAD_NOTIFICATIONS);
+        try {
+            await this.$s.dispatch(ActionTypes.LOAD_NOTIFICATIONS);
+        } catch (error) {
+            console.log(`station-detail:created: error loading notifications`, error);
+        }
+
         this.unwatch = this.$s.watch(
             (state, getters) => getters.legacyStations[this.stationId].connected,
             (newValue, oldValue) => {
