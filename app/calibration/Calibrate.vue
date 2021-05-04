@@ -1,5 +1,5 @@
 <template>
-    <Page @tap="tapPage">
+    <Page @tap="tapPage" @navigatingFrom="onNavigatingFrom" @navigatingTo="onNavigatingTo">
         <template v-if="activeStep">
             <Header
                 :title="activeStep.visual.title"
@@ -43,6 +43,8 @@ import { WaterCalValue } from "./water";
 
 import { LegacyStation } from "@/store";
 import { navigateBackToBookmark } from "@/routes";
+
+import { keepAwake, allowSleepAgain } from "@nativescript-community/insomnia";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -300,6 +302,14 @@ export default Vue.extend({
         },
         async notifyFailure(): Promise<void> {
             this.failure = true;
+        },
+        async onNavigatingTo(): Promise<void> {
+            console.log("Wait::onNavigatingTo");
+            await keepAwake();
+        },
+        async onNavigatingFrom(): Promise<void> {
+            console.log("Wait::onNavigatingFrom");
+            await allowSleepAgain();
         },
     },
 });

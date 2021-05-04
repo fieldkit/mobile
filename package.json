@@ -5,6 +5,7 @@
     "license": "BSD-3-Clause License (See LICENSE)",
     "repository": "https://github.com/fieldkit/mobile",
     "dependencies": {
+        "@nativescript-community/insomnia": "^2.0.2",
         "@nativescript-community/ui-material-bottom-navigation": "^5.2.26",
         "@nativescript/camera": "^5.0.8",
         "@nativescript/core": "~8.0.0",
