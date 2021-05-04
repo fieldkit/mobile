@@ -26,5 +26,6 @@ android {
 }
 
 dependencies {
-    implementation "com.android.support:multidex:1.0.0"
+	implementation "com.android.support:multidex:1.0.0"
+	implementation "com.mapbox.mapboxsdk:mapbox-android-telemetry:6.1.0"
 }
