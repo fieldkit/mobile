@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { ParsedDataRecord, coerceNumber } from "./data-file";
 import { DataVisitor } from "./data-reader";
+import { Buffer } from "buffer";
 
 export type ReadingsMap = { [index: string]: number };
 

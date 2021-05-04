@@ -2,6 +2,7 @@ import _ from "lodash";
 import moment, { Moment } from "moment";
 import { Folder, knownFolders, isAndroid, Utils, File, FileSystemEntity } from "@nativescript/core";
 export { File, Folder };
+import { Buffer } from "buffer";
 
 export const DownloadsDirectory = "downloads";
 

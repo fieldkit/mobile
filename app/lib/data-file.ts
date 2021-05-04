@@ -3,6 +3,7 @@ import Long from "long";
 import { FileType } from "@/store/types";
 import { DataServices } from "./data-services";
 import { fk_data } from "fk-data-protocol/fk-data";
+import { Buffer } from "buffer";
 
 const PbDataRecord = fk_data.DataRecord;
 const PbSignedRecord = fk_data.SignedRecord;

@@ -4,6 +4,7 @@ import { promiseAfter } from "@/lib";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { fixupModuleConfiguration, EmptyModuleConfig, ModuleConfiguration } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
+import { Buffer } from "buffer";
 export * from "./atlas-types";
 
 const AtlasQuery = AtlasProto.WireAtlasQuery;

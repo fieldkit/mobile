@@ -16,6 +16,7 @@ import {
 } from "@/calibration";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import CalibrationService from "@/services/calibration-service";
+import { Buffer } from "buffer";
 
 type ActionParameters = ActionContext<CalibrationState, never>;
 
