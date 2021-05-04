@@ -56,8 +56,6 @@ export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
 set -x
 env
 
-export GRADLE_OPTS=--debug
-
 make clean-secrets
 make android-release
 """
