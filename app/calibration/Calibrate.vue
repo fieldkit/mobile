@@ -8,7 +8,7 @@
                 @back="() => onBack(activeStep)"
             />
             <StackLayout>
-                <Success v-if="cleared" text="_L('calibration.cleared')" />
+                <Success v-if="cleared" :text="_L('calibration.cleared')" />
                 <Success v-if="success" :text="_L('calibration.calibrated')" />
                 <Failure v-if="failure" @try-again="tryAgain" @skip="skip" :moduleId="sensor.moduleId" />
                 <template v-if="!(success || failure) && sensor">
