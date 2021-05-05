@@ -45,6 +45,7 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | null): 
             return true;
         }
     }
+    console.log("navigate-back-to-bookmark: failed");
     return false;
 }
 

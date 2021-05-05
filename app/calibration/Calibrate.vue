@@ -179,15 +179,24 @@ export default Vue.extend({
         getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
+        getTotalSteps(): number {
+            return this.getAllVisualSteps().length;
+        },
         async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
-            console.log("cal:", "done", this.completed.length);
+            console.log("cal:", "done", this.completed.length, this.getTotalSteps());
             if (ignoreNav) {
                 this.ignored.push(step);
             }
             this.completed.push(step);
             if (this.getRemainingSteps().length > 0) {
+                console.log("cal: has-more-steps");
                 return;
             }
+            if (this.completed.length == this.getTotalSteps()) {
+                console.log("cal: has-total-steps");
+                return;
+            }
+
             await this.notifySuccess();
 
             await navigateBackToBookmark(this, "stations-frame");
