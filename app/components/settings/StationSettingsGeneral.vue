@@ -2,18 +2,8 @@
     <Page>
         <PlatformHeader :title="_L('general')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
-            <StackLayout class="p-t-10">
-                <StackLayout :class="station.connected ? 'm-t-5' : ''">
-                    <Label
-                        v-for="(option, i) in menuOptions"
-                        :key="option"
-                        :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
-                        :text="option"
-                        textWrap="true"
-                        @tap="selectFromMenu"
-                    ></Label>
-                </StackLayout>
-            </StackLayout>
+            <SettingsItemText text="stationName" @tap="goToName" />
+            <SettingsItemText text="dataCaptureSchedule" @tap="goToSchedule" />
         </StationSettingsLayout>
     </Page>
 </template>
@@ -29,9 +19,7 @@ import { _L } from "@/lib";
 
 export default Vue.extend({
     data() {
-        return {
-            menuOptions: [_L("stationName"), _L("dataCaptureSchedule")],
-        };
+        return {};
     },
     props: {
         stationId: {
@@ -48,16 +36,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        selectFromMenu(ev: Event): Promise<void> {
-            void animations.pressed(ev);
-            switch ((ev as any).object.text) {
-                case _L("stationName"):
-                    return this.goToName();
-                case _L("dataCaptureSchedule"):
-                    return this.goToSchedule();
-            }
-            return Promise.resolve();
-        },
         async goToName(): Promise<void> {
             await this.$navigateTo(StationName, {
                 props: {

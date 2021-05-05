@@ -2,18 +2,8 @@
     <Page>
         <PlatformHeader :title="_L('networks')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
-            <StackLayout class="p-t-10">
-                <StackLayout class="m-t-5">
-                    <Label
-                        v-for="(option, i) in menuOptions"
-                        :key="option"
-                        :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
-                        :text="option"
-                        textWrap="true"
-                        @tap="selectFromMenu"
-                    ></Label>
-                </StackLayout>
-            </StackLayout>
+            <SettingsItemText text="wifi" @tap="goToWiFi" />
+            <SettingsItemText text="lora" @tap="goToLoRa" />
         </StationSettingsLayout>
     </Page>
 </template>
@@ -24,14 +14,11 @@ import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
-import * as animations from "../animations";
 import { _L } from "@/lib";
 
 export default Vue.extend({
     data() {
-        return {
-            menuOptions: [_L("wifi"), _L("lora")],
-        };
+        return {};
     },
     props: {
         stationId: {
@@ -48,19 +35,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        async selectFromMenu(ev: Event): Promise<void> {
-            void animations.pressed(ev);
-
-            switch ((ev as any).object.text) {
-                case "WiFi":
-                    this.goToWiFi();
-                    break;
-                case "LoRa":
-                    this.goToLoRa();
-                    break;
-            }
-            return Promise.resolve();
-        },
         async goToWiFi(): Promise<void> {
             await this.$navigateTo(WiFi, {
                 props: {
