@@ -11,7 +11,7 @@
                 <Success v-if="cleared" :text="_L('calibration.cleared')" />
                 <Success v-if="success" :text="_L('calibration.calibrated')" />
                 <Failure v-if="failure" @try-again="tryAgain" @skip="skip" :moduleId="sensor.moduleId" />
-                <template v-if="!(success || failure) && sensor">
+                <template v-if="!(success || failure) && sensor && !done">
                     <component
                         :is="activeStep.visual.component"
                         :sensor="sensor"
@@ -75,6 +75,7 @@ export default Vue.extend({
         cleared: boolean;
         failure: boolean;
         busy: boolean;
+        done: boolean;
         ignored: CalibrationStep[];
         completed: CalibrationStep[];
     } {
@@ -83,6 +84,7 @@ export default Vue.extend({
             cleared: false,
             failure: false,
             busy: false,
+            done: false,
             ignored: [],
             completed: [],
         };
@@ -183,17 +185,20 @@ export default Vue.extend({
             return this.getAllVisualSteps().length;
         },
         async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
-            console.log("cal:", "done", this.completed.length, this.getTotalSteps());
+            console.log("cal:", "done", this.completed.length, "+1", this.getTotalSteps());
             if (ignoreNav) {
                 this.ignored.push(step);
             }
+
             this.completed.push(step);
-            if (this.getRemainingSteps().length > 0) {
-                console.log("cal: has-more-steps");
+
+            if (this.completed.length < this.getTotalSteps()) {
+                console.log("cal: !has-total-steps");
                 return;
             }
-            if (this.completed.length == this.getTotalSteps()) {
-                console.log("cal: has-total-steps");
+
+            if (this.getRemainingSteps().length > 0) {
+                console.log("cal: !has-more-steps");
                 return;
             }
 
@@ -305,6 +310,7 @@ export default Vue.extend({
         },
         notifySuccess(): Promise<void> {
             this.success = true;
+            this.done = true;
             return promiseAfter(3000).then(() => {
                 this.success = false;
             });
