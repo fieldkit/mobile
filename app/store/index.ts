@@ -88,7 +88,8 @@ function customizeLogger(appendLog: AppendStoreLog) {
             }
 
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
-                return simpleMutation(appendLog, mutation);
+                // return simpleMutation(appendLog, mutation);
+                return;
             }
 
             if (mutation.type == MutationTypes.PHONE_NETWORK) {
@@ -135,6 +136,9 @@ function customizeLogger(appendLog: AppendStoreLog) {
         },
         actionFilter(action: { type: string; payload: Record<string, unknown> }, _state: never) {
             if (action.type == ActionTypes.REFRESH) {
+                return false;
+            }
+            if (action.type == ActionTypes.REFRESH_NETWORK) {
                 return false;
             }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
