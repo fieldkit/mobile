@@ -4,6 +4,7 @@ import { HttpResponse } from "@/wrappers/networking";
 import { AuthenticationError } from "@/lib";
 import { ActionTypes, MutationTypes, Download, FileTypeUtils, CurrentUser } from "@/store";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
+import { Buffer } from "buffer";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
 
