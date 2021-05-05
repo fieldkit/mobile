@@ -8,7 +8,6 @@
                     :link="'data'"
                     :text="'appSettings.data.data'"
                     :imageSrc="'~/images/icon_connections.png'"
-                    :cssClass="'top-bordered-item'"
                 />
                 <SettingsItemIconText
                     v-show="false"
@@ -38,7 +37,6 @@
                     :link="'account'"
                     :text="'appSettings.account.account'"
                     :imageSrc="'~/images/icon_account_settings.png'"
-                    :cssClass="'top-bordered-item'"
                 />
                 <SettingsItemIconText :link="'help'" :text="'appSettings.help.help'" :imageSrc="'~/images/icon_help_settings.png'" />
                 <SettingsItemIconText :link="'legal'" :text="'appSettings.legal.legal'" :imageSrc="'~/images/icon_legal_settings.png'" />

@@ -114,6 +114,8 @@ TextField {
 }
 
 .buttons-container {
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
 	margin: 0;
 	padding-top: 5;
     padding-left: 20;

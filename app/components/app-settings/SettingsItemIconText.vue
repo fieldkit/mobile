@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="50" columns="30, *" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
+    <GridLayout rows="50" columns="30,*" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
         <Image width="20" height="20" :src="imageSrc" row="0" col="0" verticalAlignment="center"></Image>
         <Label :text="_L(text)" class="size-16 m-10 v-middle" row="0" col="1" verticalAlignment="center" />
     </GridLayout>

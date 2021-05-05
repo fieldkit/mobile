@@ -1,5 +1,5 @@
 <template>
-    <ActionBar backgroundColor="white" flat="true" class="action-bar">
+    <ActionBar backgroundColor="white" flat="true" :class="'action-bar' + (border ? ' action-bar-border' : '')">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton v-show="false" />
@@ -107,6 +107,10 @@ export default Vue.extend({
             default: null,
             required: false,
         },
+        border: {
+            type: Boolean,
+            default: true,
+        },
     },
     data(): { ios: boolean } {
         return {
@@ -203,6 +207,11 @@ export default Vue.extend({
 
 .action-bar {
     margin-left: -20;
+}
+
+.action-bar-border {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
 }
 
 .back-icon,

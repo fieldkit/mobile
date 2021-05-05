@@ -1,9 +1,8 @@
 <template>
     <Page>
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
-
         <ScrollView>
-            <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
+            <StackLayout @doubleTap="onDoubleTap">
                 <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
                 <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
@@ -123,9 +122,6 @@ export default Vue.extend({
 }
 .disconnected {
     color: $fk-gray-dark;
-}
-.stations-list {
-    font-size: 16;
 }
 .dark {
     color: $fk-primary-black;

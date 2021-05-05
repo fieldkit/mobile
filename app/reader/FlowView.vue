@@ -1,6 +1,6 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom">
-        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" />
+        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" :border="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*">
                 <FlowProgress row="0" :progress="progress" />

@@ -185,7 +185,7 @@ export default class DiscoverStation {
         const key = this.makeKey(info);
         const station = new DiscoveredStation(info);
 
-        if (info.port != 80 && info.port != 2380) {
+        if (info.port != 80 && info.port < 2380 && info.port > 2400) {
             // Fake device uses 2380
             log.info("ignoring service:", info.type, info.name, info.host, info.port, key);
             return;
