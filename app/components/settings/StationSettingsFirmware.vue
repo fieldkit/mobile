@@ -1,9 +1,8 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout>
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
@@ -69,8 +68,8 @@
                         <Label :text="_L('deviceId') + ': ' + station.deviceId" class="size-14 full-width" textWrap="true" />
                     </WrapLayout>
                 </FlexboxLayout>
-            </ScrollView>
-        </GridLayout>
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -80,7 +79,6 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { fullRoutes } from "@/routes";
 import { ActionTypes, FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import { promiseAfter } from "@/lib";
@@ -88,7 +86,6 @@ import { promiseAfter } from "@/lib";
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        ConnectionNote,
         ConnectionStatusHeader,
     },
     data(): {

@@ -1,18 +1,16 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.appearance.appearance')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView class="m-r-20 m-l-20">
-            <StackLayout>
-                <SettingsItemSlider
-                    :title="'appSettings.appearance.darkMode'"
-                    :cssClass="'top-bordered-item'"
-                    v-model="currentSettings.appearance.darkMode"
-                    v-on:change="saveSettings"
-                />
-                <SettingsItemText :link="'appearanceFontSize'" :text="'appSettings.appearance.fontSize'" v-if="false" />
-                <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'" v-if="false" />
-            </StackLayout>
-        </ScrollView>
+        <SettingsMenu>
+            <SettingsItemSlider
+                :title="'appSettings.appearance.darkMode'"
+                :cssClass="'top-bordered-item'"
+                v-model="currentSettings.appearance.darkMode"
+                v-on:change="saveSettings"
+            />
+            <SettingsItemText :link="'appearanceFontSize'" :text="'appSettings.appearance.fontSize'" v-if="false" />
+            <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'" v-if="false" />
+        </SettingsMenu>
     </Page>
 </template>
 <script lang="ts">

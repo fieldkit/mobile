@@ -1,21 +1,18 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout class="editor-container">
-                        <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
-                        <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
+        <StationSettingsLayout :connected="station.connected">
+            <FlexboxLayout flexDirection="column" class="p-t-10">
+                <StackLayout class="editor-container">
+                    <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
+                    <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
 
-                        <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
-                    </StackLayout>
+                    <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
+                </StackLayout>
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
-                </FlexboxLayout>
-            </ScrollView>
-        </GridLayout>
+                <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
+            </FlexboxLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -25,8 +22,6 @@ import { ActionTypes } from "@/store/actions";
 import { AvailableStation, Schedule } from "@/store";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -48,8 +43,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ConnectionStatusHeader,
-        ConnectionNote,
         ScheduleEditor,
     },
     computed: {

@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader title="Developer" :canNavigateSettings="false" />
-        <Scrollview>
+        <SettingsLayout>
             <FlexboxLayout flexDirection="column" class="p-t-10">
                 <StackLayout class="m-x-20 m-b-20" v-if="beta">
                     <DropDown
@@ -52,7 +52,7 @@
                     <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
                 </StackLayout>
             </FlexboxLayout>
-        </Scrollview>
+        </SettingsLayout>
     </Page>
 </template>
 

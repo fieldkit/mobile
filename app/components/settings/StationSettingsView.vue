@@ -1,46 +1,46 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('stationSettings.title')" :subtitle="stationName" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*" v-if="!forgotten">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="p-t-10">
-                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
-                        <Label
-                            v-for="(option, i) in menuOptions"
-                            :key="option"
-                            class="menu-text size-18"
-                            :text="option"
-                            textWrap="true"
-                            @tap="selectFromMenu"
-                        />
-                        <Label
-                            class="menu-text size-18 bottom-border"
-                            :text="_L('forgetStation')"
-                            textWrap="true"
-                            @tap="forgetStationDialog"
-                        />
+        <StationSettingsLayout :connected="station.connected">
+            <GridLayout rows="*">
+                <ScrollView row="0">
+                    <StackLayout class="p-t-10">
+                        <StackLayout :class="station.connected ? 'm-t-5' : ''">
+                            <Label
+                                v-for="(option, i) in menuOptions"
+                                :key="option"
+                                class="menu-text size-18"
+                                :text="option"
+                                textWrap="true"
+                                @tap="selectFromMenu"
+                            />
+                            <Label
+                                class="menu-text size-18 bottom-border"
+                                :text="_L('forgetStation')"
+                                textWrap="true"
+                                @tap="forgetStationDialog"
+                            />
+                        </StackLayout>
                     </StackLayout>
-                </StackLayout>
-            </ScrollView>
+                </ScrollView>
 
-            <DockLayout row="1" v-if="showForgetStationDialog" class="text-center">
-                <GridLayout rows="auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
-                    <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
-                    <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
-                    <GridLayout row="2" columns="*,*">
-                        <Label col="0" :text="_L('forgetStationOK')" class="size-16 m-t-10 bold" @tap="forgetStation" />
-                        <Label col="1" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
+                <DockLayout row="0" v-if="showForgetStationDialog" class="text-center">
+                    <GridLayout rows="auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
+                        <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
+                        <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
+                        <GridLayout row="2" columns="*,*">
+                            <Label col="0" :text="_L('forgetStationOK')" class="size-16 m-t-10 bold" @tap="forgetStation" />
+                            <Label col="1" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
+                        </GridLayout>
                     </GridLayout>
-                </GridLayout>
-            </DockLayout>
-        </GridLayout>
+                </DockLayout>
+            </GridLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import StationListView from "@/components/StationListView.vue";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
@@ -77,10 +77,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        General,
-        Firmware,
-        Networks,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

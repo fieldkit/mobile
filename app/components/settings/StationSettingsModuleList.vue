@@ -1,15 +1,12 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1" v-if="station.modules.length > 0">
-                <StackLayout class="p-t-10">
-                    <CalibratingModules :station="station" @selected="calibrateModule" />
-                </StackLayout>
-            </ScrollView>
-            <NoModulesWannaAdd row="1" :connected="station.connected" :stationId="stationId" v-else />
-        </GridLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="p-t-10" v-if="station.modules.length">
+                <CalibratingModules :station="station" @selected="calibrateModule" />
+            </StackLayout>
+            <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" v-else />
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -19,13 +16,11 @@ import SharedComponents from "@/components/shared";
 import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        ConnectionStatusHeader,
         CalibratingModules,
         NoModulesWannaAdd,
     },

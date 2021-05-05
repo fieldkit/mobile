@@ -1,46 +1,44 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('wifiNetwork')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="m-x-10">
-                    <WrapLayout orientation="horizontal" class="networks-container">
-                        <Label :text="_L('savedNetworks')" class="p-20 size-20" />
-                        <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
-                        <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
-                            <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid" />
-                            <Image
-                                row="0"
-                                col="2"
-                                src="~/images/Icon_Close.png"
-                                width="17"
-                                @tap="(ev) => removeNetwork(n)"
-                                v-if="station.connected"
-                            />
-                        </GridLayout>
-                    </WrapLayout>
-
-                    <StackLayout v-show="networks.length == maximumNetworks" class="m-t-20 m-x-10 gray-bkgd">
-                        <Label :text="_L('maxTwoNetworksWarning')" textWrap="true" />
-                    </StackLayout>
-
-                    <GridLayout
-                        v-if="!addingNetwork && station.connected"
-                        rows="auto"
-                        columns="10*,90*"
-                        @tap="showNetworkForm"
-                        :class="'m-t-20 ' + (networks.length == maximumNetworks ? 'disabled' : '')"
-                    >
-                        <Image col="0" src="~/images/Icon_Add_Button.png" width="20" />
-                        <Label col="1" :text="_L('addNetwork')" class="size-16" />
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="m-x-10">
+                <WrapLayout orientation="horizontal" class="networks-container">
+                    <Label :text="_L('savedNetworks')" class="p-20 size-20" />
+                    <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
+                    <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
+                        <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid" />
+                        <Image
+                            row="0"
+                            col="2"
+                            src="~/images/Icon_Close.png"
+                            width="17"
+                            @tap="(ev) => removeNetwork(n)"
+                            v-if="station.connected"
+                        />
                     </GridLayout>
+                </WrapLayout>
 
-                    <WiFiNetworkForm v-if="addingNetwork" @saved="addNetwork" />
+                <StackLayout v-show="networks.length == maximumNetworks" class="m-t-20 m-x-10 gray-bkgd">
+                    <Label :text="_L('maxTwoNetworksWarning')" textWrap="true" />
+                </StackLayout>
 
-                    <ActivityIndicator :busy="busy" row="0" />
+                <GridLayout
+                    v-if="!addingNetwork && station.connected"
+                    rows="auto"
+                    columns="10*,90*"
+                    @tap="showNetworkForm"
+                    :class="'m-t-20 ' + (networks.length == maximumNetworks ? 'disabled' : '')"
+                >
+                    <Image col="0" src="~/images/Icon_Add_Button.png" width="20" />
+                    <Label col="1" :text="_L('addNetwork')" class="size-16" />
+                </GridLayout>
 
-                    <!--
+                <WiFiNetworkForm v-if="addingNetwork" @saved="addNetwork" />
+
+                <ActivityIndicator :busy="busy" row="0" />
+
+                <!--
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
                             <Button
@@ -51,9 +49,8 @@
                             />
                         </StackLayout>
 						-->
-                </StackLayout>
-            </ScrollView>
-        </GridLayout>
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -62,9 +59,7 @@ import _ from "lodash";
 import Vue from "vue";
 import { Dialogs } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import WiFiNetworkForm from "@/components/WiFiNetworkForm.vue";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 import { _L } from "@/lib";
 
@@ -86,8 +81,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ConnectionNote,
-        ConnectionStatusHeader,
         WiFiNetworkForm,
     },
     computed: {

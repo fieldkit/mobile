@@ -1,67 +1,60 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <GridLayout rows="*" columns="*" verticalAlignment="middle" class="p-t-10">
-                    <StackLayout>
-                        <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                            <TextField
-                                col="0"
-                                textWrap="true"
-                                class="size-18 no-border-input"
-                                v-model="stationName"
-                                keyboardType="name"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                @blur="checkName"
-                            />
-                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-                        </GridLayout>
-                        <Label
-                            class="validation-error"
-                            id="no-name"
-                            :text="_L('nameRequired')"
-                            textWrap="true"
-                            :visibility="noName ? 'visible' : 'collapsed'"
-                        />
-                        <Label
-                            class="validation-error"
-                            id="name-too-long"
-                            :text="_L('nameOver40')"
-                            textWrap="true"
-                            :visibility="nameTooLong ? 'visible' : 'collapsed'"
-                        />
-                        <Label
-                            class="validation-error"
-                            id="name-not-printable"
-                            :text="_L('nameNotPrintable')"
-                            textWrap="true"
-                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
-                        />
-
-                        <StackLayout class="m-30"></StackLayout>
-
-                        <Button
-                            class="btn btn-primary btn-padded"
-                            :text="_L('saveName')"
-                            :isEnabled="station.connected && !busy"
-                            @tap="saveStationName"
-                        />
-                    </StackLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="p-t-10">
+                <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
+                    <TextField
+                        col="0"
+                        textWrap="true"
+                        class="size-18 no-border-input"
+                        v-model="stationName"
+                        keyboardType="name"
+                        autocorrect="false"
+                        autocapitalizationType="none"
+                        @blur="checkName"
+                    />
+                    <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
                 </GridLayout>
-            </ScrollView>
-        </GridLayout>
+                <Label
+                    class="validation-error"
+                    id="no-name"
+                    :text="_L('nameRequired')"
+                    textWrap="true"
+                    :visibility="noName ? 'visible' : 'collapsed'"
+                />
+                <Label
+                    class="validation-error"
+                    id="name-too-long"
+                    :text="_L('nameOver40')"
+                    textWrap="true"
+                    :visibility="nameTooLong ? 'visible' : 'collapsed'"
+                />
+                <Label
+                    class="validation-error"
+                    id="name-not-printable"
+                    :text="_L('nameNotPrintable')"
+                    textWrap="true"
+                    :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
+                />
+
+                <StackLayout class="m-30"></StackLayout>
+
+                <Button
+                    class="btn btn-primary btn-padded"
+                    :text="_L('saveName')"
+                    :isEnabled="station.connected && !busy"
+                    @tap="saveStationName"
+                />
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { RenameStationAction, AvailableStation } from "@/store";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -91,8 +84,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ConnectionNote,
-        ConnectionStatusHeader,
     },
     computed: {
         station(this: any): AvailableStation {

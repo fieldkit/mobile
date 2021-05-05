@@ -230,6 +230,18 @@ export const fullRoutes = {
                 },
             }),
     },
+    station: {
+        settings: (stationId: number): FullRoute => {
+            return new FullRoute("tabbed", Frames.Outer, {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("station/settings/menu", Frames.Stations, {
+                        stationId: stationId,
+                    }),
+                },
+            });
+        },
+    },
     flow: (props: { flow: { name: string }; finished: FullRoute; skipped: FullRoute }): FullRoute => {
         return new FullRoute("tabbed", Frames.Outer, {
             firstTab: {

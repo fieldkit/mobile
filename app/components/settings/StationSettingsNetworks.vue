@@ -1,23 +1,20 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('networks')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="p-t-10">
-                    <StackLayout class="m-t-5">
-                        <Label
-                            v-for="(option, i) in menuOptions"
-                            :key="option"
-                            :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
-                            :text="option"
-                            textWrap="true"
-                            @tap="selectFromMenu"
-                        ></Label>
-                    </StackLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="p-t-10">
+                <StackLayout class="m-t-5">
+                    <Label
+                        v-for="(option, i) in menuOptions"
+                        :key="option"
+                        :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
+                        :text="option"
+                        textWrap="true"
+                        @tap="selectFromMenu"
+                    ></Label>
                 </StackLayout>
-            </ScrollView>
-        </GridLayout>
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -25,7 +22,6 @@
 import Vue from "vue";
 import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
 import * as animations from "../animations";
@@ -45,9 +41,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        WiFi,
-        LoRa,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

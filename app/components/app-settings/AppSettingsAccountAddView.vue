@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
-        <ScrollView>
+        <SettingsLayout>
             <FlexboxLayout class="page login-page" justifyContent="space-between">
                 <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
@@ -13,7 +13,7 @@
                     </FormattedString>
                 </Label>
             </FlexboxLayout>
-        </ScrollView>
+        </SettingsLayout>
     </Page>
 </template>
 
