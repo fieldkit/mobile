@@ -8,7 +8,7 @@
                     <Label text="Data Upload Schedule" class="size-14 title" />
                     <Label
                         text="Set a schedule for your station to bypass the app and upload data straight to the portal. Frequent data upload drains the battery faster, so this option is best for stations powered from the wall."
-                        class="size-12 subtitle"
+                        class="size-12 schedule-instructions"
                         textWrap="true"
                     />
 
@@ -111,7 +111,7 @@ export default Vue.extend({
     padding: 20;
 }
 
-.subtitle {
+.schedule-instructions {
     padding-bottom: 20;
 }
 </style>

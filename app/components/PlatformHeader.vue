@@ -1,5 +1,5 @@
 <template>
-    <ActionBar backgroundColor="white" flat="true" :class="'action-bar' + (border ? ' action-bar-border' : '')">
+    <ActionBar backgroundColor="white" flat="true" :class="classes">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton v-show="false" />
@@ -29,7 +29,7 @@
             </template>
         </template>
         <template v-else>
-            <GridLayout rows="auto" columns="15*,70*,15*" :class="classes" verticalAlignment="middle">
+            <GridLayout rows="auto" columns="15*,70*,15*" class="android" verticalAlignment="middle">
                 <StackLayout v-if="canNavigateBack" col="0" class="back-icon" @tap="raiseBack">
                     <Image height="25" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
@@ -120,8 +120,14 @@ export default Vue.extend({
     computed: {
         classes(): string {
             const c: string[] = [];
-            if (this.ios) c.push("ios");
-            if (!this.ios) c.push("android");
+            c.push("action-bar");
+            if (this.border) {
+                c.push("action-bar-border");
+            }
+            if (this.subtitle) {
+                c.push("action-bar-double");
+            }
+            console.log(`classes: ${c}`);
             return c.join(" ");
         },
     },
@@ -201,6 +207,13 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
+StackLayout,
+GridLayout,
+Label {
+    margin: 0;
+    padding: 0;
+}
+
 .android.header-container {
     padding-top: 15;
 }
@@ -212,6 +225,18 @@ export default Vue.extend({
 .action-bar-border {
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;
+}
+
+.ns-android .action-bar-double {
+    padding-top: 10;
+}
+
+.title {
+    // background-color: #accfaa;
+}
+
+.subtitle {
+    // background-color: #fccfaa;
 }
 
 .back-icon,
@@ -227,11 +252,13 @@ export default Vue.extend({
 }
 .back-icon {
     padding-top: 10;
+    // background-color: #efafaf;
 }
 .normal-icon {
     padding-top: 10;
 }
 .configure-icon {
     padding-top: 8;
+    // background-color: #efafaf;
 }
 </style>
