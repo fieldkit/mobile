@@ -59,6 +59,7 @@ import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data() {
