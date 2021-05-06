@@ -2,7 +2,7 @@
     <Page>
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout row="1" :buttonLabel="_L('done')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrolling="true">
+        <SkipLayout row="1" :buttonLabel="_L('done')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrollable="true">
             <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
 
             <Label class="instruction" :text="_L('reconnectInstruction')" lineHeight="4" textWrap="true"></Label>
@@ -60,38 +60,5 @@ export default Vue.extend({
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
-}
-.option-container {
-    margin-top: 30;
-    margin-left: 30;
-    margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
-.small {
-    width: 50;
-    margin: 20;
-}
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-.gray-text {
-    color: $fk-gray-hint;
-}
-.red-text {
-    color: $fk-primary-red;
 }
 </style>

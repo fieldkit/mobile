@@ -2,7 +2,7 @@
     <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
-            <StackLayout class="p-t-10" v-if="station.modules.length">
+            <StackLayout v-if="station.modules.length">
                 <CalibratingModules :station="station" @selected="calibrateModule" />
             </StackLayout>
             <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" v-else />

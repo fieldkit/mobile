@@ -21,7 +21,7 @@
                 :buttonLabel="_L('continue')"
                 :buttonEnabled="notes.valid"
                 :buttonVisible="!linkedFromStation"
-                :scrolling="true"
+                :scrollable="true"
                 @button="goToReview"
             >
                 <FlexboxLayout flexDirection="column" class="p-t-10">

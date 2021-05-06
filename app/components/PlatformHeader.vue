@@ -127,7 +127,6 @@ export default Vue.extend({
             if (this.subtitle) {
                 c.push("action-bar-double");
             }
-            console.log(`classes: ${c}`);
             return c.join(" ");
         },
     },
@@ -237,6 +236,10 @@ Label {
 
 .subtitle {
     // background-color: #fccfaa;
+}
+
+.ns-ios .action-bar {
+    margin-bottom: 20;
 }
 
 .back-icon,

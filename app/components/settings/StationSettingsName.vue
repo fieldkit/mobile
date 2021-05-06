@@ -2,43 +2,20 @@
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
-            <StackLayout class="p-t-10">
-                <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                    <TextField
-                        col="0"
-                        textWrap="true"
-                        class="size-18 no-border-input"
-                        v-model="stationName"
-                        keyboardType="name"
-                        autocorrect="false"
-                        autocapitalizationType="none"
-                        @blur="checkName"
-                    />
-                    <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-                </GridLayout>
-                <Label
-                    class="validation-error"
-                    id="no-name"
-                    :text="_L('nameRequired')"
-                    textWrap="true"
-                    :visibility="noName ? 'visible' : 'collapsed'"
-                />
-                <Label
-                    class="validation-error"
-                    id="name-too-long"
-                    :text="_L('nameOver40')"
-                    textWrap="true"
-                    :visibility="nameTooLong ? 'visible' : 'collapsed'"
-                />
+            <StackLayout class="m-x-10 m-t-20">
+                <LabeledTextField v-model="stationName" @blur="validate" :canClear="true" />
+
+                <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-if="noName" />
+                <Label class="validation-error" id="name-too-long" :text="_L('nameOver40')" textWrap="true" v-if="nameTooLong" />
                 <Label
                     class="validation-error"
                     id="name-not-printable"
                     :text="_L('nameNotPrintable')"
                     textWrap="true"
-                    :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
+                    v-if="nameNotPrintable"
                 />
 
-                <StackLayout class="m-30"></StackLayout>
+                <StackLayout class="m-20"></StackLayout>
 
                 <Button
                     class="btn btn-primary btn-padded"
@@ -155,37 +132,11 @@ export default Vue.extend({
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;
 }
-.bottom-bordered {
-    border-bottom-width: 1px;
-    text-align: center;
-    // iOS-only padding in app.ios.scss
-}
-.no-border-input {
-    border-bottom-width: 1;
-    border-bottom-color: white;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
 .validation-error {
     width: 100%;
     font-size: 13;
     margin-top: 5;
     color: $fk-tertiary-red;
-    text-align: center;
-}
-.char-count {
-    width: 25;
-    margin-top: 15;
-    margin-left: 5;
-}
-.validation-error {
-    width: 100%;
-    font-size: 13;
-    color: $fk-tertiary-red;
+    text-align: left;
 }
 </style>

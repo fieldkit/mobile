@@ -1,6 +1,6 @@
 <template>
     <StackLayout>
-        <GridLayout rows="auto" columns="*" class="m-t-10 m-x-20" v-for="m in station.modules" :key="m.id">
+        <GridLayout rows="auto" columns="*" class="m-t-10" v-for="m in station.modules" :key="m.id">
             <StackLayout class="bordered-container p-10" @tap="selected(m)">
                 <GridLayout rows="auto,auto" columns="15*,70*,15*">
                     <Image row="0" col="0" rowSpan="2" width="40" horizontalAlignment="left" :src="m.image" class="module-icon" />

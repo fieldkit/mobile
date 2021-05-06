@@ -1,6 +1,6 @@
 <template>
     <GridLayout rows="*,auto">
-        <ScrollView v-if="scrolling" row="0">
+        <ScrollView v-if="scrollable" row="0">
             <StackLayout>
                 <slot></slot>
             </StackLayout>
@@ -49,7 +49,7 @@ export default Vue.extend({
             type: String,
             default: null,
         },
-        scrolling: {
+        scrollable: {
             type: Boolean,
             default: false,
         },

@@ -12,7 +12,7 @@
                 @button="forward"
                 :skipLabel="_L('skipStep')"
                 @skip="skip"
-                :scrolling="true"
+                :scrollable="true"
             >
                 <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
                 <StackLayout v-if="remote">

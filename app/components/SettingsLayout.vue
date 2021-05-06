@@ -1,8 +1,11 @@
 <template>
-    <StackLayout>
-        <SettingsMenu>
+    <StackLayout class="settings-layout">
+        <SettingsMenu v-if="false">
             <slot></slot>
         </SettingsMenu>
+        <template v-else>
+            <slot></slot>
+        </template>
     </StackLayout>
 </template>
 <script lang="ts">
@@ -22,4 +25,8 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 @import "~/_app-common";
+
+.ns-ios .settings-layout {
+    margin-top: 20;
+}
 </style>

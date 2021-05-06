@@ -9,7 +9,7 @@
             @skip="skip"
             :helpLabel="_L('getHelp')"
             @help="getHelp"
-            :scrolling="true"
+            :scrollable="true"
         >
             <Image width="60" class="m-b-20" src="~/images/Icon_Soft_error.png" />
             <Label class="title m-t-20 m-b-10 text-center" :text="_L('havingProblems')" textWrap="true"></Label>

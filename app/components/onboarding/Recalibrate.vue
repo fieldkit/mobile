@@ -26,7 +26,7 @@
                 @button="goToStations"
                 :skipLabel="done ? _L('goToStations') : _L('setupLater')"
                 @skip="goToStations"
-                :scrolling="true"
+                :scrollable="true"
             >
                 <StackLayout v-if="station.modules.length > 0">
                     <GridLayout rows="*" columns="*">

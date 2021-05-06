@@ -1,5 +1,5 @@
 <template>
-    <StackLayout class="form">
+    <FlexboxLayout class="login-form form">
         <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" :isEnabled="!busy" />
         <Label
             v-show="form.v.email.required"
@@ -56,7 +56,7 @@
             @tap="continueOffline"
             v-if="allowContinueOffline"
         />
-    </StackLayout>
+    </FlexboxLayout>
 </template>
 
 <script lang="ts">
@@ -167,60 +167,33 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.login-page {
-    font-size: 16;
-    align-items: center;
-    flex-direction: column;
-}
-
-.form {
-    margin-left: 5;
-    margin-right: 5;
+.login-form {
     flex-grow: 2;
     vertical-align: center;
-}
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+    height: 100%;
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .logo {
+        margin-top: 50;
+        height: 47;
+    }
 
-.spacer-top {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 2;
-}
+    .active {
+        border-top-color: $fk-secondary-blue;
+    }
 
-.active {
-    border-top-color: $fk-secondary-blue;
-}
+    .btn-primary {
+        margin: 20 0 15 0;
+    }
 
-.input-field {
-    margin-bottom: 15;
-}
-
-.input {
-    width: 100%;
-    font-size: 16;
-    color: $fk-primary-black;
-    placeholder-color: $fk-gray-hint;
-}
-
-.input:disabled {
-    opacity: 0.5;
-}
-
-.btn-primary {
-    margin: 20 5 15 5;
-}
-
-.bottom-pad {
-    margin-bottom: 8;
-}
-
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+    .validation-error {
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
+        padding-top: 5;
+    }
 }
 </style>

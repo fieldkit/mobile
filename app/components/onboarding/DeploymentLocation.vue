@@ -12,7 +12,7 @@
                 @button="forward"
                 :skipLabel="_L('skipStep')"
                 @skip="skip"
-                :scrolling="true"
+                :scrollable="true"
             >
                 <Label class="m-t-20 text-center size-18 bold" :text="_L('deploymentLocation')" textWrap="true"></Label>
                 <Label

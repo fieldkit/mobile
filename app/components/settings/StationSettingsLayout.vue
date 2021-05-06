@@ -1,7 +1,12 @@
 <template>
     <GridLayout rows="auto,*">
         <ConnectionStatusHeader row="0" :connected="connected" />
-        <StackLayout row="1">
+        <ScrollView v-if="scrollable" row="1">
+            <StackLayout>
+                <slot></slot>
+            </StackLayout>
+        </ScrollView>
+        <StackLayout v-else row="1">
             <slot></slot>
         </StackLayout>
     </GridLayout>
@@ -19,6 +24,10 @@ export default Vue.extend({
         connected: {
             type: Boolean,
             required: true,
+        },
+        scrollable: {
+            type: Boolean,
+            default: true,
         },
     },
     methods: {},

@@ -31,6 +31,6 @@ export default Vue.extend({
 }
 
 .ns-ios .disconnect-warning {
-    margin-top: 5;
+    margin-top: 20;
 }
 </style>

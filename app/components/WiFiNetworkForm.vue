@@ -1,11 +1,11 @@
 <template>
-    <GridLayout rows="auto,auto,auto,auto">
-        <StackLayout row="0" class="p-20">
+    <FlexboxLayout class="wifi-network-form-container">
+        <StackLayout row="0" class="m-b-20">
             <LabeledTextField v-model="form.ssid" :label="_L('networkNameHint')" @blur="checkSsid" />
             <Label v-show="v.ssid.required" class="validation-error" horizontalAlignment="left" :text="_L('required')" textWrap="true" />
         </StackLayout>
 
-        <StackLayout row="1" class="p-20">
+        <StackLayout row="1" class="m-b-20">
             <LabeledTextField
                 v-model="form.password"
                 :label="_L('networkPasswordHint')"
@@ -13,6 +13,7 @@
                 :canShow="true"
                 @blur="checkPassword"
             />
+
             <Label
                 v-show="v.password.required"
                 class="validation-error"
@@ -22,14 +23,14 @@
             />
         </StackLayout>
 
-        <StackLayout row="2" class="p-20">
+        <StackLayout row="2" class="m-b-20">
             <Label :text="_L('onboarding.network.wifi.caseSensitive')" textWrap="true" class="size-12" />
         </StackLayout>
 
         <StackLayout row="3" class="">
             <Button class="btn btn-primary" :text="_L('save')" :isEnabled="enabled" @tap="addNetwork" />
         </StackLayout>
-    </GridLayout>
+    </FlexboxLayout>
 </template>
 
 <script lang="ts">
@@ -107,8 +108,14 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.validation-error {
-    color: $fk-tertiary-red;
-    padding-top: 5;
+.wifi-network-form-container {
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+
+    .validation-error {
+        color: $fk-tertiary-red;
+        padding-top: 5;
+    }
 }
 </style>
