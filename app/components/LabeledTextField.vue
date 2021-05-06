@@ -67,6 +67,10 @@ export default Vue.extend({
             type: Boolean,
             default: true,
         },
+        invalid: {
+            type: Boolean,
+            default: false,
+        },
     },
     data(): {
         typing: boolean;
@@ -81,10 +85,10 @@ export default Vue.extend({
     },
     computed: {
         containerClass(): string {
-            return [this.focus ? "active-line" : "inactive-line"].join(" ");
+            return [this.focus ? "active-line" : "inactive-line", this.invalid ? "invalid" : "valid"].join(" ");
         },
         fieldClass(): string {
-            return ["labeled-text-field"].join(" ");
+            return ["labeled-text-field", this.invalid ? "invalid" : "valid"].join(" ");
         },
         hasExtras(): boolean {
             return this.canShow || this.canClear;
@@ -162,6 +166,14 @@ export default Vue.extend({
     .active-line {
         border-bottom-color: $fk-secondary-blue;
         border-bottom-width: 2;
+    }
+
+    .inactive-line.invalid {
+        border-bottom-color: $fk-tertiary-red;
+    }
+
+    .active-line.invalid {
+        border-bottom-color: $fk-tertiary-red;
     }
 }
 </style>

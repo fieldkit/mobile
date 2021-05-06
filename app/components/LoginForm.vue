@@ -1,6 +1,12 @@
 <template>
     <FlexboxLayout class="login-form form">
-        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" :isEnabled="!busy" />
+        <LabeledTextField
+            v-model="form.email"
+            label="Email"
+            @blur="checkEmail"
+            :isEnabled="!busy"
+            :invalid="form.v.email.required || form.v.email.length || form.v.email.format"
+        />
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -28,7 +34,14 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" :isEnabled="!busy" />
+        <LabeledTextField
+            v-model="form.password"
+            label="Password"
+            @blur="checkPassword"
+            :secure="true"
+            :isEnabled="!busy"
+            :invalid="form.v.password.required || form.v.password.length"
+        />
         <Label
             v-show="form.v.password.required"
             id="password-required"
@@ -46,7 +59,7 @@
             textWrap="true"
         />
 
-        <Label class="m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
+        <Label class="forgot-password-link m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('logIn')" :isEnabled="!busy" @tap="login" />
 
@@ -191,8 +204,6 @@ export default Vue.extend({
 
     .validation-error {
         color: $fk-tertiary-red;
-        border-top-color: $fk-tertiary-red;
-        border-top-width: 2;
         padding-top: 5;
     }
 }

@@ -1,7 +1,7 @@
 <template>
     <Page actionBarHidden="true">
         <ScrollView>
-            <FlexboxLayout class="page login-page" justifyContent="space-between">
+            <FlexboxLayout class="page login-page m-x-10" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
 
                 <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
@@ -66,10 +66,6 @@ export default Vue.extend({
                 this.busy = false;
             }
         },
-        /*
-        async onRegisterSaved(form: { name:string;email: string; password: string }): Promise<void> {
-        },
-		*/
     },
 });
 </script>
@@ -81,16 +77,21 @@ export default Vue.extend({
     font-size: 16;
     align-items: center;
     flex-direction: column;
-}
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .labeled-text-field,
+    .forgot-password-link {
+        margin-top: 10;
+    }
 
-.sign-up-label {
-    font-size: 14;
-    margin-bottom: 10;
-    font-weight: bold;
+    .logo {
+        margin-top: 50;
+        height: 47;
+    }
+
+    .sign-up-label {
+        font-size: 14;
+        margin-bottom: 10;
+        font-weight: bold;
+    }
 }
 </style>
