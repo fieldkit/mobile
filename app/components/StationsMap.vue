@@ -1,33 +1,37 @@
 <template>
-    <GridLayout rows="auto" columns="*" id="mapbox-wrapper" @unloaded="onUnloaded">
-        <Mapbox
-            row="0"
-            :accessToken="token"
-            :height="height"
-            zoomLevel="0"
-            hideCompass="false"
-            showUserLocation="false"
-            disableZoom="false"
-            disableRotation="false"
-            disableScroll="false"
-            disableTilt="false"
-            class="m-b-10"
-            mapStyle="mapbox://styles/mapbox/outdoors-v11"
-            @mapReady="onMapReady"
-        />
+    <StackLayout>
+        <!-- So weird. So on iOS the map likes to extend above the scrollable area and this prevents that. -->
+        <StackLayout class="m-t-5" v-if="isIOS"></StackLayout>
 
-        <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="!isIOS">
-            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
-        </StackLayout>
+        <GridLayout rows="auto" id="mapbox-wrapper" @unloaded="onUnloaded">
+            <ContentView row="0" :height="height">
+                <Mapbox
+                    :accessToken="token"
+                    zoomLevel="0"
+                    hideCompass="false"
+                    showUserLocation="false"
+                    disableZoom="false"
+                    disableRotation="false"
+                    disableScroll="false"
+                    disableTilt="false"
+                    mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                    @mapReady="onMapReady"
+                />
+            </ContentView>
 
-        <StackLayout row="0" v-if="loading" class="loading">
-            <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
-        </StackLayout>
+            <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="!isIOS">
+                <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
+            </StackLayout>
 
-        <StackLayout row="0" v-if="unavailable" class="unavailable">
-            <Label text="Map Not Available" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
-        </StackLayout>
-    </GridLayout>
+            <StackLayout row="0" v-if="loading" class="loading">
+                <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
+            </StackLayout>
+
+            <StackLayout row="0" v-if="unavailable" class="unavailable">
+                <Label text="Map Not Available" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
+            </StackLayout>
+        </GridLayout>
+    </StackLayout>
 </template>
 
 <script lang="ts">
@@ -42,13 +46,14 @@ export default Vue.extend({
     name: "StationsMap",
     components: {},
     props: {
-        id: {
-            type: String,
-            required: true,
-        },
         height: {
             type: Number,
-            default: 170,
+            default: (): number => {
+                if (isIOS) {
+                    return 270;
+                }
+                return 170;
+            },
         },
         mappedStations: {
             type: Object,
@@ -182,18 +187,19 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.loading {
-    margin-top: 40;
-    font-size: 20;
-    font-weight: bold;
-    color: #ffffff;
-}
+.mapbox-wrapper {
+    .loading {
+        margin-top: 40;
+        font-size: 20;
+        font-weight: bold;
+        color: #ffffff;
+    }
 
-.unavailable {
-    padding-top: 40;
-    font-size: 20;
-    font-weight: bold;
-    height: 170;
-    background-color: #ececec;
+    .unavailable {
+        padding-top: 40;
+        font-size: 20;
+        font-weight: bold;
+        background-color: #ececec;
+    }
 }
 </style>

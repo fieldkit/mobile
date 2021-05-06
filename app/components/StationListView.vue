@@ -1,31 +1,42 @@
 <template>
     <Page>
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
-        <ScrollView>
-            <StackLayout @doubleTap="onDoubleTap">
-                <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
-                <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+        <ScrollView @doubleTap="onDoubleTap">
+            <GridLayout rows="auto,*">
+                <StationsMap row="0" id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
-                <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
+                <StackLayout row="1">
+                    <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
-                <GridLayout
-                    v-for="station in stations"
-                    :key="station.deviceId"
-                    rows="*,*"
-                    columns="85*,15*"
-                    class="station-container m-y-5 m-x-15 p-10"
-                    orientation="vertical"
-                    @tap="goToDetail($event, station)"
-                >
-                    <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
-                    <Label row="1" col="0" :text="getDeployStatus(station)" :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')" />
-                    <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
-                    <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
-                </GridLayout>
-                <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
-                <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
-            </StackLayout>
+                    <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+
+                    <GridLayout
+                        v-for="station in stations"
+                        :key="station.deviceId"
+                        rows="*,*"
+                        columns="85*,15*"
+                        class="station-container m-y-5 m-x-15 p-10"
+                        orientation="vertical"
+                        @tap="goToDetail($event, station)"
+                    >
+                        <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
+                        <Label
+                            row="1"
+                            col="0"
+                            :text="getDeployStatus(station)"
+                            :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
+                        />
+                        <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
+                        <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
+                    </GridLayout>
+
+                    <StackLayout>
+                        <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
+                        <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
+                    </StackLayout>
+                </StackLayout>
+            </GridLayout>
         </ScrollView>
     </Page>
 </template>
