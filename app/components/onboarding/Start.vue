@@ -2,7 +2,7 @@
     <Page @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="_L('fieldkitWifi')" :onBack="back" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('continue')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrolling="true">
+        <SkipLayout :buttonLabel="_L('continue')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrollable="true">
             <GridLayout rows="auto" columns="*" verticalAlignment="middle" v-show="step == 0">
                 <StackLayout row="0">
                     <Label class="instruction" :text="_L('introConnectStep1')" lineHeight="4" textWrap="true"></Label>

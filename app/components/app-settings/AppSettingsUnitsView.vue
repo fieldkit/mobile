@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.units.units')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView class="m-r-20 m-l-20">
+        <SettingsLayout>
             <StackLayout>
                 <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
                     <Label :text="_L('appSettings.units.unitSystem')" class="size-16 m-5" col="0" verticalAlignment="center" />
@@ -176,15 +176,13 @@
                     </StackLayout>
                 </GridLayout>
             </StackLayout>
-        </ScrollView>
+        </SettingsLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import SettingsItemSlider from "./SettingsItemSlider.vue";
-import SettingsItemText from "./SettingsItemText.vue";
 import { isAndroid, isIOS, Label } from "@nativescript/core";
 
 export default Vue.extend({
@@ -201,8 +199,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        SettingsItemSlider,
-        SettingsItemText,
     },
     methods: {
         saveSettings() {

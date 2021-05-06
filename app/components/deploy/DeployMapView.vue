@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded" class="deployment">
         <PlatformHeader
             :title="_L('deployment')"
             :subtitle="currentStation.name"
@@ -21,7 +21,7 @@
                 :buttonLabel="_L('continue')"
                 :buttonEnabled="currentStation.connected && valid()"
                 @button="goToNext"
-                :scrolling="true"
+                :scrollable="true"
             >
                 <FlexboxLayout flexDirection="column" justifyContent="flex-start">
                     <StackLayout>
@@ -263,28 +263,30 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.top-line-bkgd {
-    background-color: $fk-gray-lighter;
-}
-.top-line {
-    border-bottom-width: 3;
-    border-bottom-color: $fk-primary-blue;
-}
+.deployment {
+    .top-line-bkgd {
+        background-color: $fk-gray-lighter;
+    }
+    .top-line {
+        border-bottom-width: 3;
+        border-bottom-color: $fk-primary-blue;
+    }
 
-.validation-error {
-    width: 100%;
-    font-size: 12;
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
-}
+    .validation-error {
+        width: 100%;
+        font-size: 12;
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
+        padding-top: 5;
+    }
 
-.form-row {
-    padding-bottom: 20;
-}
+    .form-row {
+        padding-bottom: 20;
+    }
 
-.form-container {
-    padding: 10;
+    .form-container {
+        padding: 10;
+    }
 }
 </style>

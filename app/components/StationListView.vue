@@ -143,5 +143,6 @@ export default Vue.extend({
     padding-top: 30;
     color: #afafaf;
     text-align: center;
+    padding-bottom: 30;
 }
 </style>

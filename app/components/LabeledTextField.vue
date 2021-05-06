@@ -1,8 +1,8 @@
 <template>
-    <StackLayout>
+    <StackLayout class="labeled-text-field">
         <Label ref="label" :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" width="100%" />
 
-        <GridLayout rows="auto" :columns="canShow ? '*, 45' : '*'">
+        <GridLayout rows="auto" :columns="hasExtras ? '*, 45' : '*'" :class="containerClass">
             <TextField
                 row="0"
                 :class="fieldClass"
@@ -27,6 +27,8 @@
                 verticalAlignment="middle"
                 @tap="toggle"
             />
+
+            <Image v-if="canClear" col="1" width="17" src="~/images/Icon_Close.png" @tap="clear" />
         </GridLayout>
     </StackLayout>
 </template>
@@ -57,6 +59,10 @@ export default Vue.extend({
             type: Boolean,
             default: false,
         },
+        canClear: {
+            type: Boolean,
+            default: false,
+        },
         isEnabled: {
             type: Boolean,
             default: true,
@@ -74,8 +80,14 @@ export default Vue.extend({
         };
     },
     computed: {
+        containerClass(): string {
+            return [this.focus ? "active-line" : "inactive-line"].join(" ");
+        },
         fieldClass(): string {
-            return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
+            return ["labeled-text-field"].join(" ");
+        },
+        hasExtras(): boolean {
+            return this.canShow || this.canClear;
         },
     },
     methods: {
@@ -118,6 +130,9 @@ export default Vue.extend({
             this.hidden = !this.hidden;
             console.log(`toggle hidden`);
         },
+        clear(): void {
+            this.$emit("input", "");
+        },
     },
 });
 </script>
@@ -125,29 +140,28 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.field-label {
-    color: $fk-gray-hint;
-}
 .labeled-text-field {
-    color: $fk-primary-black;
-    padding-bottom: 5;
-    width: 100%;
-    font-size: 18;
-}
-.inactive-line {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
-.active-line {
-    border-bottom-color: $fk-secondary-blue;
-    border-bottom-width: 2;
-}
-.validation-error {
-    width: 100%;
-    font-size: 12;
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+    .field-label {
+        color: $fk-gray-hint;
+    }
+
+    .labeled-text-field {
+        color: $fk-primary-black;
+        padding-bottom: 5;
+        width: 100%;
+        font-size: 18;
+        border-bottom-width: 1;
+        border-bottom-color: white;
+    }
+
+    .inactive-line {
+        border-bottom-color: $fk-gray-lighter;
+        border-bottom-width: 1;
+    }
+
+    .active-line {
+        border-bottom-color: $fk-secondary-blue;
+        border-bottom-width: 2;
+    }
 }
 </style>

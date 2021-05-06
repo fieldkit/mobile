@@ -5,7 +5,7 @@
         <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="forward" :scrolling="true">
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="currentStation.connected" @button="forward" :scrollable="true">
                 <Label class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold" :text="_L('dataSyncStationTitle')" textWrap="true"></Label>
                 <Label class="m-20 text-center" :text="_L('dataSyncStationInfo')" lineHeight="4" textWrap="true"></Label>
                 <SettingsItemSlider

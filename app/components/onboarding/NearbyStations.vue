@@ -2,7 +2,7 @@
     <Page @navigatingFrom="onNavigatingFrom">
         <PlatformHeader title="Onboarding" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" @button="forward" :skipLabel="_L('noStationTryAgain')" @skip="tryAgain" :scrolling="true">
+        <SkipLayout :buttonLabel="_L('next')" @button="forward" :skipLabel="_L('noStationTryAgain')" @skip="tryAgain" :scrollable="true">
             <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true" />
 
             <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true" />
@@ -147,33 +147,5 @@ export default Vue.extend({
     margin-top: 30;
     margin-left: 30;
     margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
-.small {
-    width: 50;
-    margin: 20;
-}
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-.gray-text {
-    color: $fk-gray-hint;
-}
-.red-text {
-    color: $fk-primary-red;
 }
 </style>

@@ -40,7 +40,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.onboarding.start);
 
                 return;
@@ -71,6 +71,16 @@ export default Vue.extend({
             if (false) {
                 if (this.$s.getters.stationCalibrations[1]) {
                     await this.$navigateTo(fullRoutes.onboarding.recalibrate(1), {
+                        clearHistory: true,
+                    });
+
+                    return;
+                }
+            }
+
+            if (true) {
+                if (this.$s.getters.stationCalibrations[1]) {
+                    await this.$navigateTo(fullRoutes.station.settings(1), {
                         clearHistory: true,
                     });
 

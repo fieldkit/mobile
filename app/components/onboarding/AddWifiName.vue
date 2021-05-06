@@ -5,7 +5,7 @@
         <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="next" :scrolling="true">
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="next" :scrollable="true">
                 <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
                     <StackLayout row="0" class="text-center m-b-30">
                         <Label :text="_L('wifiNameTitle')" textWrap="true" class="size-18 m-b-10 bold" />

@@ -1,5 +1,5 @@
 <template>
-    <StackLayout class="form">
+    <FlexboxLayout class="registration-form">
         <LabeledTextField v-model="form.name" label="Name" @blur="checkName" />
         <Label
             v-show="form.v.name.required"
@@ -84,7 +84,7 @@
         />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('signUp')" :isEnabled="!busy" @tap="register" />
-    </StackLayout>
+    </FlexboxLayout>
 </template>
 
 <script lang="ts">
@@ -213,65 +213,31 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.login-page {
-    font-size: 16;
-    align-items: center;
-    flex-direction: column;
-}
-
-.form {
-    margin-left: 5;
-    margin-right: 5;
+.registration-form {
     flex-grow: 2;
+    flex-direction: column;
     vertical-align: center;
-}
+    justify-content: space-around;
+    height: 100%;
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .active {
+        border-top-color: $fk-secondary-blue;
+    }
 
-.spacer-top {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 2;
-}
+    .btn-primary {
+        margin: 20 0 15 0;
+    }
 
-.active {
-    border-top-color: $fk-secondary-blue;
-}
+    .sign-up-label {
+        horizontal-align: center;
+        margin-bottom: 10;
+    }
 
-.input-field {
-    margin-bottom: 15;
-}
-
-.input {
-    width: 100%;
-    font-size: 16;
-    color: $fk-primary-black;
-    placeholder-color: $fk-gray-hint;
-}
-
-.input:disabled {
-    opacity: 0.5;
-}
-
-.btn-primary {
-    margin: 20 5 15 5;
-}
-
-.bottom-pad {
-    margin-bottom: 8;
-}
-
-.sign-up-label {
-    horizontal-align: center;
-    margin-bottom: 10;
-}
-
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+    .validation-error {
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
+        padding-top: 5;
+    }
 }
 </style>

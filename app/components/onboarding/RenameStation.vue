@@ -12,11 +12,13 @@
                 @button="rename"
                 :skipLabel="_L('skipStep')"
                 @skip="skip"
-                :scrolling="true"
+                :scrollable="true"
             >
                 <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
                 <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
+
+                <LabeledTextField v-model="form.name" @blur="validate" />
 
                 <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
                     <TextField
@@ -188,12 +190,6 @@ export default Vue.extend({
     border-bottom-color: white;
 }
 
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-}
 .validation-error {
     width: 100%;
     font-size: 13;

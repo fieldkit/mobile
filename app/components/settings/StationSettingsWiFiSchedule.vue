@@ -1,38 +1,33 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('uploadSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="body-container">
-                    <Label text="Data Upload Schedule" class="size-14 title" />
-                    <Label
-                        text="Set a schedule for your station to bypass the app and upload data straight to the portal. Frequent data upload drains the battery faster, so this option is best for stations powered from the wall."
-                        class="size-12 subtitle"
-                        textWrap="true"
-                    />
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="body-container">
+                <Label text="Data Upload Schedule" class="size-14 title" />
+                <Label
+                    text="Set a schedule for your station to bypass the app and upload data straight to the portal. Frequent data upload drains the battery faster, so this option is best for stations powered from the wall."
+                    class="size-12 schedule-instructions"
+                    textWrap="true"
+                />
 
-                    <SettingsItemSlider :title="'stationSettings.wifiSchedule.enable'" v-model="form.enabled" :enabled="true" />
+                <SettingsItemSlider :title="'stationSettings.wifiSchedule.enable'" v-model="form.enabled" :enabled="true" />
 
-                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" :complex="false" v-if="form.enabled" />
+                <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" :complex="false" v-if="form.enabled" />
 
-                    <Button
-                        class="btn btn-primary btn-padded"
-                        :text="_L('save')"
-                        :isEnabled="station.connected && !busy"
-                        @tap="saveUploadInterval"
-                    />
-                </StackLayout>
-            </ScrollView>
-        </GridLayout>
+                <Button
+                    class="btn btn-primary btn-padded"
+                    :text="_L('save')"
+                    :isEnabled="station.connected && !busy"
+                    @tap="saveUploadInterval"
+                />
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import SettingsItemSlider from "../app-settings/SettingsItemSlider.vue";
 import { ActionTypes, AvailableStation } from "@/store";
 
@@ -74,10 +69,8 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ConnectionNote,
         ScheduleEditor,
         SettingsItemSlider,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {
@@ -111,7 +104,7 @@ export default Vue.extend({
     padding: 20;
 }
 
-.subtitle {
+.schedule-instructions {
     padding-bottom: 20;
 }
 </style>

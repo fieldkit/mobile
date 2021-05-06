@@ -1,19 +1,19 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
-        <ScrollView>
-            <FlexboxLayout class="page login-page" justifyContent="space-between">
-                <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
+        <SettingsLayout class="m-x-10">
+            <GridLayout rows="*,auto">
+                <LoginForm row="0" v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
-                <RegisterForm v-else />
+                <RegisterForm row="0" v-else />
 
-                <Label class="sign-up-label m-t-30 size-14" @tap="toggle">
+                <Label row="1" class="sign-up-label m-t-30 size-14" @tap="toggle">
                     <FormattedString>
                         <Span :text="login ? _L('needAccount') : _L('backToLogin')"></Span>
                     </FormattedString>
                 </Label>
-            </FlexboxLayout>
-        </ScrollView>
+            </GridLayout>
+        </SettingsLayout>
     </Page>
 </template>
 

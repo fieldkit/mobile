@@ -103,9 +103,6 @@ module.exports = {
     goToStations: "Go to Stations",
     noModulesAttachedTitle: "No Modules Attached",
     noModulesAttachedBody: "Your stations needs modules in order to complete setup, deploy and capture data.",
-    // StationSettingsCaptureSchedule.vue
-    // StationSettingsConnectionNote.vue
-    mustBeConnected: "Note: You must be connected to the station to make this change.",
     // StationSettingsEndDeploy.vue
     notCurrentlyRecording: "is not currently recording.",
     areYouSureStopRecording: "Are you sure you want to stop recording?",
