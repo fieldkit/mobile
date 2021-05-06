@@ -162,7 +162,7 @@ export class ServicesImpl implements Services {
 
     public CalibrationService(): CalibrationService {
         if (!this.calibrationService) {
-            this.calibrationService = new CalibrationService(this.Conservify());
+            this.calibrationService = new CalibrationService(this.QueryStation(), this.Conservify());
         }
         return this.unwrap(this.calibrationService);
     }

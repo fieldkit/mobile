@@ -105,7 +105,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.CLEAR_SENSOR_CALIBRATION]: async ({ commit, dispatch, state }: ActionParameters, payload: ClearWaterCalibration) => {
             const info = state.connected[payload.deviceId];
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
-            const service = new CalibrationService(services.conservify());
+            const service = new CalibrationService(services.queryStation(), services.conservify());
             const url = `${info.url}/modules/${payload.position}`;
             return await service.clearCalibration(url).then((cleared) => {
                 console.log("cal:", "cleared", payload.moduleId, cleared);
@@ -144,7 +144,7 @@ const actions = (services: ServiceRef) => {
                     const hex = encoded.toString("hex");
                     console.log(`cal-hex`, encoded.length, hex);
 
-                    const service = new CalibrationService(services.conservify());
+                    const service = new CalibrationService(services.queryStation(), services.conservify());
                     const url = `${info.url}/modules/${payload.position}`;
                     const reply = await service.calibrate(url, encoded);
 
