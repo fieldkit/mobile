@@ -58,7 +58,6 @@ module.exports = {
     wifiStep2: "Unfortunately, only 2.4GHz WiFi is currently supported and both fields are case sensitive.",
     wifiNameTitle: "Select WiFi Network",
     wifiNameBig: "Add a list of preferred WiFi Networks.",
-    wifiNameSmall: "Only 2.4GHz WiFi is currently supported",
     next: "Next",
     networkNameHint: "Enter WiFi network name",
     networkPasswordHint: "Enter network password",
@@ -881,7 +880,8 @@ module.exports = {
 		},
 		network: {
 			wifi: {
-				caseSensitive: 'Note: The WiFi network name and password are case sensitive.'
+				caseSensitive: 'Note: The WiFi network name and password are case sensitive.',
+				band: `Only 2.4GHz WiFi networks are currently supported.`
 			}
 		}
 	},

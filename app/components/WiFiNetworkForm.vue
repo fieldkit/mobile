@@ -25,6 +25,7 @@
 
         <StackLayout row="2" class="m-b-20">
             <Label :text="_L('onboarding.network.wifi.caseSensitive')" textWrap="true" class="size-12" />
+            <Label :text="_L('onboarding.network.wifi.band')" textWrap="true" class="size-12" />
         </StackLayout>
 
         <StackLayout row="3" class="">

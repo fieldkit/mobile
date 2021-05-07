@@ -14,48 +14,40 @@
                 @skip="skip"
                 :scrollable="true"
             >
-                <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
+                <StackLayout class="m-x-10">
+                    <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
-                <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
+                    <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
-                <LabeledTextField v-model="form.name" @blur="validate" />
-
-                <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                    <TextField
-                        col="0"
-                        textWrap="true"
-                        class="size-16 no-border-input"
-                        :hint="_L('stationNameHint')"
+                    <LabeledTextField
                         v-model="form.name"
-                        keyboardType="_L('stationNameHint')"
-                        autocorrect="false"
-                        autocapitalizationType="none"
                         @blur="validate"
+                        :canClear="true"
+                        :invalid="form.v.required || form.v.long || form.v.characters"
                     />
-                    <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-                </GridLayout>
 
-                <Label
-                    class="validation-error"
-                    id="no-name"
-                    :text="_L('nameRequired')"
-                    textWrap="true"
-                    :visibility="form.v.required ? 'visible' : 'collapsed'"
-                />
-                <Label
-                    class="validation-error"
-                    id="name-too-long"
-                    :text="_L('nameOver40')"
-                    textWrap="true"
-                    :visibility="form.v.long ? 'visible' : 'collapsed'"
-                />
-                <Label
-                    class="validation-error"
-                    id="name-not-printable"
-                    :text="_L('nameNotPrintable')"
-                    textWrap="true"
-                    :visibility="form.v.characters ? 'visible' : 'collapsed'"
-                />
+                    <Label
+                        class="validation-error"
+                        id="no-name"
+                        :text="_L('nameRequired')"
+                        textWrap="true"
+                        :visibility="form.v.required ? 'visible' : 'collapsed'"
+                    />
+                    <Label
+                        class="validation-error"
+                        id="name-too-long"
+                        :text="_L('nameOver40')"
+                        textWrap="true"
+                        :visibility="form.v.long ? 'visible' : 'collapsed'"
+                    />
+                    <Label
+                        class="validation-error"
+                        id="name-not-printable"
+                        :text="_L('nameNotPrintable')"
+                        textWrap="true"
+                        :visibility="form.v.characters ? 'visible' : 'collapsed'"
+                    />
+                </StackLayout>
             </SkipLayout>
         </GridLayout>
     </Page>

@@ -46,7 +46,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (false) {
+            if (true) {
                 await this.$navigateTo(fullRoutes.onboarding.start);
 
                 return;
@@ -58,7 +58,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });

@@ -10,6 +10,7 @@
                     <StackLayout row="0" class="text-center m-b-30">
                         <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
                         <Label :text="ssid" textWrap="true" class="size-16" />
+                        <Label :text="_L('onboarding.network.wifi.band')" textWrap="true" class="size-12" />
                     </StackLayout>
 
                     <StackLayout row="1" class="p-20">
