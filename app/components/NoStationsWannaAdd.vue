@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto,auto,auto,auto" class="m-t-20">
+    <GridLayout rows="auto,auto,auto,auto" class="m-t-20 m-x-20">
         <Image row="0" src="~/images/TI_8-B.jpg" v-if="image" width="50%" />
         <Label row="1" :text="_L('connectAStation')" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
         <Label row="2" :text="_L('addStationInstruction')" class="text-center size-18 instruction" textWrap="true" />
