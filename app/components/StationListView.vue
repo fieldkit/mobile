@@ -4,7 +4,7 @@
 
         <ScrollView @doubleTap="onDoubleTap">
             <GridLayout rows="auto,*">
-                <StationsMap id="stations-map" row="0" :mappedStations="mappedStations" @toggle-modal="openModalMap" :mapKey="mapKey" />
+                <StationsMap id="stations-map" row="0" :mappedStations="mappedStations" :mapKey="mapKey" @toggle-modal="openModalMap" />
 
                 <StackLayout row="1" class="p-t-10">
                     <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>

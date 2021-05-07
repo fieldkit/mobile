@@ -17,6 +17,8 @@
                     mapStyle="mapbox://styles/mapbox/outdoors-v11"
                     @mapReady="onMapReady"
                     @moveBeginEvent="onMapMove"
+                    @locationPermissionGranted="onLocationPermissionGranted"
+                    @locationPermissionDenied="onLocationPermissionDenied"
                 />
             </ContentView>
 
@@ -82,7 +84,7 @@ export default Vue.extend({
             shown: false,
             token: Config.mapbox.token,
             hasMap: false,
-            located: !isIOS,
+            located: true,
         };
     },
     watch: {
@@ -210,6 +212,22 @@ export default Vue.extend({
         },
         onMapMove(this: any): void {
             console.log(this.key, "map: move");
+        },
+        onLocationPermissionGranted(this: any): void {
+            console.log(this.key, "map: onLocationPermissionGranted");
+            this.map.getUserLocation().then((location) => {
+                console.log("map: user location: " + location.location.lat + ", " + location.location.lng);
+                if (isIOS) {
+                    this.map.setCenter({
+                        lat: location.location.lat,
+                        lng: location.location.lng,
+                        animated: false,
+                    });
+                }
+            });
+        },
+        onLocationPermissionDenied(): void {
+            console.log(this.key, "map: onLocationPermissionDenied");
         },
         getDeployStatus(this: any, station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");

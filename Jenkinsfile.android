@@ -26,6 +26,9 @@ timestamps {
 			}
 
             stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-mapbox-netrc', variable: 'APP_MAPBOX_NETRC')]) {
+					sh "cp -f $APP_MAPBOX_NETRC ~/"
+				}
                 withCredentials([file(credentialsId: 'app-android-signing-data', variable: 'APP_ANDROID_SIGNING_DATA')]) {
                     sh "mkdir -p private && cp -f $APP_ANDROID_SIGNING_DATA private/private.zip && (cd private && unzip -o private.zip)"
                 }

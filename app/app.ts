@@ -24,7 +24,7 @@ import Services from "./services/singleton";
 import { navigatorFactory } from "./routes";
 import Config, { Build } from "./config";
 
-import { MapboxView } from "nativescript-mapbox";
+import { MapboxView } from "@nativescript-community/ui-mapbox";
 import { DropDown } from "nativescript-drop-down";
 import { CheckBox } from "@nstudio/nativescript-checkbox";
 

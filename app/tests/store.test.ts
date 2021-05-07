@@ -387,12 +387,7 @@ describe("Store", () => {
     }
 
     describe("map", () => {
-        it("should begin with no default location", async () => {
-            expect(store.getters.mappedStations).toBe(null);
-        });
-
         it("should center on the phone's location", async () => {
-            expect(store.getters.mappedStations).toBe(null);
             store.commit(MutationTypes.PHONE_LOCATION, CommonLocations.ConservifyLab);
             expect(store.getters.mappedStations.center.location).toEqual(CommonLocations.ConservifyLab.location());
         });
