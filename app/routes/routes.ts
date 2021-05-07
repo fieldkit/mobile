@@ -231,6 +231,16 @@ export const fullRoutes = {
             }),
     },
     station: {
+        details: (stationId: number): FullRoute => {
+            return new FullRoute("tabbed", Frames.Outer, {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("station/detail", Frames.Stations, {
+                        stationId: stationId,
+                    }),
+                },
+            });
+        },
         settings: (stationId: number): FullRoute => {
             return new FullRoute("tabbed", Frames.Outer, {
                 firstTab: {

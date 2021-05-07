@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded" class="station-detail-container">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onSettings="goToSettings" />
         <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35' : '*'" class="m-t-20">
             <ScrollView row="0" ref="scrollview">
@@ -61,7 +61,12 @@
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
-            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorialGuide && !redirectedFromCalibration">
+            <AbsoluteLayout
+                height="100%"
+                width="100%"
+                v-if="currentSettings.help.tutorialGuide && !redirectedFromCalibration"
+                class="tooltip-container"
+            >
                 <StationDetailTooltipView
                     :topPosition="30"
                     :leftPosition="200"
@@ -71,7 +76,7 @@
                     :class="tip === 0 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
+                />
                 <StationDetailTooltipView
                     :topPosition="160"
                     :leftPosition="220"
@@ -81,7 +86,7 @@
                     :class="tip === 1 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
+                />
                 <StationDetailTooltipView
                     :topPosition="170"
                     :leftPosition="120"
@@ -91,7 +96,7 @@
                     :class="tip === 2 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
+                />
                 <StationDetailTooltipView
                     v-if="!currentStation.deployed"
                     :topPosition="220"
@@ -102,7 +107,7 @@
                     :class="tip === 3 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
+                />
                 <StationDetailTooltipView
                     :topPosition="400"
                     :leftPosition="100"
@@ -113,7 +118,7 @@
                     :showNextButton="false"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
+                />
             </AbsoluteLayout>
             <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
         </GridLayout>
@@ -381,55 +386,61 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
+.station-detail-container {
+    .bordered-container {
+        border-radius: 4;
+        border-color: $fk-gray-lighter;
+        border-width: 1;
+    }
 
-.blue {
-    color: $fk-primary-blue;
-}
+    .blue {
+        color: $fk-primary-blue;
+    }
 
-.deployed-dialog-container {
-    border-radius: 4;
-    background-color: $fk-gray-lightest;
-    color: $fk-primary-black;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-    width: 225;
-    height: 225;
-    padding-top: 50;
-}
+    .deployed-dialog-container {
+        border-radius: 4;
+        background-color: $fk-gray-lightest;
+        color: $fk-primary-black;
+        border-color: $fk-gray-lighter;
+        border-width: 1;
+        width: 225;
+        height: 225;
+        padding-top: 50;
+    }
 
-.deployed-dialog-text {
-    margin-top: 20;
-    font-size: 18;
-}
+    .deployed-dialog-text {
+        margin-top: 20;
+        font-size: 18;
+    }
 
-.small {
-    width: 50;
-    margin: 20;
-}
+    .small {
+        width: 50;
+        margin: 20;
+    }
 
-StationDetailTooltipView {
-    z-index: 1;
-}
-.active {
-    z-index: 99;
-}
+    StationDetailTooltipView {
+        z-index: 1;
+    }
+    .active {
+        z-index: 99;
+    }
 
-.ready-to-deploy-dialog-container {
-    border-radius: 4;
-    background-color: $white;
-    color: $fk-circle-blue;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-    width: 300;
-    padding-top: 40;
-}
+    .ready-to-deploy-dialog-container {
+        border-radius: 4;
+        background-color: $white;
+        color: $fk-circle-blue;
+        border-color: $fk-gray-lighter;
+        border-width: 1;
+        width: 300;
+        padding-top: 40;
+    }
 
-.ready-to-deploy-button {
-    margin-top: 50;
+    .ready-to-deploy-button {
+        margin-top: 50;
+    }
+
+    .tooltip-container {
+        background-color: transparent;
+    }
 }
 </style>

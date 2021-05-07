@@ -46,14 +46,28 @@ export default Vue.extend({
                 return;
             }
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.onboarding.start);
+
+                return;
+            }
+
+            if (true) {
+                await this.$navigateTo(fullRoutes.station.details(1));
 
                 return;
             }
 
             if (false) {
                 await this.$navigateTo(fullRoutes.onboarding.addModule(1));
+
+                return;
+            }
+
+            if (false) {
+                await this.$navigateTo(fullRoutes.stations, {
+                    clearHistory: true,
+                });
 
                 return;
             }
