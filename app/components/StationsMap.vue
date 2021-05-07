@@ -1,21 +1,22 @@
 <template>
-    <StackLayout>
+    <StackLayout @loaded="onLoaded" @unloaded="onUnloaded">
         <!-- So weird. So on iOS the map likes to extend above the scrollable area and this prevents that. -->
         <StackLayout class="m-t-5" v-if="isIOS"></StackLayout>
 
-        <GridLayout rows="auto" id="mapbox-wrapper" @unloaded="onUnloaded">
+        <GridLayout rows="auto" id="mapbox-wrapper">
             <ContentView row="0" :height="height">
                 <Mapbox
                     :accessToken="token"
-                    zoomLevel="0"
+                    zoomLevel="11"
                     hideCompass="false"
-                    showUserLocation="false"
+                    showUserLocation="true"
                     disableZoom="false"
                     disableRotation="false"
                     disableScroll="false"
                     disableTilt="false"
                     mapStyle="mapbox://styles/mapbox/outdoors-v11"
                     @mapReady="onMapReady"
+                    @moveBeginEvent="onMapMove"
                 />
             </ContentView>
 
@@ -44,7 +45,6 @@ import { _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationsMap",
-    components: {},
     props: {
         height: {
             type: Number,
@@ -57,9 +57,23 @@ export default Vue.extend({
         },
         mappedStations: {
             type: Object,
+            required: true,
+        },
+        mapKey: {
+            type: Number,
+            default: 0,
         },
     },
-    data() {
+    data(): {
+        key: string;
+        isIOS: boolean;
+        loading: boolean;
+        unavailable: boolean;
+        shown: false;
+        token: string;
+        hasMap: boolean;
+        located: boolean;
+    } {
         return {
             key: uuidv4(),
             isIOS: isIOS,
@@ -68,7 +82,15 @@ export default Vue.extend({
             shown: false,
             token: Config.mapbox.token,
             hasMap: false,
+            located: !isIOS,
         };
+    },
+    watch: {
+        mappedStations(): void {
+            console.log(this.key, "map: mapped-stations", this.isIOS);
+            this.shown = false;
+            this.showStations();
+        },
     },
     updated(): void {
         console.log(this.key, "map: updated", this.isIOS);
@@ -77,26 +99,29 @@ export default Vue.extend({
     mounted(this: any): void {
         console.log(this.key, "map: mounted");
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         console.log(this.key, "map: before-destroy");
     },
-    destroyed() {
+    destroyed(): void {
         console.log(this.key, "map: destroyed");
     },
     methods: {
+        onLoaded(): void {
+            console.log(this.key, "map: loaded");
+        },
         onUnloaded(): void {
             console.log(this.key, "map: unloaded");
         },
-        onMapReady(this: any, ev) {
+        onMapReady(this: any, ev): void {
             console.log(this.key, "map: map-ready");
             this.map = ev.map;
             this.showStations();
         },
-        toggleModal(this: any) {
+        toggleModal(this: any): void {
             console.log(this.key, "map: toggle-modal");
             this.$emit("toggle-modal");
         },
-        showStations(this: any) {
+        showStations(this: any): void {
             if (!this.mappedStations) {
                 console.log(this.key, "map: refresh, no mappedStations");
                 return;
@@ -126,37 +151,43 @@ export default Vue.extend({
                 this.map.removeMarkers();
                 this.map.addMarkers(markers);
 
-                const center = this.mappedStations.center;
+                if (!this.located) {
+                    const center = this.mappedStations.center;
 
-                this.map.setZoomLevel({
-                    level: center.zoom,
-                    animated: false,
-                });
+                    this.map.setZoomLevel({
+                        level: center.zoom,
+                        animated: false,
+                    });
 
-                this.map.setCenter({
-                    lat: center.location.latitude,
-                    lng: center.location.longitude,
-                    animated: false,
-                });
+                    this.map.setCenter({
+                        lat: center.location.latitude,
+                        lng: center.location.longitude,
+                        animated: false,
+                    });
 
-                const min = center.bounds.min;
-                const max = center.bounds.max;
-                this.map.setViewport({
-                    bounds: {
-                        north: max.latitude,
-                        east: max.longitude,
-                        south: min.latitude,
-                        west: min.longitude,
-                    },
-                    animated: false,
-                });
+                    const min = center.bounds.min;
+                    const max = center.bounds.max;
+                    this.map.setViewport({
+                        bounds: {
+                            north: max.latitude,
+                            east: max.longitude,
+                            south: min.latitude,
+                            west: min.longitude,
+                        },
+                        animated: false,
+                    });
+
+                    this.located = true;
+                }
+            } else {
+                console.log(this.key, "map: skip-refresh");
             }
 
             this.loading = false;
             this.hasMap = true;
             this.shown = true;
         },
-        onMarkerTap(this: any, station) {
+        onMarkerTap(this: any, station): void {
             /*
             this.map.setCenter({
                 lat: station.location.latitude,
@@ -169,15 +200,18 @@ export default Vue.extend({
             });
 			*/
         },
-        onCalloutTap(this: any, station) {
+        async onCalloutTap(this: any, station): Promise<void> {
             this.$emit("opened-details", station);
-            return this.$navigateTo(routes.station.detail, {
+            await this.$navigateTo(routes.station.detail, {
                 props: {
                     stationId: station.id,
                 },
             });
         },
-        getDeployStatus(this: any, station: AvailableStation) {
+        onMapMove(this: any): void {
+            console.log(this.key, "map: move");
+        },
+        getDeployStatus(this: any, station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
     },

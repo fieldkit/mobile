@@ -7,16 +7,22 @@ import { ServiceRef } from "@/services";
 export class MapState {
     phone: Location | null = null;
     stations: { [index: string]: MappedStation } = {};
+
+    public get location(): Location {
+        if (!this.phone) {
+            const BowGlacier = [51.6466153, -116.5388066];
+            return new Location(BowGlacier[0], BowGlacier[1]);
+        }
+        return this.phone;
+    }
 }
 
 const getters = {
     mappedStations: (state: MapState): MappedStations | null => {
-        if (state.phone == null) {
-            return null;
-        }
+        const location = state.location;
         const FeetAroundPhone = 1000;
-        const bounds = BoundingRectangle.around(state.phone, FeetAroundPhone);
-        return new MappedStations(new MapCenter(state.phone, bounds, 14), Object.values(state.stations));
+        const bounds = BoundingRectangle.around(location, FeetAroundPhone);
+        return new MappedStations(new MapCenter(location, bounds, 14), Object.values(state.stations));
     },
 };
 

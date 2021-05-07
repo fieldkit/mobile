@@ -40,7 +40,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.login);
 
                 return;
@@ -58,7 +58,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (false) {
+            if (true) {
                 await this.$navigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });

@@ -88,8 +88,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
             }
 
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
-                // return simpleMutation(appendLog, mutation);
-                return;
+                return simpleMutation(appendLog, mutation);
             }
 
             if (mutation.type == MutationTypes.PHONE_NETWORK) {

@@ -1,12 +1,12 @@
 <template>
-    <Page>
+    <Page @loaded="onLoaded">
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
 
         <ScrollView @doubleTap="onDoubleTap">
             <GridLayout rows="auto,*">
-                <StationsMap row="0" id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
+                <StationsMap id="stations-map" row="0" :mappedStations="mappedStations" @toggle-modal="openModalMap" :mapKey="mapKey" />
 
-                <StackLayout row="1">
+                <StackLayout row="1" class="p-t-10">
                     <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
                     <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
@@ -64,11 +64,13 @@ export default Vue.extend({
         busy: boolean;
         scanning: boolean;
         key: string;
+        mapKey: number;
     } {
         return {
             busy: false,
             scanning: false,
             key: uuidv4(),
+            mapKey: 0,
         };
     },
     computed: {
@@ -80,10 +82,17 @@ export default Vue.extend({
     mounted(): void {
         console.log(this.key, "stations: mounted");
     },
+    beforeUpdate(): void {
+        console.log(this.key, "stations: before-updated");
+    },
     updated(): void {
         console.log(this.key, "stations: updated");
     },
     methods: {
+        onLoaded() {
+            console.log(this.key, "stations: loaded");
+            this.mapKey++;
+        },
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },

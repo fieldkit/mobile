@@ -86,11 +86,13 @@ export default Vue.extend({
         tab: number;
         loaded: boolean;
         ready: boolean;
+        showings: { [index: number]: number };
     } {
         return {
             tab: 0,
             loaded: false,
             ready: false,
+            showings: {},
         };
     },
     created(): void {
