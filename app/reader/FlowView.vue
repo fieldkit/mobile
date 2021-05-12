@@ -1,5 +1,5 @@
 <template>
-    <Page @navigatingFrom="onNavigatingFrom">
+    <Page @navigatingFrom="onNavigatingFrom" class="flow-reader">
         <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" :border="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*">
@@ -18,7 +18,7 @@
                     <template v-if="screen.simple.length >= 1">
                         <ByOrientation row="1">
                             <template v-slot:landscape>
-                                <ScrollView>
+                                <ScrollView class="simple-screen-container">
                                     <SimpleScreen
                                         :screen="screen.simple[0]"
                                         :frame="frame"
@@ -227,26 +227,31 @@ export default FlowView;
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.center-container {
-    padding: 0;
-    margin: 0;
+.flow-reader {
+    .center-container {
+        padding: 0;
+        margin: 0;
+    }
+
+    .container {
+        padding: 0;
+        margin: 0;
+    }
+
+    .loading {
+        padding: 20;
+    }
+
+    .simple-screen {
+        padding: 10;
+    }
+
+    .simple-screen.scrolling Image {
+        width: 50%;
+    }
 }
 
-.container {
-    padding: 0;
-    margin: 0;
-}
-
-.loading {
-    padding: 20;
-}
-
-.simple-screen {
-    padding: 10;
-}
-
-::v-deep .scrolling Image {
-    // background-color: orange;
-    width: 50%;
+.ns-android .flow-reader .simple-screen {
+    margin-top: 10;
 }
 </style>
