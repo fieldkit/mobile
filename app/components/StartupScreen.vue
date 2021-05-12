@@ -52,7 +52,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (true) {
+            if (false) {
                 await this.$navigateTo(fullRoutes.station.details(1));
 
                 return;
