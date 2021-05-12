@@ -35,6 +35,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.onboarding.recalibrate, {
                 props: {
                     stationId: this.stationId,
+                    bookmark: true,
                 },
             });
         },

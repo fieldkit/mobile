@@ -115,6 +115,7 @@ export default Vue.extend({
                     return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
                             stationId: connected[0].id,
+                            bookmark: true,
                         },
                     });
                 } else {
