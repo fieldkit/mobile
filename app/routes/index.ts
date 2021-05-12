@@ -45,7 +45,14 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | null): 
             return true;
         }
     }
+
     console.log("navigate-back-to-bookmark: failed");
+
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        console.log(`navigate-back-to-bookmark: ${JSON.stringify(entryProps)}`);
+    }
+
     return false;
 }
 

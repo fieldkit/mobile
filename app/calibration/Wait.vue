@@ -109,7 +109,6 @@ class ReferenceForm {
 
     public touch(): boolean {
         // eslint-disable-next-line
-        console.log(this.range);
         const isNumeric: boolean = required(this.value) && decimal(this.value);
         if (isNumeric) {
             const numeric = Number(this.value);
