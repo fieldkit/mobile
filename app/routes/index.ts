@@ -34,10 +34,28 @@ function addDefaults(options: NavigateOptions | null, overrides: { frame: string
     return _.extend({}, defaults, options);
 }
 
-// eslint-disable-next-line
-export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
+export function logNavigationStack(frameId: string | undefined = undefined): void {
     const frameToNav = frameId || Frame.topmost().id;
     const frame = Frame.getFrameById(frameToNav);
+
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        console.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+    }
+}
+
+// eslint-disable-next-line
+export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
+    logNavigationStack(frameId);
+
+    const frameToNav = frameId || Frame.topmost().id;
+    const frame = Frame.getFrameById(frameToNav);
+
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        console.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+    }
+
     for (const a of frame.backStack) {
         const entryProps = a.entry as { props?: { bookmark?: boolean } };
         if (entryProps.props?.bookmark === true) {
@@ -47,11 +65,6 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | null): 
     }
 
     console.log("navigate-back-to-bookmark: failed");
-
-    for (const a of frame.backStack) {
-        const entryProps = a.entry as { props?: { bookmark?: boolean } };
-        console.log(`navigate-back-to-bookmark: ${JSON.stringify(entryProps)}`);
-    }
 
     return false;
 }

@@ -42,7 +42,7 @@ import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/
 import { WaterCalValue } from "./water";
 
 import { LegacyStation } from "@/store";
-import { navigateBackToBookmark } from "@/routes";
+import { logNavigationStack, navigateBackToBookmark } from "@/routes";
 
 import { keepAwake, allowSleepAgain } from "@nativescript-community/insomnia";
 
@@ -186,6 +186,9 @@ export default Vue.extend({
         },
         async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
             console.log("cal:", "done", this.completed.length, "+1", this.getTotalSteps());
+
+            logNavigationStack();
+
             if (ignoreNav) {
                 this.ignored.push(step);
             }
@@ -320,10 +323,12 @@ export default Vue.extend({
         },
         async onNavigatingTo(): Promise<void> {
             console.log("Wait::onNavigatingTo");
+            logNavigationStack();
             await keepAwake();
         },
         async onNavigatingFrom(): Promise<void> {
             console.log("Wait::onNavigatingFrom");
+            logNavigationStack();
             await allowSleepAgain();
         },
     },

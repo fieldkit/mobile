@@ -364,6 +364,7 @@ export class QueryStation {
      */
     public async binaryStationQuery(url: string, binaryQuery: Uint8Array, options: QueryOptions = {}): Promise<HttpResponse> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
+        console.log(url, "options", options, "final", finalOptions);
         return await this.trackActivity(finalOptions, async () => {
             await logAnalytics("station_querying", { url: url });
 
@@ -380,28 +381,26 @@ export class QueryStation {
                     })
                     .then((response) => response)
             );
-        }).then(
-            async (response: HttpResponse): Promise<HttpResponse> => {
-                if (response.body.length == 0) {
-                    console.log(`empty station reply`, response);
-                    throw new Error(`empty station reply`);
-                }
-
-                await logAnalytics("station_queried", { url: url });
-
-                // TODO Remove the indexOf after firmware 503 done.
-                if (response.statusCode == 503 || response.body.indexOf("parsing") >= 0) {
-                    const tries = (options.tries || 0) + 1;
-                    return await this.retryAfter(1000, url, binaryQuery, _.extend({}, options, { tries }));
-                }
-
-                if (response.statusCode == 500) {
-                    throw new StationError(response.body.toString());
-                }
-
-                return response;
+        }).then(async (response: HttpResponse): Promise<HttpResponse> => {
+            if (response.body.length == 0) {
+                console.log(`empty station reply`, response);
+                throw new Error(`empty station reply`);
             }
-        );
+
+            await logAnalytics("station_queried", { url: url });
+
+            // TODO Remove the indexOf after firmware 503 done.
+            if (response.statusCode == 503 || response.body.indexOf("parsing") >= 0) {
+                const tries = (options.tries || 0) + 1;
+                return await this.retryAfter(1000, url, binaryQuery, _.extend({}, options, { tries }));
+            }
+
+            if (response.statusCode == 500) {
+                throw new StationError(response.body.toString());
+            }
+
+            return response;
+        });
     }
 
     /**
@@ -411,7 +410,7 @@ export class QueryStation {
      */
     private async stationQuery(url: string, message: AppProto.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
-        log.info(url, "querying", JSON.stringify(message));
+        log.info(url, "querying", options, "message", JSON.stringify(message));
         return this.binaryStationQuery(url, binaryQuery, options).then((response: HttpResponse) => {
             return this.getResponseBody(response);
         });
