@@ -2,56 +2,58 @@
     <Page>
         <PlatformHeader title="Developer" :canNavigateSettings="false" />
         <SettingsLayout>
-            <FlexboxLayout flexDirection="column" class="p-t-10">
-                <StackLayout class="m-x-20 m-b-20" v-if="beta">
-                    <DropDown
-                        class="drop-down"
-                        :items="dropDownValues"
-                        :selectedIndex="selectedPortalEnvIndex"
-                        @selectedIndexChanged="onPortalEnvChange"
-                        v-if="dropDownValues && selectedPortalEnvIndex !== null"
-                    />
-                    <Label text="Using Developer Configuration" v-else />
-                </StackLayout>
+            <ScrollView>
+                <FlexboxLayout flexDirection="column" class="p-t-10">
+                    <StackLayout class="m-x-20 m-b-20" v-if="beta">
+                        <DropDown
+                            class="drop-down"
+                            :items="dropDownValues"
+                            :selectedIndex="selectedPortalEnvIndex"
+                            @selectedIndexChanged="onPortalEnvChange"
+                            v-if="dropDownValues && selectedPortalEnvIndex !== null"
+                        />
+                        <Label text="Using Developer Configuration" v-else />
+                    </StackLayout>
 
-                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
-                <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
+                    <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
-                <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
-                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
 
-                <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" v-if="beta" />
-                <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" v-if="beta" />
-                <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
+                    <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
 
-                <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
-                    <Label :text="s.message" textWrap="true" />
-                </StackLayout>
+                    <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
+                        <Label :text="s.message" textWrap="true" />
+                    </StackLayout>
 
-                <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
+                    <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
-                <!--
+                    <!--
                 <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
                 <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
 				-->
 
-                <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
+                    <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 
-                <Button class="btn btn-primary btn-padded" text="Reset Logs" @tap="deleteLogs" />
-                <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
-                <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
-                <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
+                    <Button class="btn btn-primary btn-padded" text="Reset Logs" @tap="deleteLogs" />
+                    <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
+                    <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
+                    <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
-                <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" v-if="false" />
+                    <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" v-if="false" />
 
-                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
+                    <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
 
-                <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
-                    <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
-                </StackLayout>
-            </FlexboxLayout>
+                    <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
+                        <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
+                    </StackLayout>
+                </FlexboxLayout>
+            </ScrollView>
         </SettingsLayout>
     </Page>
 </template>
