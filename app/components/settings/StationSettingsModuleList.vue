@@ -17,6 +17,7 @@ import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
+import { logNavigationStack } from "@/routes";
 
 export default Vue.extend({
     components: {
@@ -34,6 +35,9 @@ export default Vue.extend({
         station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
+    },
+    mounted() {
+        logNavigationStack();
     },
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {

@@ -72,7 +72,7 @@
                 class="btn btn-primary btn-padded"
                 :text="visual.done"
                 @tap="calibrate"
-                :isEnabled="form.valid && !busy && (doneWaiting || debugging)"
+                :isEnabled="form.valid && sensor.connected && !busy && (doneWaiting || debugging)"
             />
         </StackLayout>
     </GridLayout>
