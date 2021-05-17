@@ -26,7 +26,7 @@
                 <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
             </StackLayout>
 
-            <StackLayout row="0" v-if="loading" class="loading">
+            <StackLayout row="0" v-if="loading" class="loading m-t-20">
                 <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
             </StackLayout>
 

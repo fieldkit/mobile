@@ -35,9 +35,7 @@
                 </SkipLayout>
             </GridLayout>
         </StackLayout>
-        <StackLayout v-else class="loading">
-            <Label text="Loading" />
-        </StackLayout>
+        <StackLayout v-else class="loading"></StackLayout>
     </Page>
 </template>
 
@@ -156,13 +154,7 @@ const FlowView = Vue.extend({
     async mounted(): Promise<void> {
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flow);
-        try {
-            console.log("flow: mounted", "flow", this.flow);
-            console.log("flow: mounted", "module", this.header);
-            console.log("flow: mounted", "screen", this.screen);
-        } catch (error) {
-            console.log("error", error);
-        }
+        console.log(`flow: mounted`, `flow`, this.flow);
         this.timer = new Timer(2000, (frame) => {
             this.frame = frame;
         });
