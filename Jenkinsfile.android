@@ -70,7 +70,7 @@ make android-release
 
 				currentBuild.description = version.trim()
 
-                archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/release/*.apk, platforms/android/app/build/outputs/bundle/release/*.aab'
+                archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/*/*.apk, platforms/android/app/build/outputs/bundle/*/*.aab'
             }
 
             notifySuccess()
