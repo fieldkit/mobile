@@ -1,18 +1,16 @@
 <template>
-    <StackLayout>
-        <GridLayout rows="*,auto">
-            <StackLayout row="0">
-                <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
-                <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
-                <Label class="instruction-text" :text="visual.instructions" lineHeight="4" textWrap="true" />
+    <GridLayout rows="*,auto">
+        <StackLayout row="0">
+            <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
+            <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+            <Label class="instruction-text" :text="visual.instructions" lineHeight="4" textWrap="true" />
 
-                <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
-            </StackLayout>
-            <StackLayout row="1" class="buttons-container">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
-            </StackLayout>
-        </GridLayout>
-    </StackLayout>
+            <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
+        </StackLayout>
+        <StackLayout row="1" class="buttons-container">
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
+        </StackLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">

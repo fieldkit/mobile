@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto,auto" columns="*" class="top-line-bkgd m-t-10">
+    <GridLayout rows="auto,auto" columns="*" class="top-line-bkgd">
         <StackLayout row="0" horizontalAlignment="left" :width="progress + '%'" class="top-line"></StackLayout>
         <StackLayout row="1" class="text-center connection-warning" v-if="!connected">
             <Label :text="_L('stationDisconnectedTapHere')" class="size-15" textWrap="true" @tap="reconnection" />
