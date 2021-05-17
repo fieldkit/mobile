@@ -45,7 +45,7 @@ export function logNavigationStack(frameId: string | undefined = undefined): voi
 }
 
 // eslint-disable-next-line
-export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
+export async function navigateBackToBookmark(vue: Vue, frameId: string | undefined): Promise<boolean> {
     logNavigationStack(frameId);
 
     const frameToNav = frameId || Frame.topmost().id;
