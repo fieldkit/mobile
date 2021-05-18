@@ -1,6 +1,9 @@
 @Library('conservify') _
 
-conservifyProperties([ disableConcurrentBuilds() ])
+properties([
+	disableConcurrentBuilds(),
+	buildDiscarder(logRotator(numToKeepStr: '5'))
+])
 
 def getBranch(scmInfo) {
 	def (remoteOrBranch, branch) = scmInfo.GIT_BRANCH.tokenize('/')

@@ -1,9 +1,8 @@
 @Library('conservify') _
 
 properties([
-	pipelineTriggers([githubPush()]),
-	buildDiscarder(logRotator(numToKeepStr: '5')),
 	disableConcurrentBuilds(),
+	buildDiscarder(logRotator(numToKeepStr: '5'))
 ])
 
 timestamps {
