@@ -65,6 +65,7 @@ import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
 import FlowView from "@/reader/FlowView.vue";
 import { promiseAfter, logAnalytics } from "@/lib";
+import { registerSoftKeyboardCallback } from "nativescript-soft-keyboard";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -95,8 +96,11 @@ export default Vue.extend({
             showings: {},
         };
     },
-    computed: {},
     created(): void {
+        registerSoftKeyboardCallback((h) => {
+            console.log(`keyboard change: ${h}`);
+        });
+
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
 
         getBus().$on("nav:tab", this.onTabChangedRequired);
