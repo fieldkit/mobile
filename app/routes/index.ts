@@ -76,6 +76,16 @@ getBus().$on("nav:tabs-ready", () => {
     tabsReady = true;
 });
 
+// Deprecate this eventually.
+export function getRouteComponent(pageOrRoute: FullRoute | Route | any): unknown {
+    if (pageOrRoute instanceof FullRoute) {
+        const route = namedRoutes[pageOrRoute.name];
+        return route.page;
+    }
+
+    throw new Error(`unable to get route component`);
+}
+
 export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
     /* eslint-disable */
     const navFn = async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {

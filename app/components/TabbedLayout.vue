@@ -37,7 +37,7 @@
                 </MDTabStrip>
                 <MDTabContentItem>
                     <Frame id="stations-frame">
-                        <StationListView />
+                        <component :is="stationsView()" v-bind="childProps()" />
                     </Frame>
                 </MDTabContentItem>
                 <MDTabContentItem>
@@ -58,7 +58,7 @@
 import Vue, { PropType } from "vue";
 import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript-community/ui-material-bottom-navigation";
-import { routes, Route, FirstTab } from "@/routes";
+import { getRouteComponent, FirstTab } from "@/routes";
 import { getBus } from "@/components/NavigationBus";
 import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
@@ -95,6 +95,7 @@ export default Vue.extend({
             showings: {},
         };
     },
+    computed: {},
     created(): void {
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
 
@@ -125,6 +126,7 @@ export default Vue.extend({
                 this.loaded = true;
             });
         },
+        /*
         tabIndexToFrame(index: number): string {
             const frames = ["stations-frame", "data-frame", "settings-frame"];
             if (index < 0 || index >= frames.length) throw new Error(`invalid frame index`);
@@ -139,6 +141,7 @@ export default Vue.extend({
             }
             return {};
         },
+		*/
         // eslint-disable-next-line
         onSelectedIndexChanged(args: any): void {
             /* eslint-disable */
@@ -148,8 +151,9 @@ export default Vue.extend({
                 console.log(`tabbed-layout: tab-changed:`, this.tab, this.ready);
             }
         },
+        /*
         async updateSelected(): Promise<void> {
-            /* eslint-disable */
+            // eslint-disable
             console.log(`tabbed-layout: update-selected:`, this.tab, this.ready);
 
             const firstTab: FirstTab = this.firstTab;
@@ -179,6 +183,7 @@ export default Vue.extend({
                 }
             }
         },
+		*/
         isSameView(frameId: string, page: any): boolean {
             /* eslint-disable */
             const frameStateNow = this.$s.state.nav.frames[frameId] || { name: null };
@@ -187,6 +192,32 @@ export default Vue.extend({
                 return false;
             }
             return desiredPage == frameStateNow.name;
+        },
+        stationsView(): unknown {
+            console.log(`getting-stations-view`);
+
+            const firstTab: FirstTab = this.firstTab;
+            if (firstTab) {
+                if (firstTab.flow) {
+                    console.log(`getting-stations-view: flow`);
+                    return FlowView;
+                }
+
+                if (firstTab.route) {
+                    console.log(`getting-stations-view: first-tab-route`);
+                    return getRouteComponent(firstTab.route);
+                }
+            }
+
+            console.log(`getting-stations-view: stations`);
+            return StationListView;
+        },
+        childProps(): Record<string, unknown> {
+            const firstTab: FirstTab = this.firstTab;
+            if (firstTab && firstTab.route) {
+                return firstTab.route.props;
+            }
+            return {};
         },
         async tapStations(): Promise<void> {
             const frame: Frame = Frame.getFrameById("stations-frame");
@@ -237,6 +268,7 @@ export default Vue.extend({
             }
         },
         bottomLoaded(): void {
+            /*
             if (this.ready) {
                 console.log("tabbed-layout: bottom-loaded (skip)", this.tab);
             } else {
@@ -247,6 +279,7 @@ export default Vue.extend({
                     this.ready = true;
                 });
             }
+			*/
             getBus().$emit("nav:tabs-ready");
         },
     },
