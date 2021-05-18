@@ -200,6 +200,7 @@ export default Vue.extend({
             if (firstTab) {
                 if (firstTab.flow) {
                     console.log(`getting-stations-view: flow`);
+                    console.log(`getting-stations-view: props`, this.childProps());
                     return FlowView;
                 }
 
@@ -216,6 +217,9 @@ export default Vue.extend({
             const firstTab: FirstTab = this.firstTab;
             if (firstTab && firstTab.route) {
                 return firstTab.route.props;
+            }
+            if (firstTab && firstTab.flow) {
+                return firstTab.flow;
             }
             return {};
         },
