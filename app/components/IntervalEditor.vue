@@ -15,7 +15,7 @@
                 :text="form.quantity"
                 :class="fieldClass"
                 verticalAligment="bottom"
-                keyboardType="number"
+                :keyboardType="keyboardType"
                 autocorrect="false"
                 autocapitalizationType="none"
                 v-if="enabled"
@@ -69,6 +69,7 @@ import Vue from "vue";
 import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
+import { isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     name: "IntervalEditor",
@@ -118,6 +119,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        keyboardType(): string {
+            if (isIOS) {
+                return "number";
+            }
+            return "";
+        },
         fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
@@ -137,7 +144,7 @@ export default Vue.extend({
             if (minutes >= 60) {
                 this.form.duration = 3600;
             }
-            this.form.quantity = String(Math.ceil(interval.interval / this.form.duration));
+            this.form.quantity = String(interval.interval / this.form.duration);
             console.log("interval-editor:updated", JSON.stringify(this.form));
         },
         updateInvalid(): void {
