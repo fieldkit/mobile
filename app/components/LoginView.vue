@@ -25,6 +25,7 @@ import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import { fullRoutes } from "@/routes";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     name: "LoginView",
