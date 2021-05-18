@@ -30,6 +30,7 @@ export default Vue.extend({
         screen: {
             type: Object,
             required: false,
+            default: null,
         },
     },
 });

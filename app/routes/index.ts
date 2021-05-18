@@ -77,7 +77,8 @@ getBus().$on("nav:tabs-ready", () => {
 });
 
 // Deprecate this eventually.
-export function getRouteComponent(pageOrRoute: FullRoute | Route | any): unknown {
+export function getRouteComponent(pageOrRoute: FullRoute | Route): unknown {
+    /* eslint-disable */
     if (pageOrRoute instanceof FullRoute) {
         const route = namedRoutes[pageOrRoute.name];
         return route.page;

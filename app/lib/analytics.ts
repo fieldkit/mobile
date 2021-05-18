@@ -1,6 +1,6 @@
 import { analytics } from "@nativescript/firebase/analytics";
 
-export async function logAnalytics(key: string, info: Record<string, unknown> | undefined = undefined): Promise<void> {
+export async function logAnalytics(key: string, _info: Record<string, unknown> | undefined = undefined): Promise<void> {
     try {
         await analytics.logEvent({ key: key });
     } catch (error) {

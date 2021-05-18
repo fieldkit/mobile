@@ -40,18 +40,16 @@ export abstract class BaseSyncNode<TKey, TLocal, TRemote> implements SyncNode<TK
         const addRemoteKeys = _.difference(_.keys(remoteKeyed), _.keys(localKeyed));
         const updatingKeys = _.intersection(_.keys(localKeyed), _.keys(remoteKeyed));
 
-        const updating: Merge<TLocal, TRemote>[] = updatingKeys.map(
-            (key): Merge<TLocal, TRemote> => {
-                const local = localKeyed[key];
-                const remote = remoteKeyed[key];
-                if (!local) throw new Error();
-                if (!remote) throw new Error();
-                return {
-                    local: local,
-                    remote: remote,
-                };
-            }
-        );
+        const updating: Merge<TLocal, TRemote>[] = updatingKeys.map((key): Merge<TLocal, TRemote> => {
+            const local = localKeyed[key];
+            const remote = remoteKeyed[key];
+            if (!local) throw new Error();
+            if (!remote) throw new Error();
+            return {
+                local: local,
+                remote: remote,
+            };
+        });
 
         const merged = updating.map((m) => this.merge(m));
 
@@ -70,23 +68,23 @@ export abstract class BaseSyncNode<TKey, TLocal, TRemote> implements SyncNode<TK
         throw new Error();
     }
 
-    public localKey(local: TLocal): TKey {
+    public localKey(_local: TLocal): TKey {
         throw new Error();
     }
 
-    public remoteKey(remote: TRemote): TKey {
+    public remoteKey(_remote: TRemote): TKey {
         throw new Error();
     }
 
-    public merge(merge: Merge<TLocal, TRemote>): Merge<TLocal, TRemote> {
+    public merge(_merge: Merge<TLocal, TRemote>): Merge<TLocal, TRemote> {
         throw new Error();
     }
 
-    public updateLocal(local: TLocal[]): Promise<void> {
+    public updateLocal(_local: TLocal[]): Promise<void> {
         throw new Error();
     }
 
-    public updateRemote(remote: TRemote[]): Promise<void> {
+    public updateRemote(_remote: TRemote[]): Promise<void> {
         throw new Error();
     }
 }

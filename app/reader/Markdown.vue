@@ -21,6 +21,7 @@ export default Vue.extend({
         screen: {
             type: Object as PropType<SimpleScreen>,
             required: false,
+            default: null,
         },
         frame: {
             type: Number,
