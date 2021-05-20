@@ -206,62 +206,58 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-StackLayout,
-GridLayout,
-Label {
-    margin: 0;
-    padding: 0;
-}
-
-.android.header-container {
-    padding-top: 15;
-}
-
 .action-bar {
     margin-left: -20;
-}
 
-.action-bar-border {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
+    StackLayout,
+    GridLayout,
+    Label {
+        margin: 0;
+        padding: 0;
+    }
 
-.ns-android .action-bar-double {
-    padding-top: 10;
-}
+    .action-bar-border {
+        border-bottom-color: $fk-gray-lighter;
+        border-bottom-width: 1;
+    }
 
-.title {
-    // background-color: #accfaa;
-}
+    .title {
+        // background-color: #accfaa;
+    }
 
-.subtitle {
-    // background-color: #fccfaa;
+    .subtitle {
+        // background-color: #fccfaa;
+    }
+
+    .back-icon,
+    .normal-icon,
+    .configure-icon,
+    .close-icon {
+        /* background-color: orange; */
+        padding-bottom: 10;
+        border-radius: 20;
+    }
+    .close-icon {
+        padding-top: 8;
+    }
+    .back-icon {
+        padding-top: 10;
+        // background-color: #efafaf;
+    }
+    .normal-icon {
+        padding-top: 10;
+    }
+    .configure-icon {
+        padding-top: 8;
+        // background-color: #efafaf;
+    }
 }
 
 .ns-ios .action-bar {
     margin-bottom: 20;
 }
 
-.back-icon,
-.normal-icon,
-.configure-icon,
-.close-icon {
-    /* background-color: orange; */
-    padding-bottom: 10;
-    border-radius: 20;
-}
-.close-icon {
-    padding-top: 8;
-}
-.back-icon {
+.ns-android .action-bar-double {
     padding-top: 10;
-    // background-color: #efafaf;
-}
-.normal-icon {
-    padding-top: 10;
-}
-.configure-icon {
-    padding-top: 8;
-    // background-color: #efafaf;
 }
 </style>
