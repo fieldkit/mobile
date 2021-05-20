@@ -58,14 +58,16 @@ export default Vue.extend({
 .md-heading-1 {
     // background-color: #0dbb00;
     font-size: 18;
-    line-height: 4;
 }
 
 .md-heading-2 {
     // background-color: #00aa00;
     text-color: #6a6d71;
-    font-size: 12;
-    line-height: 4;
+    font-size: 14;
+    line-height: 6;
+    Label {
+        margin-top: 6;
+    }
 }
 
 .md-list {
@@ -88,7 +90,7 @@ export default Vue.extend({
 .md-grid {
     font-size: 14;
     margin-bottom: 20;
-    text-align: left;
+    text-align: center;
 }
 
 .md-paragraph {

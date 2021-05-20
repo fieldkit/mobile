@@ -193,6 +193,100 @@ describe("reader parsing", () => {
             });
         });
 
+        it("should parse links in headings", async () => {
+            const actual = await transform("## This is an [example link](http://example.com/) of a link.");
+
+            expect(actual).toEqual({
+                type: "MarkdownRoot",
+                props: {
+                    parsed: [
+                        {
+                            type: "FlexboxLayout",
+                            props: {
+                                class: "md-heading md-heading-2",
+                                justifyContent: "center",
+                                flexWrap: "wrap",
+                                row: 0,
+                            },
+                            children: [
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: "This is an ",
+                                        textWrap: true,
+                                    },
+                                },
+                                {
+                                    type: "MarkdownLink",
+                                    props: {
+                                        target: "http://example.com/",
+                                    },
+                                    children: [
+                                        {
+                                            type: "Label",
+                                            props: {
+                                                text: "example link",
+                                                textWrap: true,
+                                            },
+                                        },
+                                    ],
+                                },
+                                {
+                                    type: "Label",
+                                    props: {
+                                        text: " of a link.",
+                                        textWrap: true,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+                children: [
+                    {
+                        type: "FlexboxLayout",
+                        props: {
+                            class: "md-heading md-heading-2",
+                            justifyContent: "center",
+                            flexWrap: "wrap",
+                            row: 0,
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "This is an ",
+                                    textWrap: true,
+                                },
+                            },
+                            {
+                                type: "MarkdownLink",
+                                props: {
+                                    target: "http://example.com/",
+                                },
+                                children: [
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "example link",
+                                            textWrap: true,
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                type: "Label",
+                                props: {
+                                    text: " of a link.",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
         it("should parse simple links", async () => {
             const actual = await transform("This is an [example link](http://example.com/).");
 
@@ -1596,8 +1690,7 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                                 {
                                     type: "Label",
                                     props: {
-                                        text:
-                                            "Tables don't need to line up exactly in this editor, though that makes things easier to read.",
+                                        text: "Tables don't need to line up exactly in this editor, though that makes things easier to read.",
                                         textWrap: true,
                                     },
                                 },
