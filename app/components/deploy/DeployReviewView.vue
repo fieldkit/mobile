@@ -13,6 +13,7 @@
                 row="1"
                 :buttonLabel="buttonLabel"
                 :buttonEnabled="currentStation.connected"
+                :scrollable="true"
                 @button="() => deployStation(currentStation)"
             >
                 <FlexboxLayout flexDirection="column" class="p-t-10">
@@ -163,8 +164,8 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            console.log("review loaded", this.stationId);
-            console.log("review loaded", this.currentStation);
+            console.log(`review loaded:`, this.stationId);
+            console.log(`review loaded: ${JSON.stringify(this.currentStation)}`);
         },
         async goBack(ev: any): Promise<void> {
             await Promise.all([animations.pressed(ev), this.$navigateBack()]);
