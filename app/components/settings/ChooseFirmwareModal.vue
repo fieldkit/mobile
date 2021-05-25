@@ -10,12 +10,12 @@
                                 <Label text="Version" textAlignment="left" lineHeight="4" class="size-16 bold"></Label>
                             </StackLayout>
                             <StackLayout
-                                orientation="horizontal"
                                 v-for="firmware in firmwares"
                                 :key="firmware.id"
-                                @tap="onSelect(firmware)"
+                                orientation="horizontal"
                                 class="firmware"
                                 :class="currentFirmware && firmware.id === currentFirmware.id ? 'selected' : ''"
+                                @tap="onSelect(firmware)"
                             >
                                 <Label width="50" :text="firmware.id" class="size-16 firmware-id"></Label>
                                 <Label :text="firmware.version" textWrap="true" textAlignment="left" lineHeight="4" class="size-16"></Label>
@@ -40,6 +40,12 @@ import Vue from "vue";
 import { AvailableFirmware } from "~/store";
 
 export default Vue.extend({
+    props: {
+        firmwares: {
+            required: true,
+            type: Array,
+        },
+    },
     data(): {
         currentFirmware: AvailableFirmware | null;
     } {
@@ -47,18 +53,12 @@ export default Vue.extend({
             currentFirmware: null,
         };
     },
-    props: {
-        firmwares: {
-            required: true,
-            type: Array,
-        },
-    },
     methods: {
         onUpdate(): void {
             console.log("updating");
             this.$modal.close({ firmware: this.currentFirmware, updating: true });
         },
-        onSelect(firmware): void {
+        onSelect(firmware: AvailableFirmware): void {
             console.log("selecting");
             this.currentFirmware = firmware;
         },

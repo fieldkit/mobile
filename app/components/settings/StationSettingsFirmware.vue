@@ -311,7 +311,7 @@ export default Vue.extend({
                 },
                 fullscreen: true,
             };
-            this.canUpgrade = true;
+            this.canUpgrade = false;
             return this.$showModal(UpgradeFirmwareModal, options).then((value: { updating: boolean }) => {
                 console.log(`upgrade-done: ${JSON.stringify(value)}`);
                 if (value.updating) {
