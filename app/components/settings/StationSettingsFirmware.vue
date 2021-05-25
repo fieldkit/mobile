@@ -245,7 +245,7 @@ export default Vue.extend({
             } else {
                 console.log(`missing available or station firmware`);
             }
-            return true;
+            return false;
         },
         update(): UpgradeInfo {
             return this.$s.state.firmware.status[this.stationId] || {};
