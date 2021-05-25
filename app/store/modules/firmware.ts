@@ -22,6 +22,7 @@ export class AvailableFirmware {
     constructor(
         public readonly id: number,
         public readonly time: Date,
+        public readonly module: string,
         public readonly url: string,
         public readonly path: string,
         public readonly meta: Record<string, string> | string,
@@ -34,7 +35,7 @@ export class AvailableFirmware {
     }
 
     public static fromRow(row: FirmwareTableRow): AvailableFirmware {
-        return new AvailableFirmware(row.id, new Date(row.buildTime), row.url, row.path, row.meta, Number(row.buildNumber));
+        return new AvailableFirmware(row.id, new Date(row.buildTime), row.module, row.url, row.path, row.meta, Number(row.buildNumber));
     }
 }
 
@@ -44,6 +45,7 @@ export interface UpgradeStatus {
     firmware?: boolean;
     success?: boolean;
     done?: boolean;
+    sdCard?: boolean;
 }
 
 export interface UpgradeInfo {
@@ -52,7 +54,7 @@ export interface UpgradeInfo {
 }
 
 export class FirmwareState {
-    available: AvailableFirmware | null = null;
+    available: AvailableFirmware[] | null = null;
     stations: { [index: number]: FirmwareInfo } = {};
     status: { [index: number]: UpgradeInfo } = {};
 }
@@ -62,7 +64,7 @@ type ActionParameters = ActionContext<ModuleState, never>;
 
 const getters = {};
 
-class UpgradeStatusMutation {
+export class UpgradeStatusMutation {
     type = MutationTypes.UPGRADE_STATUS;
 
     constructor(public readonly stationId: number, public readonly status: UpgradeStatus) {}
@@ -103,7 +105,7 @@ const actions = (services: ServiceRef) => {
             console.log("checking for firmware");
             return services
                 .firmware()
-                .haveFirmware()
+                .haveFirmware(payload.firmwareId)
                 .then((yes) => {
                     console.log("firmware check", yes);
 
@@ -118,9 +120,13 @@ const actions = (services: ServiceRef) => {
                     console.log("upgrading firmware");
                     return services
                         .firmware()
-                        .upgradeStation(payload.url, (progress) => {
-                            commit(new UpgradeProgressMutation(payload.stationId, progress));
-                        })
+                        .upgradeStation(
+                            payload.url,
+                            (progress) => {
+                                commit(new UpgradeProgressMutation(payload.stationId, progress));
+                            },
+                            payload.firmwareId
+                        )
                         .then((status) => {
                             console.log("upgrade status", status);
                             commit(new UpgradeStatusMutation(payload.stationId, { ...status, ...{ done: true } }));
@@ -166,7 +172,7 @@ const mutations = {
     },
     [MutationTypes.AVAILABLE_FIRMWARE]: (state: FirmwareState, available: AvailableFirmware[]) => {
         if (available.length > 0) {
-            Vue.set(state, "available", available[0]);
+            Vue.set(state, "available", available);
         } else {
             Vue.set(state, "available", null);
         }
