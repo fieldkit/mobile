@@ -298,6 +298,8 @@ const actions = (services: ServiceRef) => {
 
             const schedules = { ...payload.existing, ...payload.modifying };
 
+            console.log(`updating schedules: ${JSON.stringify(schedules)}`);
+
             commit(MutationTypes.STATION_QUERIED, info);
             return services
                 .queryStation()
