@@ -135,7 +135,7 @@ describe("Firmware", () => {
             .then(() => services.StationFirmware().downloadFirmware())
             .then(() => services.Database().getAllFirmware())
             .then((firmware) => {
-                expect(firmware.length).toEqual(1);
+                expect(firmware.length).toEqual(2);
             });
     });
 });

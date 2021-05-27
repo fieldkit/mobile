@@ -196,7 +196,7 @@ export class ScanStationModulesAction {
 export class UpgradeStationFirmwareAction {
     type = ActionTypes.UPGRADE_STATION_FIRMWARE;
 
-    constructor(public readonly stationId: number, public readonly url: string) {}
+    constructor(public readonly stationId: number, public readonly url: string, public readonly firmwareId?: number) {}
 }
 
 export class DownloadStationDataAction {

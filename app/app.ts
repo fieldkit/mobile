@@ -72,6 +72,13 @@ function configureVueJs(services: typeof Services): Store {
         return moment(value).format("MM/DD/YYYY");
     });
 
+    Vue.filter("prettyDateUnix", (value: number | undefined): string => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value * 1000).format("MM/DD/YYYY");
+    });
+
     Vue.filter("prettyDurationSeconds", (value: number): string => {
         const duration = moment.duration(value, "seconds");
         return moment.utc(duration.asMilliseconds()).format("HH[h] mm[m]");
