@@ -74,7 +74,7 @@ module.exports = {
     endCalibrationStep: "Your FieldKit station setup is complete.",
     // ConnectStationView.vue
     fieldkitWifi: "FieldKit Station WiFi",
-    introConnectStep1: "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to your mobile device.",
+    introConnectStep1: "Your station has an access point with its own WiFi network that's used to connect directly to your mobile device (there's no internet connectivity).",
     introConnectStep2: "Confirm that your station WiFi is on by pressing the external WiFi button.",
     connectYourStation: "Connect your FieldKit Station",
     connectStep1: "To connect to your station, go to your mobile phone WiFi settings and select the station's WiFi name as displayed on the station screen.",
