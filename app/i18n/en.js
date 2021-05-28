@@ -86,7 +86,7 @@ module.exports = {
     recommended: "Recommended",
     yourWifi: "WiFi Network",
     yourWifiInfo: "Internet",
-    yourWifiDescription: "Add a list of preferred wifi networks to sync station data straight to the FieldKit web portal. If unable to join these networks, it will use its Station Wifi.",
+    yourWifiDescription: "Add a list of preferred WiFi networks to sync station data straight to the FieldKit web portal. If unable to join these networks, it will use its Station WiFi.",
     reconnectInstruction: "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
     deploymentLocation: "Deployment Location",
     deploymentLocationInstructions: "What kind of place will you deploy your station? Will the station have internet access?",
