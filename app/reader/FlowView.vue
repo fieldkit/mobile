@@ -1,5 +1,5 @@
 <template>
-    <Page @navigatingFrom="onNavigatingFrom" class="flow-reader">
+    <Page @navigatingTo="onNavigatingTo" @navigatingFrom="onNavigatingFrom" class="flow-reader">
         <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" :border="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*">
@@ -155,9 +155,6 @@ const FlowView = Vue.extend({
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flow);
         console.log(`flow: mounted`, `flow`, this.flow);
-        this.timer = new Timer(2000, (frame) => {
-            this.frame = frame;
-        });
 
         await logAnalytics("flow_open", { name: this.flow.name });
     },
@@ -185,6 +182,15 @@ const FlowView = Vue.extend({
         },
         async onBackward(): Promise<void> {
             await this.$navigateBack();
+        },
+        onNavigatingTo(): void {
+            console.log("flow: arriving");
+            if (!this.timer) {
+                this.timer = new Timer(2000, (frame) => {
+                    console.log("frame", frame);
+                    this.frame = frame;
+                });
+            }
         },
         onNavigatingFrom(): void {
             console.log("flow: leaving");
