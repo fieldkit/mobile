@@ -125,8 +125,7 @@ export default Vue.extend({
             return (this as unknown) as OtherData;
         },
         displayConsumedMemory(): string {
-            if (!this.station.consumedMemory) return "";
-            return convertBytesToLabel(this.station.consumedMemory);
+            return convertBytesToLabel(this.station.consumedMemory || 0);
         },
         displayConsumedMemoryPercent(): number {
             if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
