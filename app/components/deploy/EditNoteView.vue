@@ -107,6 +107,9 @@ export default Vue.extend({
     methods: {
         onNavigatingTo(): void {
             console.log("edit-note-view: arriving");
+            if (this.$s.state.media.recording) {
+                this.audioReady = true;
+            }
         },
         async onNavigatingFrom(): Promise<void> {
             console.log("edit-note-view: leaving");
