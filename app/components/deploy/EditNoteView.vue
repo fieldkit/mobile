@@ -1,5 +1,5 @@
 <template>
-    <Page class="page plain">
+    <Page @navigatingTo="onNavigatingTo" @navigatingFrom="onNavigatingFrom" class="page plain">
         <PlatformHeader
             :title="help.title"
             icon="~/images/Icon_Save.png"
@@ -54,6 +54,7 @@ import {
     UpdateNoteMutation,
     RemoveNoteMediaMutation,
     AttachNoteMediaMutation,
+    PauseRecordingAction,
 } from "@/store";
 
 export default Vue.extend({
@@ -104,6 +105,13 @@ export default Vue.extend({
         },
     },
     methods: {
+        onNavigatingTo(): void {
+            console.log("edit-note-view: arriving");
+        },
+        async onNavigatingFrom(): Promise<void> {
+            console.log("edit-note-view: leaving");
+            await this.$s.dispatch(new PauseRecordingAction(false));
+        },
         async onSave(): Promise<void> {
             console.log("notes-view:saving", this.editingKey, this.form);
             this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, this.form));

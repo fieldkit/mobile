@@ -16,19 +16,18 @@
                 src="~/images/Icon_Pause.png"
                 v-if="recording && !recording.paused"
                 @tap="pause"
-            ></Image>
-            <Image col="1" width="20" class="small-round" src="~/images/Icon_Stop.png" v-if="recording" @tap="stop"></Image>
+            />
+            <Image col="1" width="20" class="small-round" src="~/images/Icon_Stop.png" v-if="recording" @tap="stop" />
             <Label col="2" :colSpan="recording ? 1 : 2" :text="recording.duration | prettyDuration" textWrap="true" v-if="recording" />
             <Label col="2" colSpan="2" :text="'Press record to begin.'" textWrap="true" v-if="!recording" />
-            <Image col="3" width="20" class="small-round" src="~/images/Icon_Close_Circle.png" @tap="cancel"></Image>
+            <Image col="3" width="20" class="small-round" src="~/images/Icon_Close_Circle.png" @tap="cancel" />
         </GridLayout>
     </StackLayout>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { ActionTypes } from "@/store/actions";
-import { ActiveRecording } from "@/store";
+import { ActiveRecording, RecordAudioAction, PauseRecordingAction, ResumeRecordingAction, StopRecordingAction } from "@/store";
 import { Timer } from "@/lib";
 
 export default Vue.extend({
@@ -59,17 +58,17 @@ export default Vue.extend({
         startOrResume(): Promise<void> {
             console.log(`startOrResume`);
             if (this.recording) {
-                return this.$s.dispatch(ActionTypes.AUDIO_RESUME);
+                return this.$s.dispatch(new ResumeRecordingAction());
             }
-            return this.$s.dispatch(ActionTypes.AUDIO_RECORD);
+            return this.$s.dispatch(new RecordAudioAction());
         },
         pause(): Promise<void> {
-            return this.$s.dispatch(ActionTypes.AUDIO_PAUSE);
+            return this.$s.dispatch(new PauseRecordingAction());
         },
         async stop(): Promise<void> {
             if (this.$s.state.media.recording) {
                 const recording: ActiveRecording = this.$s.state.media.recording;
-                await this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
+                await this.$s.dispatch(new StopRecordingAction()).then(() => {
                     console.log(`stop-recording`, recording);
                     return this.$emit("stop", recording.toPlainNoteMedia());
                 });
@@ -77,7 +76,7 @@ export default Vue.extend({
         },
         async cancel(): Promise<void> {
             if (this.$s.state.media.recording) {
-                await this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
+                await this.$s.dispatch(new StopRecordingAction()).then(() => {
                     return this.$emit("cancel");
                 });
             }

@@ -1,6 +1,6 @@
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import { ActionTypes } from "../actions";
+import { ActionTypes, PauseRecordingAction } from "../actions";
 import { MutationTypes, NoteMedia } from "../mutations";
 import { ServiceRef } from "@/services";
 import { ImageAsset, SavedImage } from "@/services/types";
@@ -61,8 +61,13 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
                 });
         },
-        [ActionTypes.AUDIO_PAUSE]: async ({ commit, dispatch, state }: ActionParameters) => {
-            if (!state.recording) throw new Error("no recording");
+        [ActionTypes.AUDIO_PAUSE]: async ({ commit, dispatch, state }: ActionParameters, payload: PauseRecordingAction) => {
+            if (!state.recording) {
+                if (payload.failUnlessRecording) {
+                    throw new Error("no recording");
+                }
+                return;
+            }
             await services
                 .audio()
                 .pauseAudioRecording()

@@ -272,3 +272,21 @@ export class SyncAccountAction {
 
     constructor(public readonly email: string) {}
 }
+
+export class RecordAudioAction {
+    type = ActionTypes.AUDIO_RECORD;
+}
+
+export class PauseRecordingAction {
+    type = ActionTypes.AUDIO_PAUSE;
+
+    constructor(public readonly failUnlessRecording: boolean = true) {}
+}
+
+export class ResumeRecordingAction {
+    type = ActionTypes.AUDIO_RESUME;
+}
+
+export class StopRecordingAction {
+    type = ActionTypes.AUDIO_STOP;
+}
