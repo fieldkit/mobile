@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { ActionTypes } from "@/store/actions";
 import { ConfigureStationSchedulesAction, AvailableStation, Schedule } from "@/store";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
@@ -57,15 +56,19 @@ export default Vue.extend({
             this.form.schedule = schedule;
         },
         async onSaveSchedule(): Promise<void> {
-            const existing = this.station.schedules;
-            await Promise.all([
-                this.$s.dispatch(new ConfigureStationSchedulesAction(this.station.deviceId, { readings: this.form.schedule }, existing)),
-            ])
-                .then(() => this.$navigateBack())
-                .catch((error) => {
-                    console.log("error", error);
-                    return error;
-                });
+            if (this.form.schedule) {
+                const existing = this.station.schedules;
+                await Promise.all([
+                    this.$s.dispatch(
+                        new ConfigureStationSchedulesAction(this.station.deviceId, { readings: this.form.schedule }, existing)
+                    ),
+                ])
+                    .then(() => this.$navigateBack())
+                    .catch((error) => {
+                        console.log("error", error);
+                        return error;
+                    });
+            }
         },
     },
 });
