@@ -52,7 +52,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (false) {
+            if (true) {
                 await this.$navigateTo(fullRoutes.station.details(1));
 
                 return;
@@ -60,14 +60,6 @@ export default Vue.extend({
 
             if (false) {
                 await this.$navigateTo(fullRoutes.onboarding.addModule(1));
-
-                return;
-            }
-
-            if (false) {
-                await this.$navigateTo(fullRoutes.stations, {
-                    clearHistory: true,
-                });
 
                 return;
             }

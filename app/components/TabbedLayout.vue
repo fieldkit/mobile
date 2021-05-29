@@ -85,12 +85,14 @@ export default Vue.extend({
     },
     data(): {
         tab: number;
+        keyboard: boolean;
         loaded: boolean;
         ready: boolean;
         showings: { [index: number]: number };
     } {
         return {
             tab: 0,
+            keyboard: false,
             loaded: false,
             ready: false,
             showings: {},
@@ -99,6 +101,7 @@ export default Vue.extend({
     created(): void {
         registerSoftKeyboardCallback((h) => {
             console.log(`keyboard change: ${h}`);
+            this.keyboard = h > 0;
         });
 
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
@@ -130,22 +133,6 @@ export default Vue.extend({
                 this.loaded = true;
             });
         },
-        /*
-        tabIndexToFrame(index: number): string {
-            const frames = ["stations-frame", "data-frame", "settings-frame"];
-            if (index < 0 || index >= frames.length) throw new Error(`invalid frame index`);
-            return frames[index];
-        },
-        tabIndexToRoute(index: number): Record<string, Route> {
-            switch (index) {
-                case 0:
-                    return routes.station.settings;
-                case 2:
-                    return routes.appSettings;
-            }
-            return {};
-        },
-		*/
         // eslint-disable-next-line
         onSelectedIndexChanged(args: any): void {
             /* eslint-disable */
@@ -155,39 +142,6 @@ export default Vue.extend({
                 console.log(`tabbed-layout: tab-changed:`, this.tab, this.ready);
             }
         },
-        /*
-        async updateSelected(): Promise<void> {
-            // eslint-disable
-            console.log(`tabbed-layout: update-selected:`, this.tab, this.ready);
-
-            const firstTab: FirstTab = this.firstTab;
-
-            if (firstTab) {
-                if (this.tab != this.firstTab.index) {
-                    this.tab = this.firstTab.index;
-                }
-
-                if (firstTab.flow) {
-                    await this.$navigateTo(FlowView, {
-                        clearHistory: true,
-                        frame: "stations-frame",
-                        props: firstTab.flow,
-                        animated: false,
-                    });
-                } else if (firstTab.route) {
-                    console.log(`tabbed-layout: update-selected: have ${JSON.stringify(firstTab.route)}`);
-                    await this.$navigateTo(firstTab.route, {});
-                } else {
-                    console.log(`tabbed-layout: update-selected: default tab`);
-                    await this.$navigateTo(StationListView, {
-                        clearHistory: true,
-                        frame: "stations-frame",
-                        animated: false,
-                    });
-                }
-            }
-        },
-		*/
         isSameView(frameId: string, page: any): boolean {
             /* eslint-disable */
             const frameStateNow = this.$s.state.nav.frames[frameId] || { name: null };
@@ -276,18 +230,6 @@ export default Vue.extend({
             }
         },
         bottomLoaded(): void {
-            /*
-            if (this.ready) {
-                console.log("tabbed-layout: bottom-loaded (skip)", this.tab);
-            } else {
-                console.log("tabbed-layout: bottom-loaded", this.tab);
-                this.$nextTick(() => {
-                    // eslint-disable-next-line
-                    this.updateSelected();
-                    this.ready = true;
-                });
-            }
-			*/
             getBus().$emit("nav:tabs-ready");
         },
     },
