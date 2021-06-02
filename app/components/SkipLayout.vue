@@ -8,10 +8,10 @@
         <StackLayout v-else row="0">
             <slot></slot>
         </StackLayout>
-        <StackLayout row="1" class="buttons-container">
+        <StackLayout row="1" class="skip-layout-buttons-container">
             <Button
                 v-if="buttonVisible"
-                class="btn btn-primary btn-padded"
+                class="btn btn-primary btn-padded skip-layout-button"
                 :text="buttonLabel"
                 :isEnabled="buttonEnabled"
                 @tap="onButton"

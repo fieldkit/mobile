@@ -2,6 +2,7 @@ export enum MutationTypes {
     SUCCESS = `SUCCESS`,
     ERROR = `ERROR`,
     NAVIGATION = "NAVIGATION",
+    NAVIGATION_KEYBOARD = "NAVIGATION_KEYBOARD",
     RESET = "RESET",
 
     // Phone stuff
@@ -150,4 +151,10 @@ export class NavigationMutation {
     type = MutationTypes.NAVIGATION;
 
     constructor(public readonly frame: string, public readonly name: string, public readonly file: string, public readonly full: boolean) {}
+}
+
+export class KeyboardMutation {
+    type = MutationTypes.NAVIGATION_KEYBOARD;
+
+    constructor(public readonly visible: boolean) {}
 }

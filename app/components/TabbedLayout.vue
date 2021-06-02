@@ -9,7 +9,7 @@
                 @selectedIndexChanged="onSelectedIndexChanged"
                 @loaded="bottomLoaded"
             >
-                <MDTabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6" v-show="tabsVisible">
+                <MDTabStrip v-show="tabsVisible" backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
                     <MDTabStripItem @tap="tapStations">
                         <Image
                             width="22"
@@ -65,8 +65,9 @@ import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
 import FlowView from "@/reader/FlowView.vue";
-import { promiseAfter, logAnalytics } from "@/lib";
 import { registerSoftKeyboardCallback } from "nativescript-soft-keyboard";
+import { promiseAfter, logAnalytics } from "@/lib";
+import { KeyboardMutation } from "@/store";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -108,6 +109,7 @@ export default Vue.extend({
         registerSoftKeyboardCallback((h) => {
             console.log(`keyboard change: ${h}`);
             this.keyboard = h > 0;
+            this.$store.commit(new KeyboardMutation(this.keyboard));
         });
 
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);

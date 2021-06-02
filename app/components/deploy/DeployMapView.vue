@@ -20,6 +20,7 @@
                 row="1"
                 :buttonLabel="_L('continue')"
                 :buttonEnabled="currentStation.connected && valid()"
+                :buttonVisible="!keyboardVisible"
                 @button="goToNext"
                 :scrollable="true"
             >
@@ -151,6 +152,9 @@ export default Vue.extend({
         },
         currentStation(): Station {
             return this.$s.getters.legacyStations[this.stationId];
+        },
+        keyboardVisible(): boolean {
+            return this.$s.state.nav.keyboard.visible;
         },
     },
     methods: {
@@ -295,14 +299,4 @@ export default Vue.extend({
         padding: 10;
     }
 }
-
-/*
-.tabbed-layout-keyboard-showing {
-    .deployment {
-        .map {
-            visibility: hidden;
-        }
-    }
-}
-*/
 </style>
