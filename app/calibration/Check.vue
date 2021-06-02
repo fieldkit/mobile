@@ -38,7 +38,7 @@
                     />
                 </StackLayout>
 
-                <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="!busy" @tap="clear" />
+                <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="connected && !busy" @tap="clear" />
             </StackLayout>
         </ScrollView>
         <StackLayout row="1" class="buttons-container">
@@ -75,6 +75,10 @@ export default Vue.extend({
         },
         progress: {
             type: Number,
+            required: true,
+        },
+        connected: {
+            type: Boolean,
             required: true,
         },
         busy: {

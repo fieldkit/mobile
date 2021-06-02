@@ -18,6 +18,7 @@
                         :step="activeStep"
                         :progress="progress"
                         :busy="busy"
+                        :connected="station.connected"
                         @done="(ignore) => onDone(activeStep, ignore || false)"
                         @back="() => onBack(activeStep)"
                         @clear="() => onClear(activeStep)"
