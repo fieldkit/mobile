@@ -23,8 +23,8 @@
                 @button="goToNext"
                 :scrollable="true"
             >
-                <FlexboxLayout flexDirection="column" justifyContent="flex-start">
-                    <StackLayout>
+                <FlexboxLayout flexDirection="column" justifyContent="flex-start" @tap="backgroundTap">
+                    <StackLayout class="map">
                         <Mapbox
                             :accessToken="token"
                             automationText="currentLocationMap"
@@ -89,7 +89,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { isIOS } from "@nativescript/core";
+import { isAndroid, isIOS, Utils } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
@@ -256,6 +256,12 @@ export default Vue.extend({
                 ]);
             });
         },
+        backgroundTap(): void {
+            console.log("background-tap");
+            if (isAndroid) {
+                Utils.ad.dismissSoftInput();
+            }
+        },
     },
 });
 </script>
@@ -289,4 +295,14 @@ export default Vue.extend({
         padding: 10;
     }
 }
+
+/*
+.tabbed-layout-keyboard-showing {
+    .deployment {
+        .map {
+            visibility: hidden;
+        }
+    }
+}
+*/
 </style>

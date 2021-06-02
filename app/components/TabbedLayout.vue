@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="*">
+        <GridLayout rows="*" :class="keyboard ? 'tabbed-layout-keyboard-showing' : 'tabbed-layout-keyboard-hidden'">
             <MDBottomNavigation
                 v-if="loaded"
                 id="bottom-nav"
@@ -9,7 +9,7 @@
                 @selectedIndexChanged="onSelectedIndexChanged"
                 @loaded="bottomLoaded"
             >
-                <MDTabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
+                <MDTabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6" v-show="tabsVisible">
                     <MDTabStripItem @tap="tapStations">
                         <Image
                             width="22"
@@ -35,6 +35,7 @@
                         <Label text="Settings" />
                     </MDTabStripItem>
                 </MDTabStrip>
+
                 <MDTabContentItem>
                     <Frame id="stations-frame">
                         <component :is="stationsView()" v-bind="childProps()" />
@@ -97,6 +98,11 @@ export default Vue.extend({
             ready: false,
             showings: {},
         };
+    },
+    computed: {
+        tabsVisible(): boolean {
+            return !this.keyboard;
+        },
     },
     created(): void {
         registerSoftKeyboardCallback((h) => {
