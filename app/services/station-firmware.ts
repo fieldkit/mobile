@@ -151,7 +151,7 @@ export default class StationFirmware {
         });
     }
 
-    public async haveFirmware(firmwareId?): Promise<boolean> {
+    public async haveFirmware(firmwareId?: number): Promise<boolean> {
         const firmware = await this.services.Database().getFirmware(firmwareId);
 
         if (!firmware) {
