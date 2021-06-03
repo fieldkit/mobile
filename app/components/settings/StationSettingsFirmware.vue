@@ -31,7 +31,7 @@
                     <StackLayout class="p-t-20 p-b-20">
                         <template v-if="currentState === State.noUpdate">
                             <Label :text="_L('firmwareUpToDate')" class="size-16 m-b-5" />
-                            <Label class="size-12 m-b-30" textWrap="true">
+                            <Label class="size-12 m-b-30" textWrap="true" v-if="availableFirmware">
                                 <FormattedString>
                                     <Span :text="_L('lastUpdate')" />
                                     <Span :text="availableFirmware.buildTimeUnix | prettyDateUnix" />
