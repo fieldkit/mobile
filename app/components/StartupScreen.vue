@@ -31,7 +31,7 @@ export default Vue.extend({
     async mounted(): Promise<void> {
         const services: Services = ServicesSingleton;
 
-        console.log("startup loaded");
+        console.log("startup loaded", 2);
 
         await zoned({}, async () => {
             await initializeApplication(services);

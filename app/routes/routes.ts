@@ -181,29 +181,36 @@ export const fullRoutes = {
                 },
             },
         }),
-        assemble: new FullRoute("tabbed", Frames.Outer, {
-            firstTab: {
-                index: 0,
-                route: new FullRoute("reader/flow", Frames.Stations, {
-                    flow: {
-                        name: "onboarding",
-                        index: 0,
-                    },
-                    finished: new FullRoute("tabbed", Frames.Outer, {
-                        firstTab: {
+        assemble: new FullRoute(
+            "tabbed",
+            Frames.Outer,
+            {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("reader/flow", Frames.Stations, {
+                        flow: {
+                            name: "onboarding",
                             index: 0,
-                            route: new FullRoute("onboarding/assembled", Frames.Stations, {}, { backstackVisible: false }),
                         },
+                        finished: new FullRoute("tabbed", Frames.Outer, {
+                            firstTab: {
+                                index: 0,
+                                route: new FullRoute("onboarding/assembled", Frames.Stations, {}, { backstackVisible: false }),
+                            },
+                        }),
+                        skipped: new FullRoute("tabbed", Frames.Outer, {
+                            firstTab: {
+                                index: 0,
+                                route: new FullRoute("onboarding/start", Frames.Stations, {}),
+                            },
+                        }),
                     }),
-                    skipped: new FullRoute("tabbed", Frames.Outer, {
-                        firstTab: {
-                            index: 0,
-                            route: new FullRoute("onboarding/start", Frames.Stations, {}),
-                        },
-                    }),
-                }),
+                },
             },
-        }),
+            {
+                clearHistory: true,
+            }
+        ),
         start: new FullRoute("tabbed", Frames.Outer, {
             firstTab: {
                 index: 0,

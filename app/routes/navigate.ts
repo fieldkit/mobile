@@ -27,7 +27,10 @@ export class FullRoute {
         public readonly name: string,
         public readonly frame: string,
         public readonly props: Record<string, unknown>,
-        public readonly options?: { backstackVisible?: boolean }
+        public readonly options?: {
+            backstackVisible?: boolean;
+            clearHistory?: boolean;
+        }
     ) {}
 }
 

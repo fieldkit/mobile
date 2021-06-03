@@ -5,8 +5,6 @@ import registerLifecycleEvents from "@/services/lifecycle";
 import { deleteMissingAssets } from "@/services";
 import { promiseAfter, zoned } from "@/lib";
 
-// import { ProcessAllStationsTask } from "@/lib/process";
-
 export function updateStore(store: OurStore): Promise<void> {
     promiseAfter(1000)
         .then(() =>
@@ -48,7 +46,6 @@ async function startupStore(services: Services): Promise<void> {
 
     await services.DiscoverStation().startMonitorinNetwork();
     await updateStore(services.Store());
-    // await services.Tasks().enqueue(new ProcessAllStationsTask()));
     await enableLocationServices(services);
 
     console.log(`startup-store: end`);
