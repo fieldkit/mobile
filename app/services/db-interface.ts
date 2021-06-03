@@ -1084,7 +1084,7 @@ export default class DatabaseInterface {
         if (seconds > 30) {
             return true;
         }
-        console.log(`append-station-log: skipped ${seconds}`);
+        // console.log(`append-station-log: skipped ${seconds}`);
         return false;
     }
 

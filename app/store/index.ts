@@ -87,6 +87,10 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return;
             }
 
+            if (mutation.type == MutationTypes.STATION_QUERIED || mutation.type == MutationTypes.STATION_ACTIVITY) {
+                return;
+            }
+
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
                 return simpleMutation(appendLog, mutation);
             }
@@ -137,12 +141,19 @@ function customizeLogger(appendLog: AppendStoreLog) {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
+
             if (action.type == ActionTypes.REFRESH_NETWORK) {
                 return false;
             }
+
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
+
+            if (action.type == ActionTypes.LOAD_STATIONS) {
+                return false;
+            }
+
             if (action.type == ActionTypes.STATION_REPLY) {
                 // eslint-disable-next-line
                 if (true) {
@@ -158,6 +169,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 }
                 return false;
             }
+
             if (action.type == ActionTypes.STATIONS_LOADED) {
                 console.log("action:", action.type);
                 return false;

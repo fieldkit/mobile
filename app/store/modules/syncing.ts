@@ -25,7 +25,7 @@ import {
     StationProgress,
 } from "../types";
 import { ServiceRef, CalculatedSize } from "@/services";
-import { serializePromiseChain, logChanges, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
+import { serializePromiseChain, /* logChanges, */ getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
 
 import { logAnalytics } from "@/lib";
 
@@ -324,7 +324,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
             null
         );
 
-        logChanges(`[${station.deviceId}] sync-status:`, syncStatus);
+        // logChanges(`[${station.deviceId}] sync-status:`, syncStatus);
 
         return syncStatus;
     });

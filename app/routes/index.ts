@@ -106,21 +106,23 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
                         true
                     )
                 );
-                await navigateTo(
-                    page,
-                    _.extend(
-                        options,
-                        {
-                            frame: pageOrRoute.frame,
-                            props: pageOrRoute.props,
-                            transition: {
-                                name: "fade",
-                                duration: 0,
-                            },
+
+                const finalOptions = _.extend(
+                    options,
+                    {
+                        frame: pageOrRoute.frame,
+                        props: pageOrRoute.props,
+                        transition: {
+                            name: "fade",
+                            duration: 0,
                         },
-                        pageOrRoute.options
-                    )
+                    },
+                    pageOrRoute.options
                 );
+
+                console.log(`nav:full-route: final-options ${JSON.stringify(finalOptions)}`);
+
+                await navigateTo(page, finalOptions);
             } else {
                 console.log(`nav:using existing tabbed-layout`);
                 await navFn(firstTab.route, null);
