@@ -113,7 +113,7 @@ TextField {
     font-size: 18;
 }
 
-.buttons-container {
+.buttons-container, .skip-layout-buttons-container {
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
 	margin: 0;
