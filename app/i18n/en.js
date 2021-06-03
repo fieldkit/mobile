@@ -451,10 +451,15 @@ module.exports = {
 	upgradeFirmware: "Upgrade Firmware",
     batteryLife: "Battery Life",
 	stationSettings: {
-    title: "Station Settings",
+		title: "Station Settings",
 		wifiSchedule: {
 			enable: "Enable Upload over WiFi"
+		},
+		modules: {
+			disconnected: "Please reconnect to calibrate."
 		}
+	},
+	station: {
 	},
     appSettings: {
         title: "Settings",
