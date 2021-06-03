@@ -40,10 +40,13 @@ export default class Diagnostics {
 
         const folder = this.getDiagnosticsFolder().getFolder(id);
 
-        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
+        const bundleJsPath = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
+        console.log(`diagnostics-prepare: copying bundle.js (${bundleJsPath})`);
+        await this.services.Conservify().copyFile(bundleJsPath, folder.getFile("bundle.js").path);
 
-        console.log(`diagnostics-prepare: copying bundle.js (${path})`);
-        await this.services.Conservify().copyFile(path, folder.getFile("bundle.js").path);
+        const vendorJsPath = knownFolders.documents().getFolder("app").getFile("vendor.js").path;
+        console.log(`diagnostics-prepare: copying vendor.js (${vendorJsPath})`);
+        await this.services.Conservify().copyFile(vendorJsPath, folder.getFile("vendor.js").path);
 
         progress({ id: id, message: `Writing Device Info` });
 
