@@ -188,7 +188,7 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.stationCalibration, this.moduleCalibration);
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
     },
 });

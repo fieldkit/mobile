@@ -56,7 +56,7 @@ export default Vue.extend({
                     .then(async () => {
                         console.log("navigating", fullRoutes.onboarding.assembleFromLogin);
                         // eslint-disable-next-line
-                        await this.$navigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
                     })
                     .catch((error) => {
                         console.log("error", error);

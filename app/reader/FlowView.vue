@@ -165,7 +165,7 @@ const FlowView = Vue.extend({
             await this.nav.move(this.screen.navOptions.forward).then(async (maybeProps) => {
                 if (maybeProps) {
                     console.log("flow-view: forward:props", maybeProps);
-                    await this.$navigateTo(FlowView, {
+                    await this.$deprecatedNavigateTo(FlowView, {
                         frame: "stations-frame", // TODO Can we infer this?
                         props: {
                             flow: maybeProps,
@@ -214,7 +214,7 @@ const FlowView = Vue.extend({
             await this.leave(this.skipped);
         },
         async leave(route: FullRoute): Promise<void> {
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
     },
 });

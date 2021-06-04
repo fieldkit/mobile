@@ -101,7 +101,7 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 // eslint-disable-next-line
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: station.id,
                     },

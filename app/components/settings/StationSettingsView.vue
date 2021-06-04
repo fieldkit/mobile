@@ -69,28 +69,28 @@ export default Vue.extend({
     },
     methods: {
         async goToGeneral(): Promise<void> {
-            await this.$navigateTo(General, {
+            await this.$deprecatedNavigateTo(General, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToNetworks(): Promise<void> {
-            await this.$navigateTo(Networks, {
+            await this.$deprecatedNavigateTo(Networks, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToFirmware(): Promise<void> {
-            await this.$navigateTo(Firmware, {
+            await this.$deprecatedNavigateTo(Firmware, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToModules(): Promise<void> {
-            await this.$navigateTo(Modules, {
+            await this.$deprecatedNavigateTo(Modules, {
                 props: {
                     stationId: this.stationId,
                     bookmark: true,
@@ -98,7 +98,7 @@ export default Vue.extend({
             });
         },
         async goToEndDeploy(): Promise<void> {
-            await this.$navigateTo(EndDeploy, {
+            await this.$deprecatedNavigateTo(EndDeploy, {
                 props: {
                     stationId: this.stationId,
                 },
@@ -110,7 +110,7 @@ export default Vue.extend({
         async forgetStation(): Promise<void> {
             this.showForgetStationDialog = false;
             this.forgotten = true;
-            await this.$navigateTo(StationListView, {
+            await this.$deprecatedNavigateTo(StationListView, {
                 clearHistory: true,
             });
             await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id);

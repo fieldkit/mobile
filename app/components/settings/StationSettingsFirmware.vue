@@ -330,7 +330,7 @@ export default Vue.extend({
         },
         async addAccount(): Promise<void> {
             console.log("addAccount");
-            await this.$navigateTo(fullRoutes.settings.addAccount);
+            await this.$deprecatedNavigateTo(fullRoutes.settings.addAccount);
         },
         dismissUpdate(): void {
             this.currentState = State.noUpdate;

@@ -151,7 +151,7 @@ export default Vue.extend({
             this.form.v.confirmPassword.sameAs = this.form.password != this.form.confirmPassword;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
+            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
         },
         invalid(): boolean {
             this.checkName();
@@ -184,7 +184,7 @@ export default Vue.extend({
 
                 console.log(`returned: ${JSON.stringify(returned)}`, "a");
 
-                await this.$navigateTo(fullRoutes.onboarding.assemble);
+                await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
             } catch (error) {
                 this.busy = false;
                 if (error && error.response && error.response.data) {

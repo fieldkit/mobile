@@ -88,7 +88,7 @@ export default Vue.extend({
             );
             await this.$s.dispatch(action).then(
                 () => {
-                    return this.$navigateTo(routes.onboarding.completeSettings, {
+                    return this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                         props: {
                             stationId: this.stationId,
                             remote: false,
@@ -101,11 +101,11 @@ export default Vue.extend({
             );
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
         async onBack(): Promise<void> {
             console.log("onBack");
-            await this.$navigateTo(routes.onboarding.network, {
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                 },

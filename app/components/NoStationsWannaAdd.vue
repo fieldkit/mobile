@@ -21,7 +21,7 @@ export default Vue.extend({
     methods: {
         async goToAddStation(): Promise<any> {
             console.log("navigate:", fullRoutes.onboarding.assemble);
-            await this.$navigateTo(fullRoutes.onboarding.assemble);
+            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
     },
 });

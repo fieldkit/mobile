@@ -57,7 +57,7 @@ export default Vue.extend({
         this.timer = promiseAfter(5000).then(() => {
             if (this.timer) {
                 console.log("searching:failed");
-                this.$navigateTo(routes.onboarding.searchFailed, {
+                this.$deprecatedNavigateTo(routes.onboarding.searchFailed, {
                     props: {
                         reconnecting: this.reconnecting,
                     },
@@ -97,7 +97,7 @@ export default Vue.extend({
 
             if (numberStations == 1) {
                 if (true) {
-                    await this.$navigateTo(routes.onboarding.nearby, {
+                    await this.$deprecatedNavigateTo(routes.onboarding.nearby, {
                         props: {
                             reconnecting: this.reconnecting,
                         },
@@ -112,14 +112,14 @@ export default Vue.extend({
                 }
 
                 if (this.reconnecting) {
-                    return this.$navigateTo(routes.onboarding.recalibrate, {
+                    return this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                         props: {
                             stationId: connected[0].id,
                             bookmark: true,
                         },
                     });
                 } else {
-                    return this.$navigateTo(routes.onboarding.network, {
+                    return this.$deprecatedNavigateTo(routes.onboarding.network, {
                         props: {
                             stationId: connected[0].id,
                         },
@@ -127,7 +127,7 @@ export default Vue.extend({
                 }
             }
             if (numberStations > 1) {
-                return this.$navigateTo(routes.onboarding.nearby, {
+                return this.$deprecatedNavigateTo(routes.onboarding.nearby, {
                     props: {
                         reconnecting: this.reconnecting,
                     },

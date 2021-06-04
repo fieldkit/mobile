@@ -39,10 +39,10 @@ export default Vue.extend({
     },
     methods: {
         async forward(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.searching, {});
+            await this.$deprecatedNavigateTo(routes.onboarding.searching, {});
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
         getHelp() {
             utils.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");

@@ -275,7 +275,7 @@ export default Vue.extend({
             await Services.DiscoverStation().restart();
         },
         async openFlow(name: string): Promise<void> {
-            await this.$navigateTo(
+            await this.$deprecatedNavigateTo(
                 fullRoutes.flow({
                     flow: {
                         name: name,
@@ -291,7 +291,7 @@ export default Vue.extend({
             this.busy = false;
         },
         async goOnboarding(): Promise<void> {
-            void this.$navigateTo(fullRoutes.onboarding.assemble);
+            void this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({
@@ -319,7 +319,7 @@ export default Vue.extend({
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
-                    void this.$navigateTo(fullRoutes.onboarding.assemble);
+                    void this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
                 }
             });
         },

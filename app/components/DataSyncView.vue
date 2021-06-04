@@ -226,10 +226,10 @@ export default Vue.extend({
             return moment(date).format("MM/DD/YYYY");
         },
         async goToAddStation(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.start, {});
+            await this.$deprecatedNavigateTo(routes.onboarding.start, {});
         },
         async goToLogin(): Promise<void> {
-            await this.$navigateTo(fullRoutes.settings.addAccount, {});
+            await this.$deprecatedNavigateTo(fullRoutes.settings.addAccount, {});
         },
     },
 });

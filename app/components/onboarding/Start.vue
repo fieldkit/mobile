@@ -67,7 +67,7 @@ export default Vue.extend({
         async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                await this.$navigateTo(routes.onboarding.searching, {
+                await this.$deprecatedNavigateTo(routes.onboarding.searching, {
                     backstackVisible: false,
                 });
             }
@@ -81,7 +81,7 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
     },
 });

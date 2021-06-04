@@ -143,7 +143,7 @@ export default Vue.extend({
         },
         openNote(ev, key: string): Promise<any> {
             console.log("opening", key);
-            return this.$navigateTo(routes.deploy.editing, {
+            return this.$deprecatedNavigateTo(routes.deploy.editing, {
                 props: {
                     stationId: this.stationId,
                     editingKey: key,
@@ -182,7 +182,7 @@ export default Vue.extend({
         onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -193,7 +193,7 @@ export default Vue.extend({
             console.log("navigating to review");
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deploy.review, {
+                this.$deprecatedNavigateTo(routes.deploy.review, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -203,7 +203,7 @@ export default Vue.extend({
         onBackToDetail(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },

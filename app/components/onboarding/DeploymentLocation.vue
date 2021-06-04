@@ -89,7 +89,7 @@ export default Vue.extend({
                 throw new Error("no selection");
             }
 
-            await this.$navigateTo(routes.onboarding.network, {
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                     remote: this.selected === this.REMOTE_SELECTED,
@@ -97,7 +97,7 @@ export default Vue.extend({
             });
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.completeSettings, {
+            await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                 props: {
                     stationId: this.stationId,
                     remote: false,
@@ -109,7 +109,7 @@ export default Vue.extend({
         },
         async onBack(): Promise<void> {
             console.log("onBack");
-            await this.$navigateTo(routes.onboarding.rename, {
+            await this.$deprecatedNavigateTo(routes.onboarding.rename, {
                 props: {
                     stationId: this.stationId,
                 },

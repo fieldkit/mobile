@@ -170,7 +170,7 @@ export default Vue.extend({
         goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.currentStation.id,
                     },
@@ -179,7 +179,7 @@ export default Vue.extend({
         },
         goToNext(ev: any): Promise<any> {
             return this.saveForm().then(() => {
-                return this.$navigateTo(routes.deploy.notes, {
+                return this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -189,7 +189,7 @@ export default Vue.extend({
         onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },

@@ -46,7 +46,7 @@ export default Vue.extend({
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
             if (this.station.connected) {
                 const route = await makeCalibrationRoute(this.station, moduleCal);
-                await this.$navigateTo(route);
+                await this.$deprecatedNavigateTo(route);
             }
         },
     },

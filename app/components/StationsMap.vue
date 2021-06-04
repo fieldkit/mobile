@@ -204,7 +204,7 @@ export default Vue.extend({
         },
         async onCalloutTap(this: any, station): Promise<void> {
             this.$emit("opened-details", station);
-            await this.$navigateTo(routes.station.detail, {
+            await this.$deprecatedNavigateTo(routes.station.detail, {
                 props: {
                     stationId: station.id,
                 },

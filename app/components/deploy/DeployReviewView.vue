@@ -172,7 +172,7 @@ export default Vue.extend({
         },
         editLocation(ev: any): Promise<any> {
             return Promise.all([
-                this.$navigateTo(routes.deploy.start, {
+                this.$deprecatedNavigateTo(routes.deploy.start, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -181,7 +181,7 @@ export default Vue.extend({
         },
         editNotes(ev: any): Promise<any> {
             return Promise.all([
-                this.$navigateTo(routes.deploy.notes, {
+                this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -192,7 +192,7 @@ export default Vue.extend({
             this.busy = true;
             try {
                 await this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
-                    return this.$navigateTo(routes.station.detail, {
+                    return this.$deprecatedNavigateTo(routes.station.detail, {
                         props: {
                             stationId: this.stationId,
                             redirectedFromDeploy: true,

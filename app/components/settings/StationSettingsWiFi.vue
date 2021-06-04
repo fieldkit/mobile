@@ -35,14 +35,14 @@ export default Vue.extend({
     },
     methods: {
         async goToNetwork(): Promise<void> {
-            await this.$navigateTo(WiFiNetwork, {
+            await this.$deprecatedNavigateTo(WiFiNetwork, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToSchedule(): Promise<void> {
-            await this.$navigateTo(WiFiSchedule, {
+            await this.$deprecatedNavigateTo(WiFiSchedule, {
                 props: {
                     stationId: this.stationId,
                 },

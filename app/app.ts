@@ -133,7 +133,7 @@ function configureVueJs(services: typeof Services): Store {
     // eslint-disable-next-line
     Vue.prototype.$s = store;
     // eslint-disable-next-line
-    Vue.prototype.$navigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
+    Vue.prototype.$deprecatedNavigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
 
     return store;
 }

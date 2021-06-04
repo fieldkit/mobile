@@ -122,7 +122,7 @@ export default Vue.extend({
                 return this.$s
                     .dispatch(new RenameStationAction(this.currentStation.deviceId, this.form.name))
                     .then(async () => {
-                        await this.$navigateTo(routes.onboarding.reconnecting, {
+                        await this.$deprecatedNavigateTo(routes.onboarding.reconnecting, {
                             props: {
                                 stationId: this.currentStation.id,
                             },
@@ -133,7 +133,7 @@ export default Vue.extend({
                         this.error = true;
                     });
             }
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
@@ -155,7 +155,7 @@ export default Vue.extend({
             this.form.name = "";
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
@@ -163,7 +163,7 @@ export default Vue.extend({
         },
         async onBack(): Promise<void> {
             console.log("onBack");
-            await this.$navigateTo(routes.onboarding.nearby, {});
+            await this.$deprecatedNavigateTo(routes.onboarding.nearby, {});
         },
     },
 });

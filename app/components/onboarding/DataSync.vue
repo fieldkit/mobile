@@ -75,14 +75,14 @@ export default Vue.extend({
             this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         async forward(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.completeSettings, {
+            await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async onBack(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.network, {
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                     remote: this.remote,

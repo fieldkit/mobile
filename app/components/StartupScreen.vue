@@ -41,31 +41,31 @@ export default Vue.extend({
             console.log("developer", Config.env.developer);
 
             if (false) {
-                await this.$navigateTo(fullRoutes.login);
+                await this.$deprecatedNavigateTo(fullRoutes.login);
 
                 return;
             }
 
             if (false) {
-                await this.$navigateTo(fullRoutes.onboarding.start);
+                await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
 
                 return;
             }
 
             if (false) {
-                await this.$navigateTo(fullRoutes.station.details(1));
+                await this.$deprecatedNavigateTo(fullRoutes.station.details(1));
 
                 return;
             }
 
             if (false) {
-                await this.$navigateTo(fullRoutes.onboarding.addModule(1));
+                await this.$deprecatedNavigateTo(fullRoutes.onboarding.addModule(1));
 
                 return;
             }
 
             if (false) {
-                await this.$navigateTo(fullRoutes.stations, {
+                await this.$deprecatedNavigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });
 
@@ -73,7 +73,7 @@ export default Vue.extend({
             }
 
             if (false) {
-                await this.$navigateTo(fullRoutes.settings.developer, {
+                await this.$deprecatedNavigateTo(fullRoutes.settings.developer, {
                     clearHistory: true,
                 });
 
@@ -82,7 +82,7 @@ export default Vue.extend({
 
             if (false) {
                 if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$navigateTo(fullRoutes.onboarding.recalibrate(1), {
+                    await this.$deprecatedNavigateTo(fullRoutes.onboarding.recalibrate(1), {
                         clearHistory: true,
                     });
 
@@ -92,7 +92,7 @@ export default Vue.extend({
 
             if (false) {
                 if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$navigateTo(fullRoutes.station.settings(1), {
+                    await this.$deprecatedNavigateTo(fullRoutes.station.settings(1), {
                         clearHistory: true,
                     });
 
@@ -101,7 +101,7 @@ export default Vue.extend({
             }
 
             if (false) {
-                await this.$navigateTo(
+                await this.$deprecatedNavigateTo(
                     fullRoutes.flow({
                         flow: {
                             name: "onboarding",
@@ -116,7 +116,7 @@ export default Vue.extend({
         }
 
         try {
-            await this.$navigateTo(getFirstRoute(services), {
+            await this.$deprecatedNavigateTo(getFirstRoute(services), {
                 clearHistory: true,
             });
         } catch (err) {

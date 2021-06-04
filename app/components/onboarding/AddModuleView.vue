@@ -80,7 +80,7 @@ export default Vue.extend({
             await this.$store.dispatch(new ScanStationModulesAction(this.currentStation.deviceId));
 
             await Promise.all([
-                this.$navigateTo(routes.onboarding.recalibrate, {
+                this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                     props: {
                         stationId: this.currentStation.id,
                         bookmark: true,

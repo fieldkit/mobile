@@ -107,9 +107,13 @@ export default Vue.extend({
     },
     created(): void {
         registerSoftKeyboardCallback((h) => {
-            console.log(`keyboard change: ${h}`);
-            this.keyboard = h > 0;
-            this.$store.commit(new KeyboardMutation(this.keyboard));
+            try {
+                console.log(`keyboard change: ${h}`);
+                this.keyboard = h > 0;
+                this.$store.commit(new KeyboardMutation(this.keyboard));
+            } catch (error) {
+                console.log(`keyboard-change: error`, error);
+            }
         });
 
         console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
@@ -197,7 +201,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView)) {
-                    await this.$navigateTo(StationListView, {
+                    await this.$deprecatedNavigateTo(StationListView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -213,7 +217,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync)) {
-                    await this.$navigateTo(DataSync, {
+                    await this.$deprecatedNavigateTo(DataSync, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -229,7 +233,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
-                    await this.$navigateTo(AppSettingsView, {
+                    await this.$deprecatedNavigateTo(AppSettingsView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },

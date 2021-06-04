@@ -108,7 +108,7 @@ export default Vue.extend({
 
             this.busy = false;
 
-            await this.$navigateTo(routes.onboarding.addWifiPassword, {
+            await this.$deprecatedNavigateTo(routes.onboarding.addWifiPassword, {
                 props: {
                     stationId: this.stationId,
                     ssid: this.ssid,
@@ -117,7 +117,7 @@ export default Vue.extend({
         },
         async onBack(): Promise<void> {
             console.log("onBack");
-            await this.$navigateTo(routes.onboarding.network, {
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                 },
