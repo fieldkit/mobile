@@ -215,6 +215,7 @@ export default Vue.extend({
             console.log(`station-detail:created: error loading notifications`, error);
         }
 
+        /*
         this.unwatch = this.$s.watch(
             (state, getters) => getters.legacyStations[this.stationId].connected,
             (newValue, oldValue) => {
@@ -227,6 +228,7 @@ export default Vue.extend({
                 }
             }
         );
+		*/
 
         await this.generateNotificationsFromPortalErrors();
     },
