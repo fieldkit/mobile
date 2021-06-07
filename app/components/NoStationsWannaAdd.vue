@@ -9,6 +9,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { fullRoutes } from "@/routes";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "NoStationsWannaAdd",
@@ -20,7 +21,7 @@ export default Vue.extend({
     },
     methods: {
         async goToAddStation(): Promise<any> {
-            console.log("navigate:", fullRoutes.onboarding.assemble);
+            debug.log("navigate:", fullRoutes.onboarding.assemble);
             await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
     },

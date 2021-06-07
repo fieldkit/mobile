@@ -34,7 +34,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { fullRoutes, routes } from "@/routes";
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -51,7 +51,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            console.log("onboarding/start:", "loaded");
+            debug.log("onboarding/start:", "loaded");
             this.step = 0;
             this.frame = 0;
             const thisAny = this as any;
@@ -60,7 +60,7 @@ export default Vue.extend({
             });
         },
         onNavigatingFrom(): void {
-            console.log("onboarding/start:", "nav away");
+            debug.log("onboarding/start:", "nav away");
             const thisAny = this as any;
             thisAny.timer.stop();
         },
@@ -73,7 +73,7 @@ export default Vue.extend({
             }
         },
         async back(): Promise<void> {
-            console.log("onboarding/start:", "back");
+            debug.log("onboarding/start:", "back");
             if (this.step > 0) {
                 this.step -= 1;
             } else {

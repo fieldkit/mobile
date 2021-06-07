@@ -3,6 +3,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropType } from "vue";
+import { debug } from "@/lib";
 import { SimpleScreen } from "./model";
 
 export default Vue.extend({
@@ -39,7 +40,7 @@ export default Vue.extend({
         },
     },
     mounted() {
-        console.log("mounted:indices", this.indices);
+        debug.log("mounted:indices", this.indices);
     },
     methods: {},
 });

@@ -36,6 +36,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Enums } from "@nativescript/core";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     props: {
@@ -132,7 +133,7 @@ export default Vue.extend({
         },
         toggle(): void {
             this.hidden = !this.hidden;
-            console.log(`toggle hidden`);
+            debug.log(`toggle hidden`);
         },
         clear(): void {
             this.$emit("input", "");

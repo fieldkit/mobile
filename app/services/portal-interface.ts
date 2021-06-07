@@ -1,7 +1,7 @@
 import _ from "lodash";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { HttpResponse } from "@/wrappers/networking";
-import { AuthenticationError } from "@/lib";
+import { debug, AuthenticationError } from "@/lib";
 import { ActionTypes, MutationTypes, Download, FileTypeUtils, CurrentUser } from "@/store";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 import { Buffer } from "buffer";
@@ -156,14 +156,14 @@ export default class PortalInterface {
     public async isAvailable(): Promise<boolean> {
         const baseUri = await this.getUri();
 
-        console.log(`portal query`, "GET", baseUri + "/status");
+        debug.log(`portal query`, "GET", baseUri + "/status");
         return axios
             .request({ url: baseUri + "/status" })
             .then(() => {
                 return true;
             })
             .catch(() => {
-                console.log(`portal unavailable`);
+                debug.log(`portal unavailable`);
                 return false;
             });
     }
@@ -175,7 +175,7 @@ export default class PortalInterface {
             url: "/user",
         });
 
-        console.log(`portal-interface:whoAmI: ${JSON.stringify(user)}`);
+        debug.log(`portal-interface:whoAmI: ${JSON.stringify(user)}`);
         if (!user || !user.id) throw new Error(`no authenticated user`);
 
         const transmission = await this.query<never, { token: string; url: string }>({
@@ -198,7 +198,7 @@ export default class PortalInterface {
 
     public async login(user: { email: string; password: string }): Promise<CurrentUser> {
         const baseUri = await this.getUri();
-        console.log(`portal query`, "POST", baseUri + "/login");
+        debug.log(`portal query`, "POST", baseUri + "/login");
         return await axios
             .request({
                 method: "POST",
@@ -218,7 +218,7 @@ export default class PortalInterface {
 
     public async forgotPassword(payload: { email: string }): Promise<void> {
         const baseUri = await this.getUri();
-        console.log(`portal query`, "POST", baseUri + "/user/recovery/lookup");
+        debug.log(`portal query`, "POST", baseUri + "/user/recovery/lookup");
         await axios
             .request({
                 method: "POST",
@@ -338,7 +338,7 @@ export default class PortalInterface {
             "Fk-Type": FileTypeUtils.toString(download.fileType),
         };
 
-        console.log("uploading", download.path, headers);
+        debug.log("uploading", download.path, headers);
 
         /**
          * Alright let's talk about this. I've got old data in the
@@ -348,21 +348,21 @@ export default class PortalInterface {
          */
         const local = this.fs.getRelativeFile(download.path);
         if (!local.exists) {
-            console.log(`missing file: ${local.path} faking success`);
+            debug.log(`missing file: ${local.path} faking success`);
             return Promise.resolve({
                 statusCode: 200,
                 headers: headers,
             });
         }
         if (!local.size) {
-            console.log(`empty file: ${local.path} faking success`);
+            debug.log(`empty file: ${local.path} faking success`);
             return Promise.resolve({
                 statusCode: 200,
                 headers: headers,
             });
         }
 
-        console.log("uploading", local.path, local.exists, local.size);
+        debug.log("uploading", local.path, local.exists, local.size);
 
         if (!user.token) throw new Error(`no token for account`);
 
@@ -373,7 +373,7 @@ export default class PortalInterface {
             "Fk-DeviceName": deviceName,
         };
 
-        console.log("uploading", { ...headers, ...defaultHeaders });
+        debug.log("uploading", { ...headers, ...defaultHeaders });
 
         delete headers["connection"];
         delete headers["content-length"];
@@ -390,11 +390,11 @@ export default class PortalInterface {
             })
             .then((response) => {
                 if (response.statusCode == 401) {
-                    console.log(`invalid authentication: ${response.statusCode}`);
+                    debug.log(`invalid authentication: ${response.statusCode}`);
                     return Promise.reject(new AuthenticationError(`invalid authentication: ${response.statusCode}`));
                 }
                 if (response.statusCode != 200) {
-                    console.log(`unexpected status: ${response.statusCode}`);
+                    debug.log(`unexpected status: ${response.statusCode}`);
                     return Promise.reject(new ApiUnexpectedStatus(`unexpected status: ${response.statusCode}`));
                 }
                 return response;
@@ -435,7 +435,7 @@ export default class PortalInterface {
         };
         const baseUri = await this.getUri();
         const url = `${baseUri}/stations/${stationId}/media?key=${key}`;
-        console.log("uploading:", url, baseUri, stationId, key);
+        debug.log("uploading:", url, baseUri, stationId, key);
 
         if (!url) throw new Error("bad url");
         if (!path) throw new Error("bad path");
@@ -452,7 +452,7 @@ export default class PortalInterface {
             })
             .then(
                 (response: HttpResponse) => {
-                    console.log("station-media-upload:", response.body);
+                    debug.log("station-media-upload:", response.body);
                     let data: unknown = response.body;
                     if (response.body instanceof Buffer) {
                         data = JSON.parse(response.body.toString());
@@ -521,7 +521,7 @@ export default class PortalInterface {
         }
 
         if (req.authenticated) {
-            console.log("skipping portal query, no auth");
+            debug.log("skipping portal query, no auth");
             return Promise.reject(new AuthenticationError("no token, skipping query"));
         }
 
@@ -536,7 +536,7 @@ export default class PortalInterface {
         const headers = await this.getHeaders<Q>(req);
         const baseUri = await this.getUri();
 
-        console.log(`portal query`, req.method || "GET", baseUri + req.url);
+        debug.log(`portal query`, req.method || "GET", baseUri + req.url);
 
         const absoluteUrlAndHeaders = {
             headers: headers,
@@ -565,7 +565,7 @@ export default class PortalInterface {
                 }
             })
             .then((response) => {
-                console.log(`portal reply: ${JSON.stringify(response.data)}`);
+                debug.log(`portal reply: ${JSON.stringify(response.data)}`);
                 if (response.status == null) {
                     throw new Error("query error, no data");
                 }
@@ -576,9 +576,9 @@ export default class PortalInterface {
                     if (error.response.status === 401) {
                         return this.tryRefreshToken<Q, V>(req);
                     }
-                    console.log(req.url, "portal error", error.response.status, error.response.data);
+                    debug.log(req.url, "portal error", error.response.status, error.response.data);
                 }
-                console.log(req.url, `portal error:`, error);
+                debug.log(req.url, `portal error:`, error);
                 throw error;
             });
     }
@@ -586,12 +586,12 @@ export default class PortalInterface {
     private async tryRefreshToken<Q, V>(original: QueryFields<Q>): Promise<V> {
         const token = this.parseToken(this.getCurrentToken());
         if (token == null) {
-            console.log(`try-refresh: no token`);
+            debug.log(`try-refresh: no token`);
             return Promise.reject(new AuthenticationError("no token"));
         }
 
         if (original.refreshed === true) {
-            console.log("try-refresh: refresh failed, clear token");
+            debug.log("try-refresh: refresh failed, clear token");
             return this.logout().then(() => Promise.reject(new AuthenticationError("refresh token failed")));
         }
 
@@ -599,7 +599,7 @@ export default class PortalInterface {
             refreshToken: token.refresh_token, // eslint-disable-line
         };
 
-        console.log(`refreshing token`);
+        debug.log(`refreshing token`);
 
         const baseUri = await this.getUri();
 
@@ -611,12 +611,12 @@ export default class PortalInterface {
             })
             .then((response: AxiosResponse) => {
                 return this.handleTokenResponse<V>(response).then((self) => {
-                    console.log("retrying", original.url);
+                    debug.log("retrying", original.url);
                     return this.query<Q, V>(_.extend({}, original, { refreshed: true, token: self.token }));
                 });
             })
             .catch((error: AxiosError) => {
-                console.log("refresh failed", error);
+                debug.log("refresh failed", error);
                 return this.logout().then(() => {
                     return Promise.reject(error);
                 });
@@ -630,13 +630,13 @@ export default class PortalInterface {
             const decoded = Buffer.from(encoded, "base64").toString();
             return JSON.parse(decoded) as { refresh_token: string };
         } catch (e) {
-            console.log("error parsing token", e, "token", token);
+            debug.log("error parsing token", e, "token", token);
             return null;
         }
     }
 
     private handleError(error: Error): never {
-        console.log(`portal-error:`, error);
+        debug.log(`portal-error:`, error);
         throw error;
     }
 }

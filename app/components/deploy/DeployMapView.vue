@@ -97,7 +97,7 @@ import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 import { Schedule, Station, Notes, ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store";
 import { routes } from "@/routes";
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 import Config from "@/config";
 
 export default Vue.extend({
@@ -237,11 +237,11 @@ export default Vue.extend({
             return !this.form.v.any;
         },
         onScheduleChange(schedule: Schedule): void {
-            console.log("schedule:change", schedule);
+            debug.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         onScheduleInvalid(invalid: boolean): void {
-            console.log("schedule:invalid", invalid);
+            debug.log("schedule:invalid", invalid);
             this.form.v.schedule = invalid;
         },
         valid(): boolean {
@@ -261,7 +261,7 @@ export default Vue.extend({
             });
         },
         backgroundTap(): void {
-            console.log("background-tap");
+            debug.log("background-tap");
             if (isAndroid) {
                 Utils.ad.dismissSoftInput();
             }

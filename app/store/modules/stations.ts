@@ -25,7 +25,7 @@ import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, Downlo
 import { HttpStatusReply, ModuleConfiguration } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
 import { ServiceRef, DatabaseInterface } from "@/services";
-import { promiseAfter } from "@/lib";
+import { debug, promiseAfter } from "@/lib";
 
 export const AvailableStationsSorter = (available: AvailableStation[]): AvailableStation[] => {
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
@@ -44,7 +44,7 @@ function makeAvailableStations(state: StationsState, rootState: GlobalState): Av
 
     /*
 	if (false) {
-		console.log(
+		debug.log(
 			"available",
 			_.map(available, (s) => {
 				return {
@@ -79,7 +79,7 @@ const getters = {
         const nearby = Object.keys(rootState.nearby.stations);
         const known = state.all.map((s) => s.deviceId);
         const newIds = _.difference(nearby, known);
-        console.log(`discovering: ${JSON.stringify({ nearby, known, newIds })}`);
+        debug.log(`discovering: ${JSON.stringify({ nearby, known, newIds })}`);
         return newIds.map((deviceId) => new DiscoveringStation(deviceId, rootState.nearby.stations[deviceId].url));
     },
     legacyStations: (state: StationsState, _getters: never, rootState: GlobalState): { [index: number]: LegacyStation } => {
@@ -92,9 +92,9 @@ const getters = {
             .map((deviceId) => {
                 const station = stations[deviceId];
                 if (!station) {
-                    console.log("missing:", "station", stations);
-                    console.log("missing:", "device-ids", deviceIds);
-                    console.log("missing:", "device-id", deviceId);
+                    debug.log("missing:", "station", stations);
+                    debug.log("missing:", "device-ids", deviceIds);
+                    debug.log("missing:", "device-id", deviceId);
                     return [];
                 }
                 const available = new AvailableStation(deviceId, nearby[deviceId], station);
@@ -108,7 +108,7 @@ const getters = {
 
         /*
         if (false) {
-            console.log(
+            debug.log(
                 "legacy",
                 _.map(legacy, (s) => {
                     return {
@@ -146,13 +146,13 @@ class StationStatusFactory {
     create(): Station {
         const deviceId = coerceIdType(this.statusReply.status?.identity?.deviceId);
         if (!deviceId) {
-            console.log("malformed status (device-id)", this.statusReply);
+            debug.log("malformed status (device-id)", this.statusReply);
             throw new Error(`station missing deviceId`);
         }
 
         const generationId = coerceIdType(this.statusReply.status?.identity?.generationId);
         if (!generationId) {
-            console.log("malformed status (generation)", this.statusReply);
+            debug.log("malformed status (generation)", this.statusReply);
             throw new Error(`station missing generation`);
         }
 
@@ -315,7 +315,7 @@ class StationDatabaseFactory {
         try {
             return JSON.parse(column) as ModuleConfiguration;
         } catch (e) {
-            console.log("malformed module configuration", column);
+            debug.log("malformed module configuration", column);
         }
         return null;
     }
@@ -325,7 +325,7 @@ class StationDatabaseFactory {
             try {
                 return JSON.parse(column) as PortalError;
             } catch (e) {
-                console.log("malformed http error", column);
+                debug.log("malformed http error", column);
             }
         }
         return null;
@@ -371,7 +371,7 @@ async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[
             const streamsRows: StreamTableRow[] = values[3];
             const downloadsRows: DownloadTableRow[] = values[4];
 
-            console.log(
+            debug.log(
                 `loading stations: ${JSON.stringify({
                     stations: stations.length,
                     modules: moduleRows.length,
@@ -395,7 +395,7 @@ async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[
                     if (!station.shouldArchive()) {
                         return Promise.resolve([station]);
                     }
-                    console.log(`archiving station: ${JSON.stringify(station)}`);
+                    debug.log(`archiving station: ${JSON.stringify(station)}`);
                     return await db.archiveStation(station.id).then(() => {
                         return [];
                     });
@@ -415,7 +415,7 @@ const actions = (services: ServiceRef) => {
             try {
                 await dispatch(ActionTypes.LOAD_STATIONS);
             } catch (error) {
-                console.log(`error loading firmware:`, error);
+                debug.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.LOAD_STATIONS]: async ({ commit, dispatch }: ActionParameters) => {
@@ -434,8 +434,8 @@ const actions = (services: ServiceRef) => {
                 .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
                 .then(() => dispatch(ActionTypes.LOAD_STATIONS))
                 .catch((err: Error) => {
-                    console.log(`error handling STATION_REPLY: ${err.message}`, err.stack);
-                    console.log(`error handling STATION_REPLY:`, JSON.stringify(statusReply));
+                    debug.log(`error handling STATION_REPLY: ${err.message}`, err.stack);
+                    debug.log(`error handling STATION_REPLY:`, JSON.stringify(statusReply));
                     return Promise.reject(err);
                 });
 

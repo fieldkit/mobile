@@ -54,6 +54,7 @@ import _ from "lodash";
 import Vue from "vue";
 import IntervalEditor from "./IntervalEditor.vue";
 import { Schedule, Interval } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "ScheduleEditor",
@@ -98,7 +99,7 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("schedule-editor:mounted", this.schedule, this.enabled);
+        debug.log("schedule-editor:mounted", this.schedule, this.enabled);
         if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
         this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
     },
@@ -116,24 +117,24 @@ export default Vue.extend({
         addInterval(): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals.push(new Interval(0, 86400, 60));
-            console.log("add-interval", JSON.stringify(newSchedule));
+            debug.log("add-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         removeInterval(interval: Interval): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals = _.without(newSchedule.intervals, interval);
-            console.log("remove-interval", JSON.stringify(newSchedule));
+            debug.log("remove-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         onChangeInterval(index: number, interval: Interval): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals[index] = interval;
-            console.log("change-interval", JSON.stringify(newSchedule));
+            debug.log("change-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         onInvalid(index: number, invalid: boolean): void {
             this.invalid[this.scheduleType][index] = invalid;
-            console.log("schedule-invalid", index, invalid, this.scheduleType, this.invalid);
+            debug.log("schedule-invalid", index, invalid, this.scheduleType, this.invalid);
             const flags = Object.values(this.invalid[this.scheduleType]);
             this.$emit("invalid", _.some(flags));
         },

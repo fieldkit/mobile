@@ -15,6 +15,7 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import StationsMap from "./StationsMap.vue";
 import { Screen } from "@nativescript/core";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "MapModal",
@@ -32,15 +33,15 @@ export default Vue.extend({
         ...mapGetters({ mappedStations: "mappedStations" }),
     },
     mounted(): void {
-        console.log("map-modal: mounted");
+        debug.log("map-modal: mounted");
     },
     methods: {
         onClose(): void {
-            console.log("onClose");
+            debug.log("onClose");
             this.$modal.close();
         },
         onOpenedDetails(): void {
-            console.log("onOpenedDetails");
+            debug.log("onOpenedDetails");
             this.$modal.close();
         },
     },

@@ -33,6 +33,7 @@ import SharedComponents from "@/components/shared";
 import { isAndroid, Utils } from "@nativescript/core";
 import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
 import { routes, fullRoutes } from "@/routes";
+import { debug } from "@/lib/debugging";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
@@ -71,7 +72,7 @@ export default Vue.extend({
     },
     async mounted(): Promise<void> {
         await this.$s.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
-            console.log("networks", networks);
+            debug.log("networks", networks);
         });
     },
     methods: {
@@ -104,7 +105,7 @@ export default Vue.extend({
             await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
+            debug.log("onBack");
             await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,

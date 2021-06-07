@@ -11,6 +11,7 @@
 */
 
 import _ from "lodash";
+import { debug } from "./debugging";
 
 export interface Syncable {
     sync(): Promise<void>;
@@ -53,9 +54,9 @@ export abstract class BaseSyncNode<TKey, TLocal, TRemote> implements SyncNode<TK
 
         const merged = updating.map((m) => this.merge(m));
 
-        console.log(addLocalKeys);
-        console.log(addRemoteKeys);
-        console.log(merged);
+        debug.log(addLocalKeys);
+        debug.log(addRemoteKeys);
+        debug.log(merged);
 
         return await Promise.resolve();
     }

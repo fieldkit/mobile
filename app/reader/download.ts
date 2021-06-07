@@ -1,4 +1,5 @@
 import axios from "axios";
+import { debug } from "@/lib";
 import flowSchema from "../data/flow-schema";
 import flows from "../data/flows.json";
 import * as convertKeys from "convert-keys";
@@ -11,7 +12,7 @@ export async function getFlows(): Promise<FlowFile> {
 }
 
 export async function download(baseUrl: string): Promise<FlowFile> {
-    console.log("flows: downloading");
+    debug.log("flows: downloading");
 
     const query = {
         query: `
@@ -52,7 +53,7 @@ export async function download(baseUrl: string): Promise<FlowFile> {
 
     const data = convertKeys.toCamel(response.data);
 
-    console.log("flows: verify");
+    debug.log("flows: verify");
 
     await flowSchema.validate(data);
 

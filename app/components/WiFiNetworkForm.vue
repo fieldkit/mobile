@@ -38,6 +38,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import LabeledTextField from "./LabeledTextField.vue";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "WiFiNetworkForm",
@@ -82,11 +83,11 @@ export default Vue.extend({
     methods: {
         checkSsid(): void {
             this.v.ssid.required = this.form.ssid.length == 0;
-            console.log(`check ssid ${JSON.stringify(this.v)}`);
+            debug.log(`check ssid ${JSON.stringify(this.v)}`);
         },
         checkPassword(): void {
             this.v.password.required = this.form.password.length == 0;
-            console.log(`check password ${JSON.stringify(this.v)}`);
+            debug.log(`check password ${JSON.stringify(this.v)}`);
         },
         addNetwork(): void {
             this.checkSsid();
@@ -95,7 +96,7 @@ export default Vue.extend({
                 return;
             }
 
-            console.log(`saved: ${JSON.stringify(this.form)}`);
+            debug.log(`saved: ${JSON.stringify(this.form)}`);
             this.$emit("saved", _.cloneDeep(this.form));
             this.form = {
                 ssid: "",

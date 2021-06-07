@@ -28,7 +28,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { ActiveRecording, RecordAudioAction, PauseRecordingAction, ResumeRecordingAction, StopRecordingAction } from "@/store";
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 
 export default Vue.extend({
     data(): { timer: any; now: Date } {
@@ -39,7 +39,7 @@ export default Vue.extend({
     },
     computed: {
         recording(): ActiveRecording | null {
-            console.log(`recording`, this.$s.state.media.recording, this.now);
+            debug.log(`recording`, this.$s.state.media.recording, this.now);
             return this.$s.state.media.recording;
         },
     },
@@ -49,14 +49,14 @@ export default Vue.extend({
         });
     },
     destroyed(): void {
-        console.log("destroyed");
+        debug.log("destroyed");
         if (this.timer) {
             this.timer.stop();
         }
     },
     methods: {
         startOrResume(): Promise<void> {
-            console.log(`startOrResume`);
+            debug.log(`startOrResume`);
             if (this.recording) {
                 return this.$s.dispatch(new ResumeRecordingAction());
             }
@@ -69,7 +69,7 @@ export default Vue.extend({
             if (this.$s.state.media.recording) {
                 const recording: ActiveRecording = this.$s.state.media.recording;
                 await this.$s.dispatch(new StopRecordingAction()).then(() => {
-                    console.log(`stop-recording`, recording);
+                    debug.log(`stop-recording`, recording);
                     return this.$emit("stop", recording.toPlainNoteMedia());
                 });
             }

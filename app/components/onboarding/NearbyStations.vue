@@ -32,6 +32,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
+import { debug } from "@/lib/debugging";
 
 interface NearbyStation {
     id: number;
@@ -110,14 +111,14 @@ export default Vue.extend({
             this.selectedStationId = id;
         },
         onNavigatingFrom(): void {
-            console.log("nearby-stations: navigating-from");
+            debug.log("nearby-stations: navigating-from");
             this.visible = false;
         },
     },
     watch: {
         async nearbyStations(newValue: NearbyStation[], oldValue: NearbyStation[]) {
             if (newValue.length === 0) {
-                console.log("no-nearby-stations", this.visible);
+                debug.log("no-nearby-stations", this.visible);
                 if (this.visible) {
                     await this.$deprecatedNavigateTo(routes.onboarding.searchFailed, {
                         props: {

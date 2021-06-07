@@ -6,6 +6,7 @@ import { Database } from "@/wrappers/sqlite";
 import { ActionTypes, Station, StationSyncStatus, FileType, ResetSyncStatusAction } from "@/store";
 import { deleteMissingAssets } from "@/services";
 import { rebaseAbsolutePath } from "@/lib/fs";
+import { debug } from "@/lib";
 
 async function openDiscardingChanges(services: Services, path: string): Promise<Database> {
     const temporaryPath = "/tmp/fk.db";
@@ -29,14 +30,14 @@ describe("Replay", () => {
         const store = services.Store();
         await store.dispatch(ActionTypes.LOAD_STATIONS);
 
-        console.log(`loaded: ${store.state.stations.all.length}`);
+        debug.log(`loaded: ${store.state.stations.all.length}`);
 
         for (const station of store.state.stations.all) {
-            console.log(station.decodeStatusReply());
+            debug.log(station.decodeStatusReply());
         }
 
         const names = _.map(store.state.syncing.stations, (s) => [s.id, s.name]);
-        console.log("names", names);
+        debug.log("names", names);
 
         const syncs: { [index: number]: StationSyncStatus } = _.keyBy(store.state.syncing.syncs, (s) => s.id);
         const stations: { [index: number]: Station } = _.keyBy(store.state.syncing.stations, (s) => s.id!);
@@ -46,13 +47,13 @@ describe("Replay", () => {
         (station as any).serializedStatus = null;
         (station as any).serialized = null;
 
-        // console.log("station", JSON.stringify(station, null, 2));
+        // debug.log("station", JSON.stringify(station, null, 2));
 
         const sync = syncs[stationId];
-        console.log("sync", JSON.stringify(sync, null, 2));
+        debug.log("sync", JSON.stringify(sync, null, 2));
 
         const dataOnly = sync.uploads.filter((file) => file.fileType == FileType.Data);
-        console.log("sync", {
+        debug.log("sync", {
             readingsCopying: sync.readingsCopying,
             readingsReadyUpload: sync.readingsReadyUpload,
             readingsReadyDownload: sync.readingsReadyDownload,
@@ -69,19 +70,19 @@ describe("Replay", () => {
 
         for (const pending of dataOnly) {
             if (pending.blocks < 0) {
-                console.log("blocks", pending.blocks);
+                debug.log("blocks", pending.blocks);
                 if (false)
                     for (const file of pending.files) {
                         const download = keyed[file.path];
                         if (!download) throw new Error();
-                        console.log("file", JSON.stringify(download, null, 2));
+                        debug.log("file", JSON.stringify(download, null, 2));
                     }
 
                 if (false)
                     for (const file of pending.files) {
                         const download = keyed[file.path];
                         if (!download) throw new Error();
-                        console.log("file", JSON.stringify(download, null, 2));
+                        debug.log("file", JSON.stringify(download, null, 2));
                     }
             }
         }

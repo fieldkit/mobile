@@ -1,12 +1,12 @@
 import { DatabaseInterface } from "@/services";
-import { rebaseAbsolutePath } from "@/lib/fs";
+import { debug, rebaseAbsolutePath } from "@/lib";
 
 export async function deleteMissingAssets(db: DatabaseInterface): Promise<void> {
     const allMedia = await db.getAllMedia();
-    console.log(`media: ${JSON.stringify(allMedia)}`);
+    debug.log(`media: ${JSON.stringify(allMedia)}`);
     for (const media of allMedia) {
         const remade = rebaseAbsolutePath(media.path);
-        console.log(media, { remade: remade });
+        debug.log(media, { remade: remade });
     }
     return;
 }

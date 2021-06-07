@@ -25,7 +25,7 @@ import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import { fullRoutes } from "@/routes";
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 
 export default Vue.extend({
     name: "LoginView",
@@ -44,7 +44,7 @@ export default Vue.extend({
     },
     methods: {
         toggle(): void {
-            console.log(`toggle-form`);
+            debug.log(`toggle-form`);
             this.login = !this.login;
         },
         async onLoginSaved(form: { email: string; password: string }): Promise<void> {
@@ -54,12 +54,12 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
-                        console.log("navigating", fullRoutes.onboarding.assembleFromLogin);
+                        debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
                         // eslint-disable-next-line
                         await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
                     })
                     .catch((error) => {
-                        console.log("error", error);
+                        debug.log("error", error);
                         this.busy = false;
                         return Dialogs.alert(_L("loginFailed"));
                     });

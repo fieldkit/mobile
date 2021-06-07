@@ -38,6 +38,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { AvailableFirmware } from "~/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     props: {
@@ -55,15 +56,15 @@ export default Vue.extend({
     },
     methods: {
         onUpdate(): void {
-            console.log("updating");
+            debug.log("updating");
             this.$modal.close({ firmware: this.currentFirmware, updating: true });
         },
         onSelect(firmware: AvailableFirmware): void {
-            console.log("selecting");
+            debug.log("selecting");
             this.currentFirmware = firmware;
         },
         onClose(): void {
-            console.log("closing", this.$modal);
+            debug.log("closing", this.$modal);
             this.$modal.close({ firmware: null, updating: false });
         },
     },

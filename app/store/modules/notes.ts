@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
@@ -209,7 +209,7 @@ const actions = (services: ServiceRef) => {
                     .then((all) => all.map((row) => Notes.fromRow(row)))
                     .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
             } catch (error) {
-                console.log(`error loading notes:`, error);
+                debug.log(`error loading notes:`, error);
             }
         },
         [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -225,7 +225,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: SaveNotesAction) => {
             const notes = state.stations[payload.stationId];
-            console.log(`notes: ${JSON.stringify(notes)}`);
+            debug.log(`notes: ${JSON.stringify(notes)}`);
             return services
                 .db()
                 .addOrUpdateNotes(notes)
@@ -270,8 +270,8 @@ const mutations = {
         }
         state.stations[payload.stationId] = state.stations[payload.stationId].updateNote(payload.key, payload.update);
         const notes = state.stations[payload.stationId];
-        console.log(`update-note: ${JSON.stringify(notes)}`);
-        console.log(`update-note: ${JSON.stringify(payload)}`);
+        debug.log(`update-note: ${JSON.stringify(notes)}`);
+        debug.log(`update-note: ${JSON.stringify(payload)}`);
     },
     [MutationTypes.ATTACH_NOTE_MEDIA]: (state: NotesState, payload: AttachNoteMediaMutation) => {
         if (!payload.media) throw new Error(`media is required`);

@@ -10,6 +10,7 @@ import { AuthenticationError, QueryThrottledError } from "./errors";
 import { File } from "./fs";
 // import { Zone } from "zone.js/dist/zone";
 import { getTaskId } from "@/lib/zoning";
+import { debug } from "./debugging";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -91,24 +92,25 @@ function configureGlobalErrorHandling(): void {
         });
 
         Trace.enable();
+        Trace.setCategories(Trace.categories.All);
 
         Bluebird.onPossiblyUnhandledRejection((reason: Error, _promise: Promise<unknown>) => {
             if (reason instanceof AuthenticationError) {
-                console.log("onPossiblyUnhandledRejection", reason);
+                debug.log("onPossiblyUnhandledRejection", reason);
             } else if (reason instanceof QueryThrottledError) {
-                console.log("onPossiblyUnhandledRejection", reason);
+                debug.log("onPossiblyUnhandledRejection", reason);
             } else {
                 if (/Animation cancelled/.test(reason.message)) {
-                    console.log("onPossiblyUnhandledRejection", reason);
+                    debug.log("onPossiblyUnhandledRejection", reason);
                 } else {
-                    console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
+                    debug.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
                 }
             }
         });
 
         /*
         Promise.onUnhandledRejectionHandled((promise: Promise<any>) => {
-            console.log("onUnhandledRejectionHandled");
+            debug.log("onUnhandledRejectionHandled");
         });
 		*/
 
@@ -117,18 +119,18 @@ function configureGlobalErrorHandling(): void {
         // info: Vue specific error information such as lifecycle hooks, events etc.
         /*
         Vue.config.errorHandler = (err, vm, info) => {
-            console.log("vuejs error:", err, err ? err.stack : null);
+            debug.log("vuejs error:", err, err ? err.stack : null);
         };
 		*/
 
         Vue.config.warnHandler = (msg: string, _vm, _info) => {
-            console.log("vuejs warning:", msg);
+            debug.log("vuejs warning:", msg);
         };
     } catch (error) {
         if (error instanceof Error) {
-            console.log("startup error", error, error ? error.stack : null);
+            debug.log("startup error", error, error ? error.stack : null);
         } else {
-            console.log("startup error", error);
+            debug.log("startup error", error);
         }
     }
 }
@@ -206,7 +208,7 @@ function wrapLoggingMethod(method: string): void {
 }
 
 async function initializeFirebase(): Promise<void> {
-    console.log("initialize:firebase");
+    debug.log("initialize:firebase");
     await firebase
         .init({
             crashlyticsCollectionEnabled: true,
@@ -216,17 +218,17 @@ async function initializeFirebase(): Promise<void> {
             const globalAny: any = global;
             // eslint-disable-next-line
             crashlytics.setString("env", globalAny.TNS_ENV);
-            console.log("firebase:initialized", response);
+            debug.log("firebase:initialized", response);
             return Promise.resolve(true);
         })
         .catch((error) => {
-            console.log("firebase:error", error);
+            debug.log("firebase:error", error);
             return Promise.resolve();
         });
 }
 
 async function initialize(): Promise<void> {
-    // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
+    // NOTE: http://tobyho.com/2012/07/27/taking-over-debug.log/
     const globalAny: any = global; // eslint-disable-line
     // eslint-disable-next-line
     if (globalAny.TNS_ENV === "test") {

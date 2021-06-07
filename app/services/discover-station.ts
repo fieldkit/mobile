@@ -4,7 +4,7 @@ import { Connectivity } from "@/wrappers/connectivity";
 import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
-import { promiseAfter, zoned, logAnalytics } from "@/lib";
+import { debug, promiseAfter, zoned, logAnalytics } from "@/lib";
 import { Buffer } from "buffer";
 import Config from "@/config";
 
@@ -50,7 +50,7 @@ class NetworkMonitor {
 
     constructor(private readonly services: Services) {
         this.store = services.Store();
-        console.log("network-monitor: ctor");
+        debug.log("network-monitor: ctor");
     }
 
     public async start(): Promise<void> {
@@ -60,12 +60,12 @@ class NetworkMonitor {
 
         this.enabled = true;
 
-        console.log("network-monitor: starting", this.enabled);
+        debug.log("network-monitor: starting", this.enabled);
 
         Connectivity.startMonitoring((newType) => async () => {
             await zoned({}, async () => {
                 try {
-                    console.log("network-monitor: connectivity", Connectivity.typeToString(newType));
+                    debug.log("network-monitor: connectivity", Connectivity.typeToString(newType));
 
                     switch (newType) {
                         case Connectivity.connectionType.wifi:

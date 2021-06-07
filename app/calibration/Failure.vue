@@ -33,6 +33,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "Failure",
@@ -59,7 +60,7 @@ export default Vue.extend({
                 };
             });
         } else {
-            console.log("calibration data missing");
+            debug.log("calibration data missing");
         }
     },
     methods: {

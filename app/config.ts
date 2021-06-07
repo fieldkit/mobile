@@ -1,5 +1,6 @@
 import { LocalConfig } from "./local-config";
 import developerConfig from "./secrets";
+import { debug } from "@/lib/debugging";
 
 function getBlankLocalConfig(): LocalConfig {
     return {
@@ -84,12 +85,12 @@ function loggerFactory(name: string): SimpleLogger {
         info: function (...args: unknown[]) {
             args.unshift(name);
             // eslint-disable-next-line
-            console.log.apply(console, args);
+            debug.log.apply(console, args);
         },
         verbose: function (...args: unknown[]) {
             args.unshift(name);
             // eslint-disable-next-line
-            // console.log.apply(console, args);
+            // debug.log.apply(console, args);
         },
         error: function (...args: unknown[]) {
             args.unshift(name);

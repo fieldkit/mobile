@@ -1,5 +1,6 @@
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
+import { debug } from "@/lib";
 import AppSettings from "../../wrappers/app-settings";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
@@ -25,7 +26,7 @@ const actions = (_services: ServiceRef) => {
                     commit(MutationTypes.LOGIN, token);
                 }
             } catch (error) {
-                console.log(`error loading firmware:`, error);
+                debug.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters) => {

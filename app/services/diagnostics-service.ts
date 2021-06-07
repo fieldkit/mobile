@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Device, Folder, File, knownFolders } from "@nativescript/core";
-import { uuidv4, copyLogs } from "@/lib";
+import { debug, uuidv4, copyLogs } from "@/lib";
 import { DiagnosticsDirectory, getRelativeTo, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import { Services } from "@/services";
 import Config, { Build } from "@/config";
@@ -34,32 +34,32 @@ export default class Diagnostics {
     private async prepare(progress: ProgressFunc): Promise<string> {
         const id = uuidv4();
 
-        console.log(`diagnostics-prepare: ${id}`);
+        debug.log(`diagnostics-prepare: ${id}`);
 
         progress({ id: id, message: `Creating Bundle` });
 
         const folder = this.getDiagnosticsFolder().getFolder(id);
 
         const bundleJsPath = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
-        console.log(`diagnostics-prepare: copying bundle.js (${bundleJsPath})`);
+        debug.log(`diagnostics-prepare: copying bundle.js (${bundleJsPath})`);
         await this.services.Conservify().copyFile(bundleJsPath, folder.getFile("bundle.js").path);
 
         const vendorJsPath = knownFolders.documents().getFolder("app").getFile("vendor.js").path;
-        console.log(`diagnostics-prepare: copying vendor.js (${vendorJsPath})`);
+        debug.log(`diagnostics-prepare: copying vendor.js (${vendorJsPath})`);
         await this.services.Conservify().copyFile(vendorJsPath, folder.getFile("vendor.js").path);
 
         progress({ id: id, message: `Writing Device Info` });
 
         const info = this.gatherDeviceInformation();
         const deviceJson = folder.getFile("device.json");
-        console.log(`diagnostics-prepare: writing ${deviceJson.path}`);
+        debug.log(`diagnostics-prepare: writing ${deviceJson.path}`);
         deviceJson.writeTextSync(JSON.stringify(info), (err) => {
             if (err) {
-                console.log(`write-error:`, err);
+                debug.log(`write-error:`, err);
             }
         });
 
-        console.log(`diagnostics:prepare purging old logs`);
+        debug.log(`diagnostics:prepare purging old logs`);
 
         progress({ id: id, message: `Compressing` });
 
@@ -69,20 +69,20 @@ export default class Diagnostics {
 
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);
-        console.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
+        debug.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
         await this.services.Conservify().copyFile(databasePath, folder.getFile("fk.db").path);
 
         progress({ id: id, message: `Copying Logs` });
 
-        console.log(`diagnostics-bundle: end of bundle`);
+        debug.log(`diagnostics-bundle: end of bundle`);
 
         await copyLogs(folder.getFile("logs.txt"));
 
-        console.log(`diagnostics-bundle:`);
+        debug.log(`diagnostics-bundle:`);
 
         await dumpAllFiles(folder.path, true);
 
-        console.log(`diagnostics-prepare: ready`);
+        debug.log(`diagnostics-prepare: ready`);
 
         return id;
     }
@@ -93,7 +93,7 @@ export default class Diagnostics {
 
             const id = await this.prepare(progress);
 
-            console.log(`diagnostics-upload: ${id}`);
+            debug.log(`diagnostics-upload: ${id}`);
 
             progress({ id: id, message: `Uploading bundle...` });
 
@@ -110,14 +110,14 @@ export default class Diagnostics {
 
             progress({ id: id, message: "Done!" });
 
-            console.log(`diagnostics-done: ${JSON.stringify(reference)}`);
+            debug.log(`diagnostics-done: ${JSON.stringify(reference)}`);
 
             return {
                 reference: reference,
                 id: id,
             };
         } catch (err: unknown) {
-            console.log(`diagnostics error:`, err);
+            debug.log(`diagnostics error:`, err);
             return Promise.resolve();
         }
     }
@@ -161,14 +161,14 @@ export default class Diagnostics {
 
         let copiedOfAll = 0;
 
-        console.log(`uploading: total=${totalOfAll} files=${JSON.stringify({ files: files })}`);
+        debug.log(`uploading: total=${totalOfAll} files=${JSON.stringify({ files: files })}`);
 
         for (const row of filesAndSizes) {
             const relative = getRelativeTo(DiagnosticsDirectory, row.path);
             const relativeToDiagnostics = relative.replace(DiagnosticsDirectory, "");
             if (relativeToDiagnostics[0] != "/") throw new Error(`malformed path`);
 
-            console.log(`uploading: path=${row.path} rel=${relative}`);
+            debug.log(`uploading: path=${row.path} rel=${relative}`);
 
             try {
                 const r = await this.services.Conservify().upload({
@@ -187,7 +187,7 @@ export default class Diagnostics {
                 responses.push(r.body);
                 copiedOfAll += row.size;
             } catch (err) {
-                console.log(`error uploading file:`, err);
+                debug.log(`error uploading file:`, err);
             } finally {
                 await File.fromPath(row.path).remove();
             }

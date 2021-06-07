@@ -56,6 +56,7 @@ import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { LegacyStation } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     components: {
@@ -108,7 +109,7 @@ export default Vue.extend({
             this.selected = value;
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
+            debug.log("onBack");
             await this.$deprecatedNavigateTo(routes.onboarding.rename, {
                 props: {
                     stationId: this.stationId,

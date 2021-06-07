@@ -27,7 +27,7 @@ import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import { Build } from "@/config";
 import { Utils } from "@nativescript/core";
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -46,7 +46,7 @@ export default Vue.extend({
         ...SharedComponents,
     },
     async mounted(): Promise<void> {
-        console.log(`versions: ${JSON.stringify(Build)}`);
+        debug.log(`versions: ${JSON.stringify(Build)}`);
     },
     methods: {
         async saveSettings(): Promise<void> {
@@ -59,7 +59,7 @@ export default Vue.extend({
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
-                    console.log(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
+                    debug.log(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
                     Utils.openUrl(`https://github.com/fieldkit/mobile/commit/${Build.gitHash}`);
                 }
             });

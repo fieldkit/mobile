@@ -34,21 +34,21 @@ export class TaskWorker {
 
     constructor(private readonly ctx: Worker, private readonly services: DataServices, private readonly map: TaskWorkerMap) {
         this.queuer = new WorkerTaskQueuer(ctx);
-        console.log("worker:ctor", Object.keys(this.map));
+        debug.log("worker:ctor", Object.keys(this.map));
     }
 
     public message(message: WorkerMessage): void {
         if (!message.data.task) {
-            console.log(`worker:malformed-message`);
+            debug.log(`worker:malformed-message`);
             return;
         }
         const taskName = message.data.task.taskName;
         if (!taskName) {
-            console.log(`worker:ignored-message`);
+            debug.log(`worker:ignored-message`);
             return;
         }
         if (this.map[taskName]) {
-            console.log(`worker:begin: ${taskName}`);
+            debug.log(`worker:begin: ${taskName}`);
             const started = new Date();
             const taskId = message.data.id;
             const incomingTask = message.data.task as Task;
@@ -65,7 +65,7 @@ export class TaskWorker {
             try {
                 Promise.resolve(task.run(this.services, this.queuer))
                     .catch((error: Error | undefined) => {
-                        console.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
+                        debug.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
                         if (taskId) {
                             this.ctx.postMessage({ id: taskId, error: error });
                         }
@@ -78,21 +78,21 @@ export class TaskWorker {
                     .finally(() => {
                         const end = new Date();
                         const elapsed = end.getTime() - started.getTime();
-                        console.log(`worker:done: ${taskName} ${elapsed}`);
+                        debug.log(`worker:done: ${taskName} ${elapsed}`);
                     });
             } catch (error) {
-                console.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
+                debug.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
                 if (taskId) {
                     this.ctx.postMessage({ id: taskId, done: true });
                 }
             }
         } else {
-            console.log(`worker:error: unknown type! taskName=${taskName} message=${JSON.stringify(message)}`);
+            debug.log(`worker:error: unknown type! taskName=${taskName} message=${JSON.stringify(message)}`);
         }
     }
 
     public error(error: WorkerError): boolean {
-        console.log(`worker:error: ${JSON.stringify(error)}`);
+        debug.log(`worker:error: ${JSON.stringify(error)}`);
         return true;
     }
 }
@@ -110,7 +110,7 @@ export class TaskQueue implements TaskQueuer {
             const worker = workerFunc();
             worker.onmessage = (message: WorkerMessage) => {
                 if (message.data.done) {
-                    console.log(`queue:done`, message.data.id);
+                    debug.log(`queue:done`, message.data.id);
                     if (this.promises[message.data.id]) {
                         const [resolve, reject] = this.promises[message.data.id];
                         if (message.data.error) {
@@ -123,10 +123,10 @@ export class TaskQueue implements TaskQueuer {
                 }
                 const taskName = message.data.task.taskName;
                 if (!taskName) {
-                    console.log(`queue:ignored`);
+                    debug.log(`queue:ignored`);
                     return;
                 }
-                console.log(`queue:message: ${taskName}`);
+                debug.log(`queue:message: ${taskName}`);
                 this.enqueue(message.data.task as Task);
             };
             this.workers.push(worker);
@@ -142,7 +142,7 @@ export class TaskQueue implements TaskQueuer {
     }
 
     public enqueue<T extends Task>(task: T): void {
-        console.log("enqueue", 0, this.workers.length, task.taskName);
+        debug.log("enqueue", 0, this.workers.length, task.taskName);
         this.deqeueuWorker().postMessage({ id: 0, task: task });
     }
 
@@ -150,7 +150,7 @@ export class TaskQueue implements TaskQueuer {
         return new Promise((resolve: (boolean) => void, reject) => {
             this.counter += 1;
             this.promises[this.counter] = [resolve, reject];
-            console.log("sync", this.counter, this.workers.length, task.taskName);
+            debug.log("sync", this.counter, this.workers.length, task.taskName);
             this.deqeueuWorker().postMessage({ id: this.counter, task: task });
         }).then(() => Promise.resolve());
     }

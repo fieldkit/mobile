@@ -5,7 +5,7 @@ import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
-import { StationError, logAnalytics } from "@/lib";
+import { debug, StationError, logAnalytics } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 import { Buffer } from "buffer";
 
@@ -190,7 +190,7 @@ export class QueryStation {
                     })
                     .then((response: HttpResponse) => {
                         if (response.statusCode != 204) {
-                            console.log("http-status", response.statusCode, response.headers);
+                            debug.log("http-status", response.statusCode, response.headers);
                             return Promise.reject(new HttpError("status", response));
                         }
 
@@ -202,7 +202,7 @@ export class QueryStation {
                             size = Number(response.headers["content-length"]);
                         }
 
-                        console.log("size", size, response.headers);
+                        debug.log("size", size, response.headers);
                         return new CalculatedSize(size);
                     })
             );
@@ -256,7 +256,7 @@ export class QueryStation {
                     defaultTimeout: 30,
                 })
                 .then(async (response) => {
-                    console.log("upload-firmware:", response.body);
+                    debug.log("upload-firmware:", response.body);
 
                     await logAnalytics("station_firmware_uploaded");
 
@@ -318,11 +318,11 @@ export class QueryStation {
         const stationKey = this.urlToStationKey(options.url);
         if (this.openQueries[stationKey] === true) {
             if (options.throttle) {
-                console.log(options.url, "query-station: throttle");
+                debug.log(options.url, "query-station: throttle");
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
-                console.log(options.url, "query-station: queuing station query");
+                debug.log(options.url, "query-station: queuing station query");
                 this.queued[stationKey] = () => resolve(undefined);
             }).then(() => {
                 return this.trackActivity(options, factory);
@@ -345,7 +345,7 @@ export class QueryStation {
             )
             .finally(() => {
                 if (this.queued[stationKey]) {
-                    console.log("query-station: resuming");
+                    debug.log("query-station: resuming");
                     const resume = this.queued[stationKey];
                     delete this.queued[stationKey];
                     resume();
@@ -364,7 +364,7 @@ export class QueryStation {
      */
     public async binaryStationQuery(url: string, binaryQuery: Uint8Array, options: QueryOptions = {}): Promise<HttpResponse> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
-        console.log(url, "options", options, "final", finalOptions);
+        debug.log(url, "options", options, "final", finalOptions);
         return await this.trackActivity(finalOptions, async () => {
             await logAnalytics("station_querying", { url: url });
 
@@ -383,7 +383,7 @@ export class QueryStation {
             );
         }).then(async (response: HttpResponse): Promise<HttpResponse> => {
             if (response.body.length == 0) {
-                console.log(`empty station reply`, response);
+                debug.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);
             }
 
@@ -419,9 +419,9 @@ export class QueryStation {
     private catchErrors<T>(promise: Promise<T>): Promise<T> {
         return promise.catch((err) => {
             if (err instanceof ConnectionError) {
-                console.log(`query-station error`, err.message);
+                debug.log(`query-station error`, err.message);
             } else {
-                console.log(`query-station error`, err);
+                debug.log(`query-station error`, err);
             }
             return Promise.reject(err);
         });
@@ -441,7 +441,7 @@ export class QueryStation {
         try {
             return prepareReply(stationQuery.reply, stationQuery.serialized);
         } catch (error) {
-            console.log(`fixup-status`, error);
+            debug.log(`fixup-status`, error);
             throw error;
         }
     }

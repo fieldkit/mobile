@@ -43,7 +43,7 @@ import Config from "@/config";
 import { routes } from "@/routes";
 import { isIOS } from "@nativescript/core";
 import { AvailableStation } from "@/store/types";
-import { _L, uuidv4 } from "@/lib";
+import { debug, _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationsMap",
@@ -89,53 +89,53 @@ export default Vue.extend({
     },
     watch: {
         mappedStations(): void {
-            console.log(this.key, "map: mapped-stations", this.isIOS);
+            debug.log(this.key, "map: mapped-stations", this.isIOS);
             this.shown = false;
             this.showStations();
         },
     },
     updated(): void {
-        console.log(this.key, "map: updated", this.isIOS);
+        debug.log(this.key, "map: updated", this.isIOS);
         this.showStations();
     },
     mounted(this: any): void {
-        console.log(this.key, "map: mounted");
+        debug.log(this.key, "map: mounted");
     },
     beforeDestroy(): void {
-        console.log(this.key, "map: before-destroy");
+        debug.log(this.key, "map: before-destroy");
     },
     destroyed(): void {
-        console.log(this.key, "map: destroyed");
+        debug.log(this.key, "map: destroyed");
     },
     methods: {
         onLoaded(): void {
-            console.log(this.key, "map: loaded");
+            debug.log(this.key, "map: loaded");
         },
         onUnloaded(): void {
-            console.log(this.key, "map: unloaded");
+            debug.log(this.key, "map: unloaded");
         },
         onMapReady(this: any, ev): void {
-            console.log(this.key, "map: map-ready");
+            debug.log(this.key, "map: map-ready");
             this.map = ev.map;
             this.showStations();
         },
         toggleModal(this: any): void {
-            console.log(this.key, "map: toggle-modal");
+            debug.log(this.key, "map: toggle-modal");
             this.$emit("toggle-modal");
         },
         showStations(this: any): void {
             if (!this.mappedStations) {
-                console.log(this.key, "map: refresh, no mappedStations");
+                debug.log(this.key, "map: refresh, no mappedStations");
                 return;
             }
 
             if (!this.map) {
-                console.log(this.key, "map: refresh, no map");
+                debug.log(this.key, "map: refresh, no map");
                 return;
             }
 
             if (!this.shown) {
-                console.log(this.key, "map: refreshing");
+                debug.log(this.key, "map: refreshing");
 
                 const markers = this.mappedStations.stations.map((station: any) => {
                     return {
@@ -182,7 +182,7 @@ export default Vue.extend({
                     this.located = true;
                 }
             } else {
-                console.log(this.key, "map: skip-refresh");
+                debug.log(this.key, "map: skip-refresh");
             }
 
             this.loading = false;
@@ -211,12 +211,12 @@ export default Vue.extend({
             });
         },
         onMapMove(this: any): void {
-            console.log(this.key, "map: move");
+            debug.log(this.key, "map: move");
         },
         onLocationPermissionGranted(this: any): void {
-            console.log(this.key, "map: onLocationPermissionGranted");
+            debug.log(this.key, "map: onLocationPermissionGranted");
             this.map.getUserLocation().then((location) => {
-                console.log("map: user location: " + location.location.lat + ", " + location.location.lng);
+                debug.log("map: user location: " + location.location.lat + ", " + location.location.lng);
                 if (isIOS) {
                     this.map.setCenter({
                         lat: location.location.lat,
@@ -227,7 +227,7 @@ export default Vue.extend({
             });
         },
         onLocationPermissionDenied(): void {
-            console.log(this.key, "map: onLocationPermissionDenied");
+            debug.log(this.key, "map: onLocationPermissionDenied");
         },
         getDeployStatus(this: any, station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
