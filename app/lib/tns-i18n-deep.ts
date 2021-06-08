@@ -32,10 +32,10 @@ export function translate(strName, ...replacers): string {
 export function initializeI18n(defaultLang: string) {
     const lang = Device.language;
 
-    i18n.defaults = require("~/i18n/" + defaultLang);
+    i18n.defaults = require("~/locales/" + defaultLang);
 
     try {
-        i18n.strings = require("~/i18n/" + lang);
+        i18n.strings = require("~/locales/" + lang);
     } catch (e) {
         debug.log("error loading/missing:", lang);
     }
