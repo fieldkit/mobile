@@ -20,7 +20,7 @@ app/lib/zoning.ts
 # TODO
 app/reader/parsing.ts
 app/reader/SimpleScreen.vue
-app/i18n/*
+app/locales/*
 app/migrations/*.js
 app/reader/FlowView.vue
 app/components/ModuleItem.vue
@@ -130,6 +130,6 @@ app/calibration/Wait.vue
 app/calibration/ChooseStrategy.vue
 
 # MEH
-app/lib/tns-i18n-deep.ts
+app/lib/i18n.ts
 app/store/logger.js
 app/application.android.js

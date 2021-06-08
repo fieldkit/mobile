@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Bluebird from "bluebird";
-import { translate } from "@/lib/tns-i18n-deep";
+import { translate } from "./i18n";
 import { debug } from "./debugging";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
