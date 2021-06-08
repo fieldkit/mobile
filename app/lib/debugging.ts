@@ -58,7 +58,7 @@ export const debug = {
             } else {
                 try {
                     parts.push(JSON.stringify(arg));
-                } catch (e: unknown) {
+                } catch (e) {
                     Trace.write(`[logging error] ${JSON.stringify(e)}`, Trace.categories.Debug);
                 }
             }
