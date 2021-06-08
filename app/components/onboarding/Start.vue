@@ -36,23 +36,26 @@ import SharedComponents from "@/components/shared";
 import { fullRoutes, routes } from "@/routes";
 import { debug, Timer } from "@/lib";
 
-export default Vue.extend({
+const Start = Vue.extend({
     components: {
         ...SharedComponents,
     },
+    props: {
+        step: {
+            type: Number,
+            default: 0,
+        },
+    },
     data(): {
         frame: number;
-        step: number;
     } {
         return {
             frame: 0,
-            step: 0,
         };
     },
     methods: {
         onPageLoaded(): void {
             debug.log("onboarding/start:", "loaded");
-            this.step = 0;
             this.frame = 0;
             const thisAny = this as any;
             thisAny.timer = new Timer(1000, () => {
@@ -65,8 +68,13 @@ export default Vue.extend({
             thisAny.timer.stop();
         },
         async forward(): Promise<void> {
-            this.step++;
-            if (this.step == 2) {
+            if (this.step < 2) {
+                await this.$navigateTo(Start, {
+                    props: {
+                        step: this.step + 1,
+                    },
+                });
+            } else {
                 await this.$deprecatedNavigateTo(routes.onboarding.searching, {
                     backstackVisible: false,
                 });
@@ -74,17 +82,15 @@ export default Vue.extend({
         },
         async back(): Promise<void> {
             debug.log("onboarding/start:", "back");
-            if (this.step > 0) {
-                this.step -= 1;
-            } else {
-                await this.$navigateBack();
-            }
+            await this.$navigateBack();
         },
         async skip(): Promise<any> {
             await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
     },
 });
+
+export default Start;
 </script>
 
 <style scoped lang="scss">
