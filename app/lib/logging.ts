@@ -1,66 +1,61 @@
 import _ from "lodash";
 import Vue from "vue";
 import Bluebird from "bluebird";
-import moment from "moment";
 import { Trace, knownFolders } from "@nativescript/core";
 import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import { AuthenticationError, QueryThrottledError } from "./errors";
 import { File } from "./fs";
-// import { Zone } from "zone.js/dist/zone";
 import { getTaskId } from "@/lib/zoning";
-import { debug } from "./debugging";
+import { debug, TaskIdProvider, getMessageType, scrubMessage, DebugConsoleWriter } from "./debugging";
 
-const SaveInterval = 10000;
-const logs: string[][] = [];
-const originalConsole = {
-    log: console.log,
-};
-const MaximumLogSize = 1024 * 1024 * 5;
+class FileWriter {
+    private queued = "";
+    private scheduled: unknown | null = null;
 
-function getPrettyTime() {
-    return moment().format();
+    constructor(public readonly getTaskId: TaskIdProvider) {}
+
+    public write(message: string, category: string, type) {
+        const date = new Date().toISOString();
+        const messageType = getMessageType(type);
+        const taskId = this.getTaskId();
+        const scrubbed = scrubMessage(message);
+
+        this.queued += `${date} ${messageType} ${taskId} ${category} ${scrubbed}\n`;
+
+        if (!this.scheduled) {
+            this.scheduled = setTimeout(() => {
+                void this.flush().then(() => {
+                    this.scheduled = null;
+                });
+            }, 1000);
+        }
+    }
+
+    async flush(): Promise<void> {
+        const file = getLogsFile();
+        const existing = await file.readText();
+        const final = existing + this.queued;
+        await file.writeText(final);
+        this.queued = "";
+
+        console.log(`flushed ${final.length}`);
+    }
 }
+
+const logFileWriter = new FileWriter(getTaskId);
 
 function getLogsFile(): File {
     return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
 }
 
+async function flush(): Promise<void> {
+    return await logFileWriter.flush();
+}
+
 export async function truncateLogs(): Promise<void> {
     await getLogsFile().remove();
-    logs.length = 0; // Empty logs.
-}
-
-function getExistingLogs(file: File): string {
-    if (file.size < MaximumLogSize) {
-        return file.readTextSync() || "";
-    }
-    return "";
-}
-
-function flush(): Promise<void> {
-    const appending = _(logs)
-        .map((log) => {
-            return scrubMessage(_(log).join(" ")).trim() + "\n";
-        })
-        .join("");
-
-    logs.length = 0; // Empty logs.
-
-    return new Promise((resolve, reject) => {
-        const file = getLogsFile();
-        const existing = getExistingLogs(file);
-        const replacing = (existing + "\n" + appending + "\n").replace(/\n+/, "\n");
-
-        file.writeTextSync(replacing, (err) => {
-            if (err) {
-                reject(err);
-            }
-        });
-
-        resolve();
-    });
 }
 
 export async function copyLogs(where: File): Promise<void> {
@@ -80,19 +75,16 @@ export async function copyLogs(where: File): Promise<void> {
     });
 }
 
-function configureGlobalErrorHandling(): void {
+function configureGlobalErrorHandling(): Promise<void> {
     try {
         Trace.setErrorHandler({
             handlerError(err) {
                 void analytics.logEvent({
                     key: "app_error",
                 });
-                console.log("error", err, err ? err.stack : null);
+                debug.log("error", err, err ? err.stack : null);
             },
         });
-
-        Trace.enable();
-        Trace.setCategories(Trace.categories.All);
 
         Bluebird.onPossiblyUnhandledRejection((reason: Error, _promise: Promise<unknown>) => {
             if (reason instanceof AuthenticationError) {
@@ -108,21 +100,6 @@ function configureGlobalErrorHandling(): void {
             }
         });
 
-        /*
-        Promise.onUnhandledRejectionHandled((promise: Promise<any>) => {
-            debug.log("onUnhandledRejectionHandled");
-        });
-		*/
-
-        // err: error trace
-        // vm: component in which error occured
-        // info: Vue specific error information such as lifecycle hooks, events etc.
-        /*
-        Vue.config.errorHandler = (err, vm, info) => {
-            debug.log("vuejs error:", err, err ? err.stack : null);
-        };
-		*/
-
         Vue.config.warnHandler = (msg: string, _vm, _info) => {
             debug.log("vuejs warning:", msg);
         };
@@ -133,78 +110,8 @@ function configureGlobalErrorHandling(): void {
             debug.log("startup error", error);
         }
     }
-}
 
-function scrubMessage(message: string): string {
-    return message.replace(/Bearer [^\s"']+/, "<TOKEN>");
-}
-
-type LogFunc = (...args: unknown[]) => void;
-
-function wrapLoggingMethod(method: string): void {
-    const original = console[method] as LogFunc;
-    console[method] = function () {
-        try {
-            const errors: Error[] = [];
-            // eslint-disable-next-line
-            const args: unknown[] = Array.prototype.slice.apply(arguments);
-            const time = getPrettyTime();
-            const taskId = getTaskId();
-
-            // Prepend time to the unaltered arguments we were
-            // given and just log those using the original, we do
-            // this before the persisted logging cause that may
-            // throw errors and this helps fix them.
-            args.unshift(taskId);
-            args.unshift(time);
-            if (original.apply) {
-                original.apply(console, args);
-            } else {
-                original(args.join(" ")); // IE
-            }
-
-            // This takes args and gets good string representations
-            // for them, filling up the parts arary, beginning with
-            // the time.
-            const parts: string[] = [];
-            for (let i = 0; i < args.length; i++) {
-                const arg = args[i];
-                if (arg instanceof Error) {
-                    parts.push(arg.message);
-                    if (arg.stack) parts.push(arg.stack);
-                    errors.push(arg);
-                } else if (typeof arg === "string") {
-                    parts.push(arg.trim());
-                } else {
-                    try {
-                        parts.push(JSON.stringify(arg));
-                    } catch (e) {
-                        originalConsole.log("[logging error]", e);
-                    }
-                }
-            }
-
-            // Append to our global logs array.
-            logs.push(parts.slice());
-
-            // Send string only representations to Crashlytics,
-            // removing time since they do that for us.
-            parts.shift();
-            try {
-                crashlytics.log(scrubMessage(parts.join(" ")));
-            } catch (e) {
-                originalConsole.log("crashlytics", e);
-            }
-
-            /*
-            errors.forEach((error) => {
-                crashlytics.error(error);
-            });
-			*/
-        } catch (e) {
-            originalConsole.log(e);
-        }
-    };
+    return Promise.resolve();
 }
 
 async function initializeFirebase(): Promise<void> {
@@ -235,18 +142,15 @@ async function initialize(): Promise<void> {
         return;
     }
 
+    Trace.enable();
+    Trace.setCategories(Trace.categories.All);
+    Trace.clearWriters();
+    Trace.addWriter(new DebugConsoleWriter(getTaskId));
+    Trace.addWriter(logFileWriter);
+
     await initializeFirebase();
 
-    const methods = ["log", "warn", "error"];
-    for (let i = 0; i < methods.length; i++) {
-        wrapLoggingMethod(methods[i]);
-    }
-
-    setInterval((): void => {
-        void flush();
-    }, SaveInterval);
-
-    configureGlobalErrorHandling();
+    await configureGlobalErrorHandling();
 
     return;
 }

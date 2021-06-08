@@ -1,36 +1,72 @@
-import { isAndroid } from "@nativescript/core";
-import Sqlite from "@/wrappers/sqlite";
-import { Services } from "@/services";
+import { Trace } from "@nativescript/core";
 
-export function downloadDatabase(services: Services, url: string): Promise<void> {
-    const progress = (total: number, copied: number, _info: unknown) => {
-        debug.log("progress", total, copied);
-    };
+export interface LogEntry {
+    messageType: string;
+    message: string;
+    date: string;
+    taskId: string;
+    category: string;
+}
 
-    const folder = services.FileSystem().getFolder(isAndroid ? "app" : "");
-    const name = "fieldkit.sqlite3";
-    const destination = folder.getFile(name);
+export type TaskIdProvider = () => string;
 
-    return services
-        .Conservify()
-        .download({
-            method: "GET",
-            url: url,
-            path: destination.path,
-            progress: progress,
-        })
-        .catch((error) => {
-            debug.log("error", error);
-            return Promise.resolve();
-        })
-        .then((_response: unknown) => {
-            new Sqlite().copy(name);
-        });
+export function scrubMessage(message: string): string {
+    return message.replace(/Bearer [^\s"']+/, "<TOKEN>");
+}
+
+export function getMessageType(type: undefined | number): string {
+    const msgType = type === undefined ? Trace.messageType.log : type;
+    switch (msgType) {
+        case Trace.messageType.log:
+            return "log";
+        case Trace.messageType.info:
+            return "info";
+        case Trace.messageType.warn:
+            return "warning";
+        case Trace.messageType.error:
+            return "error";
+    }
+    return "unknown";
+}
+
+export class DebugConsoleWriter {
+    constructor(public readonly getTaskId: TaskIdProvider) {}
+
+    public write(message: string, category: string, type: number | undefined): void {
+        if (!console) {
+            return;
+        }
+
+        const date = new Date().toISOString();
+        const messageType = getMessageType(type);
+        const taskId = this.getTaskId();
+
+        console.log(`${date} ${messageType} ${taskId} ${category} ${message}`);
+    }
 }
 
 export const debug = {
     log: function (...args: unknown[]): void {
-        // eslint-disable-next-line
-        console.log.apply(console, args);
+        const parts: string[] = [];
+        for (let i = 0; i < args.length; i++) {
+            const arg = args[i];
+            if (arg instanceof Error) {
+                parts.push(arg.message);
+                if (arg.stack) parts.push(arg.stack);
+            } else if (typeof arg === "string") {
+                parts.push(arg.trim());
+            } else {
+                try {
+                    parts.push(JSON.stringify(arg));
+                } catch (e: unknown) {
+                    Trace.write(`[logging error] ${JSON.stringify(e)}`, Trace.categories.Debug);
+                }
+            }
+        }
+
+        if (Trace && Trace.write) {
+            // eslint-disable-next-line
+            Trace.write(parts.join(" "), Trace.categories.Debug);
+        }
     },
 };
