@@ -89,7 +89,6 @@ export default Vue.extend({
     },
     watch: {
         mappedStations(): void {
-            debug.log(this.key, "map: mapped-stations", this.isIOS);
             this.shown = false;
             this.showStations();
         },

@@ -91,14 +91,14 @@
 <script lang="ts">
 import Vue from "vue";
 import { isAndroid, isIOS, Utils } from "@nativescript/core";
-import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import ScheduleEditor from "../ScheduleEditor.vue";
-import * as animations from "../animations";
 import { Schedule, Station, Notes, ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store";
-import { routes } from "@/routes";
 import { debug, _L } from "@/lib";
 import Config from "@/config";
+
+import ScheduleEditor from "@/components/ScheduleEditor.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import DeployNotesView from "@/components/deploy/DeployNotesView.vue";
+import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
     components: {
@@ -167,34 +167,21 @@ export default Vue.extend({
             thisAny.map = args.map;
             this.displayStation();
         },
-        goBack(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$deprecatedNavigateTo(routes.station.detail, {
-                    props: {
-                        stationId: this.currentStation.id,
-                    },
-                }),
-            ]);
+        async goBack(): Promise<void> {
+            await this.$navigateBack();
         },
-        goToNext(ev: any): Promise<any> {
-            return this.saveForm().then(() => {
-                return this.$deprecatedNavigateTo(routes.deploy.notes, {
+        async goToNext(): Promise<void> {
+            await this.saveForm().then(() => {
+                return this.$navigateTo(DeployNotesView, {
+                    frame: "stations-frame",
                     props: {
                         stationId: this.stationId,
                     },
                 });
             });
         },
-        onNavCancel(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$deprecatedNavigateTo(routes.station.detail, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async onNavCancel(): Promise<void> {
+            await this.$navigateBack();
         },
         displayStation(): void {
             const thisAny = this as any;

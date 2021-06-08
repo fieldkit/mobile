@@ -82,12 +82,6 @@ export default Vue.extend({
     mounted(): void {
         debug.log(this.key, "stations: mounted");
     },
-    beforeUpdate(): void {
-        debug.log(this.key, "stations: before-updated");
-    },
-    updated(): void {
-        debug.log(this.key, "stations: updated");
-    },
     methods: {
         onLoaded() {
             debug.log(this.key, "stations: loaded");

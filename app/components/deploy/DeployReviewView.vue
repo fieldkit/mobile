@@ -119,12 +119,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
 import { ActionTypes, Station, Notes, NoteForm } from "@/store";
-import * as animations from "../animations";
-import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { debug, _L, rebaseAbsolutePath } from "@/lib";
+
+import DeployMapView from "./DeployMapView.vue";
+import DeployNotesView from "./DeployNotesView.vue";
+import StationDetailView from "@/components/StationDetailView.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
     components: {
@@ -166,32 +168,32 @@ export default Vue.extend({
         onPageLoaded(): void {
             debug.log(`review loaded:`, this.stationId);
         },
-        async goBack(ev: any): Promise<void> {
-            await Promise.all([animations.pressed(ev), this.$navigateBack()]);
+        async goBack(): Promise<void> {
+            await this.$navigateBack();
         },
-        editLocation(ev: any): Promise<any> {
-            return Promise.all([
-                this.$deprecatedNavigateTo(routes.deploy.start, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async editLocation(): Promise<any> {
+            await this.$navigateTo(DeployMapView, {
+                frame: "stations-frame",
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
-        editNotes(ev: any): Promise<any> {
-            return Promise.all([
-                this.$deprecatedNavigateTo(routes.deploy.notes, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async editNotes(): Promise<any> {
+            await this.$navigateTo(DeployNotesView, {
+                frame: "stations-frame",
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
         async deployStation(station: Station): Promise<void> {
             this.busy = true;
             try {
                 await this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
-                    return this.$deprecatedNavigateTo(routes.station.detail, {
+                    return this.$navigateTo(StationDetailView, {
+                        frame: "stations-frame",
+                        clearHistory: true,
                         props: {
                             stationId: this.stationId,
                             redirectedFromDeploy: true,
