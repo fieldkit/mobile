@@ -3,6 +3,7 @@ import _ from "lodash";
 import { VueConstructor } from "vue/types/vue";
 import { Page, Frame } from "@nativescript/core";
 import { NavigationEntryVue } from "nativescript-vue";
+import { debug } from "@/lib";
 import { NavigationMutation } from "@/store/mutations";
 import { OurStore } from "@/store/our-store";
 
@@ -40,7 +41,7 @@ export function logNavigationStack(frameId: string | undefined = undefined): voi
 
     for (const a of frame.backStack) {
         const entryProps = a.entry as { props?: { bookmark?: boolean } };
-        console.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+        debug.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
     }
 }
 
@@ -53,7 +54,7 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | undefin
 
     for (const a of frame.backStack) {
         const entryProps = a.entry as { props?: { bookmark?: boolean } };
-        console.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+        debug.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
     }
 
     for (const a of frame.backStack) {
@@ -64,7 +65,7 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | undefin
         }
     }
 
-    console.log("navigate-back-to-bookmark: failed");
+    debug.log("navigate-back-to-bookmark: failed");
 
     return false;
 }
@@ -72,7 +73,7 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | undefin
 let tabsReady = false;
 
 getBus().$on("nav:tabs-ready", () => {
-    console.log("nav:tabs-ready");
+    debug.log("nav:tabs-ready");
     tabsReady = true;
 });
 
@@ -95,9 +96,9 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             const page = route.page as any;
             // Verify top route is for TabbedLayout
             const firstTab = pageOrRoute.props.firstTab as FirstTab;
-            console.log(`nav:full-route: have-tabs: ${tabsReady} firstTab ${firstTab}`);
+            debug.log(`nav:full-route: have-tabs: ${tabsReady} firstTab ${firstTab}`);
             if (!tabsReady || !firstTab) {
-                console.log(`nav:navigating to tabbed-layout`);
+                debug.log(`nav:navigating to tabbed-layout`);
                 store.commit(
                     new NavigationMutation(
                         pageOrRoute.frame || "<no-frame>",
@@ -120,18 +121,18 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
                     pageOrRoute.options
                 );
 
-                console.log(`nav:full-route: final-options ${JSON.stringify(finalOptions)}`);
+                debug.log(`nav:full-route: final-options ${JSON.stringify(finalOptions)}`);
 
                 await navigateTo(page, finalOptions);
             } else {
-                console.log(`nav:using existing tabbed-layout`);
+                debug.log(`nav:using existing tabbed-layout`);
                 await navFn(firstTab.route, null);
                 getBus().$emit("nav:tab", firstTab.index);
             }
         } else if (pageOrRoute instanceof Route) {
             const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
             const page = pageOrRoute.page as any;
-            console.log("nav:route", pageOrRoute, withDefaults);
+            debug.log("nav:route", pageOrRoute, withDefaults);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",
@@ -143,7 +144,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
             const withDefaults = addDefaults(options, { frame: undefined });
-            console.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
+            debug.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",

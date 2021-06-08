@@ -51,7 +51,7 @@ import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
-import { _L, uuidv4 } from "@/lib";
+import { debug, _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationListView",
@@ -80,17 +80,17 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log(this.key, "stations: mounted");
+        debug.log(this.key, "stations: mounted");
     },
     beforeUpdate(): void {
-        console.log(this.key, "stations: before-updated");
+        debug.log(this.key, "stations: before-updated");
     },
     updated(): void {
-        console.log(this.key, "stations: updated");
+        debug.log(this.key, "stations: updated");
     },
     methods: {
         onLoaded() {
-            console.log(this.key, "stations: loaded");
+            debug.log(this.key, "stations: loaded");
             this.mapKey++;
         },
         getDeployStatus(station: AvailableStation): string {
@@ -110,7 +110,7 @@ export default Vue.extend({
         },
         async onDoubleTap(): Promise<void> {
             this.scanning = true;
-            console.log(`user initiated station scan`);
+            debug.log(`user initiated station scan`);
             await this.$s.dispatch(new ScanForStationsAction({ user: true })).finally(() => {
                 this.scanning = false;
             });

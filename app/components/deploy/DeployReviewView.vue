@@ -124,7 +124,7 @@ import { ActionTypes, Station, Notes, NoteForm } from "@/store";
 import * as animations from "../animations";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import { _L, rebaseAbsolutePath } from "@/lib";
+import { debug, _L, rebaseAbsolutePath } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -164,8 +164,8 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            console.log(`review loaded:`, this.stationId);
-            console.log(`review loaded: ${JSON.stringify(this.currentStation)}`);
+            debug.log(`review loaded:`, this.stationId);
+            debug.log(`review loaded: ${JSON.stringify(this.currentStation)}`);
         },
         async goBack(ev: any): Promise<void> {
             await Promise.all([animations.pressed(ev), this.$navigateBack()]);

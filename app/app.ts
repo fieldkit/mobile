@@ -18,7 +18,7 @@ import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
 
-import { _L, initializeLogging } from "./lib";
+import { debug, _L, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
 import { navigatorFactory } from "./routes";
@@ -97,7 +97,7 @@ function configureVueJs(services: typeof Services): Store {
             value -= 60;
         }
         const duration = moment.duration(value, "seconds");
-        console.log("prettyTimeOfDay", value, duration);
+        debug.log("prettyTimeOfDay", value, duration);
         return moment.utc(duration.asMilliseconds()).format("HH:mm");
     });
 
@@ -160,7 +160,7 @@ Bluebird.config({
 // Crashlytics.
 void initializeLogging();
 
-console.log(`starting: build ${JSON.stringify(Build)}`);
+debug.log(`starting: build ${JSON.stringify(Build)}`);
 
 // This has to be the last thing we do. On iOS this will never return.
 startVueJs(Services);

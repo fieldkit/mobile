@@ -6,6 +6,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue, { PropType } from "vue";
+import { debug } from "@/lib";
 import { MdNode } from "./parsing";
 
 export default Vue.extend({
@@ -22,7 +23,7 @@ export default Vue.extend({
                 this.parsed.map((child, index) => this.getRowSpec(child, index)),
                 ","
             );
-            console.log("markdown:rows", rows);
+            debug.log("markdown:rows", rows);
             return rows;
         },
     },
@@ -42,7 +43,7 @@ export default Vue.extend({
             return null;
         },
         getRowSpec(node: MdNode, _index: number): string {
-            // console.log("markdown:node", node);
+            // debug.log("markdown:node", node);
             const sizing = this.findSizing(node);
             return sizing || "auto";
         },

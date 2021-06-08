@@ -2,6 +2,7 @@ import _ from "lodash";
 import Vue from "vue";
 import moment from "moment";
 import { ActionContext, Module } from "vuex";
+import { debug } from "@/lib";
 import { Station, FirmwareInfo } from "../types";
 import { FirmwareTableRow } from "../row-types";
 import { ActionTypes, UpgradeStationFirmwareAction } from "../actions";
@@ -82,7 +83,7 @@ const actions = (services: ServiceRef) => {
             try {
                 await dispatch(ActionTypes.RELOAD_FIRMWARE);
             } catch (error) {
-                console.log(`error loading firmware:`, error);
+                debug.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.AUTHENTICATED]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -102,22 +103,22 @@ const actions = (services: ServiceRef) => {
                 .then((all) => commit(MutationTypes.AVAILABLE_FIRMWARE, all));
         },
         [ActionTypes.UPGRADE_STATION_FIRMWARE]: ({ commit, dispatch, state }: ActionParameters, payload: UpgradeStationFirmwareAction) => {
-            console.log("checking for firmware");
+            debug.log("checking for firmware");
             return services
                 .firmware()
                 .haveFirmware(payload.firmwareId)
                 .then((yes) => {
-                    console.log("firmware check", yes);
+                    debug.log("firmware check", yes);
 
                     if (!yes) {
-                        console.log("no firmware");
+                        debug.log("no firmware");
                         commit(new UpgradeStatusMutation(payload.stationId, { done: true, error: true, firmware: true }));
                         return;
                     }
 
                     commit(new UpgradeStatusMutation(payload.stationId, { done: false, busy: true }));
 
-                    console.log("upgrading firmware");
+                    debug.log("upgrading firmware");
                     return services
                         .firmware()
                         .upgradeStation(
@@ -128,11 +129,11 @@ const actions = (services: ServiceRef) => {
                             payload.firmwareId
                         )
                         .then((status) => {
-                            console.log("upgrade status", status);
+                            debug.log("upgrade status", status);
                             commit(new UpgradeStatusMutation(payload.stationId, { ...status, ...{ done: true } }));
                         })
                         .catch((err) => {
-                            console.log("upgrade error", err);
+                            debug.log("upgrade error", err);
                             commit(new UpgradeStatusMutation(payload.stationId, { done: true, error: true }));
                         });
                 });

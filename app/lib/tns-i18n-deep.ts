@@ -1,4 +1,5 @@
 import { Application, Device } from "@nativescript/core";
+import { debug } from "./debugging";
 
 const strRender = require("str-render");
 
@@ -36,7 +37,7 @@ export function initializeI18n(defaultLang: string) {
     try {
         i18n.strings = require("~/i18n/" + lang);
     } catch (e) {
-        console.log("error loading/missing:", lang);
+        debug.log("error loading/missing:", lang);
     }
 
     const applicationResources = Application.getResources();

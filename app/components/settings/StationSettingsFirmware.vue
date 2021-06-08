@@ -148,6 +148,8 @@ import {
 } from "@/store";
 import * as utils from "@nativescript/core/utils/utils";
 import ChooseFirmwareModal from "~/components/settings/ChooseFirmwareModal.vue";
+import { debug } from "@/lib/debugging";
+
 enum State {
     noUpdate = "noUpdate",
     updateAvailable = "updateAvailable",
@@ -235,15 +237,15 @@ export default Vue.extend({
                 const availableUnix = available?.buildTimeUnix || 0;
                 const stationUnix = station?.time || 0;
                 const canUpdate = Number(availableUnix) > Number(stationUnix);
-                console.log(`firmware: can=${canUpdate} station: ${station.version} unix=${stationUnix} number=${stationNumber}`);
-                console.log(`firmware: can=${canUpdate} available: ${available.version} unix=${availableUnix} number=${availableNumber}`);
+                debug.log(`firmware: can=${canUpdate} station: ${station.version} unix=${stationUnix} number=${stationNumber}`);
+                debug.log(`firmware: can=${canUpdate} available: ${available.version} unix=${availableUnix} number=${availableNumber}`);
 
                 if (canUpdate) {
                     this.currentState = State.updateAvailable;
                 }
                 return canUpdate;
             } else {
-                console.log(`missing available or station firmware`);
+                debug.log(`missing available or station firmware`);
             }
             return false;
         },
@@ -313,7 +315,7 @@ export default Vue.extend({
             };
             this.canUpgrade = false;
             return this.$showModal(UpgradeFirmwareModal, options).then((value: { updating: boolean }) => {
-                console.log(`upgrade-done: ${JSON.stringify(value)}`);
+                debug.log(`upgrade-done: ${JSON.stringify(value)}`);
                 if (value.updating) {
                     if (!this.station) throw new Error(`firmware-modal: no such station`);
                     if (!this.station.id) throw new Error(`firmware-modal: no station id`);
@@ -329,7 +331,7 @@ export default Vue.extend({
             });
         },
         async addAccount(): Promise<void> {
-            console.log("addAccount");
+            debug.log("addAccount");
             await this.$deprecatedNavigateTo(fullRoutes.settings.addAccount);
         },
         dismissUpdate(): void {

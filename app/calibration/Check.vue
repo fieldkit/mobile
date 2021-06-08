@@ -52,6 +52,7 @@ import moment from "moment";
 import { VisualCalibrationStep, CalibratingSensor, ModuleConfiguration } from "./model";
 import { CheckVisual } from "./visuals";
 
+import { debug } from "@/lib";
 import Config from "@/config";
 
 import Vue from "vue";
@@ -134,7 +135,7 @@ export default Vue.extend({
     },
     created() {
         if (this.calibrationPoints == 0) {
-            console.log(`cal:skip check`);
+            debug.log(`cal:skip check`);
             this.$emit("done", true);
         }
     },

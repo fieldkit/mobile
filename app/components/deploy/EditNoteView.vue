@@ -57,6 +57,8 @@ import {
     PauseRecordingAction,
 } from "@/store";
 
+import { debug } from "@/lib";
+
 export default Vue.extend({
     components: {
         ...SharedComponents,
@@ -106,17 +108,17 @@ export default Vue.extend({
     },
     methods: {
         onNavigatingTo(): void {
-            console.log("edit-note-view: arriving");
+            debug.log("edit-note-view: arriving");
             if (this.$s.state.media.recording) {
                 this.audioReady = true;
             }
         },
         async onNavigatingFrom(): Promise<void> {
-            console.log("edit-note-view: leaving");
+            debug.log("edit-note-view: leaving");
             await this.$s.dispatch(new PauseRecordingAction(false));
         },
         async onSave(): Promise<void> {
-            console.log("notes-view:saving", this.editingKey, this.form);
+            debug.log("notes-view:saving", this.editingKey, this.form);
             this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, this.form));
             await this.$s.dispatch(new SaveNotesAction(this.stationId)).then(() => {
                 return this.$navigateBack({});

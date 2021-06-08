@@ -16,7 +16,7 @@
 <script lang="ts">
 import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { PrepareVisual } from "./visuals";
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -71,11 +71,11 @@ export default Vue.extend({
     },
     methods: {
         back(): void {
-            console.log("prepare:back");
+            debug.log("prepare:back");
             this.$emit("back");
         },
         done(): void {
-            console.log("prepare:done");
+            debug.log("prepare:done");
             this.$emit("done");
         },
     },

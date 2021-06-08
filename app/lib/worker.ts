@@ -10,7 +10,7 @@ import { TaskWorker } from "./tasks";
 require("globals"); // eslint-disable-line nativescript/no-short-imports
 
 try {
-    console.log(`worker:starting`);
+    debug.log(`worker:starting`);
 
     // eslint-disable-next-line
     const context: Worker = self as any;
@@ -34,8 +34,8 @@ try {
         return taskWorker.error(error);
     };
 
-    console.log(`worker:started`);
+    debug.log(`worker:started`);
 } catch (error) {
-    console.log(`worker:error: ${JSON.stringify(error)}`);
+    debug.log(`worker:error: ${JSON.stringify(error)}`);
 }
 */

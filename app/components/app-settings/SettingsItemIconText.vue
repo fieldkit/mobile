@@ -7,6 +7,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { routes } from "@/routes";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     data() {
@@ -35,7 +36,7 @@ export default Vue.extend({
                         // clearHistory: false,
                     });
                 } catch (error) {
-                    console.log("error", error, error.stack);
+                    debug.log("error", error, error.stack);
                 }
             }
         },

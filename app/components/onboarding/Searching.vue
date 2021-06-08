@@ -12,7 +12,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
-import { promiseAfter } from "@/lib";
+import { debug, promiseAfter } from "@/lib";
 import { LegacyStation } from "@/store";
 import LargeSpinner from "@/components/LargeSpinner.vue";
 
@@ -46,17 +46,17 @@ export default Vue.extend({
     },
     watch: {
         numberOfNearbyStations(newValue: number, oldValue: number): void {
-            console.log("searching:watch:numberOfNearbyStations", newValue, oldValue);
+            debug.log("searching:watch:numberOfNearbyStations", newValue, oldValue);
             this.foundStations(newValue);
         },
     },
     mounted(): void {
-        console.log(
+        debug.log(
             `searching:mounted ${JSON.stringify({ numberNearby: this.numberOfNearbyStations, nearby: this.$s.state.nearby.stations })}`
         );
         this.timer = promiseAfter(5000).then(() => {
             if (this.timer) {
-                console.log("searching:failed");
+                debug.log("searching:failed");
                 this.$deprecatedNavigateTo(routes.onboarding.searchFailed, {
                     props: {
                         reconnecting: this.reconnecting,
@@ -72,26 +72,26 @@ export default Vue.extend({
             }
         },
         onNavigatingFrom(): void {
-            console.log(`searching:onNavigatingFrom`);
+            debug.log(`searching:onNavigatingFrom`);
             if (this.timer) {
-                console.log(`searching:left`);
+                debug.log(`searching:left`);
                 this.timer.cancel();
                 this.timer = null;
             } else {
-                console.log(`searching:left (no-timer)`);
+                debug.log(`searching:left (no-timer)`);
             }
             this.left = true;
         },
         onNavigatingTo(): void {
-            console.log(`searching:onNavigatingTo`);
+            debug.log(`searching:onNavigatingTo`);
         },
         async foundStations(numberStations: number): Promise<void> {
             if (this.timer) {
-                console.log("found-stations", numberStations);
+                debug.log("found-stations", numberStations);
                 this.timer.cancel();
                 this.timer = null;
             } else {
-                console.log("found-stations, no timer ignored", numberStations);
+                debug.log("found-stations, no timer ignored", numberStations);
                 return;
             }
 

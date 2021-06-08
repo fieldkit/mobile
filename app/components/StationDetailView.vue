@@ -128,7 +128,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { routes } from "@/routes";
-import { _L, promiseAfter } from "@/lib";
+import { debug, _L, promiseAfter } from "@/lib";
 import { Notes, Notification, LegacyStation } from "@/store";
 import { ActionTypes } from "~/store/actions";
 import * as animations from "./animations";
@@ -195,7 +195,7 @@ export default Vue.extend({
         currentStation(): LegacyStation {
             const station = this.$s.getters.legacyStations[this.stationId];
             if (!station) {
-                console.log(`missing legacyStation`, this.stationId);
+                debug.log(`missing legacyStation`, this.stationId);
                 throw new Error(`missing legacyStation`);
             }
             return station;
@@ -205,14 +205,14 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("station-detail", this.stationId);
+        debug.log("station-detail", this.stationId);
         void this.completeSetup();
     },
     async created(): Promise<void> {
         try {
             await this.$s.dispatch(ActionTypes.LOAD_NOTIFICATIONS);
         } catch (error) {
-            console.log(`station-detail:created: error loading notifications`, error);
+            debug.log(`station-detail:created: error loading notifications`, error);
         }
 
         /*

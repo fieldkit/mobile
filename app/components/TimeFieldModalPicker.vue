@@ -10,6 +10,7 @@ import _ from "lodash";
 import moment from "moment";
 import Vue from "vue";
 import TimeFieldPicker from "./TimeFieldPicker.vue";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "TimeFieldModalPicker",
@@ -43,7 +44,7 @@ export default Vue.extend({
                     value: this.value,
                 },
             }).then((time, ...args) => {
-                console.log("time-field:time-change(emit)", time);
+                debug.log("time-field:time-change(emit)", time);
                 this.$emit("change", time || 0);
             });
         },

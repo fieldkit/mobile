@@ -8,6 +8,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "ProgressBarAndStatus",
@@ -26,7 +27,7 @@ export default Vue.extend({
     },
     methods: {
         reconnection(): void {
-            console.log("reconnection", this.progress);
+            debug.log("reconnection", this.progress);
         },
     },
 });

@@ -2,7 +2,7 @@ import { Enums } from "@nativescript/core";
 import { GeoLocation, QueryLocationParams } from "@/wrappers/geolocation";
 import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
 import { OurStore } from "@/store/our-store";
-import { promiseAfter, unixNow, zoned } from "@/lib";
+import { debug, promiseAfter, unixNow, zoned } from "@/lib";
 import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");
@@ -19,7 +19,7 @@ export default class PhoneLocationWatcher {
     public async enableAndGetLocation(): Promise<void> {
         const started = new Date();
 
-        console.log("phone-location:enable");
+        debug.log("phone-location:enable");
 
         return await this.geolocation
             .isEnabled()
@@ -35,21 +35,19 @@ export default class PhoneLocationWatcher {
             .then(() => {
                 const now = new Date();
                 const elapsed = now.getTime() - started.getTime();
-                console.log("phone-location:ready", elapsed);
+                debug.log("phone-location:ready", elapsed);
             });
     }
 
     private async keepLocationUpdated(): Promise<void> {
         return await this.geolocation
             .isEnabled()
-            .then(
-                (enabled: boolean): Promise<PhoneLocation> => {
-                    if (!enabled) {
-                        return Promise.resolve(CommonLocations.TwinPeaksEastLosAngelesNationalForest);
-                    }
-                    return this.getLocation();
+            .then((enabled: boolean): Promise<PhoneLocation> => {
+                if (!enabled) {
+                    return Promise.resolve(CommonLocations.TwinPeaksEastLosAngelesNationalForest);
                 }
-            )
+                return this.getLocation();
+            })
             .then((location: PhoneLocation) => {
                 return zoned({}, async () => {
                     this.store.commit(MutationTypes.PHONE_LOCATION, location);
@@ -129,7 +127,7 @@ export default class PhoneLocationWatcher {
             .then(
                 (l) => new PhoneLocation(l.latitude, l.longitude, unixNow()),
                 (error) => {
-                    console.log(`error getting location`, error);
+                    debug.log(`error getting location`, error);
                     return CommonLocations.TwinPeaksEastLosAngelesNationalForest;
                 }
             );

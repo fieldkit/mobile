@@ -6,6 +6,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Screen } from "@nativescript/core";
+import { debug } from "@/lib";
 import { getBus } from "@/components/NavigationBus";
 
 function isLandscape(): boolean {
@@ -13,7 +14,7 @@ function isLandscape(): boolean {
 }
 
 function getOrientation(): string {
-    console.log(`by-orientation:`, isLandscape() ? "landscape" : "portrait", Screen.mainScreen.widthDIPs, Screen.mainScreen.heightDIPs);
+    debug.log(`by-orientation:`, isLandscape() ? "landscape" : "portrait", Screen.mainScreen.widthDIPs, Screen.mainScreen.heightDIPs);
     return isLandscape() ? "landscape" : "portrait";
 }
 
@@ -35,7 +36,7 @@ export default Vue.extend({
     },
     methods: {
         onChange(orientation: string): void {
-            console.log("orientation:change", orientation);
+            debug.log("orientation:change", orientation);
             this.orientation = orientation;
         },
     },

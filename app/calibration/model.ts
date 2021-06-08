@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module } from "../store/types";
-import { _L, notEmpty, unixNow, CalibrationError } from "@/lib";
+import { debug, _L, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 
 export type ModuleConfiguration = DataProto.ModuleConfiguration;
@@ -258,7 +258,7 @@ export class LogarithmicCalibrationCurve extends CalibrationCurve {
         const m = Math.exp((xxySum * yLogYSum - xySum * xyLogYSum) / denominator);
         const b = (ySum * xyLogYSum - xySum * yLogYSum) / denominator;
 
-        console.log(`cal:logarithmic ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
+        debug.log(`cal:logarithmic ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
         if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
         if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
@@ -281,7 +281,7 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
         const xySum = _.sum(indices.map((i) => x[i] * y[i]));
         const m = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
         const b = ySum / n - (m * xSum) / n;
-        console.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxSum, xySum })}`);
+        debug.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxSum, xySum })}`);
         if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
         if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
@@ -306,7 +306,7 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const denom = _.sum(denomParts);
         const m = numer / denom;
         const b = yMean - m * xMean;
-        console.log(`cal:linear ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
+        debug.log(`cal:linear ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
         if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
         if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });

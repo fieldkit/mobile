@@ -1,4 +1,5 @@
 import Sqlite from "nativescript-sqlite";
+import { debug } from "@/lib";
 
 export interface Database {
     // eslint-disable-next-line
@@ -19,11 +20,11 @@ class DatabaseWrapper implements Database {
 
     // eslint-disable-next-line
     public query<T>(sql: string, params: undefined | any[] = undefined): Promise<T[]> {
-        // console.log("QUERY", sql, params);
+        // debug.log("QUERY", sql, params);
         return this.db.all(sql, params).then(
             (rows: T[]) => rows,
             (err: Error) => {
-                console.log("SQL error", sql, params, err, err ? err.stack : null);
+                debug.log("SQL error", sql, params, err, err ? err.stack : null);
                 return Promise.reject(err);
             }
         );
@@ -52,7 +53,7 @@ class DatabaseWrapper implements Database {
                         })
                     )
                     .catch((err: Error) => {
-                        console.log("SQL error", sql, err, err ? err.stack : null);
+                        debug.log("SQL error", sql, err, err ? err.stack : null);
                         return Promise.reject(err);
                     });
             }, Promise.resolve([]))
@@ -64,7 +65,7 @@ class DatabaseWrapper implements Database {
 
 export default class SqliteNativeScript {
     public open(name: string, _readOnly: boolean): Promise<Database> {
-        console.log("sqlite:opening", name, Sqlite.HAS_COMMERCIAL, Sqlite.HAS_ENCRYPTION, Sqlite.HAS_SYNC);
+        debug.log("sqlite:opening", name, Sqlite.HAS_COMMERCIAL, Sqlite.HAS_ENCRYPTION, Sqlite.HAS_SYNC);
 
         return new Promise((resolve, reject) => {
             new Sqlite(name, (err, db) => {
