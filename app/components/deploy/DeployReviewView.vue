@@ -21,9 +21,9 @@
                         <Label :text="_L('stationCoordinates')" class="size-16 bold m-b-10" />
                         <GridLayout rows="auto,auto" columns="35*,65*">
                             <Label row="0" col="0" :text="_L('latitude')" class="m-b-5" />
-                            <Label row="1" col="0" :text="currentStation.latitude" />
+                            <Label row="1" col="0" :text="currentStation.latitude | prettyCoordinate" />
                             <Label row="0" col="1" :text="_L('longitude')" />
-                            <Label row="1" col="1" :text="currentStation.longitude" />
+                            <Label row="1" col="1" :text="currentStation.longitude | prettyCoordinate" />
                         </GridLayout>
                     </StackLayout>
 

@@ -44,6 +44,13 @@ function configureVueJs(services: typeof Services): Store {
         },
     });
 
+    Vue.filter("prettyCoordinate", (value: number | undefined): string => {
+        if (!_.isNumber(value)) {
+            return "--";
+        }
+        return value.toFixed(5);
+    });
+
     Vue.filter("prettyReading", (value: number | undefined): string => {
         if (!_.isNumber(value)) {
             return "--";
