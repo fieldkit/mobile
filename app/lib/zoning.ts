@@ -1,3 +1,5 @@
+import { debug } from "./debugging";
+
 export function makeTaskId(length: number): string {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
@@ -16,7 +18,7 @@ export function getZone() {
 export async function zoned(options: { force?: boolean }, callback: () => Promise<void>): Promise<void> {
     const zone = getZone();
     if (!zone) {
-        // console.log("zone: warning no zone");
+        // debug.log("zone: warning no zone");
         await callback();
         return;
     }
@@ -33,7 +35,7 @@ export async function zoned(options: { force?: boolean }, callback: () => Promis
                 taskId: `task-${makeTaskId(6)}`,
             },
             onHandleError: function (parentZoneDelegate, currentZone, targetZone, error) {
-                console.log("error handled by zone: " + error);
+                debug.log("error handled by zone: " + error);
             },
             /*
             onInvokeTask: function (
@@ -44,10 +46,10 @@ export async function zoned(options: { force?: boolean }, callback: () => Promis
                 applyThis: any,
                 applyArgs?: any[]
             ): any {
-                console.log("zone: invoke-task", JSON.stringify(task), applyThis, JSON.stringify(applyArgs));
+                debug.log("zone: invoke-task", JSON.stringify(task), applyThis, JSON.stringify(applyArgs));
             },
             onFork: function (parentZoneDelegate: ZoneDelegate, zone: Zone, targetZone: Zone, zoneSpec: ZoneSpec): Zone {
-                console.log("zone: fork");
+                debug.log("zone: fork");
                 return targetZone;
             },
             onInvoke: function (
@@ -59,21 +61,19 @@ export async function zoned(options: { force?: boolean }, callback: () => Promis
                 applyArgs?: any[],
                 source?: string
             ) {
-                console.log("zone: invoke", currentZone.name, delegate);
+                debug.log("zone: invoke", currentZone.name, delegate);
                 return parentZoneDelegate.invoke(targetZone, delegate, applyThis, applyArgs, source);
             },
             onScheduleTask: function (parentZoneDelegate: ZoneDelegate, currentZone: Zone, targetZone: Zone, task: Task): Task {
-                console.log("zone: schedule", currentZone.name, task);
+                debug.log("zone: schedule", currentZone.name, task);
                 return task;
             },
 			*/
         })
-        .run(
-            async (): Promise<void> => {
-                // console.log("zoned:", getZone().current.name);
-                await callback();
-            }
-        );
+        .run(async (): Promise<void> => {
+            // debug.log("zoned:", getZone().current.name);
+            await callback();
+        });
 }
 
 export function getTaskId(): string {

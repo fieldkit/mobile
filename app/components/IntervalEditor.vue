@@ -70,6 +70,7 @@ import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
 import { isIOS } from "@nativescript/core";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "IntervalEditor",
@@ -133,19 +134,19 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
+        debug.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
         this.items = new ValueList(this.durations);
         this.updateForm(this.interval);
     },
     methods: {
         updateForm(interval: Interval): void {
-            console.log("interval-editor:updating", JSON.stringify(interval));
+            debug.log("interval-editor:updating", JSON.stringify(interval));
             const minutes = interval.interval / 60;
             if (minutes >= 60) {
                 this.form.duration = 3600;
             }
             this.form.quantity = String(interval.interval / this.form.duration);
-            console.log("interval-editor:updated", JSON.stringify(this.form));
+            debug.log("interval-editor:updated", JSON.stringify(this.form));
         },
         updateInvalid(): void {
             const invalid = this.errors.quantity.numeric || this.errors.quantity.required || this.errors.quantity.minimum;
@@ -182,7 +183,7 @@ export default Vue.extend({
                 interval: seconds,
             };
 
-            console.log("interval-editor:seconds", JSON.stringify(newInterval));
+            debug.log("interval-editor:seconds", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -193,7 +194,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            console.log("interval-editor:start", JSON.stringify(newInterval));
+            debug.log("interval-editor:start", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -204,7 +205,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            console.log("interval-editor:end", JSON.stringify(newInterval));
+            debug.log("interval-editor:end", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
             this.updateInvalid();
         },

@@ -21,7 +21,7 @@ export default Vue.extend({
     methods: {
         async showNotifications(): Promise<void> {
             // eslint-disable-next-line
-            await this.$navigateTo(routes.notifications, {});
+            await this.$deprecatedNavigateTo(routes.notifications, {});
         },
     },
 });

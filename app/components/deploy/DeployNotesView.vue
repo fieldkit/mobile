@@ -97,7 +97,7 @@ import NoteDisplay from "./NoteDisplay.vue";
 import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, RemoveNoteMediaMutation, AttachNoteMediaMutation } from "@/store";
 import * as animations from "../animations";
 
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -135,15 +135,15 @@ export default Vue.extend({
         },
         onPageLoaded(args): Promise<void> {
             if (false) {
-                console.log("notes", this.$s.state.notes.stations[this.stationId]);
+                debug.log("notes", this.$s.state.notes.stations[this.stationId]);
                 const paths = this.$s.state.notes.stations[this.stationId].photos.map((p) => p.path);
                 return this.$s.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
             }
             return Promise.resolve();
         },
         openNote(ev, key: string): Promise<any> {
-            console.log("opening", key);
-            return this.$navigateTo(routes.deploy.editing, {
+            debug.log("opening", key);
+            return this.$deprecatedNavigateTo(routes.deploy.editing, {
                 props: {
                     stationId: this.stationId,
                     editingKey: key,
@@ -155,7 +155,7 @@ export default Vue.extend({
                 .Images()
                 .takePicture()
                 .then((savedImage) => {
-                    console.log("saved image", savedImage);
+                    debug.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
                         const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
@@ -168,7 +168,7 @@ export default Vue.extend({
                 .Images()
                 .findPicture()
                 .then((savedImage) => {
-                    console.log("saved image", savedImage);
+                    debug.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
                         const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
@@ -182,7 +182,7 @@ export default Vue.extend({
         onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -190,10 +190,10 @@ export default Vue.extend({
             ]);
         },
         goToReview(ev: any): Promise<any> {
-            console.log("navigating to review");
+            debug.log("navigating to review");
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deploy.review, {
+                this.$deprecatedNavigateTo(routes.deploy.review, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -203,7 +203,7 @@ export default Vue.extend({
         onBackToDetail(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },

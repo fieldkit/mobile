@@ -93,6 +93,7 @@ import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
+import { debug } from "@/lib/debugging";
 
 const ErrorUserEmailRegistered = "user-email-registered";
 
@@ -151,7 +152,7 @@ export default Vue.extend({
             this.form.v.confirmPassword.sameAs = this.form.password != this.form.confirmPassword;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
+            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
         },
         invalid(): boolean {
             this.checkName();
@@ -182,13 +183,13 @@ export default Vue.extend({
                     password: this.form.password,
                 });
 
-                console.log(`returned: ${JSON.stringify(returned)}`, "a");
+                debug.log(`returned: ${JSON.stringify(returned)}`, "a");
 
-                await this.$navigateTo(fullRoutes.onboarding.assemble);
+                await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
             } catch (error) {
                 this.busy = false;
                 if (error && error.response && error.response.data) {
-                    console.log("error", error.response.data);
+                    debug.log("error", error.response.data);
                     if (error.response.data.name == ErrorUserEmailRegistered) {
                         await this.alert("A user with that email is already registered.");
                         return;

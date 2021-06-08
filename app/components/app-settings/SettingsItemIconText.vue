@@ -7,6 +7,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { routes } from "@/routes";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     data() {
@@ -30,12 +31,12 @@ export default Vue.extend({
         async goToRoute(): Promise<void> {
             if (this.link) {
                 try {
-                    await this.$navigateTo(routes.appSettings[this.link], {
+                    await this.$deprecatedNavigateTo(routes.appSettings[this.link], {
                         frame: "settings-frame",
                         // clearHistory: false,
                     });
                 } catch (error) {
-                    console.log("error", error, error.stack);
+                    debug.log("error", error, error.stack);
                 }
             }
         },

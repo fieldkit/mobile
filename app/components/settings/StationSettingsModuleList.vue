@@ -2,6 +2,9 @@
     <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
+            <StackLayout row="1" class="text-center connection-warning" v-if="!station.connected">
+                <Label :text="_L('stationSettings.modules.disconnected')" class="size-15" textWrap="true" />
+            </StackLayout>
             <StackLayout v-if="station.modules.length">
                 <CalibratingModules :station="station" @selected="calibrateModule" />
             </StackLayout>
@@ -41,8 +44,10 @@ export default Vue.extend({
     },
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
-            const route = await makeCalibrationRoute(this.station, moduleCal);
-            await this.$navigateTo(route);
+            if (this.station.connected) {
+                const route = await makeCalibrationRoute(this.station, moduleCal);
+                await this.$deprecatedNavigateTo(route);
+            }
         },
     },
 });
@@ -85,5 +90,14 @@ export default Vue.extend({
 
 .hint-color {
     color: $fk-gray-hint;
+}
+
+.connection-warning {
+    padding-top: 8;
+    padding-bottom: 5;
+    color: $fk-primary-black;
+    font-size: 16;
+    background-color: #fddb7a;
+    height: 37;
 }
 </style>

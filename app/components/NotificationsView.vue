@@ -100,7 +100,7 @@ export default Vue.extend({
             }
         },
         goBack(event) {
-            return Promise.all([animations.pressed(event), this.$navigateTo(routes.stations, { clearHistory: true })]);
+            return Promise.all([animations.pressed(event), this.$deprecatedNavigateTo(routes.stations, { clearHistory: true })]);
         },
         toggleMenu(notification) {
             this.showMenu = this.showMenu.includes(notification.id) ? [] : [notification.id];
@@ -115,7 +115,7 @@ export default Vue.extend({
         },
         async addFieldNotes(notification): Promise<void> {
             if (notification.station.id) {
-                await this.$navigateTo(routes.deploy.notes, {
+                await this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: notification.station.id,
                         linkedFromStation: true,

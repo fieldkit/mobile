@@ -6,6 +6,7 @@ export * from "./errors";
 export * from "./testing";
 export * from "./logging";
 export * from "./analytics";
+export * from "./debugging";
 
 import * as nsutils from "@nativescript/core/utils/utils";
 import { ios } from "@nativescript/core/application";

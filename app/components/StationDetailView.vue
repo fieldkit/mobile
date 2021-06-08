@@ -128,7 +128,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { routes } from "@/routes";
-import { _L, promiseAfter } from "@/lib";
+import { debug, _L, promiseAfter } from "@/lib";
 import { Notes, Notification, LegacyStation } from "@/store";
 import { ActionTypes } from "~/store/actions";
 import * as animations from "./animations";
@@ -195,7 +195,7 @@ export default Vue.extend({
         currentStation(): LegacyStation {
             const station = this.$s.getters.legacyStations[this.stationId];
             if (!station) {
-                console.log(`missing legacyStation`, this.stationId);
+                debug.log(`missing legacyStation`, this.stationId);
                 throw new Error(`missing legacyStation`);
             }
             return station;
@@ -205,16 +205,17 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("station-detail", this.stationId);
+        debug.log("station-detail", this.stationId);
         void this.completeSetup();
     },
     async created(): Promise<void> {
         try {
             await this.$s.dispatch(ActionTypes.LOAD_NOTIFICATIONS);
         } catch (error) {
-            console.log(`station-detail:created: error loading notifications`, error);
+            debug.log(`station-detail:created: error loading notifications`, error);
         }
 
+        /*
         this.unwatch = this.$s.watch(
             (state, getters) => getters.legacyStations[this.stationId].connected,
             (newValue, oldValue) => {
@@ -227,6 +228,7 @@ export default Vue.extend({
                 }
             }
         );
+		*/
 
         await this.generateNotificationsFromPortalErrors();
     },
@@ -238,7 +240,7 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$navigateTo(routes.stations, {
+                    this.$deprecatedNavigateTo(routes.stations, {
                         clearHistory: true,
                     }),
                 ]);
@@ -246,7 +248,7 @@ export default Vue.extend({
         },
         async goToDeploy(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$navigateTo(routes.deploy.start, {
+                await this.$deprecatedNavigateTo(routes.deploy.start, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -255,7 +257,7 @@ export default Vue.extend({
         },
         async goToFieldNotes(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$navigateTo(routes.deploy.notes, {
+                await this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                         linkedFromStation: true,
@@ -267,7 +269,7 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$navigateTo(routes.station.settings.menu, {
+                    this.$deprecatedNavigateTo(routes.station.settings.menu, {
                         props: {
                             stationId: this.currentStation.id,
                         },
@@ -279,7 +281,7 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$navigateTo(routes.station.detail, {
+                    this.$deprecatedNavigateTo(routes.station.detail, {
                         props: {
                             stationId: this.currentStation.id,
                         },
@@ -319,7 +321,7 @@ export default Vue.extend({
         },
         async addModule(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$navigateTo(routes.onboarding.addModule, {
+                await this.$deprecatedNavigateTo(routes.onboarding.addModule, {
                     clearHistory: true,
                     props: {
                         stationId: this.stationId,
@@ -368,7 +370,7 @@ export default Vue.extend({
             utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
         async onSkip() {
-            await this.$navigateTo(routes.station.detail, {
+            await this.$deprecatedNavigateTo(routes.station.detail, {
                 props: {
                     stationId: this.stationId,
                 },

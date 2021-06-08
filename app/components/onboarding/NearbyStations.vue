@@ -32,6 +32,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
+import { debug } from "@/lib/debugging";
 
 interface NearbyStation {
     id: number;
@@ -76,7 +77,7 @@ export default Vue.extend({
         const legacyStations = this.$s.getters.legacyStations;
         const connected = Object.values(legacyStations).filter((ls) => ls.connected);
         if (connected.length == 0) {
-            await this.$navigateTo(routes.onboarding.searching, {
+            await this.$deprecatedNavigateTo(routes.onboarding.searching, {
                 props: {
                     reconnecting: this.reconnecting,
                 },
@@ -89,17 +90,17 @@ export default Vue.extend({
     },
     methods: {
         async tryAgain(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.searching, {});
+            await this.$deprecatedNavigateTo(routes.onboarding.searching, {});
         },
         async forward(): Promise<void> {
             if (this.reconnecting) {
-                await this.$navigateTo(routes.onboarding.deploymentLocation, {
+                await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                     props: {
                         stationId: this.selectedStationId,
                     },
                 });
             } else {
-                await this.$navigateTo(routes.onboarding.rename, {
+                await this.$deprecatedNavigateTo(routes.onboarding.rename, {
                     props: {
                         stationId: this.selectedStationId,
                     },
@@ -110,16 +111,16 @@ export default Vue.extend({
             this.selectedStationId = id;
         },
         onNavigatingFrom(): void {
-            console.log("nearby-stations: navigating-from");
+            debug.log("nearby-stations: navigating-from");
             this.visible = false;
         },
     },
     watch: {
         async nearbyStations(newValue: NearbyStation[], oldValue: NearbyStation[]) {
             if (newValue.length === 0) {
-                console.log("no-nearby-stations", this.visible);
+                debug.log("no-nearby-stations", this.visible);
                 if (this.visible) {
-                    await this.$navigateTo(routes.onboarding.searchFailed, {
+                    await this.$deprecatedNavigateTo(routes.onboarding.searchFailed, {
                         props: {
                             reconnecting: this.reconnecting,
                         },

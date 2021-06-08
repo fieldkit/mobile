@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { debug } from "@/lib";
 import Config from "@/config";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { QueryStation } from "./query-station";
@@ -67,7 +68,7 @@ export default class CalibrationService {
             try {
                 return AppProto.ModuleHttpReply.decodeDelimited(response.body);
             } catch (err) {
-                console.log(`error parsing reply:`, response.body);
+                debug.log(`error parsing reply:`, response.body);
             }
         }
         return null;
@@ -75,14 +76,14 @@ export default class CalibrationService {
 
     private fixupReply(reply: AtlasProto.WireAtlasReply | AppProto.ModuleHttpReply): ModuleConfiguration {
         if (reply.errors && reply.errors.length > 0) {
-            console.log(`calibration error`, JSON.stringify(reply));
+            debug.log(`calibration error`, JSON.stringify(reply));
             throw new Error(`calibration error ${JSON.stringify(reply)}`);
         }
 
         if ((reply as AtlasProto.WireAtlasReply).calibration) {
             const atlasReply = reply as AtlasProto.WireAtlasReply;
             if (!atlasReply.calibration || !atlasReply.calibration.configuration) {
-                console.log(`calibration error, no cal`, JSON.stringify(atlasReply));
+                debug.log(`calibration error, no cal`, JSON.stringify(atlasReply));
                 throw new Error(`calibration error, no cal ${JSON.stringify(atlasReply)}`);
             }
             const configuration = fixupModuleConfiguration(
@@ -99,7 +100,7 @@ export default class CalibrationService {
             return configuration || EmptyModuleConfig;
         }
 
-        console.log(`empty module configuration`, reply);
+        debug.log(`empty module configuration`, reply);
 
         return EmptyModuleConfig;
     }

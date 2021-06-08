@@ -5,6 +5,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     data(): {} {
@@ -12,7 +13,7 @@ export default Vue.extend({
     },
     props: {},
     mounted(): void {
-        console.log("mounted!");
+        debug.log("mounted!");
     },
     methods: {},
 });

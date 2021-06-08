@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="*">
+        <GridLayout rows="*" :class="keyboard ? 'tabbed-layout-keyboard-showing' : 'tabbed-layout-keyboard-hidden'">
             <MDBottomNavigation
                 v-if="loaded"
                 id="bottom-nav"
@@ -9,7 +9,7 @@
                 @selectedIndexChanged="onSelectedIndexChanged"
                 @loaded="bottomLoaded"
             >
-                <MDTabStrip backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
+                <MDTabStrip v-show="tabsVisible" backgroundColor="white" selectedItemColor="#2c3e50" unSelectedItemColor="#9a9fa6">
                     <MDTabStripItem @tap="tapStations">
                         <Image
                             width="22"
@@ -35,6 +35,7 @@
                         <Label text="Settings" />
                     </MDTabStripItem>
                 </MDTabStrip>
+
                 <MDTabContentItem>
                     <Frame id="stations-frame">
                         <component :is="stationsView()" v-bind="childProps()" />
@@ -64,8 +65,9 @@ import StationListView from "@/components/StationListView.vue";
 import DataSync from "@/components/DataSyncView.vue";
 import AppSettingsView from "@/components/app-settings/AppSettingsView.vue";
 import FlowView from "@/reader/FlowView.vue";
-import { promiseAfter, logAnalytics } from "@/lib";
 import { registerSoftKeyboardCallback } from "nativescript-soft-keyboard";
+import { debug, promiseAfter, logAnalytics } from "@/lib";
+import { KeyboardMutation } from "@/store";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -98,31 +100,41 @@ export default Vue.extend({
             showings: {},
         };
     },
+    computed: {
+        tabsVisible(): boolean {
+            return !this.keyboard;
+        },
+    },
     created(): void {
         registerSoftKeyboardCallback((h) => {
-            console.log(`keyboard change: ${h}`);
-            this.keyboard = h > 0;
+            try {
+                debug.log(`keyboard change: ${h}`);
+                this.keyboard = h > 0;
+                this.$store.commit(new KeyboardMutation(this.keyboard));
+            } catch (error) {
+                debug.log(`keyboard-change: error`, error);
+            }
         });
 
-        console.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
+        debug.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
 
         getBus().$on("nav:tab", this.onTabChangedRequired);
     },
     mounted(): void {
-        console.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
+        debug.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
     },
     updated(): void {
-        console.log(`tabbed-layout: updated ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
+        debug.log(`tabbed-layout: updated ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
     },
     methods: {
         onTabChangedRequired(tab: number) {
-            console.log("nav:tab", tab);
+            debug.log("nav:tab", tab);
             if (this.tab != tab) {
                 this.tab = tab;
             }
         },
         async onPageLoaded(): Promise<void> {
-            console.log(`tabbed-layout: page-loaded`);
+            debug.log(`tabbed-layout: page-loaded`);
 
             await logAnalytics("tabbed_loaded");
 
@@ -139,7 +151,7 @@ export default Vue.extend({
             const view = <BottomNavigation>args.object;
             if (this.tab != view.selectedIndex) {
                 this.tab = view.selectedIndex;
-                console.log(`tabbed-layout: tab-changed:`, this.tab, this.ready);
+                debug.log(`tabbed-layout: tab-changed:`, this.tab, this.ready);
             }
         },
         isSameView(frameId: string, page: any): boolean {
@@ -152,23 +164,23 @@ export default Vue.extend({
             return desiredPage == frameStateNow.name;
         },
         stationsView(): unknown {
-            console.log(`getting-stations-view`);
+            debug.log(`getting-stations-view`);
 
             const firstTab: FirstTab = this.firstTab;
             if (firstTab) {
                 if (firstTab.flow) {
-                    console.log(`getting-stations-view: flow`);
-                    console.log(`getting-stations-view: props`, this.childProps());
+                    debug.log(`getting-stations-view: flow`);
+                    debug.log(`getting-stations-view: props`, this.childProps());
                     return FlowView;
                 }
 
                 if (firstTab.route) {
-                    console.log(`getting-stations-view: first-tab-route`);
+                    debug.log(`getting-stations-view: first-tab-route`);
                     return getRouteComponent(firstTab.route);
                 }
             }
 
-            console.log(`getting-stations-view: stations`);
+            debug.log(`getting-stations-view: stations`);
             return StationListView;
         },
         childProps(): Record<string, unknown> {
@@ -183,13 +195,13 @@ export default Vue.extend({
         },
         async tapStations(): Promise<void> {
             const frame: Frame = Frame.getFrameById("stations-frame");
-            console.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            debug.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 0) {
                 await logAnalytics("tabbed_tap_stations");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView)) {
-                    await this.$navigateTo(StationListView, {
+                    await this.$deprecatedNavigateTo(StationListView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -199,13 +211,13 @@ export default Vue.extend({
         },
         async tapData(): Promise<void> {
             const frame = Frame.getFrameById("data-frame");
-            console.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            debug.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 1) {
                 await logAnalytics("tabbed_tap_data");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync)) {
-                    await this.$navigateTo(DataSync, {
+                    await this.$deprecatedNavigateTo(DataSync, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -215,13 +227,13 @@ export default Vue.extend({
         },
         async tapSettings(): Promise<void> {
             const frame = Frame.getFrameById("settings-frame");
-            console.log(`tabbed-layout: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            debug.log(`tabbed-layout: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
             if (this.tab == 2) {
                 await logAnalytics("tabbed_tap_settings");
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
-                    await this.$navigateTo(AppSettingsView, {
+                    await this.$deprecatedNavigateTo(AppSettingsView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },

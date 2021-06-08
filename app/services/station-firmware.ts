@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { onlyAllowEvery, logAnalytics } from "@/lib";
+import { debug, onlyAllowEvery, logAnalytics } from "@/lib";
 import { FirmwareResponse, Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
@@ -40,15 +40,15 @@ export default class StationFirmware {
         this.check = onlyAllowEvery(
             60,
             () => {
-                console.log("firmware check: allowed");
+                debug.log("firmware check: allowed");
                 return this.downloadFirmware(() => {
                     // NOOP
                 }, false).catch((error) => {
-                    console.log("firmware error", error);
+                    debug.log("firmware error", error);
                 });
             },
             () => {
-                console.log("firmware check: throttled");
+                debug.log("firmware check: throttled");
                 return true;
             }
         );
@@ -102,9 +102,9 @@ export default class StationFirmware {
     public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
         const shouldPurge = await this.shouldPurge();
         if (shouldPurge) {
-            console.log("deleting firmware folder");
+            debug.log("deleting firmware folder");
             await this.services.FileSystem().deleteFolder("firmware");
-            console.log("deleting firmware rows");
+            debug.log("deleting firmware rows");
             await this.services.Database().deleteAllFirmware();
         }
 
@@ -114,7 +114,7 @@ export default class StationFirmware {
 
         const deleted = await this.services.Database().deleteAllFirmwareExceptIds(ids);
 
-        console.log(`deleted firmware: ${JSON.stringify(deleted)}`);
+        debug.log(`deleted firmware: ${JSON.stringify(deleted)}`);
         await Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
     }
 
@@ -151,7 +151,7 @@ export default class StationFirmware {
         });
     }
 
-    public async haveFirmware(firmwareId?): Promise<boolean> {
+    public async haveFirmware(firmwareId?: number): Promise<boolean> {
         const firmware = await this.services.Database().getFirmware(firmwareId);
 
         if (!firmware) {

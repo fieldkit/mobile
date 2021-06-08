@@ -18,6 +18,7 @@
                         :step="activeStep"
                         :progress="progress"
                         :busy="busy"
+                        :connected="station.connected"
                         @done="(ignore) => onDone(activeStep, ignore || false)"
                         @back="() => onBack(activeStep)"
                         @clear="() => onClear(activeStep)"
@@ -30,7 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { promiseAfter, hideKeyboard } from "@/lib";
+import { debug, promiseAfter, hideKeyboard } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -100,7 +101,7 @@ export default Vue.extend({
 
                 const mod = station.modules.find((m) => m.position == this.position);
                 if (!mod) throw new Error(`module missing: ${this.stationId} ${this.position} ${JSON.stringify(station.modules)}`);
-                // console.log(`cal-module-full: ${JSON.stringify(mod)}`);
+                // debug.log(`cal-module-full: ${JSON.stringify(mod)}`);
 
                 const moduleId = mod.moduleId;
                 const configuration = this.$s.state.cal.configurations[moduleId] || null;
@@ -117,7 +118,7 @@ export default Vue.extend({
                     )
                 ) as { [index: string]: number };
 
-                // console.log(`cal-station-sensors: ${JSON.stringify(stationSensors)}`);
+                // debug.log(`cal-station-sensors: ${JSON.stringify(stationSensors)}`);
 
                 const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
 
@@ -142,7 +143,7 @@ export default Vue.extend({
                     stationSensors
                 );
             } catch (error) {
-                console.log(`cal-error: ${error}`, error ? error.stack : null);
+                debug.log(`cal-error: ${error}`, error ? error.stack : null);
                 return null;
             }
         },
@@ -185,7 +186,7 @@ export default Vue.extend({
             return this.getAllVisualSteps().length;
         },
         async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
-            console.log("cal:", "done", this.completed.length, "+1", this.getTotalSteps());
+            debug.log("cal:", "done", this.completed.length, "+1", this.getTotalSteps());
 
             logNavigationStack();
 
@@ -196,12 +197,12 @@ export default Vue.extend({
             this.completed.push(step);
 
             if (this.completed.length < this.getTotalSteps()) {
-                console.log("cal: !has-total-steps");
+                debug.log("cal: !has-total-steps");
                 return;
             }
 
             if (this.getRemainingSteps().length > 0) {
-                console.log("cal: !has-more-steps");
+                debug.log("cal: !has-more-steps");
                 return;
             }
 
@@ -210,23 +211,23 @@ export default Vue.extend({
             await navigateBackToBookmark(this, "stations-frame");
         },
         async skip(): Promise<void> {
-            console.log("cal:", "skip", this.fromSettings);
+            debug.log("cal:", "skip", this.fromSettings);
 
             await navigateBackToBookmark(this, "stations-frame");
         },
         async navigateBack(): Promise<void> {
-            console.log("cal:", "navigate-back", this.fromSettings);
+            debug.log("cal:", "navigate-back", this.fromSettings);
             await this.$navigateBack();
         },
         async onBack(step: CalibrationStep): Promise<void> {
             const remaining = _.without(this.completed, ...this.ignored);
-            console.log("cal:", "remaining", remaining.length, "completed", this.completed.length, "ignored", this.ignored.length);
+            debug.log("cal:", "remaining", remaining.length, "completed", this.completed.length, "ignored", this.ignored.length);
             if (remaining.length == 0) {
                 await this.navigateBack();
             }
 
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
-            console.log("cal:", "back", "completed", this.completed.length);
+            debug.log("cal:", "back", "completed", this.completed.length);
             return Promise.resolve();
         },
         async onClear(step: CalibrationStep): Promise<void> {
@@ -239,17 +240,17 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const action = new ClearWaterCalibration(this.deviceId, sensor.moduleId, this.position);
-            console.log("cal:", "clearing", action);
+            debug.log("cal:", "clearing", action);
             this.busy = true;
             await this.$s
                 .dispatch(action)
                 .then(
                     (cleared) => {
-                        console.log("cal:", "cleared");
+                        debug.log("cal:", "cleared");
                         return this.notifyCleared();
                     },
                     (err) => {
-                        console.log("cal:error", err, err ? err.stack : null);
+                        debug.log("cal:error", err, err ? err.stack : null);
                         return this.notifyFailure();
                     }
                 )
@@ -264,7 +265,7 @@ export default Vue.extend({
             if (!this.station || !this.station.connected) return Promise.reject(new Error("station offline: no calibrate"));
 
             const sensor: CalibratingSensor | null = this.sensor;
-            console.log(`cal-sensor: ${JSON.stringify(sensor)} ${JSON.stringify(reference)}`);
+            debug.log(`cal-sensor: ${JSON.stringify(sensor)} ${JSON.stringify(reference)}`);
             if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
@@ -282,17 +283,17 @@ export default Vue.extend({
                 this.strategy.curveType
             );
 
-            console.log(`cal-action: ${JSON.stringify(action)}`);
+            debug.log(`cal-action: ${JSON.stringify(action)}`);
             this.busy = true;
             await this.$s
                 .dispatch(action)
                 .then(
                     (calibrated) => {
-                        console.log("cal:", "calibrated");
+                        debug.log("cal:", "calibrated");
                         return this.onDone(step);
                     },
                     (err) => {
-                        console.log("cal:error", err, err ? err.stack : null);
+                        debug.log("cal:error", err, err ? err.stack : null);
                         return this.notifyFailure();
                     }
                 )
@@ -322,12 +323,12 @@ export default Vue.extend({
             this.failure = true;
         },
         async onNavigatingTo(): Promise<void> {
-            console.log("Wait::onNavigatingTo");
+            debug.log("Wait::onNavigatingTo");
             logNavigationStack();
             await keepAwake();
         },
         async onNavigatingFrom(): Promise<void> {
-            console.log("Wait::onNavigatingFrom");
+            debug.log("Wait::onNavigatingFrom");
             logNavigationStack();
             await allowSleepAgain();
         },

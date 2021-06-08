@@ -32,7 +32,7 @@ export default Vue.extend({
     },
     methods: {
         async forward(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.recalibrate, {
+            await this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                 props: {
                     stationId: this.stationId,
                     bookmark: true,
@@ -40,7 +40,7 @@ export default Vue.extend({
             });
         },
         async onBack(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.dataSync, {
+            await this.$deprecatedNavigateTo(routes.onboarding.dataSync, {
                 props: {
                     stationId: this.stationId,
                 },

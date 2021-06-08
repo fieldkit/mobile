@@ -16,6 +16,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -49,7 +50,7 @@ export default Vue.extend({
     },
     methods: {
         handleInput(e) {
-            console.log("input", !e.object.checked);
+            debug.log("input", !e.object.checked);
             this.$emit("input", !e.object.checked);
             this.$emit("change", !e.object.checked);
         },

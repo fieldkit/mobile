@@ -94,7 +94,7 @@ export default Vue.extend({
     },
     methods: {
         async goToStations(): Promise<void> {
-            await this.$navigateTo(fullRoutes.tabbed, {});
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed, {});
         },
         async skipToStations(): Promise<void> {
             await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
@@ -111,7 +111,7 @@ export default Vue.extend({
             await this.goToStations();
         },
         async goToDetails(): Promise<void> {
-            await this.$navigateTo(routes.station.detail, {
+            await this.$deprecatedNavigateTo(routes.station.detail, {
                 props: {
                     stationId: this.station.id,
                     redirectedFromCalibration: !this.station.modules.find((item) => !item.isCalibrated),
@@ -123,10 +123,10 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.station, moduleCal);
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
         async addModule(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.addModule, {
+            await this.$deprecatedNavigateTo(routes.onboarding.addModule, {
                 props: {
                     stationId: this.stationId,
                 },

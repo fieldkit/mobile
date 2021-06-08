@@ -42,7 +42,7 @@ export class ProcessStationFilesTask extends Task {
         const exists = await ReadingsDatabase.existsForDevice(this.deviceId);
         if (exists) {
             if (!this.purge) {
-                console.log("skipping, have data", this.deviceId);
+                debug.log("skipping, have data", this.deviceId);
                 return;
             }
         }
@@ -65,7 +65,7 @@ export class ProcessAllStationsTask extends Task {
 
     public async run(_services: DataServices, tasks: TaskQueuer): Promise<void> {
         for (const deviceId of await this.getAllDeviceIds()) {
-            console.log("deviceId", deviceId);
+            debug.log("deviceId", deviceId);
             tasks.enqueue(new ProcessStationFilesTask(deviceId));
         }
     }

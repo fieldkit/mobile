@@ -70,6 +70,7 @@ import Bluebird from "bluebird";
 import Config from "@/config";
 
 import {
+    debug,
     _L,
     promiseAfter,
     serializePromiseChain,
@@ -168,7 +169,7 @@ export default Vue.extend({
     },
     methods: {
         onPortalEnvChange(ev: { newIndex: number }): Promise<void> {
-            console.log("portal-env-change", ev.newIndex);
+            debug.log("portal-env-change", ev.newIndex);
             const newEnv = this.$s.state.portal.availableEnvs[ev.newIndex];
             return this.$s.dispatch(new ChangePortalEnvAction(newEnv));
         },
@@ -180,7 +181,7 @@ export default Vue.extend({
             ];
 
             const progress = (total: number, copied: number, info) => {
-                console.log("progress", total, copied);
+                debug.log("progress", total, copied);
             };
 
             return serializePromiseChain(files, (file) => {
@@ -189,7 +190,7 @@ export default Vue.extend({
                 const destination = folder.getFile(getFileName(file));
 
                 return destination.remove().then(() => {
-                    console.log("downloading", file);
+                    debug.log("downloading", file);
                     return Services.Conservify()
                         .download({
                             method: "GET",
@@ -198,11 +199,11 @@ export default Vue.extend({
                             progress: progress,
                         })
                         .catch((error) => {
-                            console.log("error", file, error);
+                            debug.log("error", file, error);
                             throw error;
                         })
                         .then((response) => {
-                            console.log("status", file, response.statusCode);
+                            debug.log("status", file, response.statusCode);
                             return destination.path;
                         });
                 });
@@ -275,7 +276,7 @@ export default Vue.extend({
             await Services.DiscoverStation().restart();
         },
         async openFlow(name: string): Promise<void> {
-            await this.$navigateTo(
+            await this.$deprecatedNavigateTo(
                 fullRoutes.flow({
                     flow: {
                         name: name,
@@ -291,7 +292,7 @@ export default Vue.extend({
             this.busy = false;
         },
         async goOnboarding(): Promise<void> {
-            void this.$navigateTo(fullRoutes.onboarding.assemble);
+            void this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({
@@ -319,7 +320,7 @@ export default Vue.extend({
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
-                    void this.$navigateTo(fullRoutes.onboarding.assemble);
+                    void this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
                 }
             });
         },
@@ -358,14 +359,14 @@ export default Vue.extend({
             });
         },
         async deleteDB(): Promise<void> {
-            console.log("deleting database");
+            debug.log("deleting database");
 
             await Services.CreateDb()
                 .initialize(null, true, false)
                 .then(() => {
                     const store = Services.Store();
 
-                    console.log("database deleted");
+                    debug.log("database deleted");
 
                     store.commit(MutationTypes.RESET);
 
@@ -383,7 +384,7 @@ export default Vue.extend({
 
             await Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
                 .catch((res) => {
-                    console.log("error removing files", res, res ? res.stack : null);
+                    debug.log("error removing files", res, res ? res.stack : null);
 
                     Dialogs.alert({
                         title: _L("devOptions"),
@@ -395,7 +396,7 @@ export default Vue.extend({
                     return listAllFiles();
                 })
                 .then((after) => {
-                    console.log(
+                    debug.log(
                         "files after deletion",
                         _(after)
                             .map((f) => f.path)
@@ -406,16 +407,16 @@ export default Vue.extend({
         listPhoneFiles(path: string): Promise<any> {
             return listAllFiles(path).then((fs) => {
                 return fs.map((e) => {
-                    console.log(e.path);
+                    debug.log(e.path);
                 });
             });
         },
         crash(): void {
-            console.log("send crash");
+            debug.log("send crash");
             crashlytics.crash();
         },
         manualCrash(): void {
-            console.log("send manual crash");
+            debug.log("send manual crash");
             const globalAny: any = global;
             crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
             analytics.logEvent({
@@ -423,7 +424,7 @@ export default Vue.extend({
             });
         },
         generateNotifications(): void {
-            console.log("generate notifications");
+            debug.log("generate notifications");
             const store = Services.Store();
 
             store.dispatch(ActionTypes.ADD_NOTIFICATION, {
@@ -460,7 +461,7 @@ export default Vue.extend({
             });
         },
         async examineNetwork(): Promise<void> {
-            console.log(`examining network`);
+            debug.log(`examining network`);
 
             this.busy = true;
 
@@ -476,7 +477,7 @@ export default Vue.extend({
                 const response = await conservify.text({ url: url });
                 this.update("Success!");
                 this.update(response.body.toString());
-                console.log(`${url}: ${JSON.stringify(response)}`);
+                debug.log(`${url}: ${JSON.stringify(response)}`);
             } catch (error) {
                 this.update(`Error: ${JSON.stringify(error)}`);
             }
@@ -489,7 +490,7 @@ export default Vue.extend({
                 clearTimeout(id);
                 this.update("Success!");
                 this.update(response?.data?.toString() || "");
-                console.log(`${url}: ${JSON.stringify(response)}`);
+                debug.log(`${url}: ${JSON.stringify(response)}`);
             } catch (error) {
                 this.update(`Error: ${JSON.stringify(error)}`);
             }
@@ -501,58 +502,58 @@ export default Vue.extend({
             this.busy = false;
         },
         update(message: string): void {
-            console.log(`examine: ${message}`);
+            debug.log(`examine: ${message}`);
             this.status.push(new StatusMessages(message));
         },
         async testZones(): Promise<void> {
             const Zone = getZone();
-            console.log("have Zone", Zone.current.name);
+            debug.log("have Zone", Zone.current.name);
             await zoned({}, async () => {
                 await this.asyncExamples();
             });
         },
         async asyncExamples(): Promise<void> {
-            console.log("starting");
+            debug.log("starting");
             try {
-                console.log("test-after begin");
+                debug.log("test-after begin");
                 await promiseAfter(1000).then(() => {
-                    console.log("test-after");
+                    debug.log("test-after");
                 });
-                console.log("test-after done");
+                debug.log("test-after done");
             } catch (error) {
-                console.log("test-after error", error);
+                debug.log("test-after error", error);
             }
 
             try {
-                console.log("test-ctor begin");
+                debug.log("test-ctor begin");
                 await new Promise((resolve) => {
-                    console.log("test-ctor");
+                    debug.log("test-ctor");
                     resolve("done");
                 });
-                console.log("test-ctor done");
+                debug.log("test-ctor done");
             } catch (error) {
-                console.log("test-ctor error", error);
+                debug.log("test-ctor error", error);
             }
 
             try {
-                console.log("test-reject begin");
+                debug.log("test-reject begin");
                 await new Promise((resolve, reject) => {
-                    console.log("test-reject");
+                    debug.log("test-reject");
                     reject("fail");
                 });
-                console.log("test-reject done");
+                debug.log("test-reject done");
             } catch (error) {
-                console.log("test-reject error", error);
+                debug.log("test-reject error", error);
             }
 
             try {
-                console.log("test-axios begin");
+                debug.log("test-axios begin");
                 const response = await axios.request({ url: "https://api.fieldkit.org/status", timeout: 3000 });
-                console.log("test-axios done", response.data);
+                debug.log("test-axios done", response.data);
             } catch (error) {
-                console.log("test-axios error", error);
+                debug.log("test-axios error", error);
             }
-            console.log("done");
+            debug.log("done");
         },
     },
 });

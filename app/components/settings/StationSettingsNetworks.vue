@@ -36,14 +36,14 @@ export default Vue.extend({
     },
     methods: {
         async goToWiFi(): Promise<void> {
-            await this.$navigateTo(WiFi, {
+            await this.$deprecatedNavigateTo(WiFi, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToLoRa(): Promise<void> {
-            await this.$navigateTo(LoRa, {
+            await this.$deprecatedNavigateTo(LoRa, {
                 props: {
                     stationId: this.stationId,
                 },

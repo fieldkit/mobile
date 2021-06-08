@@ -17,7 +17,7 @@ export default Vue.extend({
     async mounted(): Promise<void> {
         /* eslint-disable */
         await promiseAfter(3000);
-        await this.$navigateTo(routes.onboarding.start, {});
+        await this.$deprecatedNavigateTo(routes.onboarding.start, {});
     },
 });
 </script>

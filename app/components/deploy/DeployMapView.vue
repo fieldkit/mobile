@@ -20,11 +20,12 @@
                 row="1"
                 :buttonLabel="_L('continue')"
                 :buttonEnabled="currentStation.connected && valid()"
+                :buttonVisible="!keyboardVisible"
                 @button="goToNext"
                 :scrollable="true"
             >
-                <FlexboxLayout flexDirection="column" justifyContent="flex-start">
-                    <StackLayout>
+                <FlexboxLayout flexDirection="column" justifyContent="flex-start" @tap="backgroundTap">
+                    <StackLayout class="map">
                         <Mapbox
                             :accessToken="token"
                             automationText="currentLocationMap"
@@ -89,14 +90,14 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { isIOS } from "@nativescript/core";
+import { isAndroid, isIOS, Utils } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 import { Schedule, Station, Notes, ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store";
 import { routes } from "@/routes";
-import { _L } from "@/lib";
+import { debug, _L } from "@/lib";
 import Config from "@/config";
 
 export default Vue.extend({
@@ -152,6 +153,9 @@ export default Vue.extend({
         currentStation(): Station {
             return this.$s.getters.legacyStations[this.stationId];
         },
+        keyboardVisible(): boolean {
+            return this.$s.state.nav.keyboard.visible;
+        },
     },
     methods: {
         onPageLoaded(): void {
@@ -166,7 +170,7 @@ export default Vue.extend({
         goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.currentStation.id,
                     },
@@ -175,7 +179,7 @@ export default Vue.extend({
         },
         goToNext(ev: any): Promise<any> {
             return this.saveForm().then(() => {
-                return this.$navigateTo(routes.deploy.notes, {
+                return this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -185,7 +189,7 @@ export default Vue.extend({
         onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -233,11 +237,11 @@ export default Vue.extend({
             return !this.form.v.any;
         },
         onScheduleChange(schedule: Schedule): void {
-            console.log("schedule:change", schedule);
+            debug.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         onScheduleInvalid(invalid: boolean): void {
-            console.log("schedule:invalid", invalid);
+            debug.log("schedule:invalid", invalid);
             this.form.v.schedule = invalid;
         },
         valid(): boolean {
@@ -255,6 +259,12 @@ export default Vue.extend({
                     this.$s.dispatch(new ConfigureStationSchedulesAction(station.deviceId, { readings: schedule }, existing)),
                 ]);
             });
+        },
+        backgroundTap(): void {
+            debug.log("background-tap");
+            if (isAndroid) {
+                Utils.ad.dismissSoftInput();
+            }
         },
     },
 });

@@ -97,8 +97,8 @@ export default Vue.extend({
         async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
                 // Skipping dataSync
-                // await this.$navigateTo(routes.onboarding.dataSync, {
-                await this.$navigateTo(routes.onboarding.completeSettings, {
+                // await this.$deprecatedNavigateTo(routes.onboarding.dataSync, {
+                await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                     props: {
                         stationId: this.stationId,
                         remote: true,
@@ -107,7 +107,7 @@ export default Vue.extend({
             }
 
             if (this.selected === this.CONNECTED_SELECTED) {
-                await this.$navigateTo(routes.onboarding.addWifiName, {
+                await this.$deprecatedNavigateTo(routes.onboarding.addWifiName, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -115,7 +115,7 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.completeSettings, {
+            await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                 props: {
                     stationId: this.stationId,
                     remote: false,
@@ -126,7 +126,7 @@ export default Vue.extend({
             this.selected = value;
         },
         async onBack(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.stationId,
                     remote: this.remote,

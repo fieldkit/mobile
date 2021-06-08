@@ -68,7 +68,7 @@ export class ServicesImpl implements Services {
     public Tasks(): TaskQueue {
         if (!this.tasks) {
             // const StandardWorker = require("nativescript-worker-loader!@/lib/worker"); // eslint-disable-line
-            // console.log("worker", StandardWorker);
+            // debug.log("worker", StandardWorker);
             this.tasks = new TaskQueue();
             // this.tasks.start(1, StandardWorker);
         }

@@ -16,6 +16,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { DiagnosticsProgress } from "@/services/diagnostics-service";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -34,10 +35,10 @@ export default Vue.extend({
     methods: {
         update(progress: DiagnosticsProgress): void {
             this.progress = progress;
-            console.log("diagnostics", progress.id, progress.message);
+            debug.log("diagnostics", progress.id, progress.message);
         },
         onLoaded(): void {
-            console.log("diagnostics loaded");
+            debug.log("diagnostics loaded");
 
             void this.$services
                 .Diagnostics()
@@ -46,24 +47,24 @@ export default Vue.extend({
                 })
                 .then(
                     (res) => {
-                        console.log("diagnostics done", res);
+                        debug.log("diagnostics done", res);
                         this.done = true;
                         if (res) {
                             this.phrase = res.reference.phrase;
                         }
                     },
                     (e) => {
-                        console.log("diagnostics done", e);
+                        debug.log("diagnostics done", e);
                         this.done = true;
                         this.error = true;
                     }
                 );
         },
         onUnloaded(): void {
-            console.log("diagnostics unloaded");
+            debug.log("diagnostics unloaded");
         },
         close(): void {
-            console.log("Close");
+            debug.log("Close");
             this.$modal.close(true);
         },
     },

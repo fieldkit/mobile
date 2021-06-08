@@ -30,6 +30,7 @@ import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import SettingsItemSlider from "../app-settings/SettingsItemSlider.vue";
 import { ActionTypes, AvailableStation } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     data(): {
@@ -79,11 +80,11 @@ export default Vue.extend({
     },
     methods: {
         onScheduleChange(schedule: any): void {
-            console.log("schedule:change", schedule);
+            debug.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         async saveUploadInterval(): Promise<void> {
-            console.log("schedule:form", this.form);
+            debug.log("schedule:form", this.form);
 
             this.busy = true;
 

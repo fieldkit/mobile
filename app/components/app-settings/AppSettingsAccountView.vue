@@ -149,7 +149,7 @@ export default Vue.extend({
             await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
         },
         async addAccount(): Promise<void> {
-            await this.$navigateTo(routes.appSettings.accountAdd, {});
+            await this.$deprecatedNavigateTo(routes.appSettings.accountAdd, {});
         },
         async logoutAll(): Promise<void> {
             const yesNo = await Dialogs.confirm({

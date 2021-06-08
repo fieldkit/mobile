@@ -82,7 +82,7 @@
 import { VisualCalibrationStep, CalibratingSensor, CalibrationValue } from "./model";
 import { WaitVisual } from "./visuals";
 
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 import Config from "@/config";
 
 import Vue from "vue";
@@ -207,7 +207,7 @@ export default Vue.extend({
         },
         onChange(): void {
             if (this.form && this.form.touch()) {
-                console.log(`on-change: ${JSON.stringify(this.form)}`);
+                debug.log(`on-change: ${JSON.stringify(this.form)}`);
             }
         },
     },

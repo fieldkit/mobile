@@ -57,6 +57,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Frame, isIOS } from "@nativescript/core";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "PlatformHeader",
@@ -151,7 +152,7 @@ export default Vue.extend({
         /* eslint-disable */
         if (false) {
             // https://docs.nativescript.org/ui/action-bar
-            console.log(
+            debug.log(
                 "platform-header:mounted",
                 "ios",
                 this.ios,
@@ -167,7 +168,7 @@ export default Vue.extend({
             // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
             const frame = Frame.topmost();
             if (frame) {
-                console.log("platform-header:backStack", frame.id, frame.backStack.length);
+                debug.log("platform-header:backStack", frame.id, frame.backStack.length);
             }
         }
     },
@@ -175,29 +176,29 @@ export default Vue.extend({
         raiseBack(ev): void {
             this.$emit("back");
             if (this.onBack) {
-                console.log("platform-header:back (fn)", this.onBack);
+                debug.log("platform-header:back (fn)", this.onBack);
                 this.onBack(ev);
             } else {
-                console.log("platform-header:back (nav)");
+                debug.log("platform-header:back (nav)");
                 this.$navigateBack();
             }
         },
         raiseCancel(ev): void {
             this.$emit("cancel");
             if (this.onCancel) {
-                console.log("platform-header:cancel (fn)");
+                debug.log("platform-header:cancel (fn)");
                 this.onCancel(ev);
             } else {
-                console.log("platform-header:cancel (nav)");
+                debug.log("platform-header:cancel (nav)");
                 this.$navigateBack({});
             }
         },
         raiseIcon(): void {
-            console.log("platform-header:icon-tapped");
+            debug.log("platform-header:icon-tapped");
             this.$emit("icon-tapped");
         },
         raiseSave(): void {
-            console.log("platform-header:save-tapped");
+            debug.log("platform-header:save-tapped");
             this.$emit("icon-tapped");
         },
     },

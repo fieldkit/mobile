@@ -57,7 +57,7 @@ import _ from "lodash";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
-import { validateStationName } from "@/lib";
+import { debug, validateStationName } from "@/lib";
 import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "~/components/LabeledTextField.vue";
@@ -118,11 +118,11 @@ export default Vue.extend({
             this.busy = true;
 
             if (this.form.name != this.currentStation.name) {
-                console.log("rename", this.form.name, this.currentStation.name);
+                debug.log("rename", this.form.name, this.currentStation.name);
                 return this.$s
                     .dispatch(new RenameStationAction(this.currentStation.deviceId, this.form.name))
                     .then(async () => {
-                        await this.$navigateTo(routes.onboarding.reconnecting, {
+                        await this.$deprecatedNavigateTo(routes.onboarding.reconnecting, {
                             props: {
                                 stationId: this.currentStation.id,
                             },
@@ -133,7 +133,7 @@ export default Vue.extend({
                         this.error = true;
                     });
             }
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
@@ -155,15 +155,15 @@ export default Vue.extend({
             this.form.name = "";
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
             });
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
-            await this.$navigateTo(routes.onboarding.nearby, {});
+            debug.log("onBack");
+            await this.$deprecatedNavigateTo(routes.onboarding.nearby, {});
         },
     },
 });

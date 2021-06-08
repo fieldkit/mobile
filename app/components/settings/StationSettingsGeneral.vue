@@ -36,14 +36,14 @@ export default Vue.extend({
     },
     methods: {
         async goToName(): Promise<void> {
-            await this.$navigateTo(StationName, {
+            await this.$deprecatedNavigateTo(StationName, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToSchedule(): Promise<void> {
-            await this.$navigateTo(CaptureSchedule, {
+            await this.$deprecatedNavigateTo(CaptureSchedule, {
                 props: {
                     stationId: this.stationId,
                 },

@@ -22,7 +22,7 @@ import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
 
-import { logAnalytics } from "@/lib";
+import { debug, logAnalytics } from "@/lib";
 
 export class NearbyState {
     stations: { [index: string]: NearbyStation } = {};
@@ -74,7 +74,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
             await services.discovery().restart();
             const candidates = await services.db().queryRecentlyActiveAddresses();
-            console.log(
+            debug.log(
                 "nearby:scan",
                 candidates.map((c) => {
                     const now = new Date();
@@ -101,7 +101,7 @@ const actions = (services: ServiceRef) => {
             await Promise.all(
                 Object.values(state.stations).map((nearby) => {
                     if (!nearby.transferring && (nearby.old(now) || nearby.tooManyFailures())) {
-                        console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
+                        debug.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
                         return dispatch(ActionTypes.LOST, nearby.info);
                     }
                     return {};
@@ -118,7 +118,7 @@ const actions = (services: ServiceRef) => {
             try {
                 await dispatch(ActionTypes.QUERY_STATION, info);
             } catch (error) {
-                console.log(`found query error: ${JSON.stringify(error)} ${JSON.stringify(newDiscovery)}`);
+                debug.log(`found query error: ${JSON.stringify(error)} ${JSON.stringify(newDiscovery)}`);
                 if (newDiscovery) {
                     await dispatch(
                         new TryStationAction(info, {
@@ -127,7 +127,7 @@ const actions = (services: ServiceRef) => {
                             delayFirstAttempt: true,
                         })
                     );
-                    console.log(`done with second query`);
+                    debug.log(`done with second query`);
                 } else {
                     throw error;
                 }
@@ -151,7 +151,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            console.log(`try-station start: ${JSON.stringify(payload.backOffOptions)}`);
+            debug.log(`try-station start: ${JSON.stringify(payload.backOffOptions)}`);
             await backOff(
                 () => dispatch(new TryStationOnceAction(payload.info)),
                 payload.backOffOptions || {
@@ -160,7 +160,7 @@ const actions = (services: ServiceRef) => {
                     startingDelay: 250,
                 }
             );
-            console.log("try-station done");
+            debug.log("try-station done");
         },
         [ActionTypes.TRY_STATION_ONCE]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationOnceAction) => {
             if (!payload) throw new Error("payload required");
@@ -177,7 +177,7 @@ const actions = (services: ServiceRef) => {
                         url: payload.info.url,
                     };
                     if (expected != actual) {
-                        console.log(`correcting device-id: ${payload.info.url} ${expected} ${actual}`);
+                        debug.log(`correcting device-id: ${payload.info.url} ${expected} ${actual}`);
                     }
                     commit(MutationTypes.FIND, infoCorected);
                     commit(MutationTypes.STATION_QUERIED, infoCorected);
@@ -197,7 +197,7 @@ const actions = (services: ServiceRef) => {
                     },
                     (error) => {
                         if (QueryThrottledError.isInstance(error)) {
-                            console.log(`query-station:throttle`);
+                            debug.log(`query-station:throttle`);
                             return Promise.resolve();
                         }
                         return Promise.reject(error);
@@ -219,7 +219,7 @@ const actions = (services: ServiceRef) => {
             if (payload.network.ssid != null) {
                 await dispatch(new ScanForStationsAction({ wifi: true }));
             } else {
-                console.log(`losing stations: ${JSON.stringify(state)}`);
+                debug.log(`losing stations: ${JSON.stringify(state)}`);
                 for (const key of Object.keys(state.stations)) {
                     commit(MutationTypes.LOSE, { deviceId: key });
                 }
@@ -298,7 +298,7 @@ const actions = (services: ServiceRef) => {
 
             const schedules = { ...payload.existing, ...payload.modifying };
 
-            console.log(`updating schedules: ${JSON.stringify(schedules)}`);
+            debug.log(`updating schedules: ${JSON.stringify(schedules)}`);
 
             commit(MutationTypes.STATION_QUERIED, info);
             return services
@@ -426,11 +426,11 @@ const mutations = {
     [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressMutation) => {
         if (payload.downloading) {
             if (!state.stations[payload.deviceId]) {
-                console.log("warning: no nearby station in transfer open", payload.downloading);
+                debug.log("warning: no nearby station in transfer open", payload.downloading);
                 if (state.expired[payload.deviceId]) {
                     Vue.set(state.stations, payload.deviceId, state.expired[payload.deviceId]);
                 } else {
-                    console.log("warning: no expired station in transfer open");
+                    debug.log("warning: no expired station in transfer open");
                 }
             }
             if (state.stations[payload.deviceId]) {
@@ -443,7 +443,7 @@ const mutations = {
         if (state.stations[progress.deviceId]) {
             state.stations[progress.deviceId].activity = new Date();
         } else {
-            console.log("warning: no nearby station in transfer progress");
+            debug.log("warning: no nearby station in transfer progress");
         }
     },
     [MutationTypes.TRANSFER_CLOSE]: (state: NearbyState, deviceId: string) => {
@@ -451,7 +451,7 @@ const mutations = {
             state.stations[deviceId].transferring = false;
             state.stations[deviceId].activity = new Date();
         } else {
-            console.log("warning: no nearby station in transfer close");
+            debug.log("warning: no nearby station in transfer close");
         }
     },
     [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {

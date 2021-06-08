@@ -155,7 +155,7 @@ export default Vue.extend({
                         // in order to match in the interim, must edit station.statusJson
                         // NOTE: appEui and appKey currently aren't sent in statusJson, so they
                         // won't be preserved after exiting this view
-                        // console.log("response from station after adding", result.loraSettings)
+                        // debug.log("response from station after adding", result.loraSettings)
                     });
             }
         },

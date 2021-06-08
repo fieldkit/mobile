@@ -1,6 +1,6 @@
 import { isAndroid, path, knownFolders, Folder } from "@nativescript/core";
 import { AudioPlayerOptions, AudioRecorderOptions, TNSPlayer, TNSRecorder } from "nativescript-audio";
-import { getPathTimestamp } from "@/lib/fs";
+import { debug, getPathTimestamp } from "@/lib";
 
 export class VolumeMutedError extends Error {
     public readonly volumeMutedError = true;
@@ -59,10 +59,10 @@ export default class AudioInterface {
         const recorderOptions: AudioRecorderOptions = Object.assign({}, this.options, {
             filename: filename,
             errorCallback: (errorObject) => {
-                console.log("audio: error", errorObject);
+                debug.log("audio: error", errorObject);
             },
             infoCallback: (infoObject) => {
-                console.log("audio: info", infoObject);
+                debug.log("audio: info", infoObject);
             },
         });
 
@@ -88,12 +88,12 @@ export default class AudioInterface {
     }
 
     public playRecordedFile(path: string, doneCallback: ({ error: boolean }) => void): Promise<void> {
-        console.log("audio:play", path, this.player.volume);
+        debug.log("audio:play", path, this.player.volume);
         if (!path) return Promise.reject(new Error("no audio file"));
         if (!doneCallback) return Promise.reject(new Error("no callback"));
         if (this.player.volume == 0) {
             this.player.volume = 1;
-            console.log("audio:play:muted", this.player.volume);
+            debug.log("audio:play:muted", this.player.volume);
             /*
 			// Wish this worked.
             if (this.player.volume == 0) {
@@ -106,20 +106,20 @@ export default class AudioInterface {
             autoPlay: true,
             loop: false,
             completeCallback: (...args) => {
-                console.log("audio-play:complete", path, args);
+                debug.log("audio-play:complete", path, args);
                 doneCallback({ error: false });
             },
             errorCallback: (errorObject) => {
-                console.log("audio-play:error", errorObject);
+                debug.log("audio-play:error", errorObject);
                 doneCallback({ error: true });
             },
             infoCallback: (infoObject) => {
-                console.log("audio-play:info", infoObject);
+                debug.log("audio-play:info", infoObject);
             },
         };
 
         return this.player.playFromFile(playerOptions).then(() => {
-            console.log("audio:play:done");
+            debug.log("audio:play:done");
         });
     }
 
@@ -137,7 +137,7 @@ export default class AudioInterface {
     }
 
     public async deleteRecordedFile(name: string): Promise<string> {
-        console.log("audio:remove", name);
+        debug.log("audio:remove", name);
         await this.folder.getFile(name + this.extension).remove();
         return name;
     }

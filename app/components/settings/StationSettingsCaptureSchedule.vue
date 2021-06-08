@@ -19,6 +19,7 @@ import Vue from "vue";
 import { ConfigureStationSchedulesAction, AvailableStation, Schedule } from "@/store";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     data(): {
@@ -52,7 +53,7 @@ export default Vue.extend({
             this.form.schedule = Schedule.getMinimum(this.station.schedules.readings);
         },
         onScheduleChange(schedule): void {
-            console.log("schedule:change", schedule);
+            debug.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         async onSaveSchedule(): Promise<void> {
@@ -65,7 +66,7 @@ export default Vue.extend({
                 ])
                     .then(() => this.$navigateBack())
                     .catch((error) => {
-                        console.log("error", error);
+                        debug.log("error", error);
                         return error;
                     });
             }

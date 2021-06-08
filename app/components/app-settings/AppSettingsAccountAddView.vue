@@ -24,6 +24,7 @@ import RegisterForm from "../RegisterForm.vue";
 import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
@@ -43,7 +44,7 @@ export default Vue.extend({
     },
     methods: {
         toggle(): void {
-            console.log(`toggle-form`);
+            debug.log(`toggle-form`);
             this.login = !this.login;
         },
         async onLoginSaved(form: { email: string; password: string }): Promise<void> {
@@ -54,7 +55,7 @@ export default Vue.extend({
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(() => this.$navigateBack())
                     .catch((error) => {
-                        console.log("error", error);
+                        debug.log("error", error);
                         this.busy = false;
                         return Dialogs.alert(_L("loginFailed"));
                     });

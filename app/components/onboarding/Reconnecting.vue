@@ -33,7 +33,7 @@ export default Vue.extend({
     },
     methods: {
         async forward(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.searching, {
+            await this.$deprecatedNavigateTo(routes.onboarding.searching, {
                 clearHistory: true,
                 backstackVisible: false,
                 props: {
@@ -43,7 +43,7 @@ export default Vue.extend({
         },
         back(): void {},
         async skip(): Promise<void> {
-            await this.$navigateTo(fullRoutes.stations);
+            await this.$deprecatedNavigateTo(fullRoutes.stations);
         },
     },
 });

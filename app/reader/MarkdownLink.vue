@@ -6,6 +6,7 @@
 <script lang="ts">
 import Vue from "vue";
 import * as utils from "@nativescript/core/utils/utils";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "MarkdownLink",
@@ -17,7 +18,7 @@ export default Vue.extend({
     },
     methods: {
         onOpen() {
-            console.log(this.target);
+            debug.log(this.target);
             utils.openUrl(this.target);
         },
     },

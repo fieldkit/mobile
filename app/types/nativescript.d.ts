@@ -9,6 +9,7 @@ type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<unkn
 declare module "vue/types/vue" {
     interface Vue {
         $navigateTo: NavigateToFunc; // (where: any, options: any): Promise<void>;
+        $deprecatedNavigateTo: NavigateToFunc; // (where: any, options: any): Promise<void>;
         $navigateBack: navigateBack;
         $showModal: showModal;
         $services: Services;

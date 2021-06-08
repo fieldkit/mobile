@@ -72,7 +72,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { getLastSeen, _L } from "@/lib";
+import { debug, getLastSeen, _L } from "@/lib";
 import { Module, Sensor, LegacyStation } from "@/store";
 import { isAndroid, Label } from "@nativescript/core";
 import { ModuleCalibration, StationCalibration } from "~/calibration";
@@ -169,13 +169,13 @@ export default Vue.extend({
             }
         },
         toggleContainer(): void {
-            console.log("toggle", this.closed[this.module.position]);
+            debug.log("toggle", this.closed[this.module.position]);
             if (this.closed[this.module.position] === true) {
                 Vue.set(this.closed, this.module.position, false);
             } else {
                 Vue.set(this.closed, this.module.position, true);
             }
-            console.log("toggle", this.closed);
+            debug.log("toggle", this.closed);
         },
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
@@ -188,7 +188,7 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.stationCalibration, this.moduleCalibration);
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
     },
 });

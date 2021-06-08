@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { debug } from "@/lib";
 import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
 import { ActionTypes, LoginAction, ChangePortalEnvAction, SyncAccountAction, RemoveAccountAction } from "../actions";
@@ -59,7 +60,7 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
     if (row.details) {
         return JSON.parse(row.details) as CurrentUser;
     }
-    console.log(`deprecated account-row: ${JSON.stringify(row)}`);
+    debug.log(`deprecated account-row: ${JSON.stringify(row)}`);
     return {
         portalId: row.portalId,
         name: row.name,
@@ -86,24 +87,24 @@ const actions = (services: ServiceRef) => {
                     const users = Config.defaultUsers;
                     if (users.length > 0) {
                         try {
-                            console.log(`authenticating default-users`);
+                            debug.log(`authenticating default-users`);
                             void Promise.all(
                                 users.map(async (da) => {
                                     try {
                                         await dispatch(new LoginAction(da.email, da.password));
-                                        console.log(`authenticated: ${JSON.stringify(da.email)}`);
+                                        debug.log(`authenticated: ${JSON.stringify(da.email)}`);
                                     } catch (error) {
-                                        console.log(`default-user failed: ${JSON.stringify(error)}`);
+                                        debug.log(`default-user failed: ${JSON.stringify(error)}`);
                                     }
                                 })
                             );
                         } catch (error) {
-                            console.log(`failed: ${JSON.stringify(error)}`);
+                            debug.log(`failed: ${JSON.stringify(error)}`);
                         }
                     }
                 }
             } catch (error) {
-                console.log(`error loading firmware:`, error);
+                debug.log(`error loading firmware:`, error);
             }
         },
         [ActionTypes.LOAD_SETTINGS]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -113,14 +114,14 @@ const actions = (services: ServiceRef) => {
                 .then((settings) => {
                     commit(MutationTypes.LOAD_SETTINGS, settings);
                 })
-                .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
+                .catch((e) => debug.log(ActionTypes.LOAD_SETTINGS, e));
         },
         [ActionTypes.UPDATE_SETTINGS]: async ({ dispatch }: ActionParameters, settings) => {
             await services
                 .db()
                 .updateSettings(settings)
                 .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
-                .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
+                .catch((e) => debug.log(ActionTypes.UPDATE_SETTINGS, e));
         },
         [ActionTypes.LOAD_ACCOUNTS]: async ({ commit, dispatch, state }: ActionParameters) => {
             await services
@@ -134,14 +135,14 @@ const actions = (services: ServiceRef) => {
                         commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
                 })
-                .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
+                .catch((e) => debug.log(ActionTypes.LOAD_ACCOUNTS, e));
         },
         /*
         [ActionTypes.REGISTER]: async ({ commit, dispatch, state }: ActionParameters, payload: RegisterAction) => {
             const portal = services.portal();
             const value = await portal.register(payload);
-            console.log(`register: ${JSON.stringify(value)}`);
-            console.log("register-value", value);
+            debug.log(`register: ${JSON.stringify(value)}`);
+            debug.log("register-value", value);
         },
 		*/
         [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
@@ -162,7 +163,7 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.LOGOUT_ACCOUNTS);
                     return dispatch(ActionTypes.LOAD_ACCOUNTS);
                 })
-                .catch((e) => console.log(ActionTypes.LOGOUT_ACCOUNTS, e));
+                .catch((e) => debug.log(ActionTypes.LOGOUT_ACCOUNTS, e));
 
             commit(MutationTypes.LOGOUT);
         },
@@ -175,12 +176,12 @@ const actions = (services: ServiceRef) => {
                 .then(() => {
                     commit(MutationTypes.SET_CURRENT_USER, chosen[0]);
                 })
-                .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
+                .catch((e) => debug.log(ActionTypes.CHANGE_ACCOUNT, e));
         },
         [ActionTypes.LOAD_PORTAL_ENVS]: async ({ commit, dispatch, state }: ActionParameters, _payload: ChangePortalEnvAction) => {
             const rows = await services.db().getAvailablePortalEnvs();
             if (Config.env.developer) {
-                console.log(`portal-envs: using developer`);
+                debug.log(`portal-envs: using developer`);
                 const env = {
                     name: null,
                     baseUri: Config.baseUri,
@@ -188,10 +189,10 @@ const actions = (services: ServiceRef) => {
                 };
                 commit(MutationTypes.SET_CURRENT_PORTAL_ENV, env);
             } else if (rows.length > 1) {
-                console.log(`portal-envs: ${JSON.stringify(rows[0])}`);
+                debug.log(`portal-envs: ${JSON.stringify(rows[0])}`);
                 commit(MutationTypes.SET_CURRENT_PORTAL_ENV, rows[0]);
             } else {
-                console.log(`portal-envs: ${JSON.stringify(fkprd)}`);
+                debug.log(`portal-envs: ${JSON.stringify(fkprd)}`);
                 commit(MutationTypes.SET_CURRENT_PORTAL_ENV, fkprd);
             }
         },
@@ -200,14 +201,14 @@ const actions = (services: ServiceRef) => {
             commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
         },
         [ActionTypes.REFRESH_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
-            console.log(`refresh`, payload);
+            debug.log(`refresh`, payload);
         },
         [ActionTypes.REMOVE_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: RemoveAccountAction) => {
             await services.db().removeAccount(payload.email);
             await dispatch(ActionTypes.LOAD_ACCOUNTS);
         },
         [ActionTypes.SYNC_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: SyncAccountAction) => {
-            console.log(`sync`, payload);
+            debug.log(`sync`, payload);
             await services.updater().addOrUpdateStations();
         },
     };

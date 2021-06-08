@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB Cable   |\n| E) Battery        | J) Phillips Screwdriver |",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB Cable   |\n| E) Battery        |  |",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -64,7 +64,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Combine Upper and Lower Boards\nIf not already pre-assembled, combine your Upper Board and Lower Board. Be sure to line up the pin headers and sockets. Then press them together firmly.",
+                        "body": "# Combine Upper and Lower Boards\nIf not already assembled, combine your Upper Board and Lower Board. Be sure to line up the pin headers and sockets. Then press them together firmly.",
                         "images": [
                             {
                                 "url": "/uploads/TI_2_A_112a78f350.jpg"

@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
+import { debug } from "@/lib";
 import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
 import { Station, ServiceInfo } from "../types";
@@ -108,7 +109,7 @@ const actions = (services: ServiceRef) => {
             const service = new CalibrationService(services.queryStation(), services.conservify());
             const url = `${info.url}/modules/${payload.position}`;
             return await service.clearCalibration(url).then((cleared) => {
-                console.log("cal:", "cleared", payload.moduleId, cleared);
+                debug.log("cal:", "cleared", payload.moduleId, cleared);
                 return commit(MutationTypes.CLEARED_CALIBRATION, { moduleId: payload.moduleId, configuration: cleared });
             });
         },
@@ -124,9 +125,9 @@ const actions = (services: ServiceRef) => {
             if (!lr) throw new Error(`no live readings in reply`);
             const sm = lr.modules.find((m) => m.module.moduleId == moduleId);
             if (!sm) throw new Error(`no module: ${JSON.stringify(payload)}`);
-            console.log(`module: ${JSON.stringify(sm)}`);
+            debug.log(`module: ${JSON.stringify(sm)}`);
             const values = sm.readings.map((r) => r.value);
-            console.log(`values: ${JSON.stringify(values)}`);
+            debug.log(`values: ${JSON.stringify(values)}`);
             const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values);
             commit(MutationTypes.CALIBRATION_POINT, { moduleId: moduleId, point: pcp });
 
@@ -136,7 +137,7 @@ const actions = (services: ServiceRef) => {
                 try {
                     const curve = getCurveForSensor(payload.curveType);
                     const calibration = curve.calculate(pending);
-                    console.log(`cal-done: ${JSON.stringify(calibration)}`);
+                    debug.log(`cal-done: ${JSON.stringify(calibration)}`);
 
                     const config = DataProto.ModuleConfiguration.create({
                         calibration: calibration,
@@ -144,7 +145,7 @@ const actions = (services: ServiceRef) => {
 
                     const encoded = Buffer.from(DataProto.ModuleConfiguration.encodeDelimited(config).finish());
                     const hex = encoded.toString("hex");
-                    console.log(`cal-hex`, encoded.length, hex);
+                    debug.log(`cal-hex`, encoded.length, hex);
 
                     const service = new CalibrationService(services.queryStation(), services.conservify());
                     const url = `${info.url}/modules/${payload.position}`;
@@ -152,7 +153,7 @@ const actions = (services: ServiceRef) => {
 
                     commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: moduleId, configuration: reply });
                 } catch (error) {
-                    console.log(`calibration failed:`, error);
+                    debug.log(`calibration failed:`, error);
                     throw error;
                 }
             }
@@ -184,7 +185,7 @@ const mutations = {
         const previous = state.pending[payload.moduleId] || new PendingCalibration(payload.moduleId);
         const updated = previous.append(payload.point);
         Vue.set(state.pending, payload.moduleId, updated);
-        console.log(`cal-updated: ${JSON.stringify(updated)}`);
+        debug.log(`cal-updated: ${JSON.stringify(updated)}`);
     },
 };
 

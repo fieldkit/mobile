@@ -1,9 +1,10 @@
 import { Module } from "vuex";
-import { MutationTypes, NavigationMutation } from "../mutations";
+import { MutationTypes, KeyboardMutation, NavigationMutation } from "../mutations";
 import { ServiceRef } from "@/services";
 
 export class NavigationState {
     public frames: { [frame: string]: NavigationMutation } = {};
+    public keyboard: { visible: boolean } = { visible: false };
 }
 
 const getters = {};
@@ -17,6 +18,9 @@ const mutations = {
         if (payload.frame != "") {
             state.frames[payload.frame] = payload;
         }
+    },
+    [MutationTypes.NAVIGATION_KEYBOARD]: (state: NavigationState, payload: KeyboardMutation) => {
+        state.keyboard.visible = payload.visible;
     },
 };
 

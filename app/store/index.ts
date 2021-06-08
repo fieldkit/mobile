@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vuex, { Store, Dispatch, DispatchOptions } from "vuex";
-import { zoned } from "@/lib";
+import { debug, zoned } from "@/lib";
 import createLogger from "./logger";
 import Config from "@/config";
 
@@ -62,7 +62,7 @@ function sanitizeState(key: string, value: unknown): undefined | unknown {
 }
 
 function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): boolean {
-    console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+    debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
 
     void appendLog({
         time: new Date().getTime(),
@@ -83,7 +83,11 @@ function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
         filter(mutation: PassedMutation, stateBefore: GlobalState, stateAfter: GlobalState) {
             if (mutation.type == MutationTypes.NAVIGATION) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.nav.frames));
+                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.nav.frames));
+                return;
+            }
+
+            if (mutation.type == MutationTypes.STATION_QUERIED || mutation.type == MutationTypes.STATION_ACTIVITY) {
                 return;
             }
 
@@ -100,7 +104,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
             }
 
             if (mutation.type == MutationTypes.MODULE_CONFIGURATION || mutation.type == MutationTypes.CLEARED_CALIBRATION) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload) /*, JSON.stringify(stateAfter.cal)*/);
+                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload) /*, JSON.stringify(stateAfter.cal)*/);
                 return false;
             }
 
@@ -116,19 +120,19 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 const nearby = stateAfter.nearby.stations;
                 const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
                 const summary = payload.map((s): [number, string, string, NearbyStation] => [s.id, s.deviceId, s.name, nearby[s.deviceId]]);
-                console.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
+                debug.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
                 return false;
             }
 
             if (mutation.type == MutationTypes.LOGIN) {
-                console.log("mutation:", mutation.type);
+                debug.log("mutation:", mutation.type);
                 return false;
             }
 
             if (mutation.payload) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
             } else {
-                console.log("mutation:", mutation.type);
+                debug.log("mutation:", mutation.type);
             }
 
             return false;
@@ -137,12 +141,19 @@ function customizeLogger(appendLog: AppendStoreLog) {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
+
             if (action.type == ActionTypes.REFRESH_NETWORK) {
                 return false;
             }
+
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
+
+            if (action.type == ActionTypes.LOAD_STATIONS) {
+                return false;
+            }
+
             if (action.type == ActionTypes.STATION_REPLY) {
                 // eslint-disable-next-line
                 if (true) {
@@ -152,26 +163,27 @@ function customizeLogger(appendLog: AppendStoreLog) {
                     const device = payload.statusReply?.status?.identity?.deviceId;
                     // eslint-disable-next-line
                     const name = payload.statusReply?.status?.identity?.name;
-                    console.log("action:", action.type, device, name);
+                    debug.log("action:", action.type, device, name);
                 } else {
-                    console.log("action:", action.type, JSON.stringify(action.payload));
+                    debug.log("action:", action.type, JSON.stringify(action.payload));
                 }
                 return false;
             }
+
             if (action.type == ActionTypes.STATIONS_LOADED) {
-                console.log("action:", action.type);
+                debug.log("action:", action.type);
                 return false;
             }
 
             if (action.type == ActionTypes.LOGIN) {
-                console.log("action:", action.type);
+                debug.log("action:", action.type);
                 return false;
             }
 
             if (action.payload) {
-                console.log("action:", action.type, JSON.stringify(action.payload));
+                debug.log("action:", action.type, JSON.stringify(action.payload));
             } else {
-                console.log("action:", action.type);
+                debug.log("action:", action.type);
             }
 
             return false;

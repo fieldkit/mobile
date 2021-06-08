@@ -1,3 +1,7 @@
+import { isAndroid } from "@nativescript/core";
+import { Services } from "@/services";
+import { debug } from "./debugging";
+import Sqlite from "@/wrappers/sqlite";
 /*
 import _ from "lodash";
 import Sqlite, { Database } from "@/wrappers/sqlite";
@@ -158,7 +162,7 @@ export class ReadingsDatabase {
             (s) => s.key
         );
         if (previousSize !== this.numberOfSensors) {
-            console.log(`sensors: ${this.numberOfSensors - previousSize} ${JSON.stringify(this.sensorKeys)}`);
+            debug.log(`sensors: ${this.numberOfSensors - previousSize} ${JSON.stringify(this.sensorKeys)}`);
         }
         return this.sensors;
     }
@@ -173,7 +177,7 @@ export class ReadingsDatabase {
         await this.refreshSensors();
 
         if (!this.sensors[key]) {
-            console.log(`error finding sensor: ${key}`);
+            debug.log(`error finding sensor: ${key}`);
             throw new Error(`error finding sensor: ${key}`);
         }
 
@@ -203,7 +207,7 @@ export class ReadingsDatabase {
                     values
                 )
                 .catch((error) => {
-                    console.log(`sql:error: ${JSON.stringify(error)} ${JSON.stringify(values)}`);
+                    debug.log(`sql:error: ${JSON.stringify(error)} ${JSON.stringify(values)}`);
                     return Promise.reject(error);
                 });
         })
@@ -236,7 +240,7 @@ export class ReadingsDatabase {
 
     public async query(params: DataQueryParams): Promise<ReadingRow[]> {
         if (params.sensorIds.length == 0) {
-            console.log(`no sensor ids`);
+            debug.log(`no sensor ids`);
             return [];
         }
         const aggregate = Aggregate.byName(params.aggregate);
@@ -288,7 +292,7 @@ export class Aggregate {
             return [];
         }
         if (rounded < this.openTime) {
-            console.log(`moving backward: ${rounded} ${this.openTime}`);
+            debug.log(`moving backward: ${rounded} ${this.openTime}`);
         }
         this.openTime = rounded;
         return this.flush(db);
@@ -311,7 +315,7 @@ export class Aggregate {
         // eslint-disable-next-line
         if (false && Object.keys(this.samples).length > 0) {
             // eslint-disable-next-line
-            console.log(`flush: ${this.name} ${this.openTime} ${Object.keys(this.samples).length}`);
+            debug.log(`flush: ${this.name} ${this.openTime} ${Object.keys(this.samples).length}`);
         }
 
         const rows: AggregatedReadingLike[] = Object.entries(this.samples)
@@ -339,7 +343,7 @@ function timePromise<T>(name: string, makePromise: () => Promise<T>): Promise<T>
     return makePromise().then((value) => {
         const ended = new Date();
         const elapsed = ended.getTime() - started.getTime();
-        console.log(`timed:${name}: ${elapsed}`);
+        debug.log(`timed:${name}: ${elapsed}`);
         return value;
     });
 }
@@ -360,7 +364,7 @@ export class Aggregator {
                 }
             }
 
-            // console.log("READINGS", readings.record, readings.time, readings.uptime);
+            // debug.log("READINGS", readings.record, readings.time, readings.uptime);
 
             this.aggregates.forEach((aggregate) => {
                 Object.entries(readings.readings).forEach(([key, value]: [string, number]) => aggregate.push(readings.time, key, value));
@@ -387,12 +391,12 @@ export class SaveReadingsTask extends Task {
 
     public async run(_services: DataServices, _tasks: TaskQueuer): Promise<void> {
         if (!this.aggregators[this.deviceId]) {
-            console.log("creating aggregator", this.deviceId);
+            debug.log("creating aggregator", this.deviceId);
             this.aggregators[this.deviceId] = new Aggregator(this.deviceId);
         }
 
         if (this.purge) {
-            console.log("purging", this.name);
+            debug.log("purging", this.name);
             await ReadingsDatabase.delete(this.name);
         }
 
@@ -402,3 +406,29 @@ export class SaveReadingsTask extends Task {
     }
 }
 */
+
+export function downloadDatabase(services: Services, url: string): Promise<void> {
+    const progress = (total: number, copied: number, _info: unknown) => {
+        debug.log("progress", total, copied);
+    };
+
+    const folder = services.FileSystem().getFolder(isAndroid ? "app" : "");
+    const name = "fieldkit.sqlite3";
+    const destination = folder.getFile(name);
+
+    return services
+        .Conservify()
+        .download({
+            method: "GET",
+            url: url,
+            path: destination.path,
+            progress: progress,
+        })
+        .catch((error) => {
+            debug.log("error", error);
+            return Promise.resolve();
+        })
+        .then((_response: unknown) => {
+            new Sqlite().copy(name);
+        });
+}

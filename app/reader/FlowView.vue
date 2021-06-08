@@ -47,7 +47,7 @@ import ByOrientation from "./ByOrientation.vue";
 import SkipLayout from "@/components/SkipLayout.vue";
 import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
-import { _L, Timer, logAnalytics } from "@/lib";
+import { debug, _L, Timer, logAnalytics } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
@@ -154,18 +154,18 @@ const FlowView = Vue.extend({
     async mounted(): Promise<void> {
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flow);
-        console.log(`flow: mounted`, `flow`, this.flow);
+        debug.log(`flow: mounted`, `flow`, this.flow);
 
         await logAnalytics("flow_open", { name: this.flow.name });
     },
     methods: {
         async onForward(): Promise<void> {
-            console.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
+            debug.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
             await logAnalytics("flow_forward", { name: this.flow.name });
             await this.nav.move(this.screen.navOptions.forward).then(async (maybeProps) => {
                 if (maybeProps) {
-                    console.log("flow-view: forward:props", maybeProps);
-                    await this.$navigateTo(FlowView, {
+                    debug.log("flow-view: forward:props", maybeProps);
+                    await this.$deprecatedNavigateTo(FlowView, {
                         frame: "stations-frame", // TODO Can we infer this?
                         props: {
                             flow: maybeProps,
@@ -174,7 +174,7 @@ const FlowView = Vue.extend({
                         },
                     });
                 } else {
-                    console.log("flow-view: done");
+                    debug.log("flow-view: done");
                     await this.leave(this.finished);
                 }
                 return;
@@ -184,23 +184,23 @@ const FlowView = Vue.extend({
             await this.$navigateBack();
         },
         onNavigatingTo(): void {
-            console.log("flow: arriving");
+            debug.log("flow: arriving");
             if (!this.timer) {
                 this.timer = new Timer(2000, (frame) => {
-                    console.log("frame", frame);
+                    debug.log("frame", frame);
                     this.frame = frame;
                 });
             }
         },
         onNavigatingFrom(): void {
-            console.log("flow: leaving");
+            debug.log("flow: leaving");
             if (this.timer) {
                 this.timer.stop();
                 this.timer = null;
             }
         },
         async onSkip(): Promise<void> {
-            console.log("flow-view: skip", this.screen.name);
+            debug.log("flow-view: skip", this.screen.name);
             await logAnalytics("flow_skip", { name: this.flow.name });
             await this.nav.move(NavigationOption.Skip);
             await this.leave(this.skipped);
@@ -210,11 +210,11 @@ const FlowView = Vue.extend({
             await Promise.resolve();
         },
         async onCancel(): Promise<void> {
-            console.log("flow-view: cancel", this.screen.name);
+            debug.log("flow-view: cancel", this.screen.name);
             await this.leave(this.skipped);
         },
         async leave(route: FullRoute): Promise<void> {
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
     },
 });

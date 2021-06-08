@@ -59,6 +59,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { AvailableStation, UpgradeStatus, UpgradeInfo } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     props: {
@@ -90,11 +91,11 @@ export default Vue.extend({
     },
     methods: {
         onUpdate(): void {
-            console.log("updating");
+            debug.log("updating");
             this.$modal.close({ updating: true });
         },
         onClose(): void {
-            console.log("closing", this.$modal);
+            debug.log("closing", this.$modal);
             this.$modal.close({ updating: false });
         },
     },
