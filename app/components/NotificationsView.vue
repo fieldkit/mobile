@@ -29,6 +29,7 @@
                         @dismiss="dismiss"
                         @satisfy="satisfy"
                         @addFieldNotes="addFieldNotes"
+                        @routeButton="routeButton"
                     />
                 </GridLayout>
                 <Label
@@ -44,7 +45,7 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                        @addFieldNotes="addFieldNotes"
+                        @routeButton="routeButton"
                     />
                 </GridLayout>
             </StackLayout>
@@ -118,6 +119,15 @@ export default Vue.extend({
                     props: {
                         stationId: notification.station.id,
                         linkedFromStation: true,
+                    },
+                });
+            }
+        },
+        async routeButton({ notification, route }): Promise<void> {
+            if (notification.station.id) {
+                await this.$navigateTo(route, {
+                    props: {
+                        stationId: notification.station.id,
                     },
                 });
             }

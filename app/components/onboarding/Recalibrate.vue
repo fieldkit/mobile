@@ -25,7 +25,7 @@
                 :buttonEnabled="done"
                 @button="goToStations"
                 :skipLabel="done ? _L('goToStations') : _L('setupLater')"
-                @skip="goToStations"
+                @skip="skipToStations"
                 :scrollable="true"
             >
                 <StackLayout v-if="station.modules.length > 0">
@@ -57,6 +57,7 @@ import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
 import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
+import { ActionTypes, LegacyStation } from "~/store";
 
 export default Vue.extend({
     name: "Recalibrate",
@@ -79,6 +80,14 @@ export default Vue.extend({
         station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
+        legacyStation(): LegacyStation {
+            const station = this.$s.getters.legacyStations[this.stationId];
+            if (!station) {
+                console.log(`missing legacyStation`, this.stationId);
+                throw new Error(`missing legacyStation`);
+            }
+            return station;
+        },
         done(): boolean {
             return !this.station.modules.find((item) => item.canCalibrate && item.needsCalibration);
         },
@@ -86,6 +95,20 @@ export default Vue.extend({
     methods: {
         async goToStations(): Promise<void> {
             await this.$navigateTo(fullRoutes.tabbed, {});
+        },
+        async skipToStations(): Promise<void> {
+            await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: `${this.legacyStation.deviceId}/calibration-before-deployment`,
+                kind: "calibration-before-deployment",
+                created: new Date(),
+                silenced: false,
+                project: {},
+                user: this.$s.state.portal.currentUser ? this.$s.state.portal.currentUser : {},
+                station: this.legacyStation,
+                actions: {},
+            });
+
+            await this.goToStations();
         },
         async goToDetails(): Promise<void> {
             await this.$navigateTo(routes.station.detail, {
