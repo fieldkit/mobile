@@ -165,7 +165,6 @@ export default Vue.extend({
     methods: {
         onPageLoaded(): void {
             debug.log(`review loaded:`, this.stationId);
-            debug.log(`review loaded: ${JSON.stringify(this.currentStation)}`);
         },
         async goBack(ev: any): Promise<void> {
             await Promise.all([animations.pressed(ev), this.$navigateBack()]);

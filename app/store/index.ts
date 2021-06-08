@@ -82,110 +82,121 @@ export function stateFor(_mutation: PassedMutation, state: GlobalState | Record<
 function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
         filter(mutation: PassedMutation, stateBefore: GlobalState, stateAfter: GlobalState) {
-            if (mutation.type == MutationTypes.NAVIGATION) {
-                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.nav.frames));
-                return;
+            try {
+                if (mutation.type == MutationTypes.NAVIGATION) {
+                    debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.nav.frames));
+                    return;
+                }
+
+                if (mutation.type == MutationTypes.STATION_QUERIED || mutation.type == MutationTypes.STATION_ACTIVITY) {
+                    return;
+                }
+
+                if (mutation.type == MutationTypes.PHONE_LOCATION) {
+                    return simpleMutation(appendLog, mutation);
+                }
+
+                if (mutation.type == MutationTypes.PHONE_NETWORK) {
+                    return simpleMutation(appendLog, mutation);
+                }
+
+                if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
+                    return simpleMutation(appendLog, mutation);
+                }
+
+                if (mutation.type == MutationTypes.MODULE_CONFIGURATION || mutation.type == MutationTypes.CLEARED_CALIBRATION) {
+                    debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload) /*, JSON.stringify(stateAfter.cal)*/);
+                    return false;
+                }
+
+                void appendLog({
+                    time: new Date().getTime(),
+                    mutation: mutation.type,
+                    payload: JSON.stringify(mutation.payload || {}, sanitizeState),
+                    before: stateFor(mutation, stateBefore),
+                    after: stateFor(mutation, stateAfter),
+                });
+
+                if (mutation.type == MutationTypes.STATIONS) {
+                    const nearby = stateAfter.nearby.stations;
+                    const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
+                    const summary = payload.map((s): [number, string, string, NearbyStation] => [
+                        s.id,
+                        s.deviceId,
+                        s.name,
+                        nearby[s.deviceId],
+                    ]);
+                    debug.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
+                    return false;
+                }
+
+                if (mutation.type == MutationTypes.LOGIN) {
+                    debug.log("mutation:", mutation.type);
+                    return false;
+                }
+
+                if (mutation.payload) {
+                    debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+                } else {
+                    debug.log("mutation:", mutation.type);
+                }
+            } catch (error) {
+                debug.log("mutation-filter-error", error);
             }
-
-            if (mutation.type == MutationTypes.STATION_QUERIED || mutation.type == MutationTypes.STATION_ACTIVITY) {
-                return;
-            }
-
-            if (mutation.type == MutationTypes.PHONE_LOCATION) {
-                return simpleMutation(appendLog, mutation);
-            }
-
-            if (mutation.type == MutationTypes.PHONE_NETWORK) {
-                return simpleMutation(appendLog, mutation);
-            }
-
-            if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
-                return simpleMutation(appendLog, mutation);
-            }
-
-            if (mutation.type == MutationTypes.MODULE_CONFIGURATION || mutation.type == MutationTypes.CLEARED_CALIBRATION) {
-                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload) /*, JSON.stringify(stateAfter.cal)*/);
-                return false;
-            }
-
-            void appendLog({
-                time: new Date().getTime(),
-                mutation: mutation.type,
-                payload: JSON.stringify(mutation.payload || {}, sanitizeState),
-                before: stateFor(mutation, stateBefore),
-                after: stateFor(mutation, stateAfter),
-            });
-
-            if (mutation.type == MutationTypes.STATIONS) {
-                const nearby = stateAfter.nearby.stations;
-                const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
-                const summary = payload.map((s): [number, string, string, NearbyStation] => [s.id, s.deviceId, s.name, nearby[s.deviceId]]);
-                debug.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
-                return false;
-            }
-
-            if (mutation.type == MutationTypes.LOGIN) {
-                debug.log("mutation:", mutation.type);
-                return false;
-            }
-
-            if (mutation.payload) {
-                debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
-            } else {
-                debug.log("mutation:", mutation.type);
-            }
-
             return false;
         },
         actionFilter(action: { type: string; payload: Record<string, unknown> }, _state: never) {
-            if (action.type == ActionTypes.REFRESH) {
-                return false;
-            }
-
-            if (action.type == ActionTypes.REFRESH_NETWORK) {
-                return false;
-            }
-
-            if (action.type == ActionTypes.QUERY_NECESSARY) {
-                return false;
-            }
-
-            if (action.type == ActionTypes.LOAD_STATIONS) {
-                return false;
-            }
-
-            if (action.type == ActionTypes.STATION_REPLY) {
-                // eslint-disable-next-line
-                if (true) {
-                    // eslint-disable-next-line
-                    const payload: any = action.payload as any;
-                    // eslint-disable-next-line
-                    const device = payload.statusReply?.status?.identity?.deviceId;
-                    // eslint-disable-next-line
-                    const name = payload.statusReply?.status?.identity?.name;
-                    debug.log("action:", action.type, device, name);
-                } else {
-                    debug.log("action:", action.type, JSON.stringify(action.payload));
+            try {
+                if (action.type == ActionTypes.REFRESH) {
+                    return false;
                 }
-                return false;
-            }
 
-            if (action.type == ActionTypes.STATIONS_LOADED) {
-                debug.log("action:", action.type);
-                return false;
-            }
+                if (action.type == ActionTypes.REFRESH_NETWORK) {
+                    return false;
+                }
 
-            if (action.type == ActionTypes.LOGIN) {
-                debug.log("action:", action.type);
-                return false;
-            }
+                if (action.type == ActionTypes.QUERY_NECESSARY) {
+                    return false;
+                }
 
-            if (action.payload) {
-                debug.log("action:", action.type, JSON.stringify(action.payload));
-            } else {
-                debug.log("action:", action.type);
-            }
+                if (action.type == ActionTypes.LOAD_STATIONS) {
+                    return false;
+                }
 
+                if (action.type == ActionTypes.STATION_REPLY) {
+                    // eslint-disable-next-line
+                    if (true) {
+                        // eslint-disable-next-line
+                        const payload: any = action.payload as any;
+                        // eslint-disable-next-line
+                        const device = payload.statusReply?.status?.identity?.deviceId;
+                        // eslint-disable-next-line
+                        const name = payload.statusReply?.status?.identity?.name;
+                        debug.log("action:", action.type, device, name);
+                    } else {
+                        debug.log("action:", action.type, JSON.stringify(action.payload));
+                    }
+                    return false;
+                }
+
+                if (action.type == ActionTypes.STATIONS_LOADED) {
+                    debug.log("action:", action.type);
+                    return false;
+                }
+
+                if (action.type == ActionTypes.LOGIN) {
+                    debug.log("action:", action.type);
+                    return false;
+                }
+
+                if (action.payload) {
+                    debug.log("action:", action.type, JSON.stringify(action.payload));
+                } else {
+                    debug.log("action:", action.type);
+                }
+            } catch (error) {
+                debug.log("mutation-filter-error", error);
+            }
             return false;
         },
         /*
