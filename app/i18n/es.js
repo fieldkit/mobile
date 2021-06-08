@@ -412,6 +412,9 @@ module.exports = {
     stations: "Estaciones",
     data: "Datos",
     settings: "Configuración",
+    calibrationBeforeDeploymentHeading: "Calibrate before Deployment",
+    calibrationBeforeDeploymentText: "Calibrate the sensors for accurate data readings.",
+    calibrationBeforeDeploymentButton: "Start Calibration",
     // ScreenHeader.vue
     // StationDetailView.vue
     stationDeployed: "Estación Implementado",
