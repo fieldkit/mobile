@@ -10,6 +10,8 @@ import { File } from "./fs";
 import { getTaskId } from "@/lib/zoning";
 import { debug, TaskIdProvider, getMessageType, scrubMessage, DebugConsoleWriter } from "./debugging";
 
+const MaximumLogFileSize = 1024 * 1024 * 1;
+
 class FileWriter {
     private queued = "";
     private scheduled: unknown | null = null;
@@ -33,14 +35,34 @@ class FileWriter {
         }
     }
 
-    async flush(): Promise<void> {
-        const file = getLogsFile();
-        const existing = await file.readText();
-        const final = existing + this.queued;
-        await file.writeText(final);
-        this.queued = "";
+    trimmed(possiblyLong: string): string {
+        if (possiblyLong.length > MaximumLogFileSize) {
+            const minimum = possiblyLong.length - MaximumLogFileSize;
+            let trimmingAt = 0;
+            while (trimmingAt < minimum) {
+                trimmingAt = possiblyLong.indexOf("\n", trimmingAt + 1);
+                if (trimmingAt == -1) {
+                    return possiblyLong;
+                }
+            }
+            console.log(`flush-trimmed:`, trimmingAt);
+            return possiblyLong.slice(trimmingAt);
+        }
+        return possiblyLong;
+    }
 
-        console.log(`flushed ${final.length}`);
+    async flush(): Promise<void> {
+        try {
+            const file = getLogsFile();
+            const existing = await file.readText();
+            const final = this.trimmed(existing + this.queued);
+            await file.writeText(final);
+            this.queued = "";
+
+            console.log(`flushed ${final.length}`);
+        } catch (error) {
+            console.log(`flush-error`, error);
+        }
     }
 }
 
