@@ -45,7 +45,6 @@ class FileWriter {
                     return possiblyLong;
                 }
             }
-            console.log(`flush-trimmed:`, trimmingAt);
             return possiblyLong.slice(trimmingAt);
         }
         return possiblyLong;

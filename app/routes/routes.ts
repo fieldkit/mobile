@@ -248,6 +248,16 @@ export const fullRoutes = {
                 },
             });
         },
+        notes: (stationId: number): FullRoute => {
+            return new FullRoute("tabbed", Frames.Outer, {
+                firstTab: {
+                    index: 0,
+                    route: new FullRoute("deploy/notes", Frames.Stations, {
+                        stationId: stationId,
+                    }),
+                },
+            });
+        },
         settings: (stationId: number): FullRoute => {
             return new FullRoute("tabbed", Frames.Outer, {
                 firstTab: {

@@ -11,6 +11,8 @@ import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
 import { debug, zoned } from "@/lib";
 
+import Blank from "@/components/Blank.vue";
+
 function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();
 
@@ -31,7 +33,7 @@ export default Vue.extend({
     async mounted(): Promise<void> {
         const services: Services = ServicesSingleton;
 
-        debug.log("startup loaded", 2);
+        debug.log("startup loaded");
 
         await zoned({}, async () => {
             await initializeApplication(services);
@@ -48,6 +50,18 @@ export default Vue.extend({
 
             if (false) {
                 await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
+
+                return;
+            }
+
+            if (false) {
+                await this.$deprecatedNavigateTo(Blank, {});
+
+                return;
+            }
+
+            if (true) {
+                await this.$deprecatedNavigateTo(fullRoutes.station.notes(1));
 
                 return;
             }
