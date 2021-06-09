@@ -22,6 +22,11 @@ timestamps {
                 scmInfo = checkout scm
             }
 
+			stage ("prepare-server") {
+				build job: "fk/oss/fancycamera"
+				build job: "fk/oss/keyboard-height-provider"
+			}
+
 			stage ("android-sdk") {
 				sh "rm -f android-sdk-setup.sh*"
 				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
