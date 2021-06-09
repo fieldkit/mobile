@@ -68,8 +68,9 @@ const Start = Vue.extend({
             thisAny.timer.stop();
         },
         async forward(): Promise<void> {
-            if (this.step < 2) {
+            if (this.step < 1) {
                 await this.$navigateTo(Start, {
+                    frame: "stations-frame",
                     props: {
                         step: this.step + 1,
                     },
