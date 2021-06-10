@@ -3,7 +3,7 @@
         <PlatformHeader :title="_L('general')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
             <SettingsItemText text="stationName" @tap="goToName" />
-            <SettingsItemText text="dataCaptureSchedule" @tap="goToSchedule" />
+            <SettingsItemText text="schedules.readings.heading" @tap="goToSchedule" />
         </StationSettingsLayout>
     </Page>
 </template>

@@ -204,6 +204,17 @@ export class Interval implements IntervalLike {
 export class Schedule {
     constructor(public intervals: IntervalLike[] = []) {}
 
+    public static asSimple(s: Schedule): Schedule {
+        if (s.intervals.length > 1) {
+            return new Schedule([s.intervals[0]]);
+        }
+        return s;
+    }
+
+    public static asComplex(s: Schedule): Schedule {
+        return s;
+    }
+
     public static getMinimum(s: Schedule): Schedule {
         if (!s.intervals || s.intervals.length == 0) {
             return new Schedule([{ start: 0, end: 86400, interval: 60 }]);

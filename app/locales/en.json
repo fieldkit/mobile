@@ -171,7 +171,7 @@
     "waterDissolvedOxygen": "Water Dissolved Oxygen",
     "dissolvedOxygenCalibration": "Dissolved Oxygen Calibration",
     "placeInAndStabilizeWithTemp": "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
-    "dataCaptureSchedule": "Data Capture Schedule",
+    "dataCaptureSchedule": "",
     "dataCaptureNotice": "Frequent data capture drains the battery at a quicker rate",
     "scheduled": "Scheduled",
     "basic": "Basic",
@@ -973,6 +973,25 @@
                 "random_8": "Random 8",
                 "random_9": "Random 9"
             }
+        }
+    },
+    "schedules": {
+        "readings": {
+            "heading": "Data Capture Schedule",
+            "warning": "Frequent data capture drains the battery at a quicker rate."
+        },
+        "editor": {
+            "interval": {
+                "heading": "Capture Time {number}"
+            },
+            "start": "Start",
+            "end": "End",
+            "simple": "Simple",
+            "complex": "Complex",
+            "addTime": "Add Time",
+            "minutes": "Minutes",
+            "hours": "Hours",
+            "every": "Every"
         }
     }
 }

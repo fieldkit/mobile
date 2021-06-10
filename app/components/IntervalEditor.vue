@@ -1,15 +1,15 @@
 <template>
     <GridLayout rows="auto,auto,auto" columns="*,*" class="interval-editor">
         <StackLayout row="0" col="0" class="start-container" v-if="!fullDay">
-            <TimeField :value="interval.start" label="Start" @change="(time) => onChangeStart(time)" />
+            <TimeField :value="interval.start" :label="_L('schedules.editor.start')" @change="(time) => onChangeStart(time)" />
         </StackLayout>
 
         <StackLayout row="0" col="1" class="end-container" v-if="!fullDay">
-            <TimeField :value="interval.end" label="End" @change="(time) => onChangeEnd(time)" />
+            <TimeField :value="interval.end" :label="_L('schedules.editor.end')" @change="(time) => onChangeEnd(time)" />
         </StackLayout>
 
         <StackLayout row="1" col="0" class="field-container">
-            <Label text="Every" class="size-12 field-label" />
+            <Label :text="_L('schedules.editor.every')" class="size-12 field-label" />
 
             <TextField
                 :text="form.quantity"
@@ -72,6 +72,25 @@ import { Interval } from "@/store/types";
 import { isIOS } from "@nativescript/core";
 import { debug } from "@/lib";
 
+interface IntervalForm {
+    duration: number;
+    quantity: string;
+}
+
+function getStartingForm(interval: Interval): IntervalForm {
+    const minutes = interval.interval / 60;
+    if (minutes >= 60) {
+        return {
+            duration: 3600,
+            quantity: String(interval.interval / 3600),
+        };
+    }
+    return {
+        duration: 60,
+        quantity: String(minutes),
+    };
+}
+
 export default Vue.extend({
     name: "IntervalEditor",
     components: {
@@ -98,6 +117,7 @@ export default Vue.extend({
         form: { quantity: string; duration: number };
         errors: { quantity: { required: boolean; numeric: boolean; minimum: boolean } };
     } {
+        debug.log(`schedule-interval-data: ${JSON.stringify(this.interval)}`);
         const durations = [
             { display: "Minutes", value: 60, duration: 60 },
             { display: "Hours", value: 60 * 60, duration: 60 * 60 },
@@ -105,11 +125,8 @@ export default Vue.extend({
         return {
             focus: false,
             durations: durations,
-            items: null,
-            form: {
-                quantity: "1",
-                duration: 60,
-            },
+            items: new ValueList(durations),
+            form: getStartingForm(this.interval),
             errors: {
                 quantity: {
                     required: false,
@@ -134,25 +151,16 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        debug.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
-        this.items = new ValueList(this.durations);
-        this.updateForm(this.interval);
+        debug.log("schedule-interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
     },
     methods: {
-        updateForm(interval: Interval): void {
-            debug.log("interval-editor:updating", JSON.stringify(interval));
-            const minutes = interval.interval / 60;
-            if (minutes >= 60) {
-                this.form.duration = 3600;
-            }
-            this.form.quantity = String(interval.interval / this.form.duration);
-            debug.log("interval-editor:updated", JSON.stringify(this.form));
-        },
         updateInvalid(): void {
             const invalid = this.errors.quantity.numeric || this.errors.quantity.required || this.errors.quantity.minimum;
             this.$emit("invalid", invalid);
         },
         onChange(ev: any): void {
+            debug.log(`schedule-interval-editor:change ${JSON.stringify(this.form)}`);
+
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
             this.errors.quantity.minimum = false;
@@ -183,7 +191,7 @@ export default Vue.extend({
                 interval: seconds,
             };
 
-            debug.log("interval-editor:seconds", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:seconds: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -194,7 +202,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            debug.log("interval-editor:start", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:start: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -205,7 +213,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            debug.log("interval-editor:end", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:end: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -220,6 +228,7 @@ export default Vue.extend({
             // value is undefined for onBlur
             if (ev && ev.value) {
                 this.form.quantity = ev.value;
+                debug.log(`schedule-interval:quantity: ${JSON.stringify(this.form)}`);
                 return this.onChange(fireChange);
             }
         },
