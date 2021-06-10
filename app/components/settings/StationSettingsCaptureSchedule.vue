@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
-        <StationSettingsLayout :connected="station.connected" :scrollable="false">
+        <StationSettingsLayout :connected="station.connected" :scrollable="true">
             <FlexboxLayout class="capture-schedule-settings-container m-x-10 m-t-20">
                 <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
                 <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
