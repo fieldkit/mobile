@@ -291,17 +291,14 @@ export default Vue.extend({
         },
         async addDeployedNotification(): Promise<void> {
             // TODO Eventually these shouldn't depend on the portal id for the user.
-            if (!this.$s.state.portal.currentUser) return;
-            const userId = this.$s.state.portal.currentUser.portalId;
-            const stationId = this.currentStation.id;
-            if (!stationId || !userId) return;
+            if (!this.currentStation) return;
             await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                key: `${userId}/${stationId}/station-deployed`,
+                key: `${this.currentStation.deviceId}/station-deployed`,
                 kind: "station-deployed",
                 created: new Date(),
                 silenced: false,
                 project: {},
-                user: this.$s.state.portal.currentUser,
+                user: this.$s.state.portal.currentUser ? this.$s.state.portal.currentUser : {},
                 station: this.currentStation,
                 actions: {},
             });
@@ -335,17 +332,15 @@ export default Vue.extend({
         async generateNotificationsFromPortalErrors(): Promise<void> {
             const portalError = this.currentStation?.portalHttpError;
 
-            if (this.$s.state.portal.currentUser && portalError?.name) {
-                const userId = this.$s.state.portal.currentUser.portalId;
-                const stationId = this.currentStation.id;
+            if (portalError?.name) {
 
                 await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                    key: `${userId}/${stationId}/${portalError.name}`,
+                    key: `${this.currentStation.deviceId}/${portalError.name}`,
                     kind: portalError.name,
                     created: new Date(),
                     silenced: false,
                     project: {},
-                    user: this.$s.state.portal.currentUser,
+                    user: this.$s.state.portal.currentUser ? this.$s.state.portal.currentUser : {},
                     station: this.currentStation,
                     actions: {},
                 });

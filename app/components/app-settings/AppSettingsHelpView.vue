@@ -15,7 +15,7 @@
                 v-on:change="saveSettings"
             />
 
-            <SettingsItemText :text="'appSettings.help.productGuide'" @tap="onProductGuide" />
+            <SettingsItemText :text="'appSettings.help.preDeploymentChecklist'" @tap="onProductGuide" />
         </SettingsLayout>
     </Page>
 </template>

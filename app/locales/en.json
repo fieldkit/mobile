@@ -857,6 +857,9 @@
     "calibrationStandardValue": "Standard Value",
     "calibrationDoneHeading": "Tap the Calibrate button to record the sensor value and the standard value.",
     "calibrationDoneHint": "Recording these values together allows us to later calibrate the sensor.",
+    "calibrationBeforeDeploymentHeading": "Calibrate before Deployment",
+    "calibrationBeforeDeploymentText": "Calibrate the sensors for accurate data readings.",
+    "calibrationBeforeDeploymentButton": "Start Calibration",
     "onboarding": {
         "assembled": {
             "message": "Success!"

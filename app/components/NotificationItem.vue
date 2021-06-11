@@ -23,7 +23,20 @@
             />
             <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4" />
             <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold">
-                <Label col="0" :text="_L('addFieldNotes')" class="action-btn m-r-15" @tap="addFieldNotes" />
+                <Label
+                    col="0"
+                    v-if="!notificationsKind[notification.kind].buttonRoute"
+                    :text="_L('addFieldNotes')"
+                    class="action-btn m-r-15"
+                    @tap="addFieldNotes"
+                />
+                <Label
+                    col="0"
+                    v-if="notificationsKind[notification.kind].buttonRoute"
+                    :text="notificationsKind[notification.kind].buttonText"
+                    class="action-btn m-r-15"
+                    @tap="routeButton"
+                />
                 <GridLayout
                     v-if="!notification.satisfiedAt && notification.silenced === false"
                     col="1"
@@ -36,8 +49,8 @@
             </GridLayout>
         </GridLayout>
         <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu.includes(notification.id)">
-            <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10" @tap="dismiss" />
-            <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold" @tap="satisfy" />
+            <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold p-10" @tap="dismiss" />
+            <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold p-10" @tap="satisfy" />
         </GridLayout>
     </GridLayout>
 </template>
@@ -45,6 +58,7 @@
 import Vue from "vue";
 import { isAndroid, Label } from "@nativescript/core";
 import { _L } from "@/lib";
+import { routes } from "~/routes";
 
 export default Vue.extend({
     data() {
@@ -74,6 +88,13 @@ export default Vue.extend({
                     heading: _L("calibrationRequiredHeading"),
                     text: _L("calibrationRequiredText"),
                     error: false,
+                },
+                "calibration-before-deployment": {
+                    heading: _L("calibrationBeforeDeploymentHeading"),
+                    text: _L("calibrationBeforeDeploymentText"),
+                    error: false,
+                    buttonText: _L("calibrationBeforeDeploymentButton"),
+                    buttonRoute: routes.onboarding.recalibrate,
                 },
             },
         };
@@ -116,6 +137,12 @@ export default Vue.extend({
         addFieldNotes() {
             this.$emit("addFieldNotes", this.notification);
         },
+        routeButton() {
+            this.$emit("routeButton", {
+                notification: this.notification,
+                route: this.notificationsKind[this.notification.kind].buttonRoute,
+            });
+        },
     },
 });
 </script>
@@ -144,6 +171,5 @@ export default Vue.extend({
     background-color: $background;
     border-width: 1;
     border-color: $fk-gray-lighter;
-    padding: 10;
 }
 </style>
