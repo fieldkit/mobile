@@ -153,7 +153,7 @@ ios-logs:
 cycle-checks:
 	node_modules/.bin/madge --circular --extensions ts ./app
 
-webpack: setup webpack-android webpack-ios
+webpack: setup android-webpack ios-webpack
 
 checks: setup
 	node_modules/.bin/eslint --ext=ts --fix app
