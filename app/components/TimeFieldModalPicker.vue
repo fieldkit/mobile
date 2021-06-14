@@ -60,13 +60,11 @@ export default Vue.extend({
     font-size: 14;
 }
 
-.field-value {
+.ns-ios .field-label {
+    padding: 10;
 }
 
-/*
-TimePicker,
-Spinner {
-    background: #afafef;
+.ns-ios .field-value {
+    padding: 10;
 }
-*/
 </style>

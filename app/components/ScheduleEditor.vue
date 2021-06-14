@@ -124,18 +124,21 @@ export default Vue.extend({
         addInterval(): void {
             const newSchedule = _.clone(this.selected);
             newSchedule.intervals.push(new Interval(0, 86400, 60));
+            this.schedules[this.scheduleType] = newSchedule;
             debug.log("add-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         removeInterval(interval: Interval): void {
             const newSchedule = _.clone(this.selected);
             newSchedule.intervals = _.without(newSchedule.intervals, interval);
+            this.schedules[this.scheduleType] = newSchedule;
             debug.log("remove-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         onChangeInterval(index: number, interval: Interval): void {
             const newSchedule = _.clone(this.selected);
             newSchedule.intervals[index] = interval;
+            this.schedules[this.scheduleType] = newSchedule;
             debug.log("change-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
