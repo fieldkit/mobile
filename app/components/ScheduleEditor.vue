@@ -90,14 +90,16 @@ export default Vue.extend({
         const schedules = {};
         schedules[0] = Schedule.asSimple(this.schedule);
         schedules[1] = Schedule.asComplex(this.schedule);
+        debug.log("schedules", schedules);
         return {
-            scheduleType: 0,
+            scheduleType: Schedule.isSimple(this.schedule) ? 0 : 1,
             schedules: schedules,
             invalid: invalid,
         };
     },
     computed: {
         selected(): Schedule {
+            debug.log("schedule-selected", this.schedules, this.schedules[this.scheduleType]);
             return this.schedules[this.scheduleType];
         },
         isSimple(): boolean {
@@ -111,18 +113,10 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        debug.log("schedule-editor:mounted", this.schedule, this.enabled);
-        if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
-        this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
+        debug.log("schedule-editor:mounted", this.schedules);
+        debug.log("schedule-editor:mounted", this.schedule, this.selected);
     },
     methods: {
-        isScheduleSimple(schedule: Schedule): boolean {
-            if (schedule.intervals.length > 1) return false;
-            const interval = schedule.intervals[0];
-            if (interval.start != 0) return false;
-            if (interval.end < 86400 - 60) return false;
-            return true;
-        },
         changeScheduleType(ev: any, scheduleType: number): void {
             this.scheduleType = scheduleType;
             this.$emit("change", this.selected);

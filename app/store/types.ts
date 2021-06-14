@@ -205,8 +205,15 @@ export class Schedule {
     constructor(public intervals: IntervalLike[] = []) {}
 
     public static asSimple(s: Schedule): Schedule {
-        if (s.intervals.length > 1) {
-            return new Schedule([s.intervals[0]]);
+        if (s.intervals.length > 0) {
+            const first = s.intervals[0];
+            return new Schedule([
+                {
+                    start: 0,
+                    end: 86400,
+                    interval: first.interval,
+                },
+            ]);
         }
         return s;
     }
@@ -220,6 +227,14 @@ export class Schedule {
             return new Schedule([{ start: 0, end: 86400, interval: 60 }]);
         }
         return s;
+    }
+
+    public static isSimple(schedule: Schedule): boolean {
+        if (schedule.intervals.length > 1) return false;
+        const interval = schedule.intervals[0];
+        if (interval.start != 0) return false;
+        if (interval.end < 86400 - 60) return false;
+        return true;
     }
 }
 
