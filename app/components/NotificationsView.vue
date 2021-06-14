@@ -63,6 +63,12 @@ import NotificationItem from "~/components/NotificationItem.vue";
 import { _L } from "@/lib";
 
 export default Vue.extend({
+    props: {
+        stationId: {
+            type: Number,
+            required: true,
+        },
+    },
     data(): {
         showMenu: number[];
     } {
@@ -77,14 +83,14 @@ export default Vue.extend({
         isAndroid(): boolean {
             return isAndroid;
         },
-        currentNotifications() {
-            return this.$s.state.notifications.notifications;
+        currentNotifications(): Notification[] {
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.station?.id === this.stationId);
         },
-        activeNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
+        activeNotifications(): Notification[] {
+            return this.currentNotifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
         },
-        satisfiedNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => item.satisfiedAt);
+        satisfiedNotifications(): Notification[] {
+            return this.currentNotifications.filter((item: Notification) => item.satisfiedAt);
         },
     },
     methods: {
