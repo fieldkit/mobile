@@ -12,14 +12,12 @@
                     <SettingsItemText text="forgetStation" @tap="forgetStationDialog" />
                 </StackLayout>
 
-                <DockLayout row="0" v-if="showForgetStationDialog" class="text-center">
-                    <GridLayout rows="auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
+                <DockLayout row="0" v-if="showForgetStationDialog" class="text-center" @tap="() => {}">
+                    <GridLayout rows="auto,auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
                         <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
                         <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
-                        <GridLayout row="2" columns="*,*">
-                            <Label col="0" :text="_L('forgetStationOK')" class="size-16 m-t-10 bold" @tap="forgetStation" />
-                            <Label col="1" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
-                        </GridLayout>
+                        <Button row="2" :text="_L('forgetStationOK')" class="size-16 m-t-10 btn-primary" @tap="forgetStation" />
+                        <Button row="3" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
                     </GridLayout>
                 </DockLayout>
             </GridLayout>
@@ -110,7 +108,8 @@ export default Vue.extend({
         async forgetStation(): Promise<void> {
             this.showForgetStationDialog = false;
             this.forgotten = true;
-            await this.$deprecatedNavigateTo(StationListView, {
+            await this.$navigateTo(StationListView, {
+                frame: "stations-frame",
                 clearHistory: true,
             });
             await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id);
@@ -145,8 +144,6 @@ export default Vue.extend({
 }
 
 .deployed-dialog-container {
-    color: $fk-tertiary-red;
-    border-color: $fk-tertiary-red;
     border-width: 1;
     width: 300;
     background-color: $background;
