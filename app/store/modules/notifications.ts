@@ -22,7 +22,7 @@ export interface Notification {
     satisfiedAt?: number | null;
     project?: string;
     user?: string;
-    station?: string;
+    station?: { id?: number };
     actions?: string;
 }
 

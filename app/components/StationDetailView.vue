@@ -120,7 +120,13 @@
                     @dismiss-tool-tips="dismissTooltip"
                 />
             </AbsoluteLayout>
-            <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
+            <NotificationFooter
+                v-if="notifications.length > 0"
+                row="1"
+                :onClose="goToDetail"
+                :notifications="notifications"
+                :stationId="stationId"
+            />
         </GridLayout>
     </Page>
 </template>
@@ -184,7 +190,9 @@ export default Vue.extend({
     },
     computed: {
         notifications(): Notification[] {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
+            return this.$s.state.notifications.notifications.filter(
+                (item: Notification) => item.station?.id === this.stationId && !item.satisfiedAt && item.silenced === false
+            );
         },
         isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
@@ -333,7 +341,6 @@ export default Vue.extend({
             const portalError = this.currentStation?.portalHttpError;
 
             if (portalError?.name) {
-
                 await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
                     key: `${this.currentStation.deviceId}/${portalError.name}`,
                     kind: portalError.name,
