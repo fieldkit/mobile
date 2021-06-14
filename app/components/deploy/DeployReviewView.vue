@@ -34,7 +34,7 @@
                         </GridLayout>
                         <Label :text="notes.location ? notes.location : _L('noNameGiven')" />
 
-                        <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
+                        <Label :text="_L('schedules.readings.heading')" class="m-t-20 m-b-5" />
                         <StackLayout
                             v-for="(i, index) in currentStation.schedules.readings.intervals"
                             orientation="horizontal"

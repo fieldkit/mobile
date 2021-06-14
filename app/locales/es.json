@@ -196,8 +196,6 @@
     "part2Wet": "Parte 2: Wet calibración de conductividad",
     "haveYourConductivitySolution": "Asegúrate de que tienes tu solución de conductividad.",
     "placeInAndStabilizeWithTemp": "Coloque la sonda dentro de la taza con la solución y dejar que las lecturas se estabilicen. Asegúrese de que la temperatura del agua es también solución en el interior.",
-    "dataCaptureSchedule": "Datos de programación de captura",
-    "dataCaptureNotice": "Captura de datos frecuente drena la batería a un ritmo más rápido",
     "scheduled": "Programado",
     "basic": "Básico",
     "captureTime": "Capturar el Tiempo",

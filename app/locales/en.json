@@ -171,8 +171,6 @@
     "waterDissolvedOxygen": "Water Dissolved Oxygen",
     "dissolvedOxygenCalibration": "Dissolved Oxygen Calibration",
     "placeInAndStabilizeWithTemp": "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
-    "dataCaptureSchedule": "",
-    "dataCaptureNotice": "Frequent data capture drains the battery at a quicker rate",
     "scheduled": "Scheduled",
     "basic": "Basic",
     "captureTime": "Capture Time",

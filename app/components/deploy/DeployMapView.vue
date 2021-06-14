@@ -72,8 +72,8 @@
                         </StackLayout>
 
                         <StackLayout row="1" class="form-row">
-                            <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
-                            <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
+                            <Label :text="_L('schedules.readings.heading')" class="size-14 title" />
+                            <Label :text="_L('schedules.readings.warning')" class="size-12 subtitle" />
 
                             <ScheduleEditor
                                 :schedule="form.schedule"
