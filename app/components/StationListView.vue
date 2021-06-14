@@ -74,9 +74,12 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+        ...mapGetters({ mappedStations: "mappedStations" }),
         discovering(): DiscoveringStation[] {
             return this.$s.getters.discovering;
+        },
+        stations(): AvailableStation[] {
+            return this.$s.getters.availableStations.filter((s) => !s.forgetting);
         },
     },
     mounted(): void {

@@ -78,7 +78,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (false) {
+            if (true) {
                 await this.$deprecatedNavigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });

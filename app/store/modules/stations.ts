@@ -39,7 +39,6 @@ function makeAvailableStations(state: StationsState, rootState: GlobalState): Av
     const deviceIds = _.keys(stations);
     const available = _(deviceIds)
         .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
-        .filter((s) => !s.forgetting)
         .value();
 
     /*
