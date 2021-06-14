@@ -60,7 +60,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (true) {
+            if (false) {
                 await this.$deprecatedNavigateTo(fullRoutes.station.notes(1));
 
                 return;

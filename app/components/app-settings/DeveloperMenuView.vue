@@ -37,6 +37,7 @@
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
                 <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
 				-->
+                    <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
 
                     <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 

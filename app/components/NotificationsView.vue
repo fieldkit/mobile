@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <ScrollView>
             <StackLayout class="m-y-10 m-l-20 m-r-20">
                 <GridLayout rows="auto" columns="85*,15*" class="header-section">
@@ -69,16 +69,18 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        showMenu: number[];
+    } {
         return {
-            showMenu: [] as Array<number>,
+            showMenu: [],
         };
     },
     components: {
         NotificationItem,
     },
     computed: {
-        isAndroid() {
+        isAndroid(): boolean {
             return isAndroid;
         },
         currentNotifications(): Notification[] {
@@ -92,7 +94,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args) {},
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
             if (isAndroid) {
