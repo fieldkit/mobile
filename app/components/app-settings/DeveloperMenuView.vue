@@ -4,17 +4,6 @@
         <SettingsLayout>
             <ScrollView>
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout class="m-x-20 m-b-20" v-if="beta">
-                        <DropDown
-                            class="drop-down"
-                            :items="dropDownValues"
-                            :selectedIndex="selectedPortalEnvIndex"
-                            @selectedIndexChanged="onPortalEnvChange"
-                            v-if="dropDownValues && selectedPortalEnvIndex !== null"
-                        />
-                        <Label text="Using Developer Configuration" v-else />
-                    </StackLayout>
-
                     <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
                     <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
@@ -32,11 +21,11 @@
                     <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
                     <!--
-                <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
-                <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
-                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
-                <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
-				-->
+					<Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
+					<Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
+					<Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
+					<Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
+					-->
 
                     <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 
@@ -63,7 +52,6 @@ import Vue from "vue";
 import _ from "lodash";
 import axios from "axios";
 import { Dialogs, knownFolders } from "@nativescript/core";
-import { ValueList } from "nativescript-drop-down";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
@@ -127,9 +115,6 @@ export default Vue.extend({
     computed: {
         beta(): boolean {
             return Config.beta;
-        },
-        dropDownValues(): ValueList<any> {
-            return new ValueList<any>(this.portalEnvs);
         },
         portalEnvs(): EnvOption[] {
             return this.$s.state.portal.availableEnvs

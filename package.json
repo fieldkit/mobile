@@ -35,7 +35,6 @@
         "nativescript-audio": "^6.2.5",
         "nativescript-clipboard": "^2.1.1",
         "nativescript-conservify": "file:third-party/nativescript-conservify",
-        "nativescript-drop-down": "file:third-party/nativescript-drop-down",
         "nativescript-iqkeyboardmanager": "^1.5.1",
         "nativescript-permissions": "^1.3.11",
         "nativescript-soft-keyboard": "file:third-party/nativescript-soft-keyboard",

@@ -25,7 +25,6 @@ import { navigatorFactory } from "./routes";
 import Config, { Build } from "./config";
 
 import { MapboxView } from "@nativescript-community/ui-mapbox";
-import { DropDown } from "nativescript-drop-down";
 import { CheckBox } from "@nstudio/nativescript-checkbox";
 
 import BottomNavigation from "@nativescript-community/ui-material-bottom-navigation/vue";
@@ -33,8 +32,6 @@ import BottomNavigation from "@nativescript-community/ui-material-bottom-navigat
 import StartupScreen from "./components/StartupScreen.vue";
 
 function configureVueJs(services: typeof Services): Store {
-    Vue.registerElement("DropDown", () => DropDown);
-
     Vue.registerElement("Mapbox", () => MapboxView);
 
     Vue.registerElement("CheckBox", () => CheckBox, {
