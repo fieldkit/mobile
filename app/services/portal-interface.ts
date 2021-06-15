@@ -285,10 +285,18 @@ export default class PortalInterface {
         });
     }
 
+    private getDownloadHeaders(): { [index: string]: string } {
+        const token = this.getCurrentToken();
+        if (token) {
+            return {
+                Authorization: token,
+            };
+        }
+        return {};
+    }
+
     public async downloadFirmware(url: string, path: string, progress: ProgressFunc): Promise<{ status: number }> {
-        const headers = {
-            Authorization: this.requireToken(),
-        };
+        const headers = this.getDownloadHeaders();
 
         const baseUri = await this.getUri();
 

@@ -77,6 +77,8 @@ export default class StationFirmware {
         }
 
         for (const firmware of remoteFirmware) {
+            log.info("firmware:", firmware);
+
             await this.services.Database().addOrUpdateFirmware(
                 _.extend(
                     {
@@ -89,8 +91,12 @@ export default class StationFirmware {
             const local = this.services.FileSystem().getRelativeFile(firmware.path);
             if (!local.exists || local.size == 0 || force === true) {
                 log.info(`downloading firmware: ${JSON.stringify(firmware)}`);
-                const downloadProgress = transformProgress(progressCallback, (p) => p);
-                await this.services.PortalInterface().downloadFirmware(firmware.url, firmware.path, downloadProgress);
+                try {
+                    const downloadProgress = transformProgress(progressCallback, (p) => p);
+                    await this.services.PortalInterface().downloadFirmware(firmware.url, firmware.path, downloadProgress);
+                } catch (error) {
+                    log.error("error", error);
+                }
             } else {
                 log.info(`already have: ${JSON.stringify(firmware)}`);
             }

@@ -305,7 +305,7 @@ export default Vue.extend({
 
             this.currentState = this.updateAvailable ? State.updateAvailable : State.noUpdate;
         },
-        upgradeFirmware(): Promise<void> {
+        async upgradeFirmware(): Promise<void> {
             const options = {
                 props: {
                     stationId: this.stationId,
@@ -314,7 +314,7 @@ export default Vue.extend({
                 fullscreen: true,
             };
             this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then((value: { updating: boolean }) => {
+            await this.$showModal(UpgradeFirmwareModal, options).then((value: { updating: boolean }) => {
                 debug.log(`upgrade-done: ${JSON.stringify(value)}`);
                 if (value.updating) {
                     if (!this.station) throw new Error(`firmware-modal: no such station`);
@@ -341,7 +341,7 @@ export default Vue.extend({
             this.$s.commit(new UpgradeStatusMutation(this.stationId, { error: true }));
             this.currentState = this.updateAvailable ? State.updateAvailable : State.noUpdate;
         },
-        showFirmwares() {
+        async showFirmwares(): Promise<void> {
             const options = {
                 props: {
                     firmwares: this.selectableFirmwares,
@@ -349,27 +349,25 @@ export default Vue.extend({
                 },
                 fullscreen: true,
             };
-            return this.$showModal(ChooseFirmwareModal, options).then(
-                (value: { firmware: AvailableFirmware | null; updating: boolean }) => {
-                    if (value.updating && value.firmware) {
-                        this.selectedFirmware = value.firmware;
-                        if (!this.station) throw new Error(`firmware-modal: no such station`);
-                        if (!this.station.id) throw new Error(`firmware-modal: no station id`);
-                        if (!this.station.url) throw new Error(`firmware-modal: no station url`);
-                        this.currentState = State.updating;
-                        this.$s
-                            .dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url, this.selectedFirmware.id))
-                            .then(() => {
-                                this.currentState = State.restarting;
-                                this.expectedVersion = value.firmware?.version ? value.firmware.version : "";
-                            });
-                    }
-
-                    return Promise.resolve();
+            await this.$showModal(ChooseFirmwareModal, options).then((value: { firmware: AvailableFirmware | null; updating: boolean }) => {
+                if (value.updating && value.firmware) {
+                    this.selectedFirmware = value.firmware;
+                    if (!this.station) throw new Error(`firmware-modal: no such station`);
+                    if (!this.station.id) throw new Error(`firmware-modal: no station id`);
+                    if (!this.station.url) throw new Error(`firmware-modal: no station url`);
+                    this.currentState = State.updating;
+                    this.$s
+                        .dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url, this.selectedFirmware.id))
+                        .then(() => {
+                            this.currentState = State.restarting;
+                            this.expectedVersion = value.firmware?.version ? value.firmware.version : "";
+                        });
                 }
-            );
+
+                return Promise.resolve();
+            });
         },
-        onProductGuide() {
+        onProductGuide(): void {
             utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
     },
