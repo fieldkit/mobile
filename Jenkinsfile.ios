@@ -37,6 +37,10 @@ timestamps {
 
 			stage ('build') {
 				def branch = getBranch(scmInfo)
+				def buildType = "beta"
+				if (branch == "main") {
+					buildType = "release"
+				}
 
 				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
 					withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {
@@ -46,6 +50,7 @@ set +x
 export APP_IOS_KEYCHAIN_PASSWORD=${APP_IOS_KEYCHAIN_PASSWORD}
 export LANG=en_US.UTF-8
 set -x
+export BUILD_TYPE=${buildType}
 env
 
 make clean-secrets
