@@ -39,7 +39,7 @@
                             </Label>
                             <Button
                                 :text="_L('updateFirmware')"
-                                :isEnabled="(updateAvailable && station.connected && canUpgrade) || true"
+                                :isEnabled="updateAvailable && station.connected && canUpgrade"
                                 @tap="upgradeFirmware"
                                 class="btn btn-primary btn-no-margin btn-color-white"
                             />
@@ -56,7 +56,7 @@
                             <Label :text="_L('updateAvailableBody')" class="size-12 m-b-30" textWrap="true" />
                             <Button
                                 :text="_L('updateFirmware')"
-                                :isEnabled="(updateAvailable && station.connected && canUpgrade) || true"
+                                :isEnabled="updateAvailable && station.connected && canUpgrade"
                                 @tap="upgradeFirmware"
                                 class="btn btn-primary btn-no-margin btn-color-white"
                             />
