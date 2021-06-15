@@ -148,7 +148,7 @@ import {
 } from "@/store";
 import * as utils from "@nativescript/core/utils/utils";
 import ChooseFirmwareModal from "~/components/settings/ChooseFirmwareModal.vue";
-import { debug } from "@/lib/debugging";
+import { debug } from "@/lib";
 
 enum State {
     noUpdate = "noUpdate",
@@ -267,6 +267,9 @@ export default Vue.extend({
                     setTimeout(() => {
                         if (this.expectedVersion && this.expectedVersion === this.stationFirmware.version) {
                             this.currentState = State.updateDone;
+                            setTimeout(() => {
+                                this.currentState = State.noUpdate;
+                            }, 3000);
                         }
                     }, 3000);
                 }
