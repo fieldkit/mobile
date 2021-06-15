@@ -7,16 +7,12 @@
 import Vue from "vue";
 
 export default Vue.extend({
-    data(): {} {
-        return {};
-    },
     props: {
         connected: {
             required: true,
             type: Boolean,
         },
     },
-    methods: {},
 });
 </script>
 <style scoped lang="scss">

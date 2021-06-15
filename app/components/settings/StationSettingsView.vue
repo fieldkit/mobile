@@ -13,12 +13,12 @@
                 </StackLayout>
 
                 <DockLayout row="0" v-if="showForgetStationDialog" class="text-center" @tap="() => {}">
-                    <GridLayout rows="auto,auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
-                        <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
-                        <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
-                        <Button row="2" :text="_L('forgetStationOK')" class="size-16 m-t-10 btn-primary" @tap="forgetStation" />
-                        <Button row="3" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
-                    </GridLayout>
+                    <StackLayout dock="center" class="forget-dialog-container" verticalAlignment="center">
+                        <Label :text="_L('forgetStationTitle')" class="size-16 bold" />
+                        <Label :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
+                        <Button :text="_L('forgetStationOK')" class="size-16 m-t-10 btn-primary" @tap="forgetStation" />
+                        <Button :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
+                    </StackLayout>
                 </DockLayout>
             </GridLayout>
         </StationSettingsLayout>
@@ -124,34 +124,10 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.menu-text {
-    padding-left: 5;
-    padding-top: 20;
-    padding-bottom: 20;
-    margin-left: 10;
-    margin-right: 10;
-    border-color: $fk-gray-lighter;
-    border-top-width: 1;
-}
-.bottom-border {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
-
-.full-width {
-    width: 100%;
-    margin-bottom: 10;
-}
-
-.deployed-dialog-container {
+.forget-dialog-container {
     border-width: 1;
     width: 300;
     background-color: $background;
     padding: 20;
-}
-
-.deployed-dialog-text {
-    margin-top: 20;
-    font-size: 18;
 }
 </style>
