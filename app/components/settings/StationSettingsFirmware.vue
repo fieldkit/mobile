@@ -18,8 +18,9 @@
                             </StackLayout>
                             <StackLayout>
                                 <Label :text="station.name" textWrap="true" class="size-16 m-b-5" />
+                                <!-- TODO i18n interpolate -->
                                 <Label
-                                    :text="_L('firmwareVersion') + stationFirmware.version"
+                                    :text="_L('firmwareVersion') + ' ' + stationFirmware.version"
                                     class="size-14 m-b-5"
                                     textWrap="true"
                                     v-if="stationFirmware"
@@ -76,7 +77,7 @@
                         </template>
                         <template v-if="currentState === State.updating">
                             <Label :text="_L('updatingFirmware')" class="size-16 m-b-15" />
-                            <Label :text="_L('firmwareVersion') + stationFirmware.version" class="size-12 m-b-5" textWrap="true" />
+                            <Label :text="_L('firmwareVersion') + ' ' + selectedFirmware.version" class="size-12 m-b-5" textWrap="true" />
                             <StackLayout borderRadius="4" height="10">
                                 <Progress :value="updateProgress" scaleY="5" />
                             </StackLayout>
@@ -84,7 +85,7 @@
 
                         <template v-if="currentState === State.restarting">
                             <Label :text="_L('stationRestarting')" class="size-16 m-b-15" />
-                            <Label :text="_L('firmwareVersion') + stationFirmware.version" class="size-12 m-b-5" textWrap="true" />
+                            <Label :text="_L('firmwareVersion') + ' ' + stationFirmware.version" class="size-12 m-b-5" textWrap="true" />
                             <StackLayout borderRadius="4" height="10">
                                 <GridLayout rows="*">
                                     <AbsoluteLayout width="100%" height="10" clipToBounds="true">
