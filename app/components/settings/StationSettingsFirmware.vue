@@ -329,8 +329,9 @@ export default Vue.extend({
                         this.currentState = State.restarting;
                         this.expectedVersion = this.availableFirmware?.version ? this.availableFirmware.version : "";
                     });
+                } else {
+                    this.canUpgrade = true;
                 }
-
                 return Promise.resolve();
             });
         },
