@@ -301,6 +301,7 @@ export default Vue.extend({
 
 .duration-button {
     background: #efefef;
+    font-size: 12;
 }
 
 .duration-button-selected {
