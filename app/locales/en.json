@@ -150,7 +150,7 @@
     "downloaded": "Downloaded.",
     "updatingFirmware": "Updating",
     "updateFirmwareModalTitle": "Prepare for Update",
-    "updateFirmwareModalText1": "This update could take XX minutes.",
+    "updateFirmwareModalText1": "This update could take a minute or two.",
     "updateFirmwareModalText2": "Keep your station plugged in and close to your device or smart phone.",
     "updateFirmwareModalText3": "Your station will restart and you might have to reconnect your phone to the station.",
     "updateFirmwareModalContinueButton": "Continue Update",
