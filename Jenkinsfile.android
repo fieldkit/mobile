@@ -50,9 +50,13 @@ timestamps {
             }
 
             stage ('build') {
-                def props = readProperties(file: "private/gradle.properties")
-
 				def branch = getBranch(scmInfo)
+				def buildType = "beta"
+				if (branch == "main") {
+					buildType = "release"
+				}
+
+                def props = readProperties(file: "private/gradle.properties")
 
 				withEnv(["GIT_LOCAL_BRANCH=${branch}"]) {
 					sh """
@@ -65,6 +69,7 @@ set +x
 export FK_APP_RELEASE_STORE_PASSWORD=${props.FK_APP_RELEASE_STORE_PASSWORD}
 export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
 set -x
+export BUILD_TYPE=${buildType}
 env
 
 make clean-secrets
