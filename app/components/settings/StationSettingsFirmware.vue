@@ -85,7 +85,7 @@
 
                         <template v-if="currentState === State.restarting">
                             <Label :text="_L('stationRestarting')" class="size-16 m-b-15" />
-                            <Label :text="_L('firmwareVersion') + ' ' + stationFirmware.version" class="size-12 m-b-5" textWrap="true" />
+                            <Label :text="_L('firmwareVersion') + ' ' + selectedFirmware.version" class="size-12 m-b-5" textWrap="true" />
                             <StackLayout borderRadius="4" height="10">
                                 <GridLayout rows="*">
                                     <AbsoluteLayout width="100%" height="10" clipToBounds="true">
@@ -324,6 +324,8 @@ export default Vue.extend({
                     if (!this.station) throw new Error(`firmware-modal: no such station`);
                     if (!this.station.id) throw new Error(`firmware-modal: no station id`);
                     if (!this.station.url) throw new Error(`firmware-modal: no station url`);
+                    this.selectedFirmware = this.availableFirmware;
+                    debug.log(`selected-firmware`, this.selectedFirmware);
                     this.currentState = State.updating;
                     this.$s.dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url)).then(() => {
                         this.currentState = State.restarting;
@@ -356,10 +358,11 @@ export default Vue.extend({
             };
             await this.$showModal(ChooseFirmwareModal, options).then((value: { firmware: AvailableFirmware | null; updating: boolean }) => {
                 if (value.updating && value.firmware) {
-                    this.selectedFirmware = value.firmware;
                     if (!this.station) throw new Error(`firmware-modal: no such station`);
                     if (!this.station.id) throw new Error(`firmware-modal: no station id`);
                     if (!this.station.url) throw new Error(`firmware-modal: no station url`);
+                    this.selectedFirmware = value.firmware;
+                    debug.log(`selected-firmware`, this.selectedFirmware);
                     this.currentState = State.updating;
                     this.$s
                         .dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url, this.selectedFirmware.id))
