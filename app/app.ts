@@ -1,13 +1,15 @@
-import { initializeI18n } from "@/lib/tns-i18n-deep";
+import { initializeI18n } from "@/lib/i18n";
 // Note: i18n detects the preferred language on the phone,
 // and this default language initialization does not override that
 initializeI18n("en");
 
+global["__Zone_disable_blocking"] = true;
+
 // It's important to import this way and avoid mixing zone.js with the
 // dist paths, from what I can tell.
-import "zone.js/dist/zone";
-import "zone.js/dist/zone-error";
-import "zone.js/dist/zone-bluebird";
+require("zone.js/dist/zone");
+require("zone.js/dist/zone-error");
+require("zone.js/dist/zone-bluebird");
 
 import _ from "lodash";
 import moment from "moment";
@@ -16,14 +18,13 @@ import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
 
-import { _L, initializeLogging } from "./lib";
+import { debug, _L, initializeLogging } from "./lib";
 import { OurStore as Store } from "@/services";
 import Services from "./services/singleton";
 import { navigatorFactory } from "./routes";
 import Config, { Build } from "./config";
 
-import { MapboxView } from "nativescript-mapbox";
-import { DropDown } from "nativescript-drop-down";
+import { MapboxView } from "@nativescript-community/ui-mapbox";
 import { CheckBox } from "@nstudio/nativescript-checkbox";
 
 import BottomNavigation from "@nativescript-community/ui-material-bottom-navigation/vue";
@@ -31,8 +32,6 @@ import BottomNavigation from "@nativescript-community/ui-material-bottom-navigat
 import StartupScreen from "./components/StartupScreen.vue";
 
 function configureVueJs(services: typeof Services): Store {
-    Vue.registerElement("DropDown", () => DropDown);
-
     Vue.registerElement("Mapbox", () => MapboxView);
 
     Vue.registerElement("CheckBox", () => CheckBox, {
@@ -42,11 +41,25 @@ function configureVueJs(services: typeof Services): Store {
         },
     });
 
+    Vue.filter("prettyCoordinate", (value: number | undefined): string => {
+        if (!_.isNumber(value)) {
+            return "--";
+        }
+        return value.toFixed(5);
+    });
+
     Vue.filter("prettyReading", (value: number | undefined): string => {
         if (!_.isNumber(value)) {
             return "--";
         }
         return value.toFixed(2);
+    });
+
+    Vue.filter("prettyUnixTime", (value: number | undefined): string => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value * 1000).format("MM/DD/YYYY hh:mm:ss");
     });
 
     Vue.filter("prettyTime", (value: number | Date | undefined): string => {
@@ -61,6 +74,13 @@ function configureVueJs(services: typeof Services): Store {
             return "N/A";
         }
         return moment(value).format("MM/DD/YYYY");
+    });
+
+    Vue.filter("prettyDateUnix", (value: number | undefined): string => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value * 1000).format("MM/DD/YYYY");
     });
 
     Vue.filter("prettyDurationSeconds", (value: number): string => {
@@ -81,7 +101,7 @@ function configureVueJs(services: typeof Services): Store {
             value -= 60;
         }
         const duration = moment.duration(value, "seconds");
-        console.log("prettyTimeOfDay", value, duration);
+        debug.log("prettyTimeOfDay", value, duration);
         return moment.utc(duration.asMilliseconds()).format("HH:mm");
     });
 
@@ -117,7 +137,7 @@ function configureVueJs(services: typeof Services): Store {
     // eslint-disable-next-line
     Vue.prototype.$s = store;
     // eslint-disable-next-line
-    Vue.prototype.$navigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
+    Vue.prototype.$deprecatedNavigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
 
     return store;
 }
@@ -144,7 +164,7 @@ Bluebird.config({
 // Crashlytics.
 void initializeLogging();
 
-console.log(`starting: build ${JSON.stringify(Build)}`);
+debug.log(`starting: build ${JSON.stringify(Build)}`);
 
 // This has to be the last thing we do. On iOS this will never return.
 startVueJs(Services);

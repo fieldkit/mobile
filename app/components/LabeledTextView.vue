@@ -1,5 +1,5 @@
 <template>
-    <StackLayout>
+    <StackLayout class="labeled-text-view">
         <Label
             row="0"
             :text="label"
@@ -90,21 +90,16 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.field-label {
-    color: $fk-gray-hint;
-}
-.labeled-text-field {
-    color: $fk-primary-black;
-    padding-bottom: 5;
-    width: 100%;
-    font-size: 18;
-}
-.validation-error {
-    width: 100%;
-    font-size: 12;
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+.labeled-text-view {
+    .field-label {
+        color: $fk-gray-hint;
+    }
+
+    .labeled-text-field {
+        color: $fk-primary-black;
+        padding-bottom: 5;
+        width: 100%;
+        font-size: 18;
+    }
 }
 </style>

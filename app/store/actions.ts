@@ -196,7 +196,7 @@ export class ScanStationModulesAction {
 export class UpgradeStationFirmwareAction {
     type = ActionTypes.UPGRADE_STATION_FIRMWARE;
 
-    constructor(public readonly stationId: number, public readonly url: string) {}
+    constructor(public readonly stationId: number, public readonly url: string, public readonly firmwareId?: number) {}
 }
 
 export class DownloadStationDataAction {
@@ -271,4 +271,22 @@ export class SyncAccountAction {
     type = ActionTypes.SYNC_ACCOUNT;
 
     constructor(public readonly email: string) {}
+}
+
+export class RecordAudioAction {
+    type = ActionTypes.AUDIO_RECORD;
+}
+
+export class PauseRecordingAction {
+    type = ActionTypes.AUDIO_PAUSE;
+
+    constructor(public readonly failUnlessRecording: boolean = true) {}
+}
+
+export class ResumeRecordingAction {
+    type = ActionTypes.AUDIO_RESUME;
+}
+
+export class StopRecordingAction {
+    type = ActionTypes.AUDIO_STOP;
 }

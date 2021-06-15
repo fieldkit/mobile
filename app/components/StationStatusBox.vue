@@ -88,7 +88,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Timer, getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/lib";
+import { debug, _L, Timer, getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/lib";
 import { LegacyStation } from "@/store";
 
 interface OtherData {
@@ -125,8 +125,7 @@ export default Vue.extend({
             return (this as unknown) as OtherData;
         },
         displayConsumedMemory(): string {
-            if (!this.station.consumedMemory) return "";
-            return convertBytesToLabel(this.station.consumedMemory);
+            return convertBytesToLabel(this.station.consumedMemory || 0);
         },
         displayConsumedMemoryPercent(): number {
             if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
@@ -176,7 +175,7 @@ export default Vue.extend({
             return `${this.station.batteryLevel}%`;
         },
         lastSeen(): string {
-            console.log("lastSeen", this.station.lastSeen);
+            debug.log("lastSeen", this.station.lastSeen);
             if (!this.station.lastSeen) return _L("unknown");
             return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
         },

@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { debug } from "@/lib";
 import { ActionContext, Module } from "vuex";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
@@ -21,7 +22,7 @@ export interface Notification {
     satisfiedAt?: number | null;
     project?: string;
     user?: string;
-    station?: string;
+    station?: { id?: number };
     actions?: string;
 }
 
@@ -39,7 +40,7 @@ const actions = (services: ServiceRef) => {
             try {
                 await dispatch(ActionTypes.LOAD_NOTIFICATIONS);
             } catch (error) {
-                console.log(`error loading notifications:`, error);
+                debug.log(`error loading notifications:`, error);
             }
         },
         [ActionTypes.LOAD_NOTIFICATIONS]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -74,14 +75,14 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .addNotification(notification)
                 .then((res) => dispatch(ActionTypes.LOAD_NOTIFICATIONS).then(() => res))
-                .catch((e) => console.log(ActionTypes.ADD_NOTIFICATION, e));
+                .catch((e) => debug.log(ActionTypes.ADD_NOTIFICATION, e));
         },
         [ActionTypes.UPDATE_NOTIFICATION]: ({ dispatch }: ActionParameters, notification) => {
             return services
                 .db()
                 .updateNotification(notification)
                 .then((res) => res)
-                .catch((e) => console.log(ActionTypes.UPDATE_NOTIFICATION, e));
+                .catch((e) => debug.log(ActionTypes.UPDATE_NOTIFICATION, e));
         },
         [ActionTypes.DISMISS_NOTIFICATION]: (
             { commit, dispatch, state }: ActionParameters,
@@ -98,7 +99,7 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .updateNotification(notification)
                 .then((res) => dispatch(ActionTypes.LOAD_NOTIFICATIONS).then(() => res))
-                .catch((e) => console.log(ActionTypes.DISMISS_NOTIFICATION, e));
+                .catch((e) => debug.log(ActionTypes.DISMISS_NOTIFICATION, e));
         },
         [ActionTypes.SATISFY_NOTIFICATION]: ({ commit, dispatch, state }: ActionParameters, payload: { key: string }) => {
             const notification: Notification = {
@@ -111,7 +112,7 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .updateNotification(notification)
                 .then((res) => dispatch(ActionTypes.LOAD_NOTIFICATIONS).then(() => res))
-                .catch((e) => console.log(ActionTypes.SATISFY_NOTIFICATION, e));
+                .catch((e) => debug.log(ActionTypes.SATISFY_NOTIFICATION, e));
         },
     };
 };

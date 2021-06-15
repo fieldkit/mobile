@@ -7,16 +7,12 @@
 import Vue from "vue";
 
 export default Vue.extend({
-    data(): {} {
-        return {};
-    },
     props: {
         connected: {
             required: true,
             type: Boolean,
         },
     },
-    methods: {},
 });
 </script>
 <style scoped lang="scss">
@@ -31,6 +27,6 @@ export default Vue.extend({
 }
 
 .ns-ios .disconnect-warning {
-    margin-top: 5;
+    margin-top: 20;
 }
 </style>

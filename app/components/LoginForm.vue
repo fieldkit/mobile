@@ -1,6 +1,12 @@
 <template>
-    <StackLayout class="form">
-        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" :isEnabled="!busy" />
+    <FlexboxLayout class="login-form form">
+        <LabeledTextField
+            v-model="form.email"
+            label="Email"
+            @blur="checkEmail"
+            :isEnabled="!busy"
+            :invalid="form.v.email.required || form.v.email.length || form.v.email.format"
+        />
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -28,7 +34,14 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" :isEnabled="!busy" />
+        <LabeledTextField
+            v-model="form.password"
+            label="Password"
+            @blur="checkPassword"
+            :secure="true"
+            :isEnabled="!busy"
+            :invalid="form.v.password.required || form.v.password.length"
+        />
         <Label
             v-show="form.v.password.required"
             id="password-required"
@@ -46,7 +59,7 @@
             textWrap="true"
         />
 
-        <Label class="m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
+        <Label class="forgot-password-link m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('logIn')" :isEnabled="!busy" @tap="login" />
 
@@ -56,14 +69,15 @@
             @tap="continueOffline"
             v-if="allowContinueOffline"
         />
-    </StackLayout>
+    </FlexboxLayout>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { fullRoutes } from "@/routes";
-import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
+import SharedComponents from "@/components/shared";
+import { fullRoutes } from "@/routes";
+import { _L } from "@/lib";
 import { email } from "vuelidate/lib/validators";
 
 export default Vue.extend({
@@ -113,7 +127,7 @@ export default Vue.extend({
             this.form.v.password.length = this.form.password.length > 0 && this.form.password.length < 10;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(fullRoutes.onboarding.assemble);
+            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
         invalid(): boolean {
             this.checkEmail();
@@ -166,60 +180,31 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.login-page {
-    font-size: 16;
-    align-items: center;
-    flex-direction: column;
-}
-
-.form {
-    margin-left: 5;
-    margin-right: 5;
+.login-form {
     flex-grow: 2;
     vertical-align: center;
-}
+    flex-direction: column;
+    justify-content: space-around;
+    margin: 0;
+    padding: 0;
+    height: 100%;
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .logo {
+        margin-top: 50;
+        height: 47;
+    }
 
-.spacer-top {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 2;
-}
+    .active {
+        border-top-color: $fk-secondary-blue;
+    }
 
-.active {
-    border-top-color: $fk-secondary-blue;
-}
+    .btn-primary {
+        margin: 20 0 15 0;
+    }
 
-.input-field {
-    margin-bottom: 15;
-}
-
-.input {
-    width: 100%;
-    font-size: 16;
-    color: $fk-primary-black;
-    placeholder-color: $fk-gray-hint;
-}
-
-.input:disabled {
-    opacity: 0.5;
-}
-
-.btn-primary {
-    margin: 20 5 15 5;
-}
-
-.bottom-pad {
-    margin-bottom: 8;
-}
-
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+    .validation-error {
+        color: $fk-tertiary-red;
+        padding-top: 5;
+    }
 }
 </style>

@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { MockStationReplies } from "./utilities";
+import { debug } from "@/lib";
 import {
     PhoneLocation,
     OpenProgressMutation,
@@ -36,7 +37,7 @@ describe("Store", () => {
     describe("importing typed messages", () => {
         it("should work", () => {
             const HttpReply = fk_app.HttpReply;
-            console.log(HttpReply);
+            debug.log(HttpReply);
         });
     });
 
@@ -164,7 +165,7 @@ describe("Store", () => {
             try {
                 await store.dispatch(ActionTypes.REFRESH);
             } catch (e) {
-                console.log("ignored, expected", e);
+                debug.log("ignored, expected", e);
             }
 
             const s1 = _(store.getters.availableStations)
@@ -209,7 +210,7 @@ describe("Store", () => {
             try {
                 await store.dispatch(ActionTypes.REFRESH);
             } catch (e) {
-                console.log("ignored, expected", e);
+                debug.log("ignored, expected", e);
             }
 
             const s1 = _(store.getters.availableStations)
@@ -339,7 +340,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.LOAD);
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
-            console.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
+            debug.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
 
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);
@@ -363,7 +364,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.QUERY_STATION, info);
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
-            console.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
+            debug.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
 
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);
@@ -387,12 +388,7 @@ describe("Store", () => {
     }
 
     describe("map", () => {
-        it("should begin with no default location", async () => {
-            expect(store.getters.mappedStations).toBe(null);
-        });
-
         it("should center on the phone's location", async () => {
-            expect(store.getters.mappedStations).toBe(null);
             store.commit(MutationTypes.PHONE_LOCATION, CommonLocations.ConservifyLab);
             expect(store.getters.mappedStations.center.location).toEqual(CommonLocations.ConservifyLab.location());
         });

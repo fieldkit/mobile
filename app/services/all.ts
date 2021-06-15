@@ -3,7 +3,7 @@ import PortalUpdater from "./portal-updater";
 import DiscoverStation from "./discover-station";
 import Diagnostics from "./diagnostics-service";
 import DatabaseInterface from "./db-interface";
-import QueryStation from "./query-station";
+import { QueryStation } from "./query-station";
 import PhoneLocation from "./phone-location";
 import CalibrationService from "./calibration-service";
 import StationFirmware from "./station-firmware";

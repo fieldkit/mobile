@@ -1,19 +1,19 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
-        <ScrollView>
-            <FlexboxLayout class="page login-page" justifyContent="space-between">
-                <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
+        <SettingsLayout class="m-x-10">
+            <GridLayout rows="*,auto">
+                <LoginForm row="0" v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
-                <RegisterForm v-else />
+                <RegisterForm row="0" v-else />
 
-                <Label class="sign-up-label m-t-30 size-14" @tap="toggle">
+                <Label row="1" class="sign-up-label m-t-30 size-14" @tap="toggle">
                     <FormattedString>
                         <Span :text="login ? _L('needAccount') : _L('backToLogin')"></Span>
                     </FormattedString>
                 </Label>
-            </FlexboxLayout>
-        </ScrollView>
+            </GridLayout>
+        </SettingsLayout>
     </Page>
 </template>
 
@@ -24,6 +24,7 @@ import RegisterForm from "../RegisterForm.vue";
 import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
@@ -43,7 +44,7 @@ export default Vue.extend({
     },
     methods: {
         toggle(): void {
-            console.log(`toggle-form`);
+            debug.log(`toggle-form`);
             this.login = !this.login;
         },
         async onLoginSaved(form: { email: string; password: string }): Promise<void> {
@@ -54,7 +55,7 @@ export default Vue.extend({
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(() => this.$navigateBack())
                     .catch((error) => {
-                        console.log("error", error);
+                        debug.log("error", error);
                         this.busy = false;
                         return Dialogs.alert(_L("loginFailed"));
                     });

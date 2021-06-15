@@ -1,8 +1,10 @@
 import _ from "lodash";
 import Long from "long";
+import { debug } from "./debugging";
 import { FileType } from "@/store/types";
 import { DataServices } from "./data-services";
 import { fk_data } from "fk-data-protocol/fk-data";
+import { Buffer } from "buffer";
 
 const PbDataRecord = fk_data.DataRecord;
 const PbSignedRecord = fk_data.SignedRecord;
@@ -67,7 +69,7 @@ function parseDataRecord(buffer: Buffer): ParsedDataRecord {
 }
 
 function parseMetaRecord(buffer: Buffer): ParsedDataRecord {
-    const signed = (PbSignedRecord.decode(buffer) as unknown) as SignedRecord;
+    const signed = PbSignedRecord.decode(buffer) as unknown as SignedRecord;
     const parsed = PbDataRecord.decodeDelimited(Buffer.from(signed.data, "base64"));
     return {
         type: FileType.Meta,
@@ -139,7 +141,7 @@ export class DataFile {
     }
 
     private walkRaw<T extends RawRecordVisitor>(visitor: T): Promise<T> {
-        console.log("walk-raw:walking", this.path);
+        debug.log("walk-raw:walking", this.path);
         const started = new Date();
         const parseFunction = this.parseFunction;
         return this.services()
@@ -154,14 +156,14 @@ export class DataFile {
                                     // TODO Stop!
                                 }
                             } catch (error) {
-                                console.log(`error handling raw record: ${JSON.stringify(error)}`);
+                                debug.log(`error handling raw record: ${JSON.stringify(error)}`);
                             }
                         }
                     })
                     .then(() => {
                         const done = new Date();
                         const elapsed = done.getTime() - started.getTime();
-                        console.log("walk-raw:done", this.path, elapsed);
+                        debug.log("walk-raw:done", this.path, elapsed);
                         return visitor;
                     });
             });
@@ -181,7 +183,7 @@ export class DataFile {
 
     private cache(): Promise<ParsedDataRecord[]> {
         if (!this.allRecords) {
-            console.log("data-file:caching", this.path);
+            debug.log("data-file:caching", this.path);
             this.allRecords = this.walkRaw(new ReturnAllParsedRecords()).then((visitor) => visitor.records);
         }
         return this.allRecords;

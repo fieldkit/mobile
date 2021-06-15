@@ -1,21 +1,21 @@
 <template>
     <GridLayout rows="auto,auto,auto" columns="*,*" class="interval-editor">
         <StackLayout row="0" col="0" class="start-container" v-if="!fullDay">
-            <TimeField :value="interval.start" label="Start" @change="(time) => onChangeStart(time)" />
+            <TimeField :value="interval.start" :label="_L('schedules.editor.start')" @change="(time) => onChangeStart(time)" />
         </StackLayout>
 
         <StackLayout row="0" col="1" class="end-container" v-if="!fullDay">
-            <TimeField :value="interval.end" label="End" @change="(time) => onChangeEnd(time)" />
+            <TimeField :value="interval.end" :label="_L('schedules.editor.end')" @change="(time) => onChangeEnd(time)" />
         </StackLayout>
 
         <StackLayout row="1" col="0" class="field-container">
-            <Label text="Every" class="size-12 field-label" />
+            <Label :text="_L('schedules.editor.every')" class="size-12 field-label" />
 
             <TextField
                 :text="form.quantity"
                 :class="fieldClass"
                 verticalAligment="bottom"
-                keyboardType="number"
+                :keyboardType="keyboardType"
                 autocorrect="false"
                 autocapitalizationType="none"
                 v-if="enabled"
@@ -46,29 +46,47 @@
                 textWrap="true"
             />
         </StackLayout>
-        <StackLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
-            <DropDown
-                class="drop-down"
-                :items="items"
-                :isEnabled="enabled"
-                :selectedIndex="indexOf(form.duration)"
-                @selectedIndexChanged="onDurationChange"
-                v-if="items"
+        <FlexboxLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
+            <Button
+                text="Minutes"
+                :class="form.duration == 60 ? 'duration-button duration-button-selected' : 'duration-button'"
+                @tap="onDurationChange(60)"
             />
-        </StackLayout>
-
-        <StackLayout row="2" colSpan="2" class="summary-container" v-if="false">
-            <Label :text="summary" />
-        </StackLayout>
+            <Button
+                text="Hours"
+                :class="form.duration == 3600 ? 'duration-button duration-button-selected' : 'duration-button'"
+                @tap="onDurationChange(3600)"
+            />
+        </FlexboxLayout>
     </GridLayout>
 </template>
 
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
+import { isIOS } from "@nativescript/core";
+import { debug } from "@/lib";
+
+interface IntervalForm {
+    duration: number;
+    quantity: string;
+}
+
+function getStartingForm(interval: Interval): IntervalForm {
+    const minutes = interval.interval / 60;
+    if (minutes >= 60) {
+        return {
+            duration: 3600,
+            quantity: String(interval.interval / 3600),
+        };
+    }
+    return {
+        duration: 60,
+        quantity: String(minutes),
+    };
+}
 
 export default Vue.extend({
     name: "IntervalEditor",
@@ -91,23 +109,13 @@ export default Vue.extend({
     },
     data(): {
         focus: boolean;
-        durations: { display: string; value: number; duration: number }[];
-        items: any;
         form: { quantity: string; duration: number };
         errors: { quantity: { required: boolean; numeric: boolean; minimum: boolean } };
     } {
-        const durations = [
-            { display: "Minutes", value: 60, duration: 60 },
-            { display: "Hours", value: 60 * 60, duration: 60 * 60 },
-        ];
+        debug.log(`schedule-interval-data: ${JSON.stringify(this.interval)}`);
         return {
             focus: false,
-            durations: durations,
-            items: null,
-            form: {
-                quantity: "1",
-                duration: 60,
-            },
+            form: getStartingForm(this.interval),
             errors: {
                 quantity: {
                     required: false,
@@ -118,6 +126,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        keyboardType(): string {
+            if (isIOS) {
+                return "number";
+            }
+            return "";
+        },
         fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
@@ -126,25 +140,16 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
-        this.items = new ValueList(this.durations);
-        this.updateForm(this.interval);
+        debug.log("schedule-interval:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
     },
     methods: {
-        updateForm(interval: Interval): void {
-            console.log("interval-editor:updating", JSON.stringify(interval));
-            const minutes = interval.interval / 60;
-            if (minutes >= 60) {
-                this.form.duration = 3600;
-            }
-            this.form.quantity = String(Math.ceil(interval.interval / this.form.duration));
-            console.log("interval-editor:updated", JSON.stringify(this.form));
-        },
         updateInvalid(): void {
             const invalid = this.errors.quantity.numeric || this.errors.quantity.required || this.errors.quantity.minimum;
             this.$emit("invalid", invalid);
         },
         onChange(ev: any): void {
+            debug.log(`schedule-interval:change ${JSON.stringify(this.form)}`);
+
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
             this.errors.quantity.minimum = false;
@@ -175,7 +180,7 @@ export default Vue.extend({
                 interval: seconds,
             };
 
-            console.log("interval-editor:seconds", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:seconds: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -186,7 +191,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            console.log("interval-editor:start", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:start: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -197,7 +202,7 @@ export default Vue.extend({
                 interval: this.interval.interval,
             };
 
-            console.log("interval-editor:end", JSON.stringify(newInterval));
+            debug.log(`schedule-interval:end: ${JSON.stringify(newInterval)}`);
             this.$emit("change", newInterval);
             this.updateInvalid();
         },
@@ -211,21 +216,18 @@ export default Vue.extend({
         onQuantityChange(ev, fireChange: boolean): void {
             // value is undefined for onBlur
             if (ev && ev.value) {
-                this.form.quantity = ev.value;
-                return this.onChange(fireChange);
-            }
-        },
-        onDurationChange(ev, ...args): void {
-            this.form.duration = this.durations[ev.newIndex].duration;
-            return this.onChange(true);
-        },
-        indexOf(duration: number): number {
-            for (let v of this.durations) {
-                if (v.duration === duration) {
-                    return this.durations.indexOf(v);
+                if (this.form.quantity != ev.value) {
+                    this.form.quantity = ev.value;
+                    debug.log(`schedule-interval:quantity: ${JSON.stringify(this.form)}`);
+                    return this.onChange(fireChange);
                 }
             }
-            return 0;
+        },
+        onDurationChange(duration: number): void {
+            if (duration != this.form.duration) {
+                this.form.duration = duration;
+                return this.onChange(true);
+            }
         },
     },
 });
@@ -234,9 +236,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.interval-editor {
-    /* background: #ffffaa; */
-}
 .validation-error {
     margin-right: 20;
     font-size: 12;
@@ -298,5 +297,26 @@ export default Vue.extend({
     padding: 10;
     font-size: 16;
     text-align: center;
+}
+
+.duration-button {
+    background: #efefef;
+}
+
+.duration-button-selected {
+    background: $fk-primary-red;
+}
+
+.ns-ios .duration-button {
+    padding: 10;
+    margin-right: 10;
+}
+
+.ns-ios .field-label {
+    padding: 10;
+}
+
+.ns-ios .labeled-text-field {
+    padding: 10;
 }
 </style>

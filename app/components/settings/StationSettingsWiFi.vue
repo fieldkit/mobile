@@ -1,23 +1,10 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('wifi')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="p-t-10">
-                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
-                        <Label
-                            v-for="(option, i) in menuOptions"
-                            :key="option"
-                            :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
-                            :text="option"
-                            textWrap="true"
-                            @tap="selectFromMenu"
-                        />
-                    </StackLayout>
-                </StackLayout>
-            </ScrollView>
-        </GridLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <SettingsItemText text="network" @tap="goToNetwork" />
+            <SettingsItemText text="uploadSchedule" @tap="goToSchedule" v-if="false" />
+        </StationSettingsLayout>
     </Page>
 </template>
 
@@ -27,16 +14,10 @@ import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
-import * as animations from "@/components/animations";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
-    data(): {
-        menuOptions: string[];
-    } {
-        return {
-            menuOptions: [_L("network") /*, _L("uploadSchedule")*/],
-        };
+    data(): {} {
+        return {};
     },
     props: {
         stationId: {
@@ -46,9 +27,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        WiFiNetwork,
-        WiFiSchedule,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {
@@ -56,29 +34,15 @@ export default Vue.extend({
         },
     },
     methods: {
-        selectFromMenu(event: Event): Promise<void> {
-            void animations.pressed(event);
-
-            switch ((event as any).object.text) {
-                case _L("network"):
-                    this.goToNetwork();
-                    break;
-                case _L("uploadSchedule"):
-                    this.goToSchedule();
-                    break;
-            }
-
-            return Promise.resolve();
-        },
         async goToNetwork(): Promise<void> {
-            await this.$navigateTo(WiFiNetwork, {
+            await this.$deprecatedNavigateTo(WiFiNetwork, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToSchedule(): Promise<void> {
-            await this.$navigateTo(WiFiSchedule, {
+            await this.$deprecatedNavigateTo(WiFiSchedule, {
                 props: {
                     stationId: this.stationId,
                 },

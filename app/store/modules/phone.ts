@@ -6,6 +6,7 @@ import { MutationTypes, RenameStationMutation } from "../mutations";
 import { ActionTypes, RefreshNetworkAction, NetworkChangedAction, StationRepliedAction } from "../actions";
 import { Station } from "../types";
 import { ServiceRef } from "@/services";
+import { debug } from "@/lib";
 import Config from "@/config";
 
 export class PhoneState {
@@ -44,7 +45,7 @@ const actions = (services: ServiceRef) => {
                     if (!emulator) {
                         await dispatch(new NetworkChangedAction(network));
                     } else {
-                        console.log("emulator detected, skip wifi change");
+                        debug.log("emulator detected, skip wifi change");
                     }
                 }
             }
@@ -59,7 +60,7 @@ const actions = (services: ServiceRef) => {
             try {
                 await dispatch(ActionTypes.LOAD_STORED_NETWORKS);
             } catch (error) {
-                console.log(`error loading stored networks:`, error);
+                debug.log(`error loading stored networks:`, error);
             }
         },
         [ActionTypes.LOAD_STORED_NETWORKS]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -69,14 +70,14 @@ const actions = (services: ServiceRef) => {
                 .then((rows) => {
                     commit(MutationTypes.LOAD_STORED_NETWORKS, rows);
                 })
-                .catch((e) => console.log(ActionTypes.LOAD_STORED_NETWORKS, e));
+                .catch((e) => debug.log(ActionTypes.LOAD_STORED_NETWORKS, e));
         },
         [ActionTypes.ADD_STORED_NETWORKS]: async ({ dispatch }: ActionParameters, name) => {
             await services
                 .db()
                 .addStoredNetwork(name)
                 .then(() => dispatch(ActionTypes.LOAD_STORED_NETWORKS))
-                .catch((e) => console.log(ActionTypes.ADD_STORED_NETWORKS, e));
+                .catch((e) => debug.log(ActionTypes.ADD_STORED_NETWORKS, e));
         },
     };
 };

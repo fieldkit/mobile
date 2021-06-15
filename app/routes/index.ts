@@ -3,6 +3,7 @@ import _ from "lodash";
 import { VueConstructor } from "vue/types/vue";
 import { Page, Frame } from "@nativescript/core";
 import { NavigationEntryVue } from "nativescript-vue";
+import { debug } from "@/lib";
 import { NavigationMutation } from "@/store/mutations";
 import { OurStore } from "@/store/our-store";
 
@@ -34,10 +35,28 @@ function addDefaults(options: NavigateOptions | null, overrides: { frame: string
     return _.extend({}, defaults, options);
 }
 
-// eslint-disable-next-line
-export async function navigateBackToBookmark(vue: Vue, frameId: string | null): Promise<boolean> {
+export function logNavigationStack(frameId: string | undefined = undefined): void {
     const frameToNav = frameId || Frame.topmost().id;
     const frame = Frame.getFrameById(frameToNav);
+
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        debug.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+    }
+}
+
+// eslint-disable-next-line
+export async function navigateBackToBookmark(vue: Vue, frameId: string | undefined): Promise<boolean> {
+    logNavigationStack(frameId);
+
+    const frameToNav = frameId || Frame.topmost().id;
+    const frame = Frame.getFrameById(frameToNav);
+
+    for (const a of frame.backStack) {
+        const entryProps = a.entry as { props?: { bookmark?: boolean } };
+        debug.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
+    }
+
     for (const a of frame.backStack) {
         const entryProps = a.entry as { props?: { bookmark?: boolean } };
         if (entryProps.props?.bookmark === true) {
@@ -45,15 +64,29 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | null): 
             return true;
         }
     }
+
+    debug.log("navigate-back-to-bookmark: failed");
+
     return false;
 }
 
 let tabsReady = false;
 
 getBus().$on("nav:tabs-ready", () => {
-    console.log("nav:tabs-ready");
+    debug.log("nav:tabs-ready");
     tabsReady = true;
 });
+
+// Deprecate this eventually.
+export function getRouteComponent(pageOrRoute: FullRoute | Route): unknown {
+    /* eslint-disable */
+    if (pageOrRoute instanceof FullRoute) {
+        const route = namedRoutes[pageOrRoute.name];
+        return route.page;
+    }
+
+    throw new Error(`unable to get route component`);
+}
 
 export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
     /* eslint-disable */
@@ -63,9 +96,9 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             const page = route.page as any;
             // Verify top route is for TabbedLayout
             const firstTab = pageOrRoute.props.firstTab as FirstTab;
-            console.log(`nav:full-route: have-tabs: ${tabsReady} firstTab ${firstTab}`);
+            debug.log(`nav:full-route: have-tabs: ${tabsReady} firstTab ${firstTab}`);
             if (!tabsReady || !firstTab) {
-                console.log(`nav:navigating to tabbed-layout`);
+                debug.log(`nav:navigating to tabbed-layout`);
                 store.commit(
                     new NavigationMutation(
                         pageOrRoute.frame || "<no-frame>",
@@ -74,30 +107,32 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
                         true
                     )
                 );
-                await navigateTo(
-                    page,
-                    _.extend(
-                        options,
-                        {
-                            frame: pageOrRoute.frame,
-                            props: pageOrRoute.props,
-                            transition: {
-                                name: "fade",
-                                duration: 0,
-                            },
+
+                const finalOptions = _.extend(
+                    options,
+                    {
+                        frame: pageOrRoute.frame,
+                        props: pageOrRoute.props,
+                        transition: {
+                            name: "fade",
+                            duration: 0,
                         },
-                        pageOrRoute.options
-                    )
+                    },
+                    pageOrRoute.options
                 );
+
+                debug.log(`nav:full-route: final-options ${JSON.stringify(finalOptions)}`);
+
+                await navigateTo(page, finalOptions);
             } else {
-                console.log(`nav:using existing tabbed-layout`);
+                debug.log(`nav:using existing tabbed-layout`);
                 await navFn(firstTab.route, null);
                 getBus().$emit("nav:tab", firstTab.index);
             }
         } else if (pageOrRoute instanceof Route) {
             const withDefaults = addDefaults(options, { frame: pageOrRoute.frame });
             const page = pageOrRoute.page as any;
-            console.log("nav:route", pageOrRoute, withDefaults);
+            debug.log("nav:route", pageOrRoute, withDefaults);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",
@@ -109,7 +144,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
             const withDefaults = addDefaults(options, { frame: undefined });
-            console.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
+            debug.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",

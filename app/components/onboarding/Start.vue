@@ -2,7 +2,7 @@
     <Page @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <PlatformHeader :title="_L('fieldkitWifi')" :onBack="back" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('continue')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrolling="true">
+        <SkipLayout :buttonLabel="_L('continue')" @button="forward" :skipLabel="_L('skipStep')" @skip="skip" :scrollable="true">
             <GridLayout rows="auto" columns="*" verticalAlignment="middle" v-show="step == 0">
                 <StackLayout row="0">
                     <Label class="instruction" :text="_L('introConnectStep1')" lineHeight="4" textWrap="true"></Label>
@@ -34,25 +34,28 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { fullRoutes, routes } from "@/routes";
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 
-export default Vue.extend({
+const Start = Vue.extend({
     components: {
         ...SharedComponents,
     },
+    props: {
+        step: {
+            type: Number,
+            default: 0,
+        },
+    },
     data(): {
         frame: number;
-        step: number;
     } {
         return {
             frame: 0,
-            step: 0,
         };
     },
     methods: {
         onPageLoaded(): void {
-            console.log("onboarding/start:", "loaded");
-            this.step = 0;
+            debug.log("onboarding/start:", "loaded");
             this.frame = 0;
             const thisAny = this as any;
             thisAny.timer = new Timer(1000, () => {
@@ -60,31 +63,35 @@ export default Vue.extend({
             });
         },
         onNavigatingFrom(): void {
-            console.log("onboarding/start:", "nav away");
+            debug.log("onboarding/start:", "nav away");
             const thisAny = this as any;
             thisAny.timer.stop();
         },
         async forward(): Promise<void> {
-            this.step++;
-            if (this.step == 2) {
-                await this.$navigateTo(routes.onboarding.searching, {
+            if (this.step < 1) {
+                await this.$navigateTo(Start, {
+                    frame: "stations-frame",
+                    props: {
+                        step: this.step + 1,
+                    },
+                });
+            } else {
+                await this.$deprecatedNavigateTo(routes.onboarding.searching, {
                     backstackVisible: false,
                 });
             }
         },
         async back(): Promise<void> {
-            console.log("onboarding/start:", "back");
-            if (this.step > 0) {
-                this.step -= 1;
-            } else {
-                await this.$navigateBack();
-            }
+            debug.log("onboarding/start:", "back");
+            await this.$navigateBack();
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
     },
 });
+
+export default Start;
 </script>
 
 <style scoped lang="scss">

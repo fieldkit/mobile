@@ -3,9 +3,7 @@ import { Services } from "@/services";
 import { ActionTypes, OurStore } from "@/store";
 import registerLifecycleEvents from "@/services/lifecycle";
 import { deleteMissingAssets } from "@/services";
-import { promiseAfter, zoned } from "@/lib";
-
-// import { ProcessAllStationsTask } from "@/lib/process";
+import { debug, promiseAfter, zoned } from "@/lib";
 
 export function updateStore(store: OurStore): Promise<void> {
     promiseAfter(1000)
@@ -15,7 +13,7 @@ export function updateStore(store: OurStore): Promise<void> {
             })
         )
         .catch((error) => {
-            console.log(`refresh:error: ${JSON.stringify(error)}`, error);
+            debug.log(`refresh:error: ${JSON.stringify(error)}`, error);
         })
         .finally(() => void updateStore(store));
     return Promise.resolve();
@@ -35,33 +33,32 @@ async function resumePortalSession(services: Services): Promise<void> {
 }
 
 async function startupPortal(services: Services): Promise<void> {
-    console.log(`startup-portal: begin`);
+    debug.log(`startup-portal: begin`);
 
     await resumePortalSession(services);
     await services.PortalUpdater().start();
 
-    console.log(`startup-portal: end`);
+    debug.log(`startup-portal: end`);
 }
 
 async function startupStore(services: Services): Promise<void> {
-    console.log(`startup-store: begin`);
+    debug.log(`startup-store: begin`);
 
     await services.DiscoverStation().startMonitorinNetwork();
     await updateStore(services.Store());
-    // await services.Tasks().enqueue(new ProcessAllStationsTask()));
     await enableLocationServices(services);
 
-    console.log(`startup-store: end`);
+    debug.log(`startup-store: end`);
 }
 
 async function background(services: Services): Promise<void> {
-    console.log(`startup:bg begin`);
+    debug.log(`startup:bg begin`);
 
     registerLifecycleEvents(() => services.DiscoverStation());
 
     await Promise.all([startupPortal(services), startupStore(services)]);
 
-    console.log(`startup:bg end`);
+    debug.log(`startup:bg end`);
 }
 
 export async function initializeApplication(services: Services): Promise<void> {
@@ -70,7 +67,7 @@ export async function initializeApplication(services: Services): Promise<void> {
     try {
         await analytics.logEvent({ key: "app_open" });
     } catch (error) {
-        console.log(`firebase:error: ${JSON.stringify(error)}`);
+        debug.log(`firebase:error: ${JSON.stringify(error)}`);
     }
 
     try {
@@ -79,14 +76,14 @@ export async function initializeApplication(services: Services): Promise<void> {
         await deleteMissingAssets(services.Database());
         await services.Store().dispatch(ActionTypes.LOAD);
 
-        console.log("startup:bg");
+        debug.log("startup:bg");
 
         void background(services);
 
         const now = new Date();
         const elapsed = now.getTime() - started.getTime();
-        console.log("startup:started", elapsed);
+        debug.log("startup:started", elapsed);
     } catch (error) {
-        console.log(`startup:error: ${JSON.stringify(error)}`);
+        debug.log(`startup:error: ${JSON.stringify(error)}`);
     }
 }

@@ -19,6 +19,7 @@ import _ from "lodash";
 import Vue from "vue";
 import { isAndroid, isIOS } from "@nativescript/core";
 import { TimePicker } from "@nativescript/core";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "TimeFieldPicker",
@@ -84,12 +85,12 @@ export default Vue.extend({
             this.form.hour = hour;
             this.form.minute = minute;
             this.form.time = this.value;
-            console.log("time-field:update-display", this.value, this.form);
+            debug.log("time-field:update-display", this.value, this.form);
         },
         onTimeChanged(ev: any): void {
             const date: Date = ev.value;
             const time = date.getHours() * 60 * 60 + date.getMinutes() * 60;
-            console.log("time-field:time-change", date.getHours(), date.getMinutes());
+            debug.log("time-field:time-change", date.getHours(), date.getMinutes());
             this.form.time = time;
             this.$emit("change", time);
         },
@@ -100,7 +101,7 @@ export default Vue.extend({
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "~/_app-variables";
 
 .field-label {

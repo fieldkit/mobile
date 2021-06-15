@@ -1,8 +1,10 @@
 /* eslint @typescript-eslint/no-non-null-assertion: "off" */
+import Long from "long";
+import { Buffer } from "buffer";
+import { debug } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
-import Long from "long";
 
 const HttpReply = AppProto.HttpReply;
 
@@ -192,7 +194,7 @@ export function fixupModuleConfiguration(buffer: Buffer | null): ModuleConfigura
     try {
         return DataProto.ModuleConfiguration.decodeDelimited(buffer);
     } catch (error) {
-        console.log(`invalid-module-configuration: ${buffer.toString("hex")}`);
+        debug.log(`invalid-module-configuration: ${buffer.toString("hex")}`);
         return null;
     }
 }
@@ -253,15 +255,13 @@ function translateSchedule(schedule: AppProto.ISchedule | undefined): ReplySched
         };
     }
     return {
-        intervals: schedule.intervals.map(
-            (i: AppProto.IInterval): ReplyScheduleInterval => {
-                return {
-                    start: translateLong(i.start),
-                    end: translateLong(i.end),
-                    interval: translateLong(i.interval),
-                };
-            }
-        ),
+        intervals: schedule.intervals.map((i: AppProto.IInterval): ReplyScheduleInterval => {
+            return {
+                start: translateLong(i.start),
+                end: translateLong(i.end),
+                interval: translateLong(i.interval),
+            };
+        }),
     };
 }
 
@@ -284,11 +284,11 @@ function translateConnectedNetwork(network: AppProto.INetworkInfo | undefined): 
     }
     /*
     if (!network.ssid) {
-        console.log(`translateConnectedNetwork: ssid is required ignoring network`);
+        debug.log(`translateConnectedNetwork: ssid is required ignoring network`);
         return null;
     }
     if (!network.password) {
-        console.log(`translateConnectedNetwork: password is required`);
+        debug.log(`translateConnectedNetwork: password is required`);
     }
 	*/
     return {
@@ -308,12 +308,12 @@ function translateLong(value: number | Long | undefined): number {
 
 export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
     if (!serialized) {
-        console.log(`no serialized`);
+        debug.log(`no serialized`);
         throw new Error(`no serialized`);
     }
 
     if (reply.errors && reply.errors.length > 0) {
-        console.log(`reply error: ${JSON.stringify(reply.errors)}`);
+        debug.log(`reply error: ${JSON.stringify(reply.errors)}`);
         throw new Error(`reply error: ${JSON.stringify(reply.errors)}`);
     }
 
@@ -402,17 +402,15 @@ export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedSt
         },
         modules: reply.modules.map((m: AppProto.IModuleCapabilities) => translateModule(m, moduleConfigurations)),
         liveReadings: reply.liveReadings.map((lr: AppProto.ILiveReadings) => translateLiveReadings(lr, moduleConfigurations)),
-        streams: reply.streams.map(
-            (s: AppProto.IDataStream): ReplyStream => {
-                return {
-                    time: translateLong(s.time),
-                    block: translateLong(s.block),
-                    size: translateLong(s.size),
-                    path: s.path!,
-                    name: s.name!,
-                };
-            }
-        ),
+        streams: reply.streams.map((s: AppProto.IDataStream): ReplyStream => {
+            return {
+                time: translateLong(s.time),
+                block: translateLong(s.block),
+                size: translateLong(s.size),
+                path: s.path!,
+                name: s.name!,
+            };
+        }),
         networkSettings: {
             createAccessPoint: reply.networkSettings.createAccessPoint!,
             macAddress: reply.networkSettings.macAddress!,
@@ -429,7 +427,7 @@ export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedSt
         serialized: serialized,
     };
 
-    // console.log(`prepare-reply`, prepared);
+    // debug.log(`prepare-reply`, prepared);
 
     return prepared;
 }

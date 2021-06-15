@@ -1,81 +1,71 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout class="m-x-10">
-                        <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout class="m-x-10">
+                <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
 
-                        <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
-                            <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
-                            <Label col="1" :text="_L('editAppEUI')" class="size-16"></Label>
-                        </GridLayout>
-
-                        <StackLayout v-if="editingLora">
-                            <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
-                                <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
-                                <TextField
-                                    row="0"
-                                    col="1"
-                                    class="network-input m-y-10"
-                                    autocorrect="false"
-                                    autocapitalizationType="none"
-                                    v-model="lora.appEui"
-                                    returnKeyType="next"
-                                />
-                                <Label
-                                    row="1"
-                                    col="1"
-                                    class="validation-error m-l-10"
-                                    :text="_L('invalidAppEUI')"
-                                    textWrap="true"
-                                    :visibility="invalidEui ? 'visible' : 'collapsed'"
-                                />
-                                <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
-                                <TextField
-                                    row="2"
-                                    col="1"
-                                    class="network-input m-y-10"
-                                    autocorrect="false"
-                                    autocapitalizationType="none"
-                                    v-model="lora.appKey"
-                                    returnKeyType="done"
-                                />
-                                <Label
-                                    row="3"
-                                    col="1"
-                                    class="validation-error m-l-10"
-                                    :text="_L('invalidAppKey')"
-                                    textWrap="true"
-                                    :visibility="invalidKey ? 'visible' : 'collapsed'"
-                                />
-                            </GridLayout>
-                            <StackLayout class="p-b-20"></StackLayout>
-                            <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="editLora" />
-                            <ConnectionNote :station="station" />
-                            <StackLayout class="p-b-20"></StackLayout>
-                        </StackLayout>
-                    </StackLayout>
+                <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
+                    <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
+                    <Label col="1" :text="_L('editAppEUI')" class="size-16"></Label>
                 </GridLayout>
-            </ScrollView>
-        </GridLayout>
+
+                <StackLayout v-if="editingLora">
+                    <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
+                        <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
+                        <TextField
+                            row="0"
+                            col="1"
+                            class="network-input m-y-10"
+                            autocorrect="false"
+                            autocapitalizationType="none"
+                            v-model="lora.appEui"
+                            returnKeyType="next"
+                        />
+                        <Label
+                            row="1"
+                            col="1"
+                            class="validation-error m-l-10"
+                            :text="_L('invalidAppEUI')"
+                            textWrap="true"
+                            :visibility="invalidEui ? 'visible' : 'collapsed'"
+                        />
+                        <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
+                        <TextField
+                            row="2"
+                            col="1"
+                            class="network-input m-y-10"
+                            autocorrect="false"
+                            autocapitalizationType="none"
+                            v-model="lora.appKey"
+                            returnKeyType="done"
+                        />
+                        <Label
+                            row="3"
+                            col="1"
+                            class="validation-error m-l-10"
+                            :text="_L('invalidAppKey')"
+                            textWrap="true"
+                            :visibility="invalidKey ? 'visible' : 'collapsed'"
+                        />
+                    </GridLayout>
+                    <StackLayout class="p-b-20"></StackLayout>
+                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="editLora" />
+                    <StackLayout class="p-b-20"></StackLayout>
+                </StackLayout>
+            </StackLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation } from "@/store";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        ConnectionNote,
-        ConnectionStatusHeader,
     },
     props: {
         stationId: {
@@ -165,7 +155,7 @@ export default Vue.extend({
                         // in order to match in the interim, must edit station.statusJson
                         // NOTE: appEui and appKey currently aren't sent in statusJson, so they
                         // won't be preserved after exiting this view
-                        // console.log("response from station after adding", result.loraSettings)
+                        // debug.log("response from station after adding", result.loraSettings)
                     });
             }
         },

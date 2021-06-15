@@ -1,17 +1,17 @@
 import _ from "lodash";
 import Config from "@/config";
-import { unixNow, promiseAfter, QueryThrottledError, StationQueryError, HttpError, ConnectionError } from "@/lib";
+import { unixNow, promiseAfter, QueryThrottledError, /* StationQueryError, */ HttpError, ConnectionError } from "@/lib";
 import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
-import { StationError } from "@/lib";
+import { debug, StationError, logAnalytics } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
+import { Buffer } from "buffer";
 
 const HttpQuery = AppProto.HttpQuery;
 const HttpReply = AppProto.HttpReply;
 const QueryType = AppProto.QueryType;
-const ReplyType = AppProto.ReplyType;
 
 export type ProgressCallback = (total: number, bytes: number, info: never) => void;
 
@@ -27,6 +27,7 @@ export interface TrackActivityOptions {
 export interface QueryOptions {
     url?: string;
     throttle?: boolean;
+    tries?: number;
 }
 
 export interface FirmwareResponse {
@@ -44,7 +45,7 @@ type StationQuery = { reply: AppProto.HttpReply; serialized: SerializedStatus };
 
 type ResolveFunc = () => void;
 
-export default class QueryStation {
+export class QueryStation {
     private readonly conservify: Conservify;
     private readonly openQueries: { [index: string]: boolean } = {};
     private readonly lastQueries: { [index: string]: Date } = {};
@@ -189,7 +190,7 @@ export default class QueryStation {
                     })
                     .then((response: HttpResponse) => {
                         if (response.statusCode != 204) {
-                            console.log("http-status", response.statusCode, response.headers);
+                            debug.log("http-status", response.statusCode, response.headers);
                             return Promise.reject(new HttpError("status", response));
                         }
 
@@ -201,7 +202,7 @@ export default class QueryStation {
                             size = Number(response.headers["content-length"]);
                         }
 
-                        console.log("size", size, response.headers);
+                        debug.log("size", size, response.headers);
                         return new CalculatedSize(size);
                     })
             );
@@ -243,6 +244,8 @@ export default class QueryStation {
     }
 
     public async uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
+        await logAnalytics("station_firmware_upload");
+
         return await this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .upload({
@@ -252,8 +255,11 @@ export default class QueryStation {
                     progress: progress,
                     defaultTimeout: 30,
                 })
-                .then((response) => {
-                    console.log("upload-firmware:", response.body);
+                .then(async (response) => {
+                    debug.log("upload-firmware:", response.body);
+
+                    await logAnalytics("station_firmware_uploaded");
+
                     return JSON.parse(response.body.toString()) as FirmwareResponse;
                 });
         });
@@ -312,11 +318,11 @@ export default class QueryStation {
         const stationKey = this.urlToStationKey(options.url);
         if (this.openQueries[stationKey] === true) {
             if (options.throttle) {
-                console.log(options.url, "query-station: throttle");
+                debug.log(options.url, "query-station: throttle");
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
-                console.log(options.url, "query-station: queuing station query");
+                debug.log(options.url, "query-station: queuing station query");
                 this.queued[stationKey] = () => resolve(undefined);
             }).then(() => {
                 return this.trackActivity(options, factory);
@@ -339,7 +345,7 @@ export default class QueryStation {
             )
             .finally(() => {
                 if (this.queued[stationKey]) {
-                    console.log("query-station: resuming");
+                    debug.log("query-station: resuming");
                     const resume = this.queued[stationKey];
                     delete this.queued[stationKey];
                     resume();
@@ -356,11 +362,11 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private async stationQuery(url: string, message: AppProto.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
+    public async binaryStationQuery(url: string, binaryQuery: Uint8Array, options: QueryOptions = {}): Promise<HttpResponse> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
-        return await this.trackActivity(finalOptions, () => {
-            const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
-            log.info(url, "querying", JSON.stringify(message));
+        debug.log(url, "options", options, "final", finalOptions);
+        return await this.trackActivity(finalOptions, async () => {
+            await logAnalytics("station_querying", { url: url });
 
             return this.catchErrors(
                 this.conservify
@@ -369,36 +375,59 @@ export default class QueryStation {
                         url: url,
                         body: binaryQuery,
                         connectionTimeout: 3,
+                        headers: {
+                            "Fk-Tries": `${options.tries || 0}`,
+                        },
                     })
                     .then((response) => response)
             );
-        }).then(async (response: { statusCode: number; body: Buffer }) => {
+        }).then(async (response: HttpResponse): Promise<HttpResponse> => {
             if (response.body.length == 0) {
-                console.log(`empty station reply`, response);
+                debug.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);
             }
 
-            const decoded = this.getResponseBody(response);
-            return await this.handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
-                log.verbose(url, "query success", finalReply);
-                return finalReply;
-            });
+            await logAnalytics("station_queried", { url: url });
+
+            // TODO Remove the indexOf after firmware 503 done.
+            if (response.statusCode == 503 || response.body.indexOf("parsing") >= 0) {
+                const tries = (options.tries || 0) + 1;
+                return await this.retryAfter(1000, url, binaryQuery, _.extend({}, options, { tries }));
+            }
+
+            if (response.statusCode == 500) {
+                throw new StationError(response.body.toString());
+            }
+
+            return response;
+        });
+    }
+
+    /**
+     * Perform a single station query, setting all the critical defaults for the
+     * HTTP request and handling any necessary translations/conversations for
+     * request/response bodies.
+     */
+    private async stationQuery(url: string, message: AppProto.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
+        const binaryQuery = HttpQuery.encodeDelimited(message as AppProto.IHttpQuery).finish();
+        log.info(url, "querying", options, "message", JSON.stringify(message));
+        return this.binaryStationQuery(url, binaryQuery, options).then((response: HttpResponse) => {
+            return this.getResponseBody(response);
         });
     }
 
     private catchErrors<T>(promise: Promise<T>): Promise<T> {
         return promise.catch((err) => {
             if (err instanceof ConnectionError) {
-                console.log(`query-station error`, err.message);
+                debug.log(`query-station error`, err.message);
             } else {
-                console.log(`query-station error`, err);
+                debug.log(`query-station error`, err);
             }
             return Promise.reject(err);
         });
     }
 
     private getResponseBody(response: { statusCode: number; body: Buffer }): StationQuery {
-        if (response.statusCode == 500) throw new StationError(response.body.toString());
         if (Buffer.isBuffer(response.body)) {
             return {
                 reply: HttpReply.decodeDelimited(response.body),
@@ -412,27 +441,15 @@ export default class QueryStation {
         try {
             return prepareReply(stationQuery.reply, stationQuery.serialized);
         } catch (error) {
-            console.log(`fixup-status`, error);
+            debug.log(`fixup-status`, error);
             throw error;
         }
     }
 
-    private async handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: AppProto.HttpQuery): Promise<StationQuery> {
-        const reply = stationQuery.reply;
-        if (reply.type != ReplyType.REPLY_BUSY) {
-            return Promise.resolve(stationQuery);
-        }
-        const delays = _.sumBy(reply.errors, "delay");
-        if (delays == 0) {
-            return Promise.reject(new StationQueryError("busy"));
-        }
-        return await this.retryAfter(delays, url, message);
-    }
-
-    private async retryAfter(delays: number, url: string, message: AppProto.HttpQuery): Promise<StationQuery> {
-        log.info(url, "retrying after", delays);
-        return await promiseAfter(delays).then(() => {
-            return this.stationQuery(url, message);
+    private async retryAfter(delay: number, url: string, binaryQuery: Uint8Array, options: QueryOptions): Promise<HttpResponse> {
+        log.info(url, "retrying after", delay);
+        return await promiseAfter(delay).then(() => {
+            return this.binaryStationQuery(url, binaryQuery, options);
         });
     }
 }

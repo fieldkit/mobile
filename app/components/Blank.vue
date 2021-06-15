@@ -6,6 +6,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { debug } from "@/lib";
 
 export default Vue.extend({
     name: "Blank",
@@ -16,11 +17,11 @@ export default Vue.extend({
         },
     },
     mounted() {
-        console.log(`blank mounted: ${this.name}`);
+        debug.log(`blank mounted: ${this.name}`);
     },
     methods: {
         onPageLoaded() {
-            console.log(`blank loaded: ${this.name}`);
+            debug.log(`blank loaded: ${this.name}`);
         },
     },
 });

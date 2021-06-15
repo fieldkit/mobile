@@ -1,6 +1,9 @@
 @Library('conservify') _
 
-conservifyProperties([ disableConcurrentBuilds() ])
+properties([
+	disableConcurrentBuilds(),
+	buildDiscarder(logRotator(numToKeepStr: '5'))
+])
 
 def getBranch(scmInfo) {
 	def (remoteOrBranch, branch) = scmInfo.GIT_BRANCH.tokenize('/')
@@ -20,6 +23,9 @@ timestamps {
             }
 
             stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-mapbox-netrc', variable: 'APP_MAPBOX_NETRC')]) {
+					sh "cp -f $APP_MAPBOX_NETRC ~/.netrc"
+				}
                 withCredentials([file(credentialsId: 'app-ios-google-services', variable: 'APP_IOS_GOOGLE_SERVICES')]) {
                     sh "cp -f $APP_IOS_GOOGLE_SERVICES app/App_Resources/iOS"
 				}

@@ -11,8 +11,6 @@ export async function getFlows(): Promise<FlowFile> {
 }
 
 export async function download(baseUrl: string): Promise<FlowFile> {
-    console.log("flows: downloading");
-
     const query = {
         query: `
         {
@@ -51,8 +49,6 @@ export async function download(baseUrl: string): Promise<FlowFile> {
     });
 
     const data = convertKeys.toCamel(response.data);
-
-    console.log("flows: verify");
 
     await flowSchema.validate(data);
 

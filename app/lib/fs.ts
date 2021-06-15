@@ -2,6 +2,8 @@ import _ from "lodash";
 import moment, { Moment } from "moment";
 import { Folder, knownFolders, isAndroid, Utils, File, FileSystemEntity } from "@nativescript/core";
 export { File, Folder };
+import { Buffer } from "buffer";
+import { debug } from "./debugging";
 
 export const DownloadsDirectory = "downloads";
 
@@ -77,7 +79,7 @@ export async function dumpAllFiles(path: string | null, sizes: boolean): Promise
     });
 
     const logged = { files: listing };
-    console.log(`files: ${JSON.stringify(logged)}`);
+    debug.log(`files: ${JSON.stringify(logged)}`);
 }
 
 export function getDatabasePath(name: string): string {

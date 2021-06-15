@@ -4,7 +4,7 @@ import { ImageSource, path, knownFolders } from "@nativescript/core";
 import * as ImagePicker from "@nativescript/imagepicker";
 import * as Camera from "@nativescript/camera";
 
-import { getPathTimestamp } from "@/lib/fs";
+import { debug, getPathTimestamp } from "@/lib";
 import { ImageAsset, IncomingImage, SavedImage } from "./types";
 
 export default class ImagesSaver {
@@ -13,12 +13,12 @@ export default class ImagesSaver {
     public async saveImage(incoming: IncomingImage): Promise<SavedImage> {
         const folder = knownFolders.documents().getFolder("media/images");
         const destination = path.join(folder.path, getPathTimestamp(new Date()) + ".jpg");
-        console.log("saving", incoming, destination);
+        debug.log("saving", incoming, destination);
         // eslint-disable-next-line
         return await ImageSource.fromAsset(incoming.asset as any).then((imageSource) => {
-            console.log("saving image. source:", imageSource, "destination:", destination);
+            debug.log("saving image. source:", imageSource, "destination:", destination);
             if (!imageSource.saveToFile(destination, "jpg")) {
-                console.log("saving failed. destination:", destination);
+                debug.log("saving failed. destination:", destination);
                 throw new Error("save failed");
             }
             return new SavedImage(destination, imageSource, incoming.asset);

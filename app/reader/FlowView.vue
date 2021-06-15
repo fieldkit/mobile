@@ -1,6 +1,6 @@
 <template>
-    <Page @navigatingFrom="onNavigatingFrom">
-        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" />
+    <Page @navigatingTo="onNavigatingTo" @navigatingFrom="onNavigatingFrom" class="flow-reader">
+        <PlatformHeader :title="title" :onBack="onBackward" :canNavigateSettings="false" :border="false" />
         <StackLayout v-if="ready" v-bind:key="flow.index">
             <GridLayout rows="auto,*">
                 <FlowProgress row="0" :progress="progress" />
@@ -18,7 +18,7 @@
                     <template v-if="screen.simple.length >= 1">
                         <ByOrientation row="1">
                             <template v-slot:landscape>
-                                <ScrollView>
+                                <ScrollView class="simple-screen-container">
                                     <SimpleScreen
                                         :screen="screen.simple[0]"
                                         :frame="frame"
@@ -35,9 +35,7 @@
                 </SkipLayout>
             </GridLayout>
         </StackLayout>
-        <StackLayout v-else class="loading">
-            <Label text="Loading" />
-        </StackLayout>
+        <StackLayout v-else class="loading"></StackLayout>
     </Page>
 </template>
 
@@ -49,7 +47,7 @@ import ByOrientation from "./ByOrientation.vue";
 import SkipLayout from "@/components/SkipLayout.vue";
 import PlatformHeader from "@/components/PlatformHeader.vue";
 import { FullRoute } from "@/routes";
-import { _L, Timer } from "@/lib";
+import { debug, _L, Timer, logAnalytics } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
@@ -156,24 +154,18 @@ const FlowView = Vue.extend({
     async mounted(): Promise<void> {
         const flows = await getFlows();
         this.nav = new FlowNavigator(flows, this.flow);
-        try {
-            console.log("flow: mounted", "flow", this.flow);
-            console.log("flow: mounted", "module", this.header);
-            console.log("flow: mounted", "screen", this.screen);
-        } catch (error) {
-            console.log("error", error);
-        }
-        this.timer = new Timer(2000, (frame) => {
-            this.frame = frame;
-        });
+        debug.log(`flow: mounted`, `flow`, this.flow);
+
+        await logAnalytics("flow_open", { name: this.flow.name });
     },
     methods: {
         async onForward(): Promise<void> {
-            console.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
+            debug.log("flow-view: forward", this.screen.name, this.screen.navOptions.forward);
+            await logAnalytics("flow_forward", { name: this.flow.name });
             await this.nav.move(this.screen.navOptions.forward).then(async (maybeProps) => {
                 if (maybeProps) {
-                    console.log("flow-view: forward:props", maybeProps);
-                    await this.$navigateTo(FlowView, {
+                    debug.log("flow-view: forward:props", maybeProps);
+                    await this.$deprecatedNavigateTo(FlowView, {
                         frame: "stations-frame", // TODO Can we infer this?
                         props: {
                             flow: maybeProps,
@@ -182,7 +174,7 @@ const FlowView = Vue.extend({
                         },
                     });
                 } else {
-                    console.log("flow-view: done");
+                    debug.log("flow-view: done");
                     await this.leave(this.finished);
                 }
                 return;
@@ -191,15 +183,25 @@ const FlowView = Vue.extend({
         async onBackward(): Promise<void> {
             await this.$navigateBack();
         },
+        onNavigatingTo(): void {
+            debug.log("flow: arriving");
+            if (!this.timer) {
+                this.timer = new Timer(2000, (frame) => {
+                    debug.log("frame", frame);
+                    this.frame = frame;
+                });
+            }
+        },
         onNavigatingFrom(): void {
-            console.log("flow: leaving");
+            debug.log("flow: leaving");
             if (this.timer) {
                 this.timer.stop();
                 this.timer = null;
             }
         },
         async onSkip(): Promise<void> {
-            console.log("flow-view: skip", this.screen.name);
+            debug.log("flow-view: skip", this.screen.name);
+            await logAnalytics("flow_skip", { name: this.flow.name });
             await this.nav.move(NavigationOption.Skip);
             await this.leave(this.skipped);
         },
@@ -208,11 +210,11 @@ const FlowView = Vue.extend({
             await Promise.resolve();
         },
         async onCancel(): Promise<void> {
-            console.log("flow-view: cancel", this.screen.name);
+            debug.log("flow-view: cancel", this.screen.name);
             await this.leave(this.skipped);
         },
         async leave(route: FullRoute): Promise<void> {
-            await this.$navigateTo(route);
+            await this.$deprecatedNavigateTo(route);
         },
     },
 });
@@ -222,62 +224,32 @@ export default FlowView;
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-/*
-.skip {
-    width: 115;
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: blue;
+
+.flow-reader {
+    .center-container {
+        padding: 0;
+        margin: 0;
+    }
+
+    .container {
+        padding: 0;
+        margin: 0;
+    }
+
+    .loading {
+        padding: 20;
+    }
+
+    .simple-screen {
+        padding: 10;
+    }
+
+    .simple-screen.scrolling Image {
+        width: 50%;
+    }
 }
 
-.btn-primary {
-    margin-bottom: 0;
-}
-
-.guide {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: orange;
-}
-
-.ns-ios .guide {
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-.ns-ios .skip {
-    // background-color: orange;
-    padding-top: 20;
-    padding-bottom: 20;
-}
-*/
-
-.center-container {
-    padding: 0;
-    margin: 0;
-}
-
-.container {
-    padding: 0;
-    margin: 0;
-}
-
-.loading {
-    padding: 20;
-}
-
-.simple-screen {
-    padding: 10;
-}
-
-::v-deep .scrolling Image {
-    // background-color: orange;
-    width: 50%;
+.ns-android .flow-reader .simple-screen {
+    margin-top: 10;
 }
 </style>

@@ -25,7 +25,7 @@ export default Vue.extend({
     methods: {
         async addModules(): Promise<void> {
             // eslint-disable-next-line
-            await this.$navigateTo(routes.onboarding.addModule, {
+            await this.$deprecatedNavigateTo(routes.onboarding.addModule, {
                 props: {
                     stationId: this.stationId,
                 },

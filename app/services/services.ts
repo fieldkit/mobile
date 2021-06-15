@@ -68,7 +68,7 @@ export class ServicesImpl implements Services {
     public Tasks(): TaskQueue {
         if (!this.tasks) {
             // const StandardWorker = require("nativescript-worker-loader!@/lib/worker"); // eslint-disable-line
-            // console.log("worker", StandardWorker);
+            // debug.log("worker", StandardWorker);
             this.tasks = new TaskQueue();
             // this.tasks.start(1, StandardWorker);
         }
@@ -162,7 +162,7 @@ export class ServicesImpl implements Services {
 
     public CalibrationService(): CalibrationService {
         if (!this.calibrationService) {
-            this.calibrationService = new CalibrationService(this.Conservify());
+            this.calibrationService = new CalibrationService(this.QueryStation(), this.Conservify());
         }
         return this.unwrap(this.calibrationService);
     }

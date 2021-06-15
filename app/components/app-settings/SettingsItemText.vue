@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="50" columns="*" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
+    <GridLayout rows="50" columns="*" :class="cssClass + ' settings-item'" @tap="goToRoute()">
         <Label :text="_L(text)" class="size-16 m-5 v-middle" row="0" col="1" verticalAlignment="center" />
     </GridLayout>
 </template>
@@ -26,7 +26,7 @@ export default Vue.extend({
         async goToRoute(): Promise<void> {
             if (this.link) {
                 // eslint-disable-next-line
-                await this.$navigateTo(routes.appSettings[this.link], {});
+                await this.$deprecatedNavigateTo(routes.appSettings[this.link], {});
             } else {
                 this.$emit("tap");
             }
@@ -37,13 +37,10 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.bottom-bordered-item {
+.settings-item {
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;
-}
-
-.top-bordered-item {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 1;
+    padding-left: 10;
+    padding-right: 10;
 }
 </style>

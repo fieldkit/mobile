@@ -153,6 +153,7 @@ import Vue from "vue";
 import { DownloadStationDataAction, UploadStationDataAction } from "@/store/actions";
 import { StationSyncStatus } from "@/store";
 import { fullRoutes, routes } from "@/routes";
+import { debug } from "@/lib";
 import Config from "@/config";
 
 import SharedComponents from "@/components/shared";
@@ -181,7 +182,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            console.log(
+            debug.log(
                 "data-view:syncs",
                 this.syncs.map((s) => s.lastSeen)
             );
@@ -194,7 +195,7 @@ export default Vue.extend({
             try {
                 log.info("download", sync);
                 await this.$s.dispatch(new DownloadStationDataAction(sync)).catch((error) => {
-                    console.log(`download-error`, error);
+                    debug.log(`download-error`, error);
                 });
             } catch (error) {
                 log.info("error", error);
@@ -204,7 +205,7 @@ export default Vue.extend({
             try {
                 log.info("upload", sync);
                 await this.$s.dispatch(new UploadStationDataAction(sync)).catch((error) => {
-                    console.log(`upload-error`, error);
+                    debug.log(`upload-error`, error);
                 });
             } catch (error) {
                 log.info("error", error);
@@ -226,10 +227,10 @@ export default Vue.extend({
             return moment(date).format("MM/DD/YYYY");
         },
         async goToAddStation(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.start, {});
+            await this.$deprecatedNavigateTo(routes.onboarding.start, {});
         },
         async goToLogin(): Promise<void> {
-            await this.$navigateTo(fullRoutes.settings.addAccount, {});
+            await this.$deprecatedNavigateTo(fullRoutes.settings.addAccount, {});
         },
     },
 });

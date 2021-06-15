@@ -1,10 +1,10 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.account.accounts')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto" class="container">
-            <ScrollView row="0" class="">
-                <StackLayout>
-                    <StackLayout v-for="account in accounts" :key="account.email" class="account-container">
+        <GridLayout rows="*,auto">
+            <ScrollView row="0">
+                <DockLayout stretchLastChild="true" backgroundColor="white">
+                    <StackLayout dock="top" v-for="account in accounts" :key="account.email" class="account-container">
                         <GridLayout rows="auto" columns="30,*,30" @tap="onToggle(account)">
                             <Image
                                 col="0"
@@ -17,7 +17,7 @@
                             <StackLayout col="1" row="0">
                                 <Label :text="account.email" textWrap="true" class="account-email" />
                                 <Label text="Logged In" textWrap="true" class="account-subtitle" v-if="account.token" />
-                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else="" />
+                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else />
                             </StackLayout>
 
                             <FlexboxLayout
@@ -46,7 +46,7 @@
                             <Button class="btn" text="Sync" @tap="onSync(account)" />
                         </StackLayout>
                     </StackLayout>
-                    <GridLayout rows="50" columns="20, *" @tap="addAccount" class="m-t-15 m-r-20 m-l-20">
+                    <GridLayout rows="auto" columns="20,*" @tap="addAccount" class="m-t-15 m-r-20 m-l-20">
                         <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png" verticalAlignment="center" />
                         <Label
                             :text="_L('appSettings.account.addAccount')"
@@ -56,7 +56,7 @@
                             verticalAlignment="center"
                         />
                     </GridLayout>
-                </StackLayout>
+                </DockLayout>
             </ScrollView>
             <StackLayout row="1" class="m-r-20 m-l-20">
                 <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.removeAll')" @tap="logoutAll"></Button>
@@ -65,6 +65,7 @@
     </Page>
 </template>
 <script lang="ts">
+import moment from "moment";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
@@ -73,7 +74,7 @@ import { Dialogs } from "@nativescript/core";
 import { ActionTypes, CurrentUser, RemoveAccountAction, SyncAccountAction } from "@/store";
 import { routes } from "@/routes";
 import Services from "@/services/singleton";
-import moment from "moment";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -148,7 +149,7 @@ export default Vue.extend({
             await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
         },
         async addAccount(): Promise<void> {
-            await this.$navigateTo(routes.appSettings.accountAdd, {});
+            await this.$deprecatedNavigateTo(routes.appSettings.accountAdd, {});
         },
         async logoutAll(): Promise<void> {
             const yesNo = await Dialogs.confirm({

@@ -3,6 +3,7 @@ import { FileType } from "@/store/types";
 import { serializePromiseChain } from "./utilities";
 import { DataServices } from "./data-services";
 import { ParsedDataRecord, ParsedRecordVisitor, DataFile, FileInfo, coerceNumber } from "./data-file";
+import { debug } from "./debugging";
 
 export interface DataVisitor {
     onData(data: ParsedDataRecord, meta: ParsedDataRecord): void;
@@ -34,7 +35,7 @@ export class DataReader implements MetaLoader {
     }
 
     public async walkData<T extends DataVisitor>(visitor: T): Promise<T> {
-        console.log("walk-data:walking");
+        debug.log("walk-data:walking");
         const started = new Date();
 
         // Analyze and get record and time information. TODO Cache eventually.
@@ -49,7 +50,7 @@ export class DataReader implements MetaLoader {
             )
         ).then((infos) => _.keyBy(infos, (info) => info.file.path));
 
-        console.log("walk-data:infos", this.infosByPath);
+        debug.log("walk-data:infos", this.infosByPath);
 
         const metaVisitor = new LoadMetaVisitor(this, visitor);
 
@@ -61,7 +62,7 @@ export class DataReader implements MetaLoader {
                 return Promise.all(Object.values(this.cached)).then(() => {
                     const done = new Date();
                     const elapsed = done.getTime() - started.getTime();
-                    console.log("walk-data:done", elapsed);
+                    debug.log("walk-data:done", elapsed);
                 });
             })
             .then(() => {

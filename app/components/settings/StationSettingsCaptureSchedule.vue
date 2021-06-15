@@ -1,32 +1,25 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout class="editor-container">
-                        <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
-                        <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
+        <PlatformHeader :title="_L('schedules.readings.heading')" :subtitle="station.name" :canNavigateSettings="false" />
+        <StationSettingsLayout :connected="station.connected" :scrollable="true">
+            <FlexboxLayout class="capture-schedule-settings-container m-x-10 m-t-20">
+                <Label :text="_L('schedules.readings.heading')" class="size-14 title" />
+                <Label :text="_L('schedules.readings.warning')" class="size-12 subtitle" />
 
-                        <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
-                    </StackLayout>
+                <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
-                </FlexboxLayout>
-            </ScrollView>
-        </GridLayout>
+                <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
+            </FlexboxLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { ActionTypes } from "@/store/actions";
-import { AvailableStation, Schedule } from "@/store";
+import { ConfigureStationSchedulesAction, AvailableStation, Schedule } from "@/store";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     data(): {
@@ -48,8 +41,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ConnectionStatusHeader,
-        ConnectionNote,
         ScheduleEditor,
     },
     computed: {
@@ -59,24 +50,27 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
+            debug.log(`schedule: ${JSON.stringify(this.station.schedules.readings)}`);
             this.form.schedule = Schedule.getMinimum(this.station.schedules.readings);
         },
         onScheduleChange(schedule): void {
-            console.log("schedule:change", schedule);
+            debug.log(`schedule:change: ${JSON.stringify(schedule)}`);
             this.form.schedule = schedule;
         },
         async onSaveSchedule(): Promise<void> {
-            await Promise.all([
-                this.$s.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
-                    deviceId: this.station.deviceId,
-                    schedules: { readings: this.form.schedule },
-                }),
-            ])
-                .then(() => this.$navigateBack())
-                .catch((error) => {
-                    console.log("error", error);
-                    return error;
-                });
+            if (this.form.schedule) {
+                const existing = this.station.schedules;
+                await Promise.all([
+                    this.$s.dispatch(
+                        new ConfigureStationSchedulesAction(this.station.deviceId, { readings: this.form.schedule }, existing)
+                    ),
+                ])
+                    .then(() => this.$navigateBack())
+                    .catch((error) => {
+                        debug.log("error", error);
+                        return error;
+                    });
+            }
         },
     },
 });
@@ -84,7 +78,9 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.editor-container {
-    padding: 20;
+.capture-schedule-settings-container {
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
 }
 </style>

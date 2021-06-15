@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { onlyAllowEvery } from "@/lib";
+import { debug, onlyAllowEvery, logAnalytics } from "@/lib";
 import { FirmwareResponse, Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
@@ -40,15 +40,15 @@ export default class StationFirmware {
         this.check = onlyAllowEvery(
             60,
             () => {
-                console.log("firmware check: allowed");
+                debug.log("firmware check: allowed");
                 return this.downloadFirmware(() => {
                     // NOOP
                 }, false).catch((error) => {
-                    console.log("firmware error", error);
+                    debug.log("firmware error", error);
                 });
             },
             () => {
-                console.log("firmware check: throttled");
+                debug.log("firmware check: throttled");
                 return true;
             }
         );
@@ -76,35 +76,41 @@ export default class StationFirmware {
             return [];
         }
 
-        const firmware = remoteFirmware[0];
+        for (const firmware of remoteFirmware) {
+            log.info("firmware:", firmware);
 
-        await this.services.Database().addOrUpdateFirmware(
-            _.extend(
-                {
-                    logicalAddress: null,
-                },
-                firmware
-            )
-        );
+            await this.services.Database().addOrUpdateFirmware(
+                _.extend(
+                    {
+                        logicalAddress: null,
+                    },
+                    firmware
+                )
+            );
 
-        const local = this.services.FileSystem().getRelativeFile(firmware.path);
-        if (!local.exists || local.size == 0 || force === true) {
-            log.info(`downloading firmware: ${JSON.stringify(firmware)}`);
-            const downloadProgress = transformProgress(progressCallback, (p) => p);
-            await this.services.PortalInterface().downloadFirmware(firmware.url, firmware.path, downloadProgress);
-        } else {
-            log.info(`already have: ${JSON.stringify(firmware)}`);
+            const local = this.services.FileSystem().getRelativeFile(firmware.path);
+            if (!local.exists || local.size == 0 || force === true) {
+                log.info(`downloading firmware: ${JSON.stringify(firmware)}`);
+                try {
+                    const downloadProgress = transformProgress(progressCallback, (p) => p);
+                    await this.services.PortalInterface().downloadFirmware(firmware.url, firmware.path, downloadProgress);
+                } catch (error) {
+                    log.error("error", error);
+                }
+            } else {
+                log.info(`already have: ${JSON.stringify(firmware)}`);
+            }
         }
 
-        return [firmware];
+        return remoteFirmware;
     }
 
     public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
         const shouldPurge = await this.shouldPurge();
         if (shouldPurge) {
-            console.log("deleting firmware folder");
+            debug.log("deleting firmware folder");
             await this.services.FileSystem().deleteFolder("firmware");
-            console.log("deleting firmware rows");
+            debug.log("deleting firmware rows");
             await this.services.Database().deleteAllFirmware();
         }
 
@@ -114,7 +120,7 @@ export default class StationFirmware {
 
         const deleted = await this.services.Database().deleteAllFirmwareExceptIds(ids);
 
-        console.log(`deleted firmware: ${JSON.stringify(deleted)}`);
+        debug.log(`deleted firmware: ${JSON.stringify(deleted)}`);
         await Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
     }
 
@@ -126,16 +132,18 @@ export default class StationFirmware {
         }
     }
 
-    public async upgradeStation(url: string, progressCallback: ProgressCallback): Promise<FirmwareResponse> {
+    public async upgradeStation(url: string, progressCallback: ProgressCallback, firmwareId?: number): Promise<FirmwareResponse> {
         log.info("upgrade", url);
 
-        return await this.haveFirmware().then((yes: boolean) => {
+        await logAnalytics("station_upgrade", { url: url });
+
+        return await this.haveFirmware(firmwareId).then((yes: boolean) => {
             if (!yes) {
                 return Promise.reject(new Error("missingFirmware"));
             }
             return this.services
                 .Database()
-                .getLatestFirmware()
+                .getFirmware(firmwareId)
                 .then((firmware) => {
                     if (!firmware) {
                         log.info("no firmware");
@@ -149,22 +157,19 @@ export default class StationFirmware {
         });
     }
 
-    public async haveFirmware(): Promise<boolean> {
-        return await this.services
-            .Database()
-            .getLatestFirmware()
-            .then((firmware) => {
-                if (!firmware) {
-                    return false;
-                }
-                log.info("firmware", firmware, firmware.path);
-                const local = this.services.FileSystem().getRelativeFile(firmware.path);
-                if (!local.exists || local.size == 0) {
-                    log.info("firmware", local.exists, local.size, firmware.path);
-                    return false;
-                }
-                return true;
-            });
+    public async haveFirmware(firmwareId?: number): Promise<boolean> {
+        const firmware = await this.services.Database().getFirmware(firmwareId);
+
+        if (!firmware) {
+            return false;
+        }
+        log.info("firmware", firmware, firmware.path);
+        const local = this.services.FileSystem().getRelativeFile(firmware.path);
+        if (!local.exists || local.size == 0) {
+            log.info("firmware", local.exists, local.size, firmware.path);
+            return false;
+        }
+        return true;
     }
 
     private async shouldPurge(): Promise<boolean> {

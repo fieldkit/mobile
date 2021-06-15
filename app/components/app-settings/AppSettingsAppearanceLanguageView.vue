@@ -1,8 +1,8 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.appearance.language')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView class="m-r-20 m-l-20">
-            <StackLayout orientation="vertical">
+        <SettingsLayout>
+            <StackLayout>
                 <GridLayout columns="30,*" class="top-bordered-item p-t-30 p-b-10" @tap="selectLanguage('en')">
                     <CheckBox
                         row="0"
@@ -49,14 +49,14 @@
                     <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.chinese')"></Label>
                 </GridLayout>
             </StackLayout>
-        </ScrollView>
+        </SettingsLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
-import SharedComponents from "@/components/shared";
 import { isIOS } from "@nativescript/core";
+import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
     computed: {

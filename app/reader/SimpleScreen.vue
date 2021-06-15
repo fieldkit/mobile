@@ -33,4 +33,8 @@ export default Vue.extend({
     padding-bottom: 0;
     padding-top: 0;
 }
+
+.ns-ios .markdown {
+    margin-top: 10;
+}
 </style>

@@ -10,7 +10,9 @@
                 :buttonLabel="_L('next')"
                 :buttonEnabled="currentStation.connected && selected !== NO_SELECTION"
                 @button="forward"
-                :scrolling="true"
+                :skipLabel="_L('skipStep')"
+                @skip="skip"
+                :scrollable="true"
             >
                 <Label class="m-t-20 text-center size-18 bold" :text="_L('deploymentLocation')" textWrap="true"></Label>
                 <Label
@@ -54,6 +56,7 @@ import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { LegacyStation } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     components: {
@@ -87,10 +90,18 @@ export default Vue.extend({
                 throw new Error("no selection");
             }
 
-            await this.$navigateTo(routes.onboarding.network, {
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                     remote: this.selected === this.REMOTE_SELECTED,
+                },
+            });
+        },
+        async skip(): Promise<void> {
+            await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
+                props: {
+                    stationId: this.stationId,
+                    remote: false,
                 },
             });
         },
@@ -98,8 +109,8 @@ export default Vue.extend({
             this.selected = value;
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
-            await this.$navigateTo(routes.onboarding.rename, {
+            debug.log("onBack");
+            await this.$deprecatedNavigateTo(routes.onboarding.rename, {
                 props: {
                     stationId: this.stationId,
                 },

@@ -13,6 +13,7 @@
                 row="1"
                 :buttonLabel="buttonLabel"
                 :buttonEnabled="currentStation.connected"
+                :scrollable="true"
                 @button="() => deployStation(currentStation)"
             >
                 <FlexboxLayout flexDirection="column" class="p-t-10">
@@ -20,9 +21,9 @@
                         <Label :text="_L('stationCoordinates')" class="size-16 bold m-b-10" />
                         <GridLayout rows="auto,auto" columns="35*,65*">
                             <Label row="0" col="0" :text="_L('latitude')" class="m-b-5" />
-                            <Label row="1" col="0" :text="currentStation.latitude" />
+                            <Label row="1" col="0" :text="currentStation.latitude | prettyCoordinate" />
                             <Label row="0" col="1" :text="_L('longitude')" />
-                            <Label row="1" col="1" :text="currentStation.longitude" />
+                            <Label row="1" col="1" :text="currentStation.longitude | prettyCoordinate" />
                         </GridLayout>
                     </StackLayout>
 
@@ -33,7 +34,7 @@
                         </GridLayout>
                         <Label :text="notes.location ? notes.location : _L('noNameGiven')" />
 
-                        <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
+                        <Label :text="_L('schedules.readings.heading')" class="m-t-20 m-b-5" />
                         <StackLayout
                             v-for="(i, index) in currentStation.schedules.readings.intervals"
                             orientation="horizontal"
@@ -118,12 +119,14 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
 import { ActionTypes, Station, Notes, NoteForm } from "@/store";
-import * as animations from "../animations";
+import { debug, _L, rebaseAbsolutePath } from "@/lib";
+
+import DeployMapView from "./DeployMapView.vue";
+import DeployNotesView from "./DeployNotesView.vue";
+import StationDetailView from "@/components/StationDetailView.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import { rebaseAbsolutePath } from "@/lib/fs";
 
 export default Vue.extend({
     components: {
@@ -163,35 +166,34 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            console.log("review loaded", this.stationId);
-            console.log("review loaded", this.currentStation);
+            debug.log(`review loaded:`, this.stationId);
         },
-        async goBack(ev: any): Promise<void> {
-            await Promise.all([animations.pressed(ev), this.$navigateBack()]);
+        async goBack(): Promise<void> {
+            await this.$navigateBack();
         },
-        editLocation(ev: any): Promise<any> {
-            return Promise.all([
-                this.$navigateTo(routes.deploy.start, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async editLocation(): Promise<any> {
+            await this.$navigateTo(DeployMapView, {
+                frame: "stations-frame",
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
-        editNotes(ev: any): Promise<any> {
-            return Promise.all([
-                this.$navigateTo(routes.deploy.notes, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async editNotes(): Promise<any> {
+            await this.$navigateTo(DeployNotesView, {
+                frame: "stations-frame",
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
         async deployStation(station: Station): Promise<void> {
             this.busy = true;
             try {
                 await this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
-                    return this.$navigateTo(routes.station.detail, {
+                    return this.$navigateTo(StationDetailView, {
+                        frame: "stations-frame",
+                        clearHistory: true,
                         props: {
                             stationId: this.stationId,
                             redirectedFromDeploy: true,

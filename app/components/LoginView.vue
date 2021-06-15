@@ -1,7 +1,7 @@
 <template>
     <Page actionBarHidden="true">
         <ScrollView>
-            <FlexboxLayout class="page login-page" justifyContent="space-between">
+            <FlexboxLayout class="page login-page m-x-10" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
 
                 <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
@@ -25,6 +25,7 @@ import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import { fullRoutes } from "@/routes";
+import { debug, _L } from "@/lib";
 
 export default Vue.extend({
     name: "LoginView",
@@ -43,7 +44,7 @@ export default Vue.extend({
     },
     methods: {
         toggle(): void {
-            console.log(`toggle-form`);
+            debug.log(`toggle-form`);
             this.login = !this.login;
         },
         async onLoginSaved(form: { email: string; password: string }): Promise<void> {
@@ -53,12 +54,12 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
-                        console.log("navigating", fullRoutes.onboarding.assembleFromLogin);
+                        debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
                         // eslint-disable-next-line
-                        await this.$navigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
                     })
                     .catch((error) => {
-                        console.log("error", error);
+                        debug.log("error", error);
                         this.busy = false;
                         return Dialogs.alert(_L("loginFailed"));
                     });
@@ -66,10 +67,6 @@ export default Vue.extend({
                 this.busy = false;
             }
         },
-        /*
-        async onRegisterSaved(form: { name:string;email: string; password: string }): Promise<void> {
-        },
-		*/
     },
 });
 </script>
@@ -81,16 +78,21 @@ export default Vue.extend({
     font-size: 16;
     align-items: center;
     flex-direction: column;
-}
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .labeled-text-field,
+    .forgot-password-link {
+        margin-top: 10;
+    }
 
-.sign-up-label {
-    font-size: 14;
-    margin-bottom: 10;
-    font-weight: bold;
+    .logo {
+        margin-top: 50;
+        height: 47;
+    }
+
+    .sign-up-label {
+        font-size: 14;
+        margin-bottom: 10;
+        font-weight: bold;
+    }
 }
 </style>

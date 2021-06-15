@@ -25,7 +25,9 @@ import {
     StationProgress,
 } from "../types";
 import { ServiceRef, CalculatedSize } from "@/services";
-import { serializePromiseChain, logChanges, getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
+import { serializePromiseChain, /* logChanges, */ getPathTimestamp, getFilePath, getFileName, AuthenticationError } from "@/lib";
+
+import { debug, logAnalytics } from "@/lib";
 
 export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
     return _.orderBy(syncs, [(sync) => SortableStationSorter(sync)]);
@@ -79,13 +81,15 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to download from offline urls");
             }
 
+            await logAnalytics("station_download");
+
             state.busy[sync.deviceId] = true;
 
-            console.log("syncing:download", sync.downloads);
+            debug.log("syncing:download", sync.downloads);
 
             await querySizes(services, sync.downloads)
                 .then((sizes: CalculatedSize[]) => {
-                    console.log("syncing:sizes", sizes);
+                    debug.log("syncing:sizes", sizes);
 
                     const totalBytes = _.sum(sizes.map((s) => s.size));
 
@@ -98,7 +102,7 @@ const actions = (services: ServiceRef) => {
                         }
                         const fsFolder = services.fs().getFolder(getFilePath(file.path));
                         const fsFile = fsFolder.getFile(getFileName(file.path));
-                        console.log("syncing:download", file.url, fsFile);
+                        debug.log("syncing:download", file.url, fsFile);
                         return await services
                             .queryStation()
                             .download(file.url, fsFile.path, (total: number, copied: number) => {
@@ -111,7 +115,7 @@ const actions = (services: ServiceRef) => {
                                 } else {
                                     Vue.set(state.errors, sync.deviceId, TransferError.Other);
                                 }
-                                console.log(`error downloading: ${JSON.stringify(error)}`);
+                                debug.log(`error downloading: ${JSON.stringify(error)}`);
                                 return Promise.reject(error);
                             });
                     });
@@ -140,19 +144,21 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to upload while already busy");
             }
 
+            await logAnalytics("station_upload");
+
             state.busy[sync.deviceId] = true;
 
             const totalBytes = _(downloads)
                 .map((d) => d.size)
                 .sum();
 
-            console.log("syncing:upload", downloads, totalBytes);
+            debug.log("syncing:upload", downloads, totalBytes);
 
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, false, totalBytes));
 
             try {
                 await serializePromiseChain(downloads, (download: Download) => {
-                    console.log("syncing:upload", sync.name, download);
+                    debug.log("syncing:upload", sync.name, download);
                     return services
                         .portal()
                         .uploadPreviouslyDownloaded(sync.id, sync.name, download, (total: number, copied: number) => {
@@ -161,10 +167,10 @@ const actions = (services: ServiceRef) => {
                         .then(() => services.db().markDownloadAsUploaded(download))
                         .catch((error) => {
                             if (AuthenticationError.isInstance(error)) {
-                                console.log(`error uploading (auth): ${JSON.stringify(error)}`);
+                                debug.log(`error uploading (auth): ${JSON.stringify(error)}`);
                                 Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                             } else {
-                                console.log(`error uploading (other) ${JSON.stringify(error)}`);
+                                debug.log(`error uploading (other) ${JSON.stringify(error)}`);
                                 Vue.set(state.errors, sync.deviceId, TransferError.Other);
                             }
                             return Promise.reject(error);
@@ -183,7 +189,7 @@ const actions = (services: ServiceRef) => {
         ): Promise<void> => {
             const pendingDownloads = await services.db().getPendingStationDownloads(payload.deviceId);
             if (pendingDownloads.length > 0) {
-                console.log("skipping sync resetting, has pending uploads");
+                debug.log("skipping sync resetting, has pending uploads");
                 return;
             }
 
@@ -207,11 +213,11 @@ const actions = (services: ServiceRef) => {
                 },
             ];
 
-            console.log(
+            debug.log(
                 dataOnly.map((d) => d.firstBlock),
                 _.min(dataOnly.map((d) => d.firstBlock)) || 0
             );
-            console.log(
+            debug.log(
                 dataOnly.map((d) => d.lastBlock),
                 _.max(dataOnly.map((d) => d.lastBlock)) || 0
             );
@@ -226,7 +232,7 @@ const actions = (services: ServiceRef) => {
             const station = state.stations.find((s) => s.deviceId == sync.deviceId);
             if (!station || !station.id) throw new Error("no station for device id");
 
-            console.log(`resetting sync status: ${JSON.stringify(resetStatus)}`);
+            debug.log(`resetting sync status: ${JSON.stringify(resetStatus)}`);
 
             await services.db().resetSyncStatus(station.id, sync.deviceId, sync.generationId, streams);
         },
@@ -318,7 +324,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
             null
         );
 
-        logChanges(`[${station.deviceId}] sync-status:`, syncStatus);
+        // logChanges(`[${station.deviceId}] sync-status:`, syncStatus);
 
         return syncStatus;
     });
@@ -383,7 +389,7 @@ const mutations = {
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
         const before = state.progress[progress.deviceId];
         if (!before) {
-            console.log(`dropped progress: ${progress.deviceId}`);
+            debug.log(`dropped progress: ${progress.deviceId}`);
             return;
         }
         Vue.set(state.progress, progress.deviceId, before.include(progress));

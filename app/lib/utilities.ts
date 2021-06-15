@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Bluebird from "bluebird";
-import { translate } from "@/lib/tns-i18n-deep";
+import { translate } from "./i18n";
+import { debug } from "./debugging";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 // eslint-disable-next-line
@@ -136,30 +137,30 @@ export function getFormattedTime(date: Date): string {
     return `${hour}:${minutes}${suffix}`;
 }
 
-export function _L(key: string): string {
+export function _L(key: string, ...values: unknown[]): string {
     try {
-        const value: string | undefined = translate(key);
+        const value: string | undefined = translate(key, values);
         if (value) {
             return value;
         }
 
         const parts: string[] = key.split(".");
         if (parts.length == 0 || parts.length == 1) {
-            console.log(`error translating key: ${key}`);
+            debug.log(`error translating key: ${key}`);
             return key;
         }
 
         let word = parts.shift()!; // eslint-disable-line
         if (!word) {
-            console.log(`error translating key: ${key}`);
+            debug.log(`error translating key: ${key}`);
             return key;
         }
 
-        let node = _L(word);
+        let node = _L(word, ...values);
         while (parts.length > 0) {
             word = parts.shift()!; // eslint-disable-line
             if (!word) {
-                console.log(`error translating key: ${key}`);
+                debug.log(`error translating key: ${key}`);
                 return key;
             }
             node = node[word]; // eslint-disable-line
@@ -167,13 +168,13 @@ export function _L(key: string): string {
 
         // Intentionally allow blank translations through here.
         if (!node && node !== "") {
-            console.log(`error translating key: ${key}`);
+            debug.log(`error translating key: ${key}`);
             return key;
         }
         return node;
     } catch (err) {
-        console.log(`error translating key: ${key}`);
-        console.log(err);
+        debug.log(`error translating key: ${key}`);
+        debug.log(err);
         return key;
     }
 }
@@ -189,7 +190,7 @@ export function onlyAllowEvery<V>(seconds: number, action: () => Promise<V>, oth
             lastRunTimes[id] = now;
             return action();
         } else {
-            console.log("onlyAllowEvery throttled");
+            debug.log("onlyAllowEvery throttled");
             return Bluebird.resolve(otherwise());
         }
     };
@@ -221,5 +222,5 @@ export function logChanges(prefix: string, v: unknown): void {
         return;
     }
     changesMap[prefix] = stored;
-    console.log(prefix, stored);
+    debug.log(prefix, stored);
 }

@@ -1,5 +1,6 @@
 import { Services } from "@/services/interface";
 import { prepareReply, HttpStatusReply, Station, Schedule } from "@/store";
+import { debug } from "@/lib";
 import protobuf from "protobufjs";
 import crypto from "crypto";
 
@@ -96,31 +97,31 @@ export class MockStationReplies {
     public jsonMock: any;
 
     constructor(public readonly services: Services) {
-        console.log("MockStationReplies::ctor");
+        debug.log("MockStationReplies::ctor");
 
         this.call = jest.fn(() => {
-            console.log("TESTS: no more mocked replies");
+            debug.log("TESTS: no more mocked replies");
             return Promise.reject(new Error("TESTS: no more mocked replies"));
         });
         this.mock = this.call.mock;
         services.Conservify().protobuf = this.call;
 
         this.download = jest.fn(() => {
-            console.log("TESTS: no more mocked downloads");
+            debug.log("TESTS: no more mocked downloads");
             return Promise.reject(new Error("TESTS: no more mocked downloads"));
         });
         this.downloadMock = this.download.mock;
         services.Conservify().download = this.download;
 
         this.upload = jest.fn(() => {
-            console.log("TESTS: no more mocked uploads");
+            debug.log("TESTS: no more mocked uploads");
             return Promise.reject(new Error("TESTS: no more mocked uploads"));
         });
         this.uploadMock = this.upload.mock;
         services.PortalInterface().uploadPreviouslyDownloaded = this.upload;
 
         this.json = jest.fn(() => {
-            console.log("TESTS: no more mocked json");
+            debug.log("TESTS: no more mocked json");
             return Promise.reject(new Error("TESTS: no more mocked json"));
         });
         this.jsonMock = this.json.mock;

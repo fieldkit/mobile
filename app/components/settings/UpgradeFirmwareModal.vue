@@ -1,32 +1,65 @@
 <template>
-    <StackLayout class="modal-bkgd" @loaded="onLoaded">
+    <StackLayout class="modal-bkgd">
         <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
-            <StackLayout verticalAlignment="middle" class="bar-container" v-if="!status.done">
-                <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !status.error" />
-                <Label class="info" lineHeight="4" :text="_L('downloadingFirmware')" textWrap="true" v-if="downloadOnly" />
-                <Progress :value="progress" scaleY="4" v-if="!status.error" />
-            </StackLayout>
-
-            <StackLayout verticalAlignment="middle" class="bar-container" v-if="done">
-                <Label class="info" lineHeight="4" :text="_L('downloaded')" textWrap="true" v-if="downloadOnly" />
-                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="status.success && !downloadOnly" />
-                <Label
-                    class="info"
-                    lineHeight="4"
-                    text="Please check your station to ensure that it has an SD Card."
-                    textWrap="true"
-                    v-if="status.sdCard"
-                />
-                <Label class="info" lineHeight="4" text="An unknown error occured." textWrap="true" v-if="status.error" />
-                <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="onClose()" />
-            </StackLayout>
+            <GridLayout rows="*,auto">
+                <DockLayout row="0" stretchLastChild="true">
+                    <StackLayout dock="top">
+                        <Label :text="_L('updateFirmwareModalTitle')" class="size-18 m-t-100 m-b-30"></Label>
+                        <StackLayout orientation="horizontal">
+                            <StackLayout width="50" height="50" class="full-circle m-r-30">
+                                <Label text="1" class="m-t-15 size-24"></Label>
+                            </StackLayout>
+                            <Label
+                                :text="_L('updateFirmwareModalText1')"
+                                textWrap="true"
+                                textAlignment="left"
+                                lineHeight="4"
+                                class="size-16"
+                            ></Label>
+                        </StackLayout>
+                        <StackLayout orientation="horizontal" class="m-t-30">
+                            <StackLayout width="50" height="50" class="full-circle m-r-30">
+                                <Label text="2" class="m-t-15 size-24"></Label>
+                            </StackLayout>
+                            <Label
+                                :text="_L('updateFirmwareModalText2')"
+                                textWrap="true"
+                                textAlignment="left"
+                                lineHeight="4"
+                                class="size-16"
+                            ></Label>
+                        </StackLayout>
+                        <StackLayout orientation="horizontal" class="m-t-30">
+                            <StackLayout width="50" height="50" class="full-circle m-r-30">
+                                <Label text="3" class="m-t-15 size-24"></Label>
+                            </StackLayout>
+                            <Label
+                                :text="_L('updateFirmwareModalText3')"
+                                textWrap="true"
+                                textAlignment="left"
+                                lineHeight="4"
+                                class="size-16"
+                            ></Label>
+                        </StackLayout>
+                    </StackLayout>
+                </DockLayout>
+                <StackLayout row="1">
+                    <Button
+                        :text="_L('updateFirmwareModalContinueButton')"
+                        class="btn btn-primary btn-no-margin btn-color-white"
+                        @tap="onUpdate"
+                    />
+                    <Button :text="_L('updateFirmwareModalCancelButton')" class="btn btn-update btn-no-margin" @tap="onClose" />
+                </StackLayout>
+            </GridLayout>
         </GridLayout>
     </StackLayout>
 </template>
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { AvailableStation, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
+import { AvailableStation, UpgradeStatus, UpgradeInfo } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     props: {
@@ -55,20 +88,15 @@ export default Vue.extend({
         status(): UpgradeStatus {
             return this.upgrade?.status || {};
         },
-        progress(): number {
-            return this.upgrade?.progress?.progress || 0;
-        },
     },
     methods: {
-        onLoaded(): Promise<void> {
-            if (!this.station) throw new Error(`firmware-modal: no such station`);
-            if (!this.station.id) throw new Error(`firmware-modal: no station id`);
-            if (!this.station.url) throw new Error(`firmware-modal: no station url`);
-            return this.$s.dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url));
+        onUpdate(): void {
+            debug.log("updating");
+            this.$modal.close({ updating: true });
         },
         onClose(): void {
-            console.log("closing", this.$modal);
-            this.$modal.close({ error: this.error });
+            debug.log("closing", this.$modal);
+            this.$modal.close({ updating: false });
         },
     },
 });
@@ -85,15 +113,15 @@ export default Vue.extend({
     border-width: 1;
     border-radius: 4;
 }
-.info {
-    color: $fk-primary-black;
-    margin: 20;
+
+.full-circle {
+    border-color: $fk-logo-blue;
+    background-color: $fk-logo-blue;
+    border-radius: 50%;
+    color: white;
 }
-.ok-btn {
-    color: $fk-primary-red;
-    font-weight: bold;
-}
-.bar-container {
-    margin: 20;
+
+.m-t-100 {
+    margin-top: 100;
 }
 </style>

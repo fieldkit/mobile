@@ -27,7 +27,6 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import * as animations from "../animations";
 import { LegacyStation, ScanStationModulesAction } from "~/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import { routes } from "@/routes";
@@ -81,11 +80,10 @@ export default Vue.extend({
             await this.$store.dispatch(new ScanStationModulesAction(this.currentStation.deviceId));
 
             await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.onboarding.recalibrate, {
-                    clearHistory: true,
+                this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                     props: {
                         stationId: this.currentStation.id,
+                        bookmark: true,
                     },
                 }),
             ]);

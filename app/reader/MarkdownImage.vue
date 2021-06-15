@@ -3,6 +3,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropType } from "vue";
+import { debug } from "@/lib";
 import { SimpleScreen } from "./model";
 
 export default Vue.extend({
@@ -19,6 +20,7 @@ export default Vue.extend({
         screen: {
             type: Object as PropType<SimpleScreen>,
             required: false,
+            default: null,
         },
         frame: {
             type: Number,
@@ -38,7 +40,7 @@ export default Vue.extend({
         },
     },
     mounted() {
-        console.log("mounted:indices", this.indices);
+        debug.log("mounted:indices", this.indices);
     },
     methods: {},
 });

@@ -2,8 +2,8 @@
     <Page class="page" actionBarHidden="true">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
 
-        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="true" @button="forward" :scrolling="true">
-            <GridLayout rows="auto,auto" columns="*">
+        <SkipLayout :buttonLabel="_L('next')" :buttonEnabled="true" @button="forward">
+            <GridLayout rows="5*,4*" columns="*">
                 <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
                 <Label row="1" class="instruction" :text="_L('completeSettings')" lineHeight="4" textWrap="true"></Label>
             </GridLayout>
@@ -32,14 +32,15 @@ export default Vue.extend({
     },
     methods: {
         async forward(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.recalibrate, {
+            await this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                 props: {
                     stationId: this.stationId,
+                    bookmark: true,
                 },
             });
         },
         async onBack(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.dataSync, {
+            await this.$deprecatedNavigateTo(routes.onboarding.dataSync, {
                 props: {
                     stationId: this.stationId,
                 },

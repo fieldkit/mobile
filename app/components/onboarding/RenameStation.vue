@@ -12,48 +12,42 @@
                 @button="rename"
                 :skipLabel="_L('skipStep')"
                 @skip="skip"
-                :scrolling="true"
+                :scrollable="true"
             >
-                <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
+                <StackLayout class="m-x-10">
+                    <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
-                <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
+                    <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
-                <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
-                    <TextField
-                        col="0"
-                        textWrap="true"
-                        class="size-16 no-border-input"
-                        :hint="_L('stationNameHint')"
+                    <LabeledTextField
                         v-model="form.name"
-                        keyboardType="_L('stationNameHint')"
-                        autocorrect="false"
-                        autocapitalizationType="none"
                         @blur="validate"
+                        :canClear="true"
+                        :invalid="form.v.required || form.v.long || form.v.characters"
                     />
-                    <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
-                </GridLayout>
 
-                <Label
-                    class="validation-error"
-                    id="no-name"
-                    :text="_L('nameRequired')"
-                    textWrap="true"
-                    :visibility="form.v.required ? 'visible' : 'collapsed'"
-                />
-                <Label
-                    class="validation-error"
-                    id="name-too-long"
-                    :text="_L('nameOver40')"
-                    textWrap="true"
-                    :visibility="form.v.long ? 'visible' : 'collapsed'"
-                />
-                <Label
-                    class="validation-error"
-                    id="name-not-printable"
-                    :text="_L('nameNotPrintable')"
-                    textWrap="true"
-                    :visibility="form.v.characters ? 'visible' : 'collapsed'"
-                />
+                    <Label
+                        class="validation-error"
+                        id="no-name"
+                        :text="_L('nameRequired')"
+                        textWrap="true"
+                        :visibility="form.v.required ? 'visible' : 'collapsed'"
+                    />
+                    <Label
+                        class="validation-error"
+                        id="name-too-long"
+                        :text="_L('nameOver40')"
+                        textWrap="true"
+                        :visibility="form.v.long ? 'visible' : 'collapsed'"
+                    />
+                    <Label
+                        class="validation-error"
+                        id="name-not-printable"
+                        :text="_L('nameNotPrintable')"
+                        textWrap="true"
+                        :visibility="form.v.characters ? 'visible' : 'collapsed'"
+                    />
+                </StackLayout>
             </SkipLayout>
         </GridLayout>
     </Page>
@@ -63,7 +57,7 @@ import _ from "lodash";
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes } from "@/routes";
-import { validateStationName } from "@/lib";
+import { debug, validateStationName } from "@/lib";
 import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "~/components/LabeledTextField.vue";
@@ -124,11 +118,11 @@ export default Vue.extend({
             this.busy = true;
 
             if (this.form.name != this.currentStation.name) {
-                console.log("rename", this.form.name, this.currentStation.name);
+                debug.log("rename", this.form.name, this.currentStation.name);
                 return this.$s
                     .dispatch(new RenameStationAction(this.currentStation.deviceId, this.form.name))
                     .then(async () => {
-                        await this.$navigateTo(routes.onboarding.reconnecting, {
+                        await this.$deprecatedNavigateTo(routes.onboarding.reconnecting, {
                             props: {
                                 stationId: this.currentStation.id,
                             },
@@ -139,7 +133,7 @@ export default Vue.extend({
                         this.error = true;
                     });
             }
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
@@ -161,15 +155,15 @@ export default Vue.extend({
             this.form.name = "";
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
             });
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
-            await this.$navigateTo(routes.onboarding.nearby, {});
+            debug.log("onBack");
+            await this.$deprecatedNavigateTo(routes.onboarding.nearby, {});
         },
     },
 });
@@ -188,12 +182,6 @@ export default Vue.extend({
     border-bottom-color: white;
 }
 
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-}
 .validation-error {
     width: 100%;
     font-size: 13;

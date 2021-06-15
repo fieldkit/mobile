@@ -1,6 +1,9 @@
 @Library('conservify') _
 
-conservifyProperties([ disableConcurrentBuilds() ])
+properties([
+	disableConcurrentBuilds(),
+	buildDiscarder(logRotator(numToKeepStr: '5'))
+])
 
 def getBranch(scmInfo) {
 	def (remoteOrBranch, branch) = scmInfo.GIT_BRANCH.tokenize('/')
@@ -19,6 +22,11 @@ timestamps {
                 scmInfo = checkout scm
             }
 
+			stage ("prepare-server") {
+				build job: "fk/oss/fancycamera"
+				build job: "fk/oss/keyboard-height-provider"
+			}
+
 			stage ("android-sdk") {
 				sh "rm -f android-sdk-setup.sh*"
 				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
@@ -26,6 +34,9 @@ timestamps {
 			}
 
             stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-mapbox-netrc', variable: 'APP_MAPBOX_NETRC')]) {
+					sh "cp -f $APP_MAPBOX_NETRC ~/.netrc"
+				}
                 withCredentials([file(credentialsId: 'app-android-signing-data', variable: 'APP_ANDROID_SIGNING_DATA')]) {
                     sh "mkdir -p private && cp -f $APP_ANDROID_SIGNING_DATA private/private.zip && (cd private && unzip -o private.zip)"
                 }
@@ -67,7 +78,7 @@ make android-release
 
 				currentBuild.description = version.trim()
 
-                archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/release/*.apk, platforms/android/app/build/outputs/bundle/release/*.aab'
+                archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/*/*.apk, platforms/android/app/build/outputs/bundle/*/*.aab'
             }
 
             notifySuccess()

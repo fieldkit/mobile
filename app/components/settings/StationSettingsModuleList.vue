@@ -1,31 +1,30 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1" v-if="station.modules.length > 0">
-                <StackLayout class="p-t-10">
-                    <CalibratingModules :station="station" @selected="calibrateModule" />
-                </StackLayout>
-            </ScrollView>
-            <NoModulesWannaAdd row="1" :connected="station.connected" :stationId="stationId" v-else />
-        </GridLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <StackLayout row="1" class="text-center connection-warning" v-if="!station.connected">
+                <Label :text="_L('stationSettings.modules.disconnected')" class="size-15" textWrap="true" />
+            </StackLayout>
+            <StackLayout v-if="station.modules.length">
+                <CalibratingModules :station="station" @selected="calibrateModule" />
+            </StackLayout>
+            <NoModulesWannaAdd :connected="station.connected" :stationId="stationId" v-else />
+        </StationSettingsLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import NoModulesWannaAdd from "@/components/NoModulesWannaAdd.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import CalibratingModules from "../onboarding/CalibratingModules.vue";
+import { logNavigationStack } from "@/routes";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        ConnectionStatusHeader,
         CalibratingModules,
         NoModulesWannaAdd,
     },
@@ -40,10 +39,15 @@ export default Vue.extend({
             return this.$s.getters.stationCalibrations[this.stationId];
         },
     },
+    mounted() {
+        logNavigationStack();
+    },
     methods: {
         async calibrateModule(moduleCal: ModuleCalibration): Promise<void> {
-            const route = await makeCalibrationRoute(this.station, moduleCal);
-            await this.$navigateTo(route);
+            if (this.station.connected) {
+                const route = await makeCalibrationRoute(this.station, moduleCal);
+                await this.$deprecatedNavigateTo(route);
+            }
         },
     },
 });
@@ -86,5 +90,14 @@ export default Vue.extend({
 
 .hint-color {
     color: $fk-gray-hint;
+}
+
+.connection-warning {
+    padding-top: 8;
+    padding-bottom: 5;
+    color: $fk-primary-black;
+    font-size: 16;
+    background-color: #fddb7a;
+    height: 37;
 }
 </style>

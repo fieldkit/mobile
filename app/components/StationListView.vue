@@ -1,32 +1,42 @@
 <template>
-    <Page>
+    <Page @loaded="onLoaded">
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
 
-        <ScrollView>
-            <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
-                <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
+        <ScrollView @doubleTap="onDoubleTap">
+            <GridLayout rows="auto,*">
+                <StationsMap id="stations-map" row="0" :mappedStations="mappedStations" :mapKey="mapKey" @toggle-modal="openModalMap" />
 
-                <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+                <StackLayout row="1" class="p-t-10">
+                    <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
-                <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
+                    <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
 
-                <GridLayout
-                    v-for="station in stations"
-                    :key="station.deviceId"
-                    rows="*,*"
-                    columns="85*,15*"
-                    class="station-container m-y-5 m-x-15 p-10"
-                    orientation="vertical"
-                    @tap="goToDetail($event, station)"
-                >
-                    <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
-                    <Label row="1" col="0" :text="getDeployStatus(station)" :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')" />
-                    <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
-                    <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
-                </GridLayout>
-                <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
-                <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
-            </StackLayout>
+                    <GridLayout
+                        v-for="station in stations"
+                        :key="station.deviceId"
+                        rows="*,*"
+                        columns="85*,15*"
+                        class="station-container m-y-5 m-x-15 p-10"
+                        orientation="vertical"
+                        @tap="goToDetail($event, station)"
+                    >
+                        <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
+                        <Label
+                            row="1"
+                            col="0"
+                            :text="getDeployStatus(station)"
+                            :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
+                        />
+                        <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
+                        <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
+                    </GridLayout>
+
+                    <StackLayout>
+                        <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
+                        <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
+                    </StackLayout>
+                </StackLayout>
+            </GridLayout>
         </ScrollView>
     </Page>
 </template>
@@ -41,7 +51,7 @@ import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
-import { uuidv4 } from "@/lib";
+import { debug, _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationListView",
@@ -54,26 +64,32 @@ export default Vue.extend({
         busy: boolean;
         scanning: boolean;
         key: string;
+        mapKey: number;
     } {
         return {
             busy: false,
             scanning: false,
             key: uuidv4(),
+            mapKey: 0,
         };
     },
     computed: {
-        ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+        ...mapGetters({ mappedStations: "mappedStations" }),
         discovering(): DiscoveringStation[] {
             return this.$s.getters.discovering;
         },
+        stations(): AvailableStation[] {
+            return this.$s.getters.availableStations.filter((s) => !s.forgetting);
+        },
     },
     mounted(): void {
-        console.log(this.key, "stations: mounted");
-    },
-    updated(): void {
-        console.log(this.key, "stations: updated");
+        debug.log(this.key, "stations: mounted");
     },
     methods: {
+        onLoaded() {
+            debug.log(this.key, "stations: loaded");
+            this.mapKey++;
+        },
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
@@ -82,7 +98,7 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 // eslint-disable-next-line
-                this.$navigateTo(routes.station.detail, {
+                this.$deprecatedNavigateTo(routes.station.detail, {
                     props: {
                         stationId: station.id,
                     },
@@ -91,7 +107,7 @@ export default Vue.extend({
         },
         async onDoubleTap(): Promise<void> {
             this.scanning = true;
-            console.log(`user initiated station scan`);
+            debug.log(`user initiated station scan`);
             await this.$s.dispatch(new ScanForStationsAction({ user: true })).finally(() => {
                 this.scanning = false;
             });
@@ -124,9 +140,6 @@ export default Vue.extend({
 .disconnected {
     color: $fk-gray-dark;
 }
-.stations-list {
-    font-size: 16;
-}
 .dark {
     color: $fk-primary-black;
 }
@@ -147,5 +160,6 @@ export default Vue.extend({
     padding-top: 30;
     color: #afafaf;
     text-align: center;
+    padding-bottom: 30;
 }
 </style>

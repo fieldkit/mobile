@@ -1,5 +1,5 @@
 <template>
-    <StackLayout class="form">
+    <FlexboxLayout class="registration-form">
         <LabeledTextField v-model="form.name" label="Name" @blur="checkName" />
         <Label
             v-show="form.v.name.required"
@@ -84,7 +84,7 @@
         />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('signUp')" :isEnabled="!busy" @tap="register" />
-    </StackLayout>
+    </FlexboxLayout>
 </template>
 
 <script lang="ts">
@@ -93,6 +93,7 @@ import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
+import { debug } from "@/lib/debugging";
 
 const ErrorUserEmailRegistered = "user-email-registered";
 
@@ -151,7 +152,7 @@ export default Vue.extend({
             this.form.v.confirmPassword.sameAs = this.form.password != this.form.confirmPassword;
         },
         async continueOffline(): Promise<void> {
-            await this.$navigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
+            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
         },
         invalid(): boolean {
             this.checkName();
@@ -182,13 +183,13 @@ export default Vue.extend({
                     password: this.form.password,
                 });
 
-                console.log(`returned: ${JSON.stringify(returned)}`, "a");
+                debug.log(`returned: ${JSON.stringify(returned)}`, "a");
 
-                await this.$navigateTo(fullRoutes.onboarding.assemble);
+                await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
             } catch (error) {
                 this.busy = false;
                 if (error && error.response && error.response.data) {
-                    console.log("error", error.response.data);
+                    debug.log("error", error.response.data);
                     if (error.response.data.name == ErrorUserEmailRegistered) {
                         await this.alert("A user with that email is already registered.");
                         return;
@@ -213,65 +214,31 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.login-page {
-    font-size: 16;
-    align-items: center;
-    flex-direction: column;
-}
-
-.form {
-    margin-left: 5;
-    margin-right: 5;
+.registration-form {
     flex-grow: 2;
+    flex-direction: column;
     vertical-align: center;
-}
+    justify-content: space-around;
+    height: 100%;
 
-.logo {
-    margin-top: 50;
-    height: 47;
-}
+    .active {
+        border-top-color: $fk-secondary-blue;
+    }
 
-.spacer-top {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 2;
-}
+    .btn-primary {
+        margin: 20 0 15 0;
+    }
 
-.active {
-    border-top-color: $fk-secondary-blue;
-}
+    .sign-up-label {
+        horizontal-align: center;
+        margin-bottom: 10;
+    }
 
-.input-field {
-    margin-bottom: 15;
-}
-
-.input {
-    width: 100%;
-    font-size: 16;
-    color: $fk-primary-black;
-    placeholder-color: $fk-gray-hint;
-}
-
-.input:disabled {
-    opacity: 0.5;
-}
-
-.btn-primary {
-    margin: 20 5 15 5;
-}
-
-.bottom-pad {
-    margin-bottom: 8;
-}
-
-.sign-up-label {
-    horizontal-align: center;
-    margin-bottom: 10;
-}
-
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
+    .validation-error {
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
+        padding-top: 5;
+    }
 }
 </style>

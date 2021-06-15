@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Conservify = void 0;
-var conservify_common_1 = require("./conservify.common");
+var buffer_1 = require("buffer");
 var core_1 = require("@nativescript/core");
+var conservify_common_1 = require("./conservify.common");
 __exportStar(require("./conservify.common"), exports);
 function toJsHeaders(headers) {
     var jsHeaders = {};
@@ -173,7 +174,7 @@ var Conservify = (function () {
                             }
                             else {
                                 if (transfer_1.isBase64EncodeResponseBody()) {
-                                    return Buffer.from(body, "base64");
+                                    return buffer_1.Buffer.from(body, "base64");
                                 }
                                 return body;
                             }
@@ -232,7 +233,7 @@ var Conservify = (function () {
                             }
                             else {
                                 if (transfer_2.isBase64EncodeResponseBody()) {
-                                    return Buffer.from(body, "base64");
+                                    return buffer_1.Buffer.from(body, "base64");
                                 }
                                 return body;
                             }

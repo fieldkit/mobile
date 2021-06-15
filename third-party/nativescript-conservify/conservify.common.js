@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeBody = exports.ConnectionError = exports.FileSystemError = void 0;
+var buffer_1 = require("buffer");
 var FileSystemError = (function (_super) {
     __extends(FileSystemError, _super);
     function FileSystemError(message, path) {
@@ -22,10 +23,10 @@ var ConnectionError = (function (_super) {
 }(Error));
 exports.ConnectionError = ConnectionError;
 function encodeBody(body) {
-    if (Buffer.isBuffer(body)) {
+    if (buffer_1.Buffer.isBuffer(body)) {
         return body.toString("base64");
     }
-    return Buffer.from(body).toString("base64");
+    return buffer_1.Buffer.from(body).toString("base64");
 }
 exports.encodeBody = encodeBody;
 //# sourceMappingURL=conservify.common.js.map

@@ -1,33 +1,40 @@
 <template>
-    <GridLayout rows="auto" columns="*" id="mapbox-wrapper" @unloaded="onUnloaded">
-        <Mapbox
-            row="0"
-            :accessToken="token"
-            :height="height"
-            zoomLevel="0"
-            hideCompass="false"
-            showUserLocation="false"
-            disableZoom="false"
-            disableRotation="false"
-            disableScroll="false"
-            disableTilt="false"
-            class="m-b-10"
-            mapStyle="mapbox://styles/mapbox/outdoors-v11"
-            @mapReady="onMapReady"
-        />
+    <StackLayout @loaded="onLoaded" @unloaded="onUnloaded">
+        <!-- So weird. So on iOS the map likes to extend above the scrollable area and this prevents that. -->
+        <StackLayout class="m-t-5" v-if="isIOS"></StackLayout>
 
-        <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="!isIOS">
-            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
-        </StackLayout>
+        <GridLayout rows="auto" id="mapbox-wrapper">
+            <ContentView row="0" :height="height">
+                <Mapbox
+                    :accessToken="token"
+                    zoomLevel="11"
+                    hideCompass="false"
+                    showUserLocation="true"
+                    disableZoom="false"
+                    disableRotation="false"
+                    disableScroll="false"
+                    disableTilt="false"
+                    mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                    @mapReady="onMapReady"
+                    @moveBeginEvent="onMapMove"
+                    @locationPermissionGranted="onLocationPermissionGranted"
+                    @locationPermissionDenied="onLocationPermissionDenied"
+                />
+            </ContentView>
 
-        <StackLayout row="0" v-if="loading" class="loading">
-            <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
-        </StackLayout>
+            <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="!isIOS">
+                <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
+            </StackLayout>
 
-        <StackLayout row="0" v-if="unavailable" class="unavailable">
-            <Label text="Map Not Available" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
-        </StackLayout>
-    </GridLayout>
+            <StackLayout row="0" v-if="loading" class="loading m-t-20">
+                <Label text="Loading Map" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
+            </StackLayout>
+
+            <StackLayout row="0" v-if="unavailable" class="unavailable">
+                <Label text="Map Not Available" textWrap="true" horizontalAlignment="center" verticalAlignment="middle" />
+            </StackLayout>
+        </GridLayout>
+    </StackLayout>
 </template>
 
 <script lang="ts">
@@ -36,25 +43,39 @@ import Config from "@/config";
 import { routes } from "@/routes";
 import { isIOS } from "@nativescript/core";
 import { AvailableStation } from "@/store/types";
-import { uuidv4 } from "@/lib";
+import { debug, _L, uuidv4 } from "@/lib";
 
 export default Vue.extend({
     name: "StationsMap",
-    components: {},
     props: {
-        id: {
-            type: String,
-            required: true,
-        },
         height: {
             type: Number,
-            default: 170,
+            default: (): number => {
+                if (isIOS) {
+                    return 270;
+                }
+                return 170;
+            },
         },
         mappedStations: {
             type: Object,
+            required: true,
+        },
+        mapKey: {
+            type: Number,
+            default: 0,
         },
     },
-    data() {
+    data(): {
+        key: string;
+        isIOS: boolean;
+        loading: boolean;
+        unavailable: boolean;
+        shown: false;
+        token: string;
+        hasMap: boolean;
+        located: boolean;
+    } {
         return {
             key: uuidv4(),
             isIOS: isIOS,
@@ -63,47 +84,57 @@ export default Vue.extend({
             shown: false,
             token: Config.mapbox.token,
             hasMap: false,
+            located: true,
         };
     },
+    watch: {
+        mappedStations(): void {
+            this.shown = false;
+            this.showStations();
+        },
+    },
     updated(): void {
-        console.log(this.key, "map: updated", this.isIOS);
+        debug.log(this.key, "map: updated", this.isIOS);
         this.showStations();
     },
     mounted(this: any): void {
-        console.log(this.key, "map: mounted");
+        debug.log(this.key, "map: mounted");
     },
-    beforeDestroy() {
-        console.log(this.key, "map: before-destroy");
+    beforeDestroy(): void {
+        debug.log(this.key, "map: before-destroy");
     },
-    destroyed() {
-        console.log(this.key, "map: destroyed");
+    destroyed(): void {
+        debug.log(this.key, "map: destroyed");
     },
     methods: {
-        onUnloaded(): void {
-            console.log(this.key, "map: unloaded");
+        onLoaded(): void {
+            debug.log(this.key, "map: loaded");
         },
-        onMapReady(this: any, ev) {
-            console.log(this.key, "map: map-ready");
+        onUnloaded(): void {
+            debug.log(this.key, "map: unloaded");
+        },
+        onMapReady(this: any, ev): void {
+            debug.log(this.key, "map: map-ready");
             this.map = ev.map;
             this.showStations();
         },
-        toggleModal(this: any) {
-            console.log(this.key, "map: toggle-modal");
+        toggleModal(this: any): void {
+            debug.log(this.key, "map: toggle-modal");
             this.$emit("toggle-modal");
         },
-        showStations(this: any) {
+        showStations(this: any): void {
             if (!this.mappedStations) {
-                console.log(this.key, "map: refresh, no mappedStations");
+                debug.log(this.key, "map: refresh, no mappedStations");
                 return;
             }
 
             if (!this.map) {
-                console.log(this.key, "map: refresh, no map");
+                debug.log(this.key, "map: refresh, no map");
                 return;
             }
 
             if (!this.shown) {
-                console.log(this.key, "map: refreshing");
+                debug.log(this.key, "map: refreshing");
 
                 const markers = this.mappedStations.stations.map((station: any) => {
                     return {
@@ -121,37 +152,43 @@ export default Vue.extend({
                 this.map.removeMarkers();
                 this.map.addMarkers(markers);
 
-                const center = this.mappedStations.center;
+                if (!this.located) {
+                    const center = this.mappedStations.center;
 
-                this.map.setZoomLevel({
-                    level: center.zoom,
-                    animated: false,
-                });
+                    this.map.setZoomLevel({
+                        level: center.zoom,
+                        animated: false,
+                    });
 
-                this.map.setCenter({
-                    lat: center.location.latitude,
-                    lng: center.location.longitude,
-                    animated: false,
-                });
+                    this.map.setCenter({
+                        lat: center.location.latitude,
+                        lng: center.location.longitude,
+                        animated: false,
+                    });
 
-                const min = center.bounds.min;
-                const max = center.bounds.max;
-                this.map.setViewport({
-                    bounds: {
-                        north: max.latitude,
-                        east: max.longitude,
-                        south: min.latitude,
-                        west: min.longitude,
-                    },
-                    animated: false,
-                });
+                    const min = center.bounds.min;
+                    const max = center.bounds.max;
+                    this.map.setViewport({
+                        bounds: {
+                            north: max.latitude,
+                            east: max.longitude,
+                            south: min.latitude,
+                            west: min.longitude,
+                        },
+                        animated: false,
+                    });
+
+                    this.located = true;
+                }
+            } else {
+                debug.log(this.key, "map: skip-refresh");
             }
 
             this.loading = false;
             this.hasMap = true;
             this.shown = true;
         },
-        onMarkerTap(this: any, station) {
+        onMarkerTap(this: any, station): void {
             /*
             this.map.setCenter({
                 lat: station.location.latitude,
@@ -164,15 +201,34 @@ export default Vue.extend({
             });
 			*/
         },
-        onCalloutTap(this: any, station) {
+        async onCalloutTap(this: any, station): Promise<void> {
             this.$emit("opened-details", station);
-            return this.$navigateTo(routes.station.detail, {
+            await this.$deprecatedNavigateTo(routes.station.detail, {
                 props: {
                     stationId: station.id,
                 },
             });
         },
-        getDeployStatus(this: any, station: AvailableStation) {
+        onMapMove(this: any): void {
+            debug.log(this.key, "map: move");
+        },
+        onLocationPermissionGranted(this: any): void {
+            debug.log(this.key, "map: onLocationPermissionGranted");
+            this.map.getUserLocation().then((location) => {
+                debug.log("map: user location: " + location.location.lat + ", " + location.location.lng);
+                if (isIOS) {
+                    this.map.setCenter({
+                        lat: location.location.lat,
+                        lng: location.location.lng,
+                        animated: false,
+                    });
+                }
+            });
+        },
+        onLocationPermissionDenied(): void {
+            debug.log(this.key, "map: onLocationPermissionDenied");
+        },
+        getDeployStatus(this: any, station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
     },
@@ -182,18 +238,19 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.loading {
-    margin-top: 40;
-    font-size: 20;
-    font-weight: bold;
-    color: #ffffff;
-}
+.mapbox-wrapper {
+    .loading {
+        margin-top: 40;
+        font-size: 20;
+        font-weight: bold;
+        color: #ffffff;
+    }
 
-.unavailable {
-    padding-top: 40;
-    font-size: 20;
-    font-weight: bold;
-    height: 170;
-    background-color: #ececec;
+    .unavailable {
+        padding-top: 40;
+        font-size: 20;
+        font-weight: bold;
+        background-color: #ececec;
+    }
 }
 </style>

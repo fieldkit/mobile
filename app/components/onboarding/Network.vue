@@ -10,7 +10,9 @@
                 :buttonLabel="_L('next')"
                 :buttonEnabled="currentStation.connected && selected !== NO_SELECTION"
                 @button="forward"
-                :scrolling="true"
+                :skipLabel="_L('skipStep')"
+                @skip="skip"
+                :scrollable="true"
             >
                 <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
                 <StackLayout v-if="remote">
@@ -95,8 +97,8 @@ export default Vue.extend({
         async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
                 // Skipping dataSync
-                // await this.$navigateTo(routes.onboarding.dataSync, {
-                await this.$navigateTo(routes.onboarding.completeSettings, {
+                // await this.$deprecatedNavigateTo(routes.onboarding.dataSync, {
+                await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                     props: {
                         stationId: this.stationId,
                         remote: true,
@@ -105,19 +107,26 @@ export default Vue.extend({
             }
 
             if (this.selected === this.CONNECTED_SELECTED) {
-                await this.$navigateTo(routes.onboarding.addWifiName, {
+                await this.$deprecatedNavigateTo(routes.onboarding.addWifiName, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
             }
         },
+        async skip(): Promise<void> {
+            await this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
+                props: {
+                    stationId: this.stationId,
+                    remote: false,
+                },
+            });
+        },
         select(value: number): void {
             this.selected = value;
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
-            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+            await this.$deprecatedNavigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.stationId,
                     remote: this.remote,

@@ -1,24 +1,22 @@
 <template>
-    <StackLayout>
-        <GridLayout rows="*,auto">
-            <StackLayout row="0">
-                <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
-                <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
-                <Label class="instruction-text" :text="visual.instructions" lineHeight="4" textWrap="true" />
+    <GridLayout rows="*,auto">
+        <StackLayout row="0">
+            <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
+            <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+            <Label class="instruction-text" :text="visual.instructions" lineHeight="4" textWrap="true" />
 
-                <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
-            </StackLayout>
-            <StackLayout row="1">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
-            </StackLayout>
-        </GridLayout>
-    </StackLayout>
+            <Image verticalAlignment="middle" class="illo" :src="visual.images[frame % visual.images.length].path" />
+        </StackLayout>
+        <StackLayout row="1" class="buttons-container">
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
+        </StackLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">
 import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { PrepareVisual } from "./visuals";
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -73,11 +71,11 @@ export default Vue.extend({
     },
     methods: {
         back(): void {
-            console.log("prepare:back");
+            debug.log("prepare:back");
             this.$emit("back");
         },
         done(): void {
-            console.log("prepare:done");
+            debug.log("prepare:done");
             this.$emit("done");
         },
     },
@@ -102,5 +100,9 @@ export default Vue.extend({
 }
 .illo {
     margin: 20;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>

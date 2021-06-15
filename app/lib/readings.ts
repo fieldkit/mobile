@@ -1,6 +1,8 @@
 import _ from "lodash";
+import { debug } from "./debugging";
 import { ParsedDataRecord, coerceNumber } from "./data-file";
 import { DataVisitor } from "./data-reader";
+import { Buffer } from "buffer";
 
 export type ReadingsMap = { [index: string]: number };
 
@@ -61,7 +63,7 @@ export class MergeMetaAndDataVisitor implements DataVisitor {
         try {
             this.visitor.onReadings(readings);
         } catch (e) {
-            console.log("visitor:error: ${e.message}");
+            debug.log("visitor:error: ${e.message}");
             throw e;
         }
     }
@@ -70,7 +72,7 @@ export class MergeMetaAndDataVisitor implements DataVisitor {
         try {
             this.visitor.onDone();
         } catch (e) {
-            console.log("visitor:error: ${e.message}");
+            debug.log("visitor:error: ${e.message}");
             throw e;
         }
     }

@@ -21,7 +21,7 @@
                 :buttonLabel="_L('continue')"
                 :buttonEnabled="notes.valid"
                 :buttonVisible="!linkedFromStation"
-                :scrolling="true"
+                :scrollable="true"
                 @button="goToReview"
             >
                 <FlexboxLayout flexDirection="column" class="p-t-10">
@@ -45,10 +45,10 @@
                             />
                         </GridLayout>
 
-                        <NoteDisplay :note="notes.studyObjective" @open="(ev) => openNote(ev, 'studyObjective')" />
-                        <NoteDisplay :note="notes.sitePurpose" @open="(ev) => openNote(ev, 'sitePurpose')" />
-                        <NoteDisplay :note="notes.siteCriteria" @open="(ev) => openNote(ev, 'siteCriteria')" />
-                        <NoteDisplay :note="notes.siteDescription" @open="(ev) => openNote(ev, 'siteDescription')" />
+                        <NoteDisplay :note="notes.studyObjective" @open="() => openNote('studyObjective')" />
+                        <NoteDisplay :note="notes.sitePurpose" @open="() => openNote('sitePurpose')" />
+                        <NoteDisplay :note="notes.siteCriteria" @open="() => openNote('siteCriteria')" />
+                        <NoteDisplay :note="notes.siteDescription" @open="() => openNote('siteDescription')" />
 
                         <StackLayout class="m-t-20">
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5" />
@@ -70,7 +70,7 @@
                                         />
                                     </StackLayout>
                                 </StackLayout>
-                                <StackLayout class="photo-btn" @tap="onAddPhoto">
+                                <StackLayout class="photo-display" @tap="onAddPhoto">
                                     <Image src="~/images/Icon_Add_Button.png" width="20" opacity="0.25" class="photo-btn-img" />
                                 </StackLayout>
                             </WrapLayout>
@@ -85,17 +85,21 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { routes } from "@/routes";
 import { Dialogs } from "@nativescript/core";
 
 import { getAppRelative, getFileName, rebaseAbsolutePath, promiseAfter } from "@/lib";
 
-import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
+import EditNoteView from "./EditNoteView.vue";
+import DeployReviewView from "./DeployReviewView.vue";
+// import Blank from "@/components/Blank.vue";
+import StationDetailView from "@/components/StationDetailView.vue";
+import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
+import SharedComponents from "@/components/shared";
 
-import { Station, Notes, NoteMedia, ActionTypes, SaveNotesAction, RemoveNoteMediaMutation, AttachNoteMediaMutation } from "@/store";
-import * as animations from "../animations";
+import { Station, Notes, NoteMedia, SaveNotesAction, RemoveNoteMediaMutation, AttachNoteMediaMutation } from "@/store";
+
+import { debug, _L } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -131,29 +135,23 @@ export default Vue.extend({
         rebaseAbsolutePath(path: string): string {
             return rebaseAbsolutePath(path);
         },
-        onPageLoaded(args): Promise<void> {
-            if (false) {
-                console.log("notes", this.$s.state.notes.stations[this.stationId]);
-                const paths = this.$s.state.notes.stations[this.stationId].photos.map((p) => p.path);
-                return this.$s.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
-            }
-            return Promise.resolve();
-        },
-        openNote(ev, key: string): Promise<any> {
-            console.log("opening", key);
-            return this.$navigateTo(routes.deploy.editing, {
+        onPageLoaded(): void {},
+        openNote(key: string): Promise<void> {
+            debug.log("opening", key);
+            return this.$navigateTo(EditNoteView, {
+                frame: "stations-frame",
                 props: {
                     stationId: this.stationId,
                     editingKey: key,
                 },
             });
         },
-        takePicture(): Promise<any> {
+        takePicture(): Promise<void> {
             return this.$services
                 .Images()
                 .takePicture()
                 .then((savedImage) => {
-                    console.log("saved image", savedImage);
+                    debug.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
                         const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
@@ -161,12 +159,12 @@ export default Vue.extend({
                     });
                 });
         },
-        selectPicture(): Promise<any> {
+        selectPicture(): Promise<void> {
             return this.$services
                 .Images()
                 .findPicture()
                 .then((savedImage) => {
-                    console.log("saved image", savedImage);
+                    debug.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
                         const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
@@ -174,39 +172,30 @@ export default Vue.extend({
                     });
                 });
         },
-        goBack(ev: any): Promise<any> {
-            return Promise.all([animations.pressed(ev), this.$navigateBack({})]);
+        async goBack(): Promise<void> {
+            await this.$navigateBack();
         },
-        onNavCancel(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        onNavCancel(): Promise<void> {
+            return this.$navigateTo(StationDetailView, {
+                frame: "stations-frame",
+                clearHistory: true,
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
-        goToReview(ev: any): Promise<any> {
-            console.log("navigating to review");
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.deploy.review, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        async goToReview(): Promise<void> {
+            debug.log("navigating to review");
+            await this.$navigateTo(DeployReviewView, {
+                frame: "stations-frame",
+                props: {
+                    stationId: this.stationId,
+                },
+            });
+            debug.log("navigating done");
         },
-        onBackToDetail(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.station.detail, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
+        onBackToDetail(): Promise<void> {
+            return this.onNavCancel();
         },
         async onTapPhoto(photo: NoteMedia) {
             const confirm = await Dialogs.confirm({
@@ -220,21 +209,17 @@ export default Vue.extend({
             this.$s.commit(new RemoveNoteMediaMutation(this.stationId, null, photo));
             await this.$s.dispatch(new SaveNotesAction(this.stationId));
         },
-        onAddPhoto(): Promise<any> {
-            return Promise.all([
-                Dialogs.action({
-                    message: _L("addPhoto"),
-                    cancelButtonText: _L("cancel"),
-                    actions: [_L("takePicture"), _L("selectFromGallery")],
-                }).then((choice) => {
-                    if (choice == _L("takePicture")) {
-                        return this.takePicture();
-                    } else if (choice == _L("selectFromGallery")) {
-                        return this.selectPicture();
-                    }
-                    return;
-                }),
-            ]);
+        async onAddPhoto(): Promise<void> {
+            const choice = await Dialogs.action({
+                message: _L("addPhoto"),
+                cancelButtonText: _L("cancel"),
+                actions: [_L("takePicture"), _L("selectFromGallery")],
+            });
+            if (choice == _L("takePicture")) {
+                await this.takePicture();
+            } else if (choice == _L("selectFromGallery")) {
+                await this.selectPicture();
+            }
         },
     },
 });
@@ -281,8 +266,7 @@ export default Vue.extend({
     margin-right: 5;
 }
 
-.photo-display,
-.photo-btn {
+.photo-display {
     width: 100;
     height: 100;
     margin: 20;

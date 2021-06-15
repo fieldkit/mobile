@@ -1,6 +1,6 @@
 <template>
     <GridLayout rows="*,auto">
-        <ScrollView v-if="scrolling" row="0">
+        <ScrollView v-if="scrollable" row="0">
             <StackLayout>
                 <slot></slot>
             </StackLayout>
@@ -8,16 +8,18 @@
         <StackLayout v-else row="0">
             <slot></slot>
         </StackLayout>
-        <StackLayout row="1">
+        <StackLayout row="1" class="skip-layout-buttons-container">
             <Button
                 v-if="buttonVisible"
-                class="btn btn-primary btn-padded"
+                class="btn btn-primary btn-padded skip-layout-button"
                 :text="buttonLabel"
                 :isEnabled="buttonEnabled"
                 @tap="onButton"
             />
-            <Label v-if="helpLabel" :text="helpLabel" class="guide" textWrap="true" @tap="onHelp" />
-            <Label v-if="skipLabel" :text="skipLabel" class="skip" textWrap="true" @tap="onSkip" />
+            <StackLayout class="buttons-small-container">
+                <Label v-if="helpLabel" :text="helpLabel" class="help-label" textWrap="true" @tap="onHelp" />
+                <Label v-if="skipLabel" :text="skipLabel" class="skip-label" textWrap="true" @tap="onSkip" />
+            </StackLayout>
         </StackLayout>
     </GridLayout>
 </template>
@@ -47,7 +49,7 @@ export default Vue.extend({
             type: String,
             default: null,
         },
-        scrolling: {
+        scrollable: {
             type: Boolean,
             default: false,
         },
@@ -68,41 +70,5 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: blue;
-}
-
-.btn-primary {
-    margin-bottom: 0;
-}
-
-.guide {
-    padding-top: 10;
-    padding-bottom: 10;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    // background-color: orange;
-}
-
-.ns-ios .guide {
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-.ns-ios .skip {
-    // background-color: orange;
-    padding-top: 20;
-    padding-bottom: 20;
-}
-
-GridLayout {
-    // background-color: orange;
-}
+@import "~/_app-common";
 </style>

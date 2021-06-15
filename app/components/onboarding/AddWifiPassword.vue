@@ -5,11 +5,12 @@
         <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="addNetwork" :scrolling="true">
+            <SkipLayout row="1" :buttonLabel="_L('next')" :buttonEnabled="canAdd && !busy" @button="addNetwork" :scrollable="true">
                 <GridLayout rows="auto,auto,auto" columns="*" @tap="hideKeyboard">
                     <StackLayout row="0" class="text-center m-b-30">
                         <Label :text="_L('yourWifi')" textWrap="true" class="size-18 m-b-10" />
                         <Label :text="ssid" textWrap="true" class="size-16" />
+                        <Label :text="_L('onboarding.network.wifi.band')" textWrap="true" class="size-12" />
                     </StackLayout>
 
                     <StackLayout row="1" class="p-20">
@@ -32,6 +33,7 @@ import SharedComponents from "@/components/shared";
 import { isAndroid, Utils } from "@nativescript/core";
 import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
 import { routes, fullRoutes } from "@/routes";
+import { debug } from "@/lib/debugging";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
@@ -70,7 +72,7 @@ export default Vue.extend({
     },
     async mounted(): Promise<void> {
         await this.$s.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
-            console.log("networks", networks);
+            debug.log("networks", networks);
         });
     },
     methods: {
@@ -87,7 +89,7 @@ export default Vue.extend({
             );
             await this.$s.dispatch(action).then(
                 () => {
-                    return this.$navigateTo(routes.onboarding.completeSettings, {
+                    return this.$deprecatedNavigateTo(routes.onboarding.completeSettings, {
                         props: {
                             stationId: this.stationId,
                             remote: false,
@@ -100,11 +102,11 @@ export default Vue.extend({
             );
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(fullRoutes.tabbed);
+            await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
         async onBack(): Promise<void> {
-            console.log("onBack");
-            await this.$navigateTo(routes.onboarding.network, {
+            debug.log("onBack");
+            await this.$deprecatedNavigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                 },

@@ -1,5 +1,5 @@
 <template>
-    <Page class="page plain">
+    <Page @navigatingTo="onNavigatingTo" @navigatingFrom="onNavigatingFrom" class="page plain">
         <PlatformHeader
             :title="help.title"
             icon="~/images/Icon_Save.png"
@@ -10,7 +10,7 @@
         <GridLayout rows="*,auto" class="grid-container">
             <ScrollView row="0">
                 <GridLayout rows="auto,*,auto" height="95%" v-if="!note.image" class="container">
-                    <Label :text="help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
+                    <Label :text="help.instructions" row="0" class="heading size-12" textWrap="true" width="100%" />
                     <TextView
                         ref="noteBody"
                         row="1"
@@ -54,7 +54,10 @@ import {
     UpdateNoteMutation,
     RemoveNoteMediaMutation,
     AttachNoteMediaMutation,
+    PauseRecordingAction,
 } from "@/store";
+
+import { debug } from "@/lib";
 
 export default Vue.extend({
     components: {
@@ -104,8 +107,18 @@ export default Vue.extend({
         },
     },
     methods: {
+        onNavigatingTo(): void {
+            debug.log("edit-note-view: arriving");
+            if (this.$s.state.media.recording) {
+                this.audioReady = true;
+            }
+        },
+        async onNavigatingFrom(): Promise<void> {
+            debug.log("edit-note-view: leaving");
+            await this.$s.dispatch(new PauseRecordingAction(false));
+        },
         async onSave(): Promise<void> {
-            console.log("notes-view:saving", this.editingKey, this.form);
+            debug.log("notes-view:saving", this.editingKey, this.form);
             this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, this.form));
             await this.$s.dispatch(new SaveNotesAction(this.stationId)).then(() => {
                 return this.$navigateBack({});
@@ -141,5 +154,10 @@ export default Vue.extend({
 
 .container {
     margin: 5;
+
+    .heading {
+        padding-left: 5;
+        padding-right: 5;
+    }
 }
 </style>

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Config from "@/config";
 import Settings from "@/settings";
-import { promiseAfter, sqliteToJs } from "@/lib";
+import { debug, promiseAfter, sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileType, FileTypeUtils, Station, Sensor, Module, Stream, StoredNetworkTableRow } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
@@ -458,7 +458,7 @@ export default class DatabaseInterface {
         }[]
     ): Promise<void> {
         const before = await this.query("SELECT * FROM streams WHERE device_id = ?", [deviceId]);
-        console.log(`resetting-before: ${JSON.stringify(before)}`);
+        debug.log(`resetting-before: ${JSON.stringify(before)}`);
 
         // Delete all of the stream rows for the device, we're going to recreate one for the generation we just uploaded.
         await this.execute("DELETE FROM streams WHERE device_id = ?", [deviceId]);
@@ -491,7 +491,7 @@ export default class DatabaseInterface {
         }
 
         const after = await this.query("SELECT * FROM streams WHERE device_id = ?", [deviceId]);
-        console.log(`resetting-after: ${JSON.stringify(after)}`);
+        debug.log(`resetting-after: ${JSON.stringify(after)}`);
     }
 
     public async forgetUploads(): Promise<void> {
@@ -755,6 +755,24 @@ export default class DatabaseInterface {
         );
     }
 
+    public async getFirmware(firmwareId?: number): Promise<FirmwareTableRow | null> {
+        log.info("get-firmware", await this.getAllFirmware());
+
+        if (!firmwareId) {
+            return this.getLatestFirmware();
+        }
+
+        return await this.query<FirmwareTableRow>("SELECT * FROM firmware WHERE module = ? AND id = ? ORDER BY time DESC LIMIT 1", [
+            "fk-core",
+            firmwareId,
+        ]).then((all) => {
+            if (all.length == 0) {
+                return null;
+            }
+            return all[0];
+        });
+    }
+
     public async deleteAllFirmware(): Promise<void> {
         await this.execute("DELETE FROM firmware");
     }
@@ -960,7 +978,7 @@ export default class DatabaseInterface {
                             station: JSON.parse(row.station) as Record<string, unknown>,
                         };
                     } catch (error) {
-                        log.error(`error deserializing notifications JSON: ${JSON.stringify(error)}`);
+                        log.error(`error deserializing notifications JSON:`, error);
                         log.error(`JSON: ${JSON.stringify(row)}`);
                         throw error;
                     }
@@ -1066,7 +1084,7 @@ export default class DatabaseInterface {
         if (seconds > 30) {
             return true;
         }
-        console.log(`append-station-log: skipped ${seconds}`);
+        // debug.log(`append-station-log: skipped ${seconds}`);
         return false;
     }
 
@@ -1077,7 +1095,7 @@ export default class DatabaseInterface {
                 const values = [now, deviceId, logs.trim()];
                 await this.execute("INSERT INTO station_log (time, device_id, logs) VALUES (?, ?, ?)", values);
                 this.logAppends[deviceId] = now;
-                console.log(`append-station-log`);
+                debug.log(`append-station-log`);
             }
         } catch (error) {
             log.error(`append-station-log error`, error);

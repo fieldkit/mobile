@@ -1,60 +1,44 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('stationSettings.title')" :subtitle="stationName" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*" v-if="!forgotten">
-            <ConnectionStatusHeader row="0" :connected="station.connected" />
-            <ScrollView row="1">
-                <StackLayout class="p-t-10">
-                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
-                        <Label
-                            v-for="(option, i) in menuOptions"
-                            :key="option"
-                            class="menu-text size-18"
-                            :text="option"
-                            textWrap="true"
-                            @tap="selectFromMenu"
-                        />
-                        <Label
-                            class="menu-text size-18 bottom-border"
-                            :text="_L('forgetStation')"
-                            textWrap="true"
-                            @tap="forgetStationDialog"
-                        />
-                    </StackLayout>
+        <StationSettingsLayout :connected="station.connected">
+            <GridLayout rows="*">
+                <StackLayout row="0">
+                    <SettingsItemText text="general" @tap="goToGeneral" />
+                    <SettingsItemText text="networks" @tap="goToNetworks" />
+                    <SettingsItemText text="firmware" @tap="goToFirmware" />
+                    <SettingsItemText text="modulesTitle" @tap="goToModules" />
+                    <SettingsItemText text="endDeployment" @tap="goToEndDeploy" />
+                    <SettingsItemText text="forgetStation" @tap="forgetStationDialog" />
                 </StackLayout>
-            </ScrollView>
 
-            <DockLayout row="1" v-if="showForgetStationDialog" class="text-center">
-                <GridLayout rows="auto,auto,auto" dock="center" class="deployed-dialog-container" verticalAlignment="center">
-                    <Label row="0" :text="_L('forgetStationTitle')" class="size-16 bold" />
-                    <Label row="1" :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
-                    <GridLayout row="2" columns="*,*">
-                        <Label col="0" :text="_L('forgetStationOK')" class="size-16 m-t-10 bold" @tap="forgetStation" />
-                        <Label col="1" :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
-                    </GridLayout>
-                </GridLayout>
-            </DockLayout>
-        </GridLayout>
+                <DockLayout row="0" v-if="showForgetStationDialog" class="text-center" @tap="() => {}">
+                    <StackLayout dock="center" class="forget-dialog-container" verticalAlignment="center">
+                        <Label :text="_L('forgetStationTitle')" class="size-16 bold" />
+                        <Label :text="_L('forgetStationBody')" class="size-16 m-t-20 m-b-20" textWrap="true" />
+                        <Button :text="_L('forgetStationOK')" class="size-16 m-t-10 btn-primary" @tap="forgetStation" />
+                        <Button :text="_L('forgetStationCancel')" class="size-16 m-t-10 bold" @tap="cancelForgetStation" />
+                    </StackLayout>
+                </DockLayout>
+            </GridLayout>
+        </StationSettingsLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-import Services from "@/services/singleton";
 import SharedComponents from "@/components/shared";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import StationListView from "@/components/StationListView.vue";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
 import Firmware from "./StationSettingsFirmware.vue";
 import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
-import * as animations from "@/components/animations";
 import { ActionTypes, AvailableStation } from "@/store";
-import StationListView from "~/components/StationListView.vue";
+import Services from "@/services/singleton";
 
 export default Vue.extend({
     data(): {
         loggedIn: boolean;
-        menuOptions: string[];
         showForgetStationDialog: boolean;
         stationName: string | null;
         forgotten: boolean;
@@ -62,7 +46,6 @@ export default Vue.extend({
         const station = this.$s.getters.availableStationsById[this.stationId];
         return {
             loggedIn: Services.PortalInterface().isLoggedIn(),
-            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
             showForgetStationDialog: false,
             stationName: station.name,
             forgotten: false,
@@ -76,10 +59,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        General,
-        Firmware,
-        Networks,
-        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {
@@ -87,47 +66,29 @@ export default Vue.extend({
         },
     },
     methods: {
-        selectFromMenu(ev: Event): Promise<void> {
-            void animations.pressed(ev);
-
-            switch ((ev as any).object.text) {
-                case _L("general"):
-                    return this.goToGeneral();
-                case _L("networks"):
-                    return this.goToNetworks();
-                case _L("firmware"):
-                    return this.goToFirmware();
-                case _L("modulesTitle"):
-                    return this.goToModules();
-                case _L("endDeployment"):
-                    return this.goToEndDeploy();
-            }
-
-            throw new Error("unknown option");
-        },
         async goToGeneral(): Promise<void> {
-            await this.$navigateTo(General, {
+            await this.$deprecatedNavigateTo(General, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToNetworks(): Promise<void> {
-            await this.$navigateTo(Networks, {
+            await this.$deprecatedNavigateTo(Networks, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToFirmware(): Promise<void> {
-            await this.$navigateTo(Firmware, {
+            await this.$deprecatedNavigateTo(Firmware, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         async goToModules(): Promise<void> {
-            await this.$navigateTo(Modules, {
+            await this.$deprecatedNavigateTo(Modules, {
                 props: {
                     stationId: this.stationId,
                     bookmark: true,
@@ -135,7 +96,7 @@ export default Vue.extend({
             });
         },
         async goToEndDeploy(): Promise<void> {
-            await this.$navigateTo(EndDeploy, {
+            await this.$deprecatedNavigateTo(EndDeploy, {
                 props: {
                     stationId: this.stationId,
                 },
@@ -148,6 +109,7 @@ export default Vue.extend({
             this.showForgetStationDialog = false;
             this.forgotten = true;
             await this.$navigateTo(StationListView, {
+                frame: "stations-frame",
                 clearHistory: true,
             });
             await this.$s.dispatch(ActionTypes.FORGET_STATION, this.station.id);
@@ -162,36 +124,10 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.menu-text {
-    padding-left: 5;
-    padding-top: 20;
-    padding-bottom: 20;
-    margin-left: 10;
-    margin-right: 10;
-    border-color: $fk-gray-lighter;
-    border-top-width: 1;
-}
-.bottom-border {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
-
-.full-width {
-    width: 100%;
-    margin-bottom: 10;
-}
-
-.deployed-dialog-container {
-    color: $fk-tertiary-red;
-    border-color: $fk-tertiary-red;
+.forget-dialog-container {
     border-width: 1;
     width: 300;
     background-color: $background;
     padding: 20;
-}
-
-.deployed-dialog-text {
-    margin-top: 20;
-    font-size: 18;
 }
 </style>

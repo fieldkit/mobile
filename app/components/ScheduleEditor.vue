@@ -2,10 +2,10 @@
     <StackLayout verticalAlignment="top" class="schedule-editor">
         <GridLayout rows="auto" columns="*,*" class="schedule-options" v-if="complex">
             <StackLayout column="0" class="option" @tap="(ev) => changeScheduleType(ev, 0)" v-bind:class="{ selected: isSimple }">
-                <Label text="Simple" />
+                <Label :text="_L('schedules.editor.simple')" />
             </StackLayout>
             <StackLayout column="1" class="option" @tap="(ev) => changeScheduleType(ev, 1)" v-bind:class="{ selected: isComplex }">
-                <Label text="Complex" />
+                <Label :text="_L('schedules.editor.complex')" />
             </StackLayout>
         </GridLayout>
 
@@ -43,7 +43,7 @@
                 />
             </StackLayout>
             <StackLayout @tap="addInterval" class="add-interval">
-                <Label text="Add Time" />
+                <Label :text="_L('schedules.editor.addTime')" />
             </StackLayout>
         </StackLayout>
     </StackLayout>
@@ -54,6 +54,7 @@ import _ from "lodash";
 import Vue from "vue";
 import IntervalEditor from "./IntervalEditor.vue";
 import { Schedule, Interval } from "@/store";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "ScheduleEditor",
@@ -76,17 +77,31 @@ export default Vue.extend({
     },
     data(): {
         scheduleType: number;
-        invalid: { [scheduleType: number]: { [index: number]: boolean } };
+        schedules: {
+            [scheduleType: number]: Schedule;
+        };
+        invalid: {
+            [scheduleType: number]: { [index: number]: boolean };
+        };
     } {
         const invalid = {};
         invalid[0] = {};
         invalid[1] = {};
+        const schedules = {};
+        schedules[0] = Schedule.asSimple(this.schedule);
+        schedules[1] = Schedule.asComplex(this.schedule);
+        debug.log("schedules", schedules);
         return {
-            scheduleType: 0,
+            scheduleType: Schedule.isSimple(this.schedule) ? 0 : 1,
+            schedules: schedules,
             invalid: invalid,
         };
     },
     computed: {
+        selected(): Schedule {
+            debug.log("schedule-selected", this.schedules, this.schedules[this.scheduleType]);
+            return this.schedules[this.scheduleType];
+        },
         isSimple(): boolean {
             return this.scheduleType == 0;
         },
@@ -94,46 +109,42 @@ export default Vue.extend({
             return this.scheduleType == 1;
         },
         canRemove(): boolean {
-            return this.schedule.intervals.length > 1;
+            return this.selected.intervals.length > 1;
         },
     },
     mounted(): void {
-        console.log("schedule-editor:mounted", this.schedule, this.enabled);
-        if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
-        this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
+        debug.log("schedule-editor:mounted", this.schedules);
+        debug.log("schedule-editor:mounted", this.schedule, this.selected);
     },
     methods: {
-        isScheduleSimple(schedule: Schedule): boolean {
-            if (schedule.intervals.length > 1) return false;
-            const interval = schedule.intervals[0];
-            if (interval.start != 0) return false;
-            if (interval.end < 86400 - 60) return false;
-            return true;
-        },
         changeScheduleType(ev: any, scheduleType: number): void {
             this.scheduleType = scheduleType;
+            this.$emit("change", this.selected);
         },
         addInterval(): void {
-            const newSchedule = _.clone(this.schedule);
+            const newSchedule = _.clone(this.selected);
             newSchedule.intervals.push(new Interval(0, 86400, 60));
-            console.log("add-interval", JSON.stringify(newSchedule));
+            this.schedules[this.scheduleType] = newSchedule;
+            debug.log("add-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         removeInterval(interval: Interval): void {
-            const newSchedule = _.clone(this.schedule);
+            const newSchedule = _.clone(this.selected);
             newSchedule.intervals = _.without(newSchedule.intervals, interval);
-            console.log("remove-interval", JSON.stringify(newSchedule));
+            this.schedules[this.scheduleType] = newSchedule;
+            debug.log("remove-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         onChangeInterval(index: number, interval: Interval): void {
-            const newSchedule = _.clone(this.schedule);
+            const newSchedule = _.clone(this.selected);
             newSchedule.intervals[index] = interval;
-            console.log("change-interval", JSON.stringify(newSchedule));
+            this.schedules[this.scheduleType] = newSchedule;
+            debug.log("change-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
         onInvalid(index: number, invalid: boolean): void {
             this.invalid[this.scheduleType][index] = invalid;
-            console.log("schedule-invalid", index, invalid, this.scheduleType, this.invalid);
+            debug.log("schedule-invalid", index, invalid, this.scheduleType, this.invalid);
             const flags = Object.values(this.invalid[this.scheduleType]);
             this.$emit("invalid", _.some(flags));
         },

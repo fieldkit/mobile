@@ -27,7 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { NoteMedia } from "@/store";
-import { getFileName, rebaseAbsolutePath } from "@/lib/fs";
+import { debug, getFileName, rebaseAbsolutePath } from "@/lib";
 
 export default Vue.extend({
     props: {
@@ -52,18 +52,18 @@ export default Vue.extend({
             return this.startPlaying(media);
         },
         startPlaying(media: NoteMedia): Promise<void> {
-            console.log(`recording:playing: ${JSON.stringify(media)}`);
+            debug.log(`recording:playing: ${JSON.stringify(media)}`);
             return this.$services
                 .Audio()
                 .playRecordedFile(rebaseAbsolutePath(media.path), ({ error }) => {
-                    console.log("recording:playback:done", error);
+                    debug.log("recording:playback:done", error);
                     this.playing = null;
                 })
                 .then(() => {
                     this.playing = media;
                 })
                 .catch((err) => {
-                    console.log("audio:play:error", err);
+                    debug.log("audio:play:error", err);
                 });
         },
         stopPlaying(): Promise<void> {
@@ -77,11 +77,11 @@ export default Vue.extend({
                     this.playing = null;
                 })
                 .catch((err) => {
-                    console.log("audio:stop:error", err);
+                    debug.log("audio:stop:error", err);
                 });
         },
         async removeRecording(ev, media: NoteMedia): Promise<void> {
-            console.log("recording:remove", media);
+            debug.log("recording:remove", media);
             await this.stopPlaying().then(() => {
                 return this.$emit("remove-audio", media);
             });

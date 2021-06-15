@@ -1,5 +1,5 @@
 <template>
-    <ActionBar backgroundColor="white" flat="true" class="action-bar">
+    <ActionBar backgroundColor="white" flat="true" :class="classes">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton v-show="false" />
@@ -29,7 +29,7 @@
             </template>
         </template>
         <template v-else>
-            <GridLayout rows="auto" columns="15*,70*,15*" :class="classes" verticalAlignment="middle">
+            <GridLayout rows="auto" columns="15*,70*,15*" class="android" verticalAlignment="middle">
                 <StackLayout v-if="canNavigateBack" col="0" class="back-icon" @tap="raiseBack">
                     <Image height="25" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
@@ -57,6 +57,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Frame, isIOS } from "@nativescript/core";
+import { debug } from "@/lib/debugging";
 
 export default Vue.extend({
     name: "PlatformHeader",
@@ -107,6 +108,10 @@ export default Vue.extend({
             default: null,
             required: false,
         },
+        border: {
+            type: Boolean,
+            default: true,
+        },
     },
     data(): { ios: boolean } {
         return {
@@ -116,8 +121,13 @@ export default Vue.extend({
     computed: {
         classes(): string {
             const c: string[] = [];
-            if (this.ios) c.push("ios");
-            if (!this.ios) c.push("android");
+            c.push("action-bar");
+            if (this.border) {
+                c.push("action-bar-border");
+            }
+            if (this.subtitle) {
+                c.push("action-bar-double");
+            }
             return c.join(" ");
         },
     },
@@ -142,7 +152,7 @@ export default Vue.extend({
         /* eslint-disable */
         if (false) {
             // https://docs.nativescript.org/ui/action-bar
-            console.log(
+            debug.log(
                 "platform-header:mounted",
                 "ios",
                 this.ios,
@@ -158,7 +168,7 @@ export default Vue.extend({
             // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
             const frame = Frame.topmost();
             if (frame) {
-                console.log("platform-header:backStack", frame.id, frame.backStack.length);
+                debug.log("platform-header:backStack", frame.id, frame.backStack.length);
             }
         }
     },
@@ -166,29 +176,29 @@ export default Vue.extend({
         raiseBack(ev): void {
             this.$emit("back");
             if (this.onBack) {
-                console.log("platform-header:back (fn)", this.onBack);
+                debug.log("platform-header:back (fn)", this.onBack);
                 this.onBack(ev);
             } else {
-                console.log("platform-header:back (nav)");
+                debug.log("platform-header:back (nav)");
                 this.$navigateBack();
             }
         },
         raiseCancel(ev): void {
             this.$emit("cancel");
             if (this.onCancel) {
-                console.log("platform-header:cancel (fn)");
+                debug.log("platform-header:cancel (fn)");
                 this.onCancel(ev);
             } else {
-                console.log("platform-header:cancel (nav)");
+                debug.log("platform-header:cancel (nav)");
                 this.$navigateBack({});
             }
         },
         raiseIcon(): void {
-            console.log("platform-header:icon-tapped");
+            debug.log("platform-header:icon-tapped");
             this.$emit("icon-tapped");
         },
         raiseSave(): void {
-            console.log("platform-header:save-tapped");
+            debug.log("platform-header:save-tapped");
             this.$emit("icon-tapped");
         },
     },
@@ -197,32 +207,58 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.android.header-container {
-    padding-top: 15;
-}
-
 .action-bar {
     margin-left: -20;
+
+    StackLayout,
+    GridLayout,
+    Label {
+        margin: 0;
+        padding: 0;
+    }
+
+    .action-bar-border {
+        border-bottom-color: $fk-gray-lighter;
+        border-bottom-width: 1;
+    }
+
+    .title {
+        // background-color: #accfaa;
+    }
+
+    .subtitle {
+        // background-color: #fccfaa;
+    }
+
+    .back-icon,
+    .normal-icon,
+    .configure-icon,
+    .close-icon {
+        /* background-color: orange; */
+        padding-bottom: 10;
+        border-radius: 20;
+    }
+    .close-icon {
+        padding-top: 8;
+    }
+    .back-icon {
+        padding-top: 10;
+        // background-color: #efafaf;
+    }
+    .normal-icon {
+        padding-top: 10;
+    }
+    .configure-icon {
+        padding-top: 8;
+        // background-color: #efafaf;
+    }
 }
 
-.back-icon,
-.normal-icon,
-.configure-icon,
-.close-icon {
-    /* background-color: orange; */
-    padding-bottom: 10;
-    border-radius: 20;
+.ns-ios .action-bar {
+    margin-bottom: 20;
 }
-.close-icon {
-    padding-top: 8;
-}
-.back-icon {
+
+.ns-android .action-bar-double {
     padding-top: 10;
-}
-.normal-icon {
-    padding-top: 10;
-}
-.configure-icon {
-    padding-top: 8;
 }
 </style>

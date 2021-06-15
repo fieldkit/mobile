@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <ScrollView>
             <StackLayout class="m-y-10 m-l-20 m-r-20">
                 <GridLayout rows="auto" columns="85*,15*" class="header-section">
@@ -29,6 +29,7 @@
                         @dismiss="dismiss"
                         @satisfy="satisfy"
                         @addFieldNotes="addFieldNotes"
+                        @routeButton="routeButton"
                     />
                 </GridLayout>
                 <Label
@@ -44,7 +45,7 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                        @addFieldNotes="addFieldNotes"
+                        @routeButton="routeButton"
                     />
                 </GridLayout>
             </StackLayout>
@@ -59,32 +60,40 @@ import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";
+import { _L } from "@/lib";
 
 export default Vue.extend({
-    data() {
+    props: {
+        stationId: {
+            type: Number,
+            required: true,
+        },
+    },
+    data(): {
+        showMenu: number[];
+    } {
         return {
-            showMenu: [] as Array<number>,
+            showMenu: [],
         };
     },
     components: {
         NotificationItem,
     },
     computed: {
-        isAndroid() {
+        isAndroid(): boolean {
             return isAndroid;
         },
-        currentNotifications() {
-            return this.$s.state.notifications.notifications;
+        currentNotifications(): Notification[] {
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.station?.id === this.stationId);
         },
-        activeNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
+        activeNotifications(): Notification[] {
+            return this.currentNotifications.filter((item: Notification) => !item.satisfiedAt && item.silenced === false);
         },
-        satisfiedNotifications() {
-            return this.$s.state.notifications.notifications.filter((item: Notification) => item.satisfiedAt);
+        satisfiedNotifications(): Notification[] {
+            return this.currentNotifications.filter((item: Notification) => item.satisfiedAt);
         },
     },
     methods: {
-        onPageLoaded(args) {},
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
             if (isAndroid) {
@@ -98,7 +107,7 @@ export default Vue.extend({
             }
         },
         goBack(event) {
-            return Promise.all([animations.pressed(event), this.$navigateTo(routes.stations, { clearHistory: true })]);
+            return Promise.all([animations.pressed(event), this.$deprecatedNavigateTo(routes.stations, { clearHistory: true })]);
         },
         toggleMenu(notification) {
             this.showMenu = this.showMenu.includes(notification.id) ? [] : [notification.id];
@@ -113,10 +122,19 @@ export default Vue.extend({
         },
         async addFieldNotes(notification): Promise<void> {
             if (notification.station.id) {
-                await this.$navigateTo(routes.deploy.notes, {
+                await this.$deprecatedNavigateTo(routes.deploy.notes, {
                     props: {
                         stationId: notification.station.id,
                         linkedFromStation: true,
+                    },
+                });
+            }
+        },
+        async routeButton({ notification, route }): Promise<void> {
+            if (notification.station.id) {
+                await this.$navigateTo(route, {
+                    props: {
+                        stationId: notification.station.id,
                     },
                 });
             }

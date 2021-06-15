@@ -6,40 +6,73 @@
             <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
 
             <StackLayout class="form">
-                <Label col="1" class="m-t-5 m-l-5 heading" :text="_L(form.label)" textWrap="true" />
-
-                <TextField
-                    v-model="form.value"
-                    autocorrect="false"
-                    autocapitalizationType="none"
-                    class="reference-field input"
-                    @textChange="onChange()"
-                />
-
+                <Label col="1" class="m-t-5 m-l-5 m-b-20 size-16 text-center" :text="_L(form.label)" textWrap="true" v-if="!doneWaiting" />
                 <Label
-                    v-show="!form.valid"
-                    class="validation-error"
-                    horizontalAlignment="left"
-                    text="A number is required."
+                    col="1"
+                    class="m-t-5 m-l-5 m-b-20 size-16 text-center"
+                    :text="_L('calibrationDoneHeading')"
                     textWrap="true"
+                    v-if="doneWaiting"
                 />
-            </StackLayout>
 
-            <CircularTimer
-                :progress="waitingProgress"
-                :animated="true"
-                :elapsed="remaining"
-                :unitOfMeasure="sensor.unitOfMeasure"
-                :calibrated="sensor.calibrated"
-                :uncalibrated="sensor.uncalibrated"
-            />
+                <GridLayout rows="auto,auto" columns="*" height="200">
+                    <StackLayout row="0" class="sensor-circular-border m-t-20" height="200" width="200">
+                        <Label
+                            :text="_L('calibrationSensorValue')"
+                            verticalAlignment="bottom"
+                            textAlignment="center"
+                            class="m-r-5 m-t-30 size-12 hint-text"
+                        />
+                        <FlexboxLayout verticalAlignment="middle" justifyContent="center" class="m-t-25">
+                            <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="m-r-5 m-t-5 size-14" />
+                            <StackLayout verticalAlignment="bottom">
+                                <Label :text="sensor.uncalibrated | prettyReading" class="size-26" />
+                                <Label :text="sensor.calibrated | prettyReading" v-if="beta" />
+                            </StackLayout>
+                        </FlexboxLayout>
+                    </StackLayout>
+                    <GridLayout row="0" height="75" verticalAlignment="bottom" backgroundColor="white">
+                        <StackLayout orientation="horizontal" class="input-wrap" verticalAlignment="top">
+                            <TextField
+                                width="34%"
+                                verticalAlignment="center"
+                                v-model="form.value"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                class="reference-field size-24 m-t-5 m-r-10"
+                                keyboardType="number"
+                                @textChange="onChange()"
+                            />
+                            <Label
+                                verticalAlignment="center"
+                                width="66%"
+                                class="size-14"
+                                :text="_L('calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
+                                textWrap="true"
+                            />
+                        </StackLayout>
+                    </GridLayout>
+                </GridLayout>
+            </StackLayout>
+            <StackLayout orientation="horizontal" class="m-t-30" width="120">
+                <StackLayout width="40" verticalAlignment="middle" class="p-r-5">
+                    <Image width="30" src="~/images/Icon_Timer.png"></Image>
+                </StackLayout>
+                <StackLayout width="80" class="p-l-10 timer" verticalAlignment="middle">
+                    <Label class="size-20 m-b-5" :text="elapsedMs | prettyDuration"></Label>
+                    <Label class="size-14" :text="elapsedMs | prettyDurationLabel"></Label>
+                </StackLayout>
+            </StackLayout>
+            <StackLayout class="done-hint" v-if="doneWaiting">
+                <Label class="size-16" :text="_L('calibrationDoneHint')" textWrap="true"></Label>
+            </StackLayout>
         </StackLayout>
-        <StackLayout row="1">
+        <StackLayout row="1" class="buttons-container">
             <Button
                 class="btn btn-primary btn-padded"
                 :text="visual.done"
                 @tap="calibrate"
-                :isEnabled="form.valid && !busy && (doneWaiting || debugging)"
+                :isEnabled="form.valid && sensor.connected && !busy && (doneWaiting || debugging)"
             />
         </StackLayout>
     </GridLayout>
@@ -49,7 +82,7 @@
 import { VisualCalibrationStep, CalibratingSensor, CalibrationValue } from "./model";
 import { WaitVisual } from "./visuals";
 
-import { Timer } from "@/lib";
+import { debug, Timer } from "@/lib";
 import Config from "@/config";
 
 import Vue from "vue";
@@ -135,9 +168,6 @@ export default Vue.extend({
         visual(this: any): WaitVisual {
             return this.step.visual;
         },
-        waitingProgress(this: any): number {
-            return (this.elapsed / this.visual.seconds) * 100;
-        },
         elapsed(this: any): number {
             return (this.now.getTime() - this.started.getTime()) / 1000;
         },
@@ -149,6 +179,12 @@ export default Vue.extend({
         },
         debugging(): boolean {
             return Config.env.developer;
+        },
+        elapsedMs(): number {
+            return this.remaining * 1000;
+        },
+        beta(): boolean {
+            return Config.beta;
         },
     },
     mounted(this: any) {
@@ -171,7 +207,7 @@ export default Vue.extend({
         },
         onChange(): void {
             if (this.form && this.form.touch()) {
-                console.log(`on-change: ${JSON.stringify(this.form)}`);
+                debug.log(`on-change: ${JSON.stringify(this.form)}`);
             }
         },
     },
@@ -180,15 +216,13 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+@import "~/_app-common";
 
 .instruction-heading {
     color: $fk-primary-black;
     text-align: center;
     margin-right: 20;
     margin-left: 20;
-}
-
-.instruction-heading {
     font-size: 18;
 }
 
@@ -197,19 +231,51 @@ export default Vue.extend({
     margin-left: 20;
 }
 
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
-    padding-bottom: 5;
-}
-
 .reference-field {
-    text-align: center;
+    text-align: right;
+    border-color: white;
 }
 
 .heading {
     text-align: center;
+    padding: 0;
+}
+
+.sensor-circular-border {
+    border-color: $fk-logo-blue;
+    border-width: 9;
+    border-radius: 100%;
+}
+
+.input-wrap {
+    border-width: 2;
+    border-color: $fk-gray-lightest;
+    border-radius: 22;
+    height: 60;
+    width: 260;
+}
+
+.hint-text {
+    color: $fk-gray-hint;
+    text-align: center;
+}
+
+.done-hint {
+    color: $fk-primary-black;
+    background-color: $fk-gray-lightest;
+    margin-top: 40;
+    margin-right: 20;
+    margin-left: 20;
+    padding: 10;
+    text-align: center;
+}
+
+.timer {
+    border-left-width: 1;
+    border-left-color: $fk-gray-lighter;
+}
+
+// Declared in common
+.buttons-container {
 }
 </style>

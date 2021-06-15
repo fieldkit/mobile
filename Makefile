@@ -67,8 +67,8 @@ android-release: setup
 	npm install
 	$(MAKE) refresh-cms-data || true
 	$(MAKE) platform-libraries
-	cd $(APP) && ns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
-	cd $(APP) && ns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
+	cd $(APP) && ns build android --release --env.verbose --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
+	cd $(APP) && ns build android --release --env.verbose --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 ios-release: setup
 	security list-keychains
@@ -153,7 +153,7 @@ ios-logs:
 cycle-checks:
 	node_modules/.bin/madge --circular --extensions ts ./app
 
-webpack: setup webpack-android webpack-ios
+webpack: setup android-webpack ios-webpack
 
 checks: setup
 	node_modules/.bin/eslint --ext=ts --fix app

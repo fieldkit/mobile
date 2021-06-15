@@ -1,4 +1,6 @@
 import _ from "lodash";
+import { debug } from "@/lib";
+import { Buffer } from "buffer";
 import { decodeAndPrepare, HttpStatusReply, ReplyStream, NetworkInfo, ModuleConfiguration } from "./http-types";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
@@ -202,11 +204,37 @@ export class Interval implements IntervalLike {
 export class Schedule {
     constructor(public intervals: IntervalLike[] = []) {}
 
+    public static asSimple(s: Schedule): Schedule {
+        if (s.intervals.length > 0) {
+            const first = s.intervals[0];
+            return new Schedule([
+                {
+                    start: 0,
+                    end: 86400,
+                    interval: first.interval,
+                },
+            ]);
+        }
+        return s;
+    }
+
+    public static asComplex(s: Schedule): Schedule {
+        return s;
+    }
+
     public static getMinimum(s: Schedule): Schedule {
         if (!s.intervals || s.intervals.length == 0) {
             return new Schedule([{ start: 0, end: 86400, interval: 60 }]);
         }
         return s;
+    }
+
+    public static isSimple(schedule: Schedule): boolean {
+        if (schedule.intervals.length > 1) return false;
+        const interval = schedule.intervals[0];
+        if (interval.start != 0) return false;
+        if (interval.end < 86400 - 60) return false;
+        return true;
     }
 }
 
@@ -354,8 +382,8 @@ export class Station implements StationCreationFields {
                 try {
                     this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"), this.serializedStatus);
                 } catch (error: unknown) {
-                    console.log(`${this.id || "<null>"} ${this.name} error decoding status json:`, error);
-                    console.log(`${this.id || "<null>"} ${this.name} error serialized:`, this.serializedStatus);
+                    debug.log(`${this.id || "<null>"} ${this.name} error decoding status json:`, error);
+                    debug.log(`${this.id || "<null>"} ${this.name} error serialized:`, this.serializedStatus);
                 }
             }
         }
@@ -368,7 +396,7 @@ export class Station implements StationCreationFields {
             this.decodeStatusReply();
             return false;
         } catch (error: unknown) {
-            console.log(`archiving station:`, error);
+            debug.log(`archiving station:`, error);
             return true;
         }
     }
@@ -382,12 +410,12 @@ export class Station implements StationCreationFields {
             const statusReply: HttpStatusReply = this.decodeStatusReply();
             const fw = statusReply?.status?.firmware || null;
             if (!fw) {
-                console.log(`${this.id || "<null>"} ${this.name} malformed status reply, no firmware`, statusReply);
+                debug.log(`${this.id || "<null>"} ${this.name} malformed status reply, no firmware`, statusReply);
                 return null;
             }
             return new FirmwareInfo(fw.version, Number(fw.number), fw.timestamp, fw.hash);
         } catch (error: unknown) {
-            console.log(`no firmwareInfo`, error);
+            debug.log(`no firmwareInfo`, error);
             return null;
         }
     }
@@ -638,7 +666,7 @@ export class StationSyncStatus {
 
     public withProgress(progress: StationProgress | null): StationSyncStatus {
         if (progress) {
-            console.log(`with-progress`, progress);
+            debug.log(`with-progress`, progress);
         }
         return new StationSyncStatus(
             this.id,
@@ -770,7 +798,7 @@ export class StationSyncStatus {
         delete headers["connection"];
         const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
 
-        console.log(`make-row: ${JSON.stringify(headers)} ${firstBlock} ${lastBlock}`);
+        debug.log(`make-row: ${JSON.stringify(headers)} ${firstBlock} ${lastBlock}`);
 
         return {
             id: 0,
