@@ -28,6 +28,12 @@
 	<string>FieldKit uses the photo library to allow selection of an image depicting the location and setting of station deployment.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>FieldKit uses the microphone to allow recording of notes in the field when deploying a station.</string>
+	<key>NSLocationUsageDescription</key>
+	<string>FieldKit uses your phone's location as a alternative means of fixing your station's location until a strong enough fix can be gotten on your station.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>FieldKit uses your phone's location as a alternative means of fixing your station's location until a strong enough fix can be gotten on your station.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FieldKit uses your phone's location as a alternative means of fixing your station's location until a strong enough fix can be gotten on your station.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiresFullScreen</key>
