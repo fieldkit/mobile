@@ -15,11 +15,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.6.0</string>
+	<string>2.6.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>21</string>
+	<string>23</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
@@ -34,8 +34,6 @@
 	<string>FieldKit uses your phone's location as a alternative means of fixing your station's location until a strong enough fix can be gotten on your station.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>FieldKit uses your phone's location as a alternative means of fixing your station's location until a strong enough fix can be gotten on your station.</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>FieldKit uses your phone's location to aid in attaching location data to station's readings and your email address you enter for authentication purposes only.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiresFullScreen</key>
