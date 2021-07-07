@@ -54,7 +54,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
+import { fullRoutes, routes } from "@/routes";
 import { isAndroid, Label } from "@nativescript/core";
 import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
@@ -132,11 +132,7 @@ export default Vue.extend({
         },
         async routeButton({ notification, route }): Promise<void> {
             if (notification.station.id) {
-                await this.$navigateTo(route, {
-                    props: {
-                        stationId: notification.station.id,
-                    },
-                });
+                await this.$deprecatedNavigateTo(route(notification.station.id), {});
             }
         },
     },
