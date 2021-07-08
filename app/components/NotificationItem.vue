@@ -58,7 +58,7 @@
 import Vue from "vue";
 import { isAndroid, Label } from "@nativescript/core";
 import { _L } from "@/lib";
-import { fullRoutes, routes } from "~/routes";
+import { fullRoutes } from "~/routes";
 
 export default Vue.extend({
     data() {

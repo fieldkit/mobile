@@ -54,7 +54,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { fullRoutes, routes } from "@/routes";
+import { routes } from "@/routes";
 import { isAndroid, Label } from "@nativescript/core";
 import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
