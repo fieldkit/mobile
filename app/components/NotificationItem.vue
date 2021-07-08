@@ -58,7 +58,7 @@
 import Vue from "vue";
 import { isAndroid, Label } from "@nativescript/core";
 import { _L } from "@/lib";
-import { routes } from "~/routes";
+import { fullRoutes, routes } from "~/routes";
 
 export default Vue.extend({
     data() {
@@ -94,7 +94,7 @@ export default Vue.extend({
                     text: _L("calibrationBeforeDeploymentText"),
                     error: false,
                     buttonText: _L("calibrationBeforeDeploymentButton"),
-                    buttonRoute: routes.onboarding.recalibrate,
+                    buttonRoute: fullRoutes.onboarding.recalibrate,
                 },
             },
         };
