@@ -32,7 +32,12 @@
                         </FlexboxLayout>
                     </StackLayout>
                     <GridLayout row="0" height="75" verticalAlignment="bottom" backgroundColor="white">
-                        <StackLayout orientation="horizontal" class="input-wrap" verticalAlignment="top">
+                        <StackLayout
+                            orientation="horizontal"
+                            class="input-wrap"
+                            verticalAlignment="top"
+                            :class="!form.valid ? 'input-border-error' : 'input-border'"
+                        >
                             <TextField
                                 width="34%"
                                 verticalAlignment="center"
@@ -53,6 +58,7 @@
                         </StackLayout>
                     </GridLayout>
                 </GridLayout>
+                <Label v-show="!form.valid" class="validation-error text-center" :text="_L('calibrationValidationError')" textWrap="true" />
             </StackLayout>
             <StackLayout orientation="horizontal" class="m-t-30" width="120">
                 <StackLayout width="40" verticalAlignment="middle" class="p-r-5">
@@ -249,10 +255,18 @@ export default Vue.extend({
 
 .input-wrap {
     border-width: 2;
-    border-color: $fk-gray-lightest;
+
     border-radius: 22;
     height: 60;
     width: 260;
+}
+
+.input-border {
+    border-color: $fk-gray-lightest;
+}
+
+.input-border-error {
+    border-color: $fk-tertiary-red;
 }
 
 .hint-text {
@@ -273,6 +287,13 @@ export default Vue.extend({
 .timer {
     border-left-width: 1;
     border-left-color: $fk-gray-lighter;
+}
+
+.validation-error {
+    color: $fk-tertiary-red;
+    margin-top: 5;
+    padding-top: 5;
+    padding-bottom: 5;
 }
 
 // Declared in common

@@ -50,6 +50,14 @@
                                 class="btn btn-update btn-no-margin"
                                 @tap="downloadFirmware"
                             />
+
+                            <StackLayout class="quick-tip">
+                                <StackLayout orientation="horizontal" class="m-b-25">
+                                    <Image class="m-r-10" width="18" src="~/images/Icon_Quick_Tip.png"></Image>
+                                    <Label :text="_L('firmwareQuickTipTitle')" class="size-18 m-t-5" />
+                                </StackLayout>
+                                <Label :text="_L('firmwareCheckQuickTipBody')" class="size-16" lineHeight="4" textWrap="true" />
+                            </StackLayout>
                         </template>
 
                         <template v-if="currentState === State.updateAvailable">
