@@ -119,6 +119,7 @@
     "stationRestarting": "Station restarting",
     "firmwareQuickTipTitle": "Quick Tip",
     "firmwareQuickTipBody": "Make sure to reconnect your station once after it has restarted.",
+    "firmwareCheckQuickTipBody": "Make sure you are connected to the internet before checking for new firmware.",
     "firmwareUpdateComplete": "Update Complete",
     "firmwareNoCardTitle": "You need an SD card",
     "firmwareNoCardBody": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
@@ -512,6 +513,7 @@
     "calibrationBeforeDeploymentHeading": "Calibrate before Deployment",
     "calibrationBeforeDeploymentText": "Calibrate the sensors for accurate data readings.",
     "calibrationBeforeDeploymentButton": "Start Calibration",
+    "calibrationValidationError": "A valid number is required",
     "modules": {
         "water": {
             "ec": {
