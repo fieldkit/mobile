@@ -23,7 +23,7 @@
                 row="1"
                 :buttonLabel="_L('done')"
                 :buttonEnabled="done"
-                @button="goToStations"
+                @button="goToDetails"
                 :skipLabel="done ? _L('goToStations') : _L('setupLater')"
                 @skip="skipToStations"
                 :scrollable="true"
