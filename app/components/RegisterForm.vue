@@ -93,9 +93,9 @@
                 boxType="square"
                 @checkedChange="tncAccept"
             />
-            <WrapLayout col="1" class="size-16 m-l-5" >
-                <Label :text="_L('registerTncLabel')"/>
-                <Label class="bold" :text="_L('registerTncLabelLink')" @tap="goToTerms"/>
+            <WrapLayout col="1" class="size-16 m-l-5">
+                <Label :text="_L('registerTncLabel')" />
+                <Label class="bold" :text="_L('registerTncLabelLink')" @tap="goToTerms" />
             </WrapLayout>
         </GridLayout>
 
@@ -113,7 +113,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {fullRoutes} from "@/routes";
+import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
@@ -139,7 +139,7 @@ export default Vue.extend({
                 email: { required: boolean; length: boolean; format: boolean };
                 password: { required: boolean; length: boolean };
                 confirmPassword: { required: boolean; sameAs: boolean };
-                tncAccept: {required: boolean};
+                tncAccept: { required: boolean };
             };
         };
     } {
@@ -156,7 +156,7 @@ export default Vue.extend({
                     email: { required: false, length: false, format: false },
                     password: { required: false, length: false },
                     confirmPassword: { required: false, sameAs: false },
-                    tncAccept: { required: false},
+                    tncAccept: { required: false },
                 },
             },
         };
@@ -214,7 +214,7 @@ export default Vue.extend({
                     name: this.form.name,
                     email: this.form.email,
                     password: this.form.password,
-                    tncAccept: this.form.tncAccept
+                    tncAccept: this.form.tncAccept,
                 });
 
                 debug.log(`returned: ${JSON.stringify(returned)}`, "a");
@@ -246,7 +246,7 @@ export default Vue.extend({
         },
         async goToTerms(): Promise<void> {
             await this.$deprecatedNavigateTo(fullRoutes.tnc);
-        }
+        },
     },
 });
 </script>
