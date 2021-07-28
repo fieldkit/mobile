@@ -923,6 +923,7 @@ export default class DatabaseInterface {
                 token: row.token == "" ? null : row.token,
                 usedAt: row.usedAt,
                 details: row.details,
+                tncDate: row.tncDate,
             };
         });
     }
@@ -939,15 +940,32 @@ export default class DatabaseInterface {
         return await this.query(`SELECT id FROM accounts WHERE email = ?`, [account.email])
             .then((maybeId: { id: number }[]) => {
                 if (maybeId.length == 0) {
-                    const values = [account.name, account.email, account.portalId, account.token, account.details, new Date()];
+                    const values = [
+                        account.name,
+                        account.email,
+                        account.portalId,
+                        account.token,
+                        account.details,
+                        new Date(),
+                        account.tncDate,
+                    ];
                     return this.execute(
-                        `INSERT INTO accounts (name, email, portal_id, token, details, used_at) VALUES (?, ?, ?, ?, ?, ?)`,
+                        `INSERT INTO accounts (name, email, portal_id, token, details, used_at, tnc_date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
                         values
                     );
                 }
-                const values = [account.name, account.email, account.portalId, account.token, account.details, new Date(), maybeId[0].id];
+                const values = [
+                    account.name,
+                    account.email,
+                    account.portalId,
+                    account.token,
+                    account.details,
+                    new Date(),
+                    account.tncDate,
+                    maybeId[0].id,
+                ];
                 return this.execute(
-                    `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, details = ?, used_at = ? WHERE id = ?`,
+                    `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, details = ?, used_at = ?, tnc_date = ? WHERE id = ?`,
                     values
                 );
             })

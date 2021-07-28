@@ -54,9 +54,14 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
-                        debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
-                        // eslint-disable-next-line
-                        await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        if (!this.$services.PortalInterface().isTncValid()) {
+                            // eslint-disable-next-line
+                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
+                        } else {
+                            debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
+                            // eslint-disable-next-line
+                            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        }
                     })
                     .catch((error) => {
                         debug.log("error", error);

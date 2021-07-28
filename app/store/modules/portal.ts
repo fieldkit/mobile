@@ -53,6 +53,7 @@ function userToRow(user: CurrentUser): AccountsTableRow {
         token: user.token,
         usedAt: user.usedAt ?? new Date(),
         details: JSON.stringify(user),
+        tncDate: user.tncDate
     };
 }
 
@@ -69,6 +70,7 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
         usedAt: row.usedAt ?? new Date(),
         lastSync: null,
         transmission: null,
+        tncDate: row.tncDate
     };
 }
 

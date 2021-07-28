@@ -105,6 +105,7 @@ export interface AccountsTableRow {
     token: string | null;
     usedAt: Date;
     details: string | null;
+    tncDate: number;
 }
 
 export interface NotificationsTableRow {

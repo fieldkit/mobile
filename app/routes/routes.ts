@@ -55,6 +55,8 @@ import TabbedLayout from "~/components/TabbedLayout.vue";
 import { Route, RouteTable, FullRoute } from "./navigate";
 import AddWifiName from "~/components/onboarding/AddWifiName.vue";
 import AddWifiPassword from "~/components/onboarding/AddWifiPassword.vue";
+import AppSettingsTnc from "~/components/app-settings/AppSettingsTncView.vue";
+import {debug} from "~/lib";
 
 const Frames = {
     Outer: "outer-frame",
@@ -85,6 +87,7 @@ export const routes = {
         helpAppVersion: new Route(AppSettingsHelpAppVersion, Frames.Settings),
         legal: new Route(AppSettingsLegal, Frames.Settings),
         developer: new Route(DeveloperMenu, Frames.Settings),
+        tnc: new Route(AppSettingsTnc, Frames.Settings),
     },
 
     station: {
@@ -150,6 +153,7 @@ export const namedRoutes = inferNames(routes);
 
 export const fullRoutes = {
     login: new FullRoute("login", Frames.Outer, {}),
+    tnc: new FullRoute("appSettings/tnc", Frames.Outer, {}),
     tabbed: new FullRoute("tabbed", Frames.Outer, {}),
     dataSync: new FullRoute("tabbed", Frames.Outer, {
         firstTab: {

@@ -30,6 +30,7 @@ describe("database", () => {
                     email: "EMAIL",
                     token: "TOKEN",
                     details: "{}",
+                    tncDate: new Date().getTime(),
                 },
             ];
             store.commit(MutationTypes.LOAD_ACCOUNTS, rows);
