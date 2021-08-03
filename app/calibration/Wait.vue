@@ -31,7 +31,7 @@
                             </StackLayout>
                         </FlexboxLayout>
                     </StackLayout>
-                    <GridLayout row="0" height="75" verticalAlignment="bottom" backgroundColor="white">
+                    <GridLayout row="0" height="80" verticalAlignment="bottom" backgroundColor="white">
                         <StackLayout
                             orientation="horizontal"
                             class="input-wrap"
@@ -44,7 +44,7 @@
                                 v-model="form.value"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                class="reference-field size-24 m-t-5 m-r-10"
+                                class="reference-field size-24 m-r-10"
                                 keyboardType="number"
                                 @textChange="onChange()"
                             />
@@ -255,7 +255,6 @@ export default Vue.extend({
 
 .input-wrap {
     border-width: 2;
-
     border-radius: 22;
     height: 60;
     width: 260;
