@@ -79,6 +79,7 @@ import SharedComponents from "@/components/shared";
 import { fullRoutes } from "@/routes";
 import { _L } from "@/lib";
 import { email } from "vuelidate/lib/validators";
+import AppSettings from '~/wrappers/app-settings';
 
 export default Vue.extend({
     name: "LoginForm",
@@ -127,6 +128,14 @@ export default Vue.extend({
             this.form.v.password.length = this.form.password.length > 0 && this.form.password.length < 10;
         },
         async continueOffline(): Promise<void> {
+            const appSettings = new AppSettings();
+            const skipCount = appSettings.getNumber("skipCount");
+
+            if (skipCount >= 3) {
+                await this.$deprecatedNavigateTo(fullRoutes.stations);
+                return;
+            }
+
             await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
         invalid(): boolean {

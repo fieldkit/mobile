@@ -2,6 +2,7 @@
 import { ApplicationSettings } from "@nativescript/core";
 
 export default class AppSettings {
+
     public getString(key: string): string {
         return ApplicationSettings.getString(key) ;
     }
@@ -10,8 +11,8 @@ export default class AppSettings {
         ApplicationSettings.setString(key, value);
     }
 
-    public getNumber(key: string): number {
-        return ApplicationSettings.getNumber(key);
+    public getNumber(key: string, defaultValue?: number): number {
+        return ApplicationSettings.getNumber(key, defaultValue);
     }
 
     public setNumber(key: string, value: number): void {
