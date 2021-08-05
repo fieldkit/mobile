@@ -39,7 +39,7 @@ export default Vue.extend({
             await initializeApplication(services);
         });
 
-        if (Config.env.developer) {
+        if (Config.env.developer && !Config.env.developer) {
             debug.log("developer", Config.env.developer);
 
             if (false) {
