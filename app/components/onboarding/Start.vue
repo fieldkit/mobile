@@ -35,6 +35,7 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { fullRoutes, routes } from "@/routes";
 import { debug, Timer } from "@/lib";
+import AppSettings from "@/wrappers/app-settings";
 
 const Start = Vue.extend({
     components: {
@@ -86,7 +87,13 @@ const Start = Vue.extend({
             await this.$navigateBack();
         },
         async skip(): Promise<any> {
+            this.incrementSkipCount();
             await this.$deprecatedNavigateTo(fullRoutes.tabbed);
+        },
+        incrementSkipCount(): void {
+            const appSettings = new AppSettings();
+            const skipCount = appSettings.getNumber("skipCount", 0);
+            appSettings.setNumber('skipCount', skipCount + 1);
         },
     },
 });
