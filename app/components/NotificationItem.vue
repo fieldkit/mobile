@@ -21,7 +21,7 @@
                 class="bold"
                 @loaded="onLabelLoadedVerticalCentered"
             />
-            <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4"/>
+            <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4" />
             <GridLayout col="1" row="2" columns="auto,auto,*" class="size-12 bold">
                 <Label
                     col="0"
@@ -43,30 +43,23 @@
                     columns="auto,auto"
                     @tap="toggleMenu"
                 >
-                    <Label col="0" :text="_L('dismiss')" class="action-btn"/>
-                    <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2"
-                           :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
+                    <Label col="0" :text="_L('dismiss')" class="action-btn" />
+                    <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2" :class="isAndroid ? 'm-t-2' : 'm-t-8'" />
                 </GridLayout>
-                <Label
-                    col="2"
-                    :text="prettyCreatedAt(notification.created)"
-                    horizontaAlign="right"
-                    class="notify-date"
-                />
+                <Label col="2" :text="prettyCreatedAt(notification.created)" horizontaAlign="right" class="notify-date" />
             </GridLayout>
         </GridLayout>
-        <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right"
-                    v-if="showMenu.includes(notification.id)">
-            <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold p-10" @tap="dismiss"/>
-            <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold p-10" @tap="satisfy"/>
+        <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu.includes(notification.id)">
+            <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold p-10" @tap="dismiss" />
+            <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold p-10" @tap="satisfy" />
         </GridLayout>
     </GridLayout>
 </template>
 <script lang="ts">
 import Vue from "vue";
-import {isAndroid, Label} from "@nativescript/core";
-import {_L} from "@/lib";
-import {fullRoutes} from "~/routes";
+import { isAndroid, Label } from "@nativescript/core";
+import { _L } from "@/lib";
+import { fullRoutes } from "~/routes";
 import moment from "moment";
 
 export default Vue.extend({
@@ -191,5 +184,4 @@ export default Vue.extend({
     margin-top: 10;
     text-align: right;
 }
-
 </style>
