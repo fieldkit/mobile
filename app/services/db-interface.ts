@@ -3,23 +3,23 @@ import Config from "@/config";
 import Settings from "@/settings";
 import { debug, promiseAfter, sqliteToJs } from "@/lib";
 import { Database } from "@/wrappers/sqlite";
-import { Download, FileType, FileTypeUtils, Station, Sensor, Module, Stream, StoredNetworkTableRow } from "@/store/types";
+import { Download, FileType, FileTypeUtils, Module, Sensor, Station, StoredNetworkTableRow, Stream } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
 import {
     AccountsTableRow,
     DownloadTableRow,
+    FirmwareTableRow,
+    ModuleTableRow,
     NotesTableRow,
     NotificationsTableRow,
-    QueriedNotificationsTableRow,
-    StationTableRow,
     PortalConfigTableRow,
-    FirmwareTableRow,
-    StreamTableRow,
-    SettingsTableRow,
+    QueriedNotificationsTableRow,
     SensorTableRow,
-    ModuleTableRow,
+    SettingsTableRow,
     StationAddressRow,
+    StationTableRow,
     StoreLogRow,
+    StreamTableRow,
 } from "@/store/row-types";
 import { Services } from "@/services";
 import { Notification } from "~/store/modules/notifications";
@@ -989,27 +989,25 @@ export default class DatabaseInterface {
 
     public async addNotification(notification: Notification): Promise<void> {
         log.info("add-notifications", notification);
-        await this.query<{ id: number }>(`SELECT id FROM notifications WHERE key = ?`, [notification.key])
-            .then((maybeId) => {
-                if (maybeId.length == 0) {
-                    const values = [
-                        notification.key,
-                        notification.kind,
-                        Number(new Date()),
-                        notification.silenced,
-                        JSON.stringify(notification.project),
-                        JSON.stringify(notification.user),
-                        JSON.stringify(notification.station),
-                        JSON.stringify(notification.actions),
-                    ];
-                    return this.execute(
-                        `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                        values
-                    );
-                }
-                return;
-            })
-            .catch((error) => Promise.reject(new Error(`error adding notifications: ${JSON.stringify(error)}`)));
+
+        try {
+            const values = [
+                notification.key,
+                notification.kind,
+                Number(new Date()),
+                notification.silenced,
+                JSON.stringify(notification.project),
+                JSON.stringify(notification.user),
+                JSON.stringify(notification.station),
+                JSON.stringify(notification.actions),
+            ];
+            await this.execute(
+                `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                values
+            );
+        } catch (error) {
+            log.error(`add-notifications error`, error);
+        }
     }
 
     public async updateNotification(notification: Notification): Promise<void> {
