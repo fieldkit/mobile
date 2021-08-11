@@ -525,11 +525,11 @@
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the pH probe in a cup with the first standard.",
+                        "heading": "Calibration Point 1",
+                        "instructions": "Place the pH Probe in a cup with the first standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -537,16 +537,16 @@
                 },
                 "step1": {
                     "prepare0": {
-                        "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "heading": "Rinse",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the pH probe in a cup with the next standard.",
+                        "heading": "Calibration Point 2",
+                        "instructions": "Place the pH Probe in a cup with the next standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -554,16 +554,16 @@
                 },
                 "step2": {
                     "prepare0": {
-                        "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "heading": "Rinse",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the pH probe in a cup with the next standard.",
+                        "heading": "Calibration Point 3",
+                        "instructions": "Place the pH Probe in a cup with the next standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -592,11 +592,11 @@
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the conductivity probe in a cup with the first standard.",
+                        "heading": "Calibration Point 1",
+                        "instructions": "Place the Conductivity Probe in a cup with the first standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -604,16 +604,16 @@
                 },
                 "step1": {
                     "prepare0": {
-                        "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "heading": "Rinse",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the conductivity probe in a cup with the next standard.",
+                        "heading": "Calibration Point 2",
+                        "instructions": "Place the Conductivity Probe in a cup with the next standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -621,16 +621,16 @@
                 },
                 "step2": {
                     "prepare0": {
-                        "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "heading": "Rinse",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the conductivity probe in a cup with the next standard.",
+                        "heading": "Calibration Point 3",
+                        "instructions": "Place the Conductivity Probe in a cup with the next standard and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -659,8 +659,8 @@
                         "done": ""
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the dissolved oxygen probe in a cup of water with your standard dissolved oxygen meter probe.",
+                        "heading": "Calibration Point 1",
+                        "instructions": "Place the Dissolved Oxygen Probe in a cup of water with your standard dissolved oxygen meter probe or test kit, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
                     "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
@@ -676,8 +676,8 @@
                         "done": ""
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Place the aquarium pump air stone into the cup with your probes, and turn the aquarium pump to low.",
+                        "heading": "Calibration Point 2",
+                        "instructions": "Place the aquarium pump air stone into the cup alongside the Dissolved Oxygen Probe and your standard meter or test kit. Turn the aquarium pump to low, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
                     "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
@@ -693,8 +693,8 @@
                         "done": ""
                     },
                     "prepare1": {
-                        "heading": "",
-                        "instructions": "Keep the aquarium pump air stone in the cup, and turn the aquarium pump to high.",
+                        "heading": "Calibration Point 3",
+                        "instructions": "Keep everything in the cup. Turn the aquarium pump to high, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
                     "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
@@ -744,7 +744,7 @@
                     },
                     "prepare1": {
                         "heading": "",
-                        "instructions": "Place the temperature probe and standard thermometer in a cup with room temperature water.",
+                        "instructions": "Place the standard thermometer and Water Temperature Probe in contact with one another on a dry surface.",
                         "done": "Start Timer"
                     },
                     "standard": "Enter the value below based on your standard thermometer:",
@@ -761,7 +761,7 @@
                     },
                     "prepare1": {
                         "heading": "",
-                        "instructions": "Place the temperature probe and standard thermometer in a cup with boiling water.",
+                        "instructions": "Place the Water Temperature Probe and standard thermometer in a up with boiling water.",
                         "done": "Start Timer"
                     },
                     "standard": "Enter the value below based on your standard thermometer:",
@@ -797,7 +797,7 @@
                         "instructions": "Place the ORP probe in a cup with the first standard.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -814,7 +814,7 @@
                         "instructions": "Place the ORP probe in a cup with the next standard.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -831,7 +831,7 @@
                         "instructions": "Place the ORP probe in a cup with the next standard.",
                         "done": "Start Timer"
                     },
-                    "standard": "As you wait for the sensor value to stablize, enter the standard value.",
+                    "standard": "As you wait for the sensor value to stabilize, enter the standard value.",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
