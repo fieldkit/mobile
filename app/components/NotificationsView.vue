@@ -107,7 +107,10 @@ export default Vue.extend({
             }
         },
         goBack(event) {
-            return Promise.all([animations.pressed(event), this.$deprecatedNavigateTo(routes.stations, { clearHistory: true })]);
+            return Promise.all([
+                animations.pressed(event),
+                this.$deprecatedNavigateTo(routes.station.detail, { props: { stationId: this.stationId }, clearHistory: true }),
+            ]);
         },
         toggleMenu(notification) {
             this.showMenu = this.showMenu.includes(notification.id) ? [] : [notification.id];
