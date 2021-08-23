@@ -28,4 +28,3 @@ export * from "./20210219_151559_add_station_logs.ts";
 export * from "./20210301_123327_add_stored_networks_table.ts";
 export * from "./20210306_140641_add_firmware_logical_address.ts";
 export * from "./20210412_134920_add_stations_forgetting.ts";
-export * from "./20210719_140920_add_user_tnc_date.ts";

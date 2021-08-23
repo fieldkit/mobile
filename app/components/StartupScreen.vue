@@ -12,7 +12,6 @@ import Config from "@/config";
 import { debug, zoned } from "@/lib";
 
 import Blank from "@/components/Blank.vue";
-import AppSettingsTncView from "~/components/app-settings/AppSettingsTncView.vue";
 
 function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();

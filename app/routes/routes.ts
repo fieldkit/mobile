@@ -56,7 +56,6 @@ import { Route, RouteTable, FullRoute } from "./navigate";
 import AddWifiName from "~/components/onboarding/AddWifiName.vue";
 import AddWifiPassword from "~/components/onboarding/AddWifiPassword.vue";
 import AppSettingsTnc from "~/components/app-settings/AppSettingsTncView.vue";
-import {debug} from "~/lib";
 
 const Frames = {
     Outer: "outer-frame",

@@ -18,7 +18,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { debug } from "@/lib";
-import { CurrentUser } from "~/store";
+import { CurrentUser, RemoveAccountAction } from "~/store";
 import { fullRoutes } from "~/routes";
 
 export default Vue.extend({
@@ -36,6 +36,9 @@ export default Vue.extend({
             if (this.isTncValid) {
                 this.$navigateBack();
             } else {
+                if (this.currentUser) {
+                    await this.$s.dispatch(new RemoveAccountAction(this.currentUser.email));
+                }
                 // eslint-disable-next-line
                 await this.$deprecatedNavigateTo(fullRoutes.login);
             }

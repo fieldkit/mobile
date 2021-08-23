@@ -144,7 +144,11 @@ export default class PortalInterface {
     }
 
     private getCurrentToken(): string | null {
-        return this.currentUser?.token ?? null;
+        if (this.isTncValid()) {
+            return this.currentUser?.token ?? null;
+        }
+
+        return null;
     }
 
     public isLoggedIn(): boolean {
@@ -152,7 +156,7 @@ export default class PortalInterface {
     }
 
     public isTncValid(): boolean {
-        return this.currentUser != null && this.currentUser.tncDate >= Config.tncDate;
+        return this.currentUser != null && this.currentUser.tncDate !=null && this.currentUser.tncDate >= Config.tncDate;
     }
 
     private requireToken(): string {
@@ -201,7 +205,6 @@ export default class PortalInterface {
             transmission: transmission,
             usedAt: new Date(),
             lastSync: null,
-            tncDate: user.tncDate,
         };
     }
 
