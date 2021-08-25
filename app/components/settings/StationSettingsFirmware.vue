@@ -113,7 +113,13 @@
                     </StackLayout>
                 </StackLayout>
 
-                <AbsoluteLayout row="0" col="0" class="text-center transparent-background" v-if=" currentState === State.updateDone" @tap="dismissUpdate">
+                <AbsoluteLayout
+                    row="0"
+                    col="0"
+                    class="text-center transparent-background"
+                    v-if="currentState === State.updateDone"
+                    @tap="dismissUpdate"
+                >
                     <GridLayout top="75" width="100%">
                         <StackLayout class="updated-dialog-container">
                             <Image width="60" src="~/images/Icon_Success.png"></Image>
