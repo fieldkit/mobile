@@ -82,6 +82,30 @@
             :text="_L('noMatch')"
             textWrap="true"
         />
+        <GridLayout rows="auto" columns="25,*" class="p-t-15 p-b-5">
+            <CheckBox
+                col="0"
+                :checked="form.tncAccept == true"
+                fillColor="#f5f5f5"
+                onCheckColor="#2c3e50"
+                onTintColor="#d8dce0"
+                fontSize="16"
+                boxType="square"
+                @checkedChange="tncAccept"
+            />
+            <WrapLayout col="1" class="size-16 m-l-5">
+                <Label :text="_L('registerTncLabel')" />
+                <Label class="bold" :text="_L('registerTncLabelLink')" @tap="goToTerms" />
+            </WrapLayout>
+        </GridLayout>
+
+        <Label
+            v-show="form.v.tncAccept.required"
+            class="validation-error"
+            horizontalAlignment="left"
+            :text="_L('required')"
+            textWrap="true"
+        />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('signUp')" :isEnabled="!busy" @tap="register" />
     </FlexboxLayout>
@@ -109,11 +133,13 @@ export default Vue.extend({
             email: string;
             password: string;
             confirmPassword: string;
+            tncAccept: boolean;
             v: {
                 name: { required: boolean; length: boolean; format: boolean };
                 email: { required: boolean; length: boolean; format: boolean };
                 password: { required: boolean; length: boolean };
                 confirmPassword: { required: boolean; sameAs: boolean };
+                tncAccept: { required: boolean };
             };
         };
     } {
@@ -124,11 +150,13 @@ export default Vue.extend({
                 email: "",
                 password: "",
                 confirmPassword: "",
+                tncAccept: false,
                 v: {
                     name: { required: false, length: false, format: false },
                     email: { required: false, length: false, format: false },
                     password: { required: false, length: false },
                     confirmPassword: { required: false, sameAs: false },
+                    tncAccept: { required: false },
                 },
             },
         };
@@ -151,6 +179,9 @@ export default Vue.extend({
             this.form.v.confirmPassword.required = this.form.confirmPassword.length == 0;
             this.form.v.confirmPassword.sameAs = this.form.password != this.form.confirmPassword;
         },
+        checkTnc(): void {
+            this.form.v.tncAccept.required = !this.form.tncAccept;
+        },
         async continueOffline(): Promise<void> {
             await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble, { clearHistory: true });
         },
@@ -159,6 +190,7 @@ export default Vue.extend({
             this.checkEmail();
             this.checkPassword();
             this.checkConfirmPassword();
+            this.checkTnc();
             if (this.form.v.name.required) return true;
             if (this.form.v.name.length) return true;
             if (this.form.v.email.required) return true;
@@ -168,6 +200,7 @@ export default Vue.extend({
             if (this.form.v.password.length) return true;
             if (this.form.v.confirmPassword.required) return true;
             if (this.form.v.confirmPassword.sameAs) return true;
+            if (this.form.v.tncAccept.required) return true;
             return false;
         },
         async register(): Promise<void> {
@@ -181,6 +214,7 @@ export default Vue.extend({
                     name: this.form.name,
                     email: this.form.email,
                     password: this.form.password,
+                    tncAccept: this.form.tncAccept,
                 });
 
                 debug.log(`returned: ${JSON.stringify(returned)}`, "a");
@@ -206,6 +240,12 @@ export default Vue.extend({
                 okButtonText: _L("ok"),
                 message: message,
             });
+        },
+        tncAccept(): void {
+            this.form.tncAccept = !this.form.tncAccept;
+        },
+        async goToTerms(): Promise<void> {
+            await this.$deprecatedNavigateTo(fullRoutes.tnc);
         },
     },
 });

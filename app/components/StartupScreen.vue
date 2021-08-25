@@ -17,6 +17,9 @@ function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();
 
     if (services.PortalInterface().isLoggedIn()) {
+        if (!services.PortalInterface().isTncValid()){
+            return fullRoutes.tnc;
+        }
         const tabbed = fullRoutes.stations;
         const onboarding = fullRoutes.onboarding.assemble;
         const completedSetup = appSettings.getString("completedSetup");

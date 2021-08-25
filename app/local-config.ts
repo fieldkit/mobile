@@ -28,4 +28,5 @@ export interface LocalConfig {
         token: string;
         style: string;
     };
+    tncDate: number;
 }
