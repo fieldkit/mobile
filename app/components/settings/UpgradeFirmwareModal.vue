@@ -7,7 +7,7 @@
                         <Label :text="_L('updateFirmwareModalTitle')" class="size-18 m-t-100 m-b-30"></Label>
                         <StackLayout orientation="horizontal">
                             <StackLayout width="50" height="50" class="full-circle m-r-30">
-                                <Label text="1" class="m-t-15 size-24"></Label>
+                                <Label text="1" class="size-24" :class="isAndroid ? 'm-t-10' : 'm-t-15'" @loaded="onLabelLoaded"></Label>
                             </StackLayout>
                             <Label
                                 :text="_L('updateFirmwareModalText1')"
@@ -19,7 +19,7 @@
                         </StackLayout>
                         <StackLayout orientation="horizontal" class="m-t-30">
                             <StackLayout width="50" height="50" class="full-circle m-r-30">
-                                <Label text="2" class="m-t-15 size-24"></Label>
+                                <Label text="2" class="size-24" :class="isAndroid ? 'm-t-10' : 'm-t-15'" @loaded="onLabelLoaded"></Label>
                             </StackLayout>
                             <Label
                                 :text="_L('updateFirmwareModalText2')"
@@ -31,7 +31,7 @@
                         </StackLayout>
                         <StackLayout orientation="horizontal" class="m-t-30">
                             <StackLayout width="50" height="50" class="full-circle m-r-30">
-                                <Label text="3" class="m-t-15 size-24"></Label>
+                                <Label text="3" class="size-24" :class="isAndroid ? 'm-t-10' : 'm-t-15'" @loaded="onLabelLoaded"></Label>
                             </StackLayout>
                             <Label
                                 :text="_L('updateFirmwareModalText3')"
@@ -56,10 +56,10 @@
     </StackLayout>
 </template>
 <script lang="ts">
-import _ from "lodash";
 import Vue from "vue";
 import { AvailableStation, UpgradeStatus, UpgradeInfo } from "@/store";
 import { debug } from "@/lib/debugging";
+import { isAndroid, Label } from "@nativescript/core";
 
 export default Vue.extend({
     props: {
@@ -88,6 +88,9 @@ export default Vue.extend({
         status(): UpgradeStatus {
             return this.upgrade?.status || {};
         },
+        isAndroid() {
+            return isAndroid;
+        },
     },
     methods: {
         onUpdate(): void {
@@ -97,6 +100,12 @@ export default Vue.extend({
         onClose(): void {
             debug.log("closing", this.$modal);
             this.$modal.close({ updating: false });
+        },
+        onLabelLoaded(args) {
+            const lbl = args.object as Label;
+            if (isAndroid) {
+                lbl.android.setGravity(17);
+            }
         },
     },
 });
