@@ -115,9 +115,12 @@ export class CalibrationStrategy extends CalibrationStep {
         return this.calibrationPointSteps().length;
     }
 
+    /**
+     * Determine the curve type for the module. Not super happy with this approach.
+     */
     public get curveType(): DataProto.CurveType {
         if (/modules.water.ec/.test(this.moduleKey)) {
-            return DataProto.CurveType.CURVE_LOGARITHMIC;
+            return DataProto.CurveType.CURVE_EXPONENTIAL;
         }
         return DataProto.CurveType.CURVE_LINEAR;
     }
@@ -258,7 +261,7 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
         const a = Math.exp((xxySum * yLogYSum - xySum * xyLogYSum) / denominator);
         const b = (ySum * xyLogYSum - xySum * yLogYSum) / denominator;
 
-        debug.log(`cal:logarithmic ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
+        debug.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
         if (!acceptableCoefficient(a)) throw new CalibrationError(`calibration failed: a=${a}`);
         if (!acceptableCoefficient(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [a, b] });
