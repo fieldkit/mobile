@@ -120,8 +120,10 @@ export class CalibrationStrategy extends CalibrationStep {
      */
     public get curveType(): DataProto.CurveType {
         if (/modules.water.ec/.test(this.moduleKey)) {
+            debug.log(`curve type: module-key=${this.moduleKey}: exponential`);
             return DataProto.CurveType.CURVE_EXPONENTIAL;
         }
+        debug.log(`curve type: module-key=${this.moduleKey}: linear`);
         return DataProto.CurveType.CURVE_LINEAR;
     }
 
