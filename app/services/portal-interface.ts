@@ -7,7 +7,6 @@ import { Services, Conservify, FileSystem, OurStore } from "@/services";
 import { Buffer } from "buffer";
 import Config from "@/config";
 
-
 type ProgressFunc = (total: number, copied: number, info: never) => void;
 
 export { AxiosResponse, AxiosError };
@@ -156,7 +155,11 @@ export default class PortalInterface {
     }
 
     public isTncValid(): boolean {
-        return this.currentUser != null && this.currentUser.tncDate !=null && this.currentUser.tncDate >= Config.tncDate;
+        if (Config.beta) {
+            return this.currentUser != null && this.currentUser.tncDate != null && this.currentUser.tncDate >= Config.tncDate;
+        }
+
+        return true;
     }
 
     private requireToken(): string {
@@ -249,7 +252,7 @@ export default class PortalInterface {
                 name: user.name,
                 email: user.email,
                 password: user.password,
-                tncAccept: user.tncAccept
+                tncAccept: user.tncAccept,
             },
         });
     }
