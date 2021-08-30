@@ -269,7 +269,7 @@ export default Vue.extend({
             if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
-            if (!sensor.uncalibrated) {
+            if (!_.isNumber(sensor.uncalibrated)) {
                 throw new Error(`no sensor calibration value: ${JSON.stringify(sensor)}`);
             }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
