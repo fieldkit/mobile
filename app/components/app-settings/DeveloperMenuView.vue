@@ -20,10 +20,11 @@
 
                     <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
+					<Button class="btn btn-primary btn-padded" text="Throw Exception" @tap="throwException" />
                     <!--
-					<Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
 					<Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
 					<Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
+					<Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
 					<Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
 					-->
 
@@ -407,6 +408,9 @@ export default Vue.extend({
             analytics.logEvent({
                 key: "app_crash_manual",
             });
+        },
+        throwException(): void {
+            throw new Error(`test error triggered from developer menu`);
         },
         generateNotifications(): void {
             debug.log("generate notifications");
