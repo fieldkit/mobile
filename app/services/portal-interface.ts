@@ -260,6 +260,8 @@ export default class PortalInterface {
     public async accept(user: CurrentUser): Promise<void> {
         if (!user.token) throw new Error(`no token for account`);
 
+        let betaSkip404Errors = false;
+
         await this.query({
             authenticated: true,
             token: user.token,
@@ -268,9 +270,18 @@ export default class PortalInterface {
             data: {
                 accept: true,
             },
+        }).catch((error: AxiosError) => {
+            // temp fix until prod deploy
+            if (Config.beta && error.response?.status === 404) {
+                betaSkip404Errors = true;
+            }
         });
 
         const self = await this.whoAmI(user.token);
+
+        if (betaSkip404Errors) {
+            self.tncDate = Config.tncDate;
+        }
 
         this.store.commit(MutationTypes.SET_CURRENT_USER, self);
     }
