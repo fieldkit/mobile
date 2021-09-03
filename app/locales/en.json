@@ -526,7 +526,7 @@
                 "step0": {
                     "prepare0": {
                         "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
@@ -593,7 +593,7 @@
                 "step0": {
                     "prepare0": {
                         "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
@@ -810,8 +810,8 @@
                 },
                 "step1": {
                     "prepare0": {
-                        "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "heading": "Rinse",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
@@ -828,7 +828,7 @@
                 "step2": {
                     "prepare0": {
                         "heading": "",
-                        "instructions": "In between calibration steps you will need to rinse your probes with water. Tap water is fine.",
+                        "instructions": "In between calibration steps you will need to rinse your probe with water. Tap water is fine.",
                         "done": "Next"
                     },
                     "prepare1": {
