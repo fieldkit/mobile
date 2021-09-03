@@ -1003,5 +1003,6 @@
         }
     },
   "registerTncLabel": "By creating an account you agree to our",
-  "registerTncLabelLink": "Terms of Use."
+  "registerTncLabelLink": "Terms of Use.",
+  "mustBeConnected": "You must be connected to the internet"
 }
