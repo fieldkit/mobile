@@ -3,8 +3,9 @@
         <ScrollView>
             <StackLayout class="p-20">
                 <Image horizontalAlignment="right" width="17" class="m-t-10" src="~/images/Icon_Close.png" @tap="back" />
-                <Label class="m-t-20 size-26" :text="_L('appSettings.tnc.title')" />
-                <Label class="m-t-25 size-16" textWrap="true" :text="_L('appSettings.tnc.body')" />
+                <StackLayout>
+                    <HtmlView :html="_L('appSettings.tnc.body')" />
+                </StackLayout>
                 <Button
                     v-if="currentUser && !isTncValid"
                     class="btn btn-primary btn-padded m-t-25"
