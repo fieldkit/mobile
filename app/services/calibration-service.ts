@@ -54,7 +54,7 @@ export default class CalibrationService {
         const binaryQuery = AppProto.ModuleHttpQuery.encodeDelimited(message).finish();
         log.info(url, "calibration querying", message);
 
-        return await this.queryStation.binaryStationQuery(url, binaryQuery, {}).then((response: HttpResponse) => {
+        return await this.queryStation.binaryStationQuery(url, binaryQuery, { throttle: false }).then((response: HttpResponse) => {
             const body = this.getResponseBody(response);
             if (!body) {
                 throw new Error(`bad calibration reply`);
