@@ -56,12 +56,6 @@
                         :class="moduleCalibration.canCalibrate && moduleCalibration.needsCalibration ? 'needs-calibration' : ''"
                     />
                     <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="unit size-12 m-t-10" />
-                    <Label
-                        :text="getUncalibratedDisplayReading(sensor)"
-                        verticalAlignment="bottom"
-                        class="size-12 m-l-20 m-t-10 uncalibrated"
-                        v-if="beta"
-                    />
                 </FlexboxLayout>
                 <Label :text="getSensorName(sensor)" textWrap="true" class="sensor-name size-14" />
             </WrapLayout>
