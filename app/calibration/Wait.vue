@@ -270,7 +270,7 @@ export default Vue.extend({
     border-width: 2;
     border-radius: 22;
     height: 60;
-    width: 260;
+    width: 300;
 }
 
 .input-border {
