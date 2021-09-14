@@ -60,6 +60,7 @@ export interface SensorTableRow {
     unit: string;
     reading: number | null;
     uncalibrated: number | null;
+    factory: number | null;
     trend: number | null;
     moduleId: number | null;
 }

@@ -136,6 +136,7 @@ export default Vue.extend({
                     station.connected,
                     this.position,
                     getUoM(),
+                    displaySensor.factory,
                     displaySensor.reading,
                     displaySensor.uncalibrated,
                     calibrationValue,

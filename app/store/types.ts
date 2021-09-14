@@ -17,6 +17,7 @@ export class Sensor {
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly uncalibrated: number | null,
+        public readonly factory: number | null,
         public readonly trend: number | null
     ) {}
 }

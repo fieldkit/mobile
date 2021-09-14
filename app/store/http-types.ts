@@ -26,6 +26,7 @@ export interface LiveSensorReading {
     sensor: SensorCapabilities;
     value: number;
     uncalibrated: number;
+    factory: number;
 }
 
 export interface LiveModuleReadings {
@@ -237,6 +238,7 @@ function translateLiveModuleReadings(lmr: AppProto.ILiveModuleReadings, moduleCo
                 sensor: new AppProto.SensorCapabilities(lsr.sensor),
                 value: lsr.value!,
                 uncalibrated: lsr.uncalibrated!,
+                factory: lsr.factory!,
             };
         }),
     };

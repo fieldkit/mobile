@@ -23,6 +23,7 @@ export class CalibratingSensor {
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
+        public readonly factory: number | null,
         public readonly calibrated: number | null,
         public readonly uncalibrated: number | null,
         public readonly calibrationValue: CalibrationValue,
