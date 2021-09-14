@@ -64,12 +64,8 @@ export default Vue.extend({
                 await this.$services
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
-                    .then(async () => {
-                        if (!this.$services.PortalInterface().isTncValid()) {
-                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
-                        } else {
-                            this.$navigateBack();
-                        }
+                    .then(() => {
+                        this.$navigateBack();
                     })
                     .catch((error) => {
                         debug.log("error", error);
