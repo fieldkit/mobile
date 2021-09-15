@@ -274,6 +274,9 @@ export default Vue.extend({
             if (!_.isNumber(sensor.uncalibrated)) {
                 throw new Error(`no sensor calibration value: ${JSON.stringify(sensor)}`);
             }
+            if (!_.isNumber(sensor.factory)) {
+                throw new Error(`no sensor factory value: ${JSON.stringify(sensor)}`);
+            }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
             const compensations = {
                 temperature: maybeWaterTemp || null,
@@ -286,7 +289,8 @@ export default Vue.extend({
                 compensations,
                 this.strategy.numberOfCalibrationPoints,
                 this.strategy.curveType,
-                sensor.uncalibrated
+                sensor.uncalibrated,
+                sensor.factory
             );
 
             debug.log(`cal-action: ${JSON.stringify(action)}`);

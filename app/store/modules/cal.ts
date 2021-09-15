@@ -44,7 +44,8 @@ export class CalibrateWater {
         public readonly compensations: { temperature: number | null },
         public readonly expectedPoints: number,
         public readonly curveType: CurveType,
-        public readonly uncalibrated: number
+        public readonly uncalibrated: number,
+        public readonly factory: number
     ) {}
 }
 
@@ -123,7 +124,7 @@ const actions = (services: ServiceRef) => {
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
             const values = [payload.uncalibrated];
             debug.log(`values: ${JSON.stringify(values)}`);
-            const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values);
+            const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values, [payload.factory]);
             commit(MutationTypes.CALIBRATION_POINT, { moduleId: moduleId, point: pcp });
 
             const pending = state.pending[moduleId];

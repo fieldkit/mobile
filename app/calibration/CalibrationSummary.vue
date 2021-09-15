@@ -16,7 +16,7 @@
 
         <StackLayout class="field-container">
             <GridLayout rows="auto" columns="auto,auto">
-                <Label row="0" col="0" text="Raw Sensor Values" textWrap="true" class="field-label" />
+                <Label row="0" col="0" text="Factory Sensor Values" textWrap="true" class="field-label" />
                 <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
             </GridLayout>
             <Label :text="sensorValues" textWrap="true" class="field-value" />
@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import moment from "moment";
 import Vue from "vue";
 import { CalibratingSensor, ModuleConfiguration } from "./model";
@@ -63,8 +64,11 @@ export default Vue.extend({
         sensorValues(): string | undefined {
             return this.sensor.moduleCalibration?.calibration?.points
                 ?.map((p) => {
-                    if (!p.uncalibrated) throw new Error();
-                    return p.uncalibrated[0].toFixed(2); // prettyReading
+                    if (!p.factory) {
+                        if (!p.uncalibrated) throw new Error();
+                        return p.uncalibrated[0].toFixed(2); // prettyReading
+                    }
+                    return p.factory[0].toFixed(2); // prettyReading
                 })
                 .join(", ");
         },

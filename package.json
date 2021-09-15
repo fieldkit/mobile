@@ -30,7 +30,7 @@
         "exponential-backoff": "^3.1.0",
         "fk-app-protocol": "git+https://github.com/fieldkit/app-protocol.git",
         "fk-atlas-protocol": "git+https://github.com/fieldkit/atlas-protocol.git#main",
-        "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git#main",
+        "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git",
         "lodash": "^4.17.21",
         "moment": "^2.29.1",
         "nativescript-audio": "^6.2.5",

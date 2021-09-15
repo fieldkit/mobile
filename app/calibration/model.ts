@@ -196,7 +196,12 @@ export class StationCalibration {
 }
 
 export class PendingCalibrationPoint {
-    constructor(public readonly index: number, public readonly references: number[], public readonly uncalibrated: number[]) {}
+    constructor(
+        public readonly index: number,
+        public readonly references: number[],
+        public readonly uncalibrated: number[],
+        public readonly factory: number[]
+    ) {}
 }
 
 export class PendingCalibration {
@@ -216,6 +221,7 @@ export abstract class CalibrationCurve {
                 new DataProto.CalibrationPoint({
                     references: p.references,
                     uncalibrated: p.uncalibrated,
+                    factory: p.factory,
                 })
         );
         if (points.length == 0) throw new CalibrationError(`calibration failed: empty`);

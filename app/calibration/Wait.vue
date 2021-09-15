@@ -33,7 +33,7 @@
                             <FlexboxLayout verticalAlignment="middle" justifyContent="center" class="m-t-25">
                                 <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="m-r-5 m-t-5 size-14" />
                                 <StackLayout verticalAlignment="bottom">
-                                    <Label :text="sensor.calibrated | prettyReading" class="size-26" />
+                                    <Label :text="sensor.factory | prettyReading" class="size-26" />
                                     <Label :text="sensor.uncalibrated | prettyReading" v-if="false && beta" />
                                 </StackLayout>
                             </FlexboxLayout>
