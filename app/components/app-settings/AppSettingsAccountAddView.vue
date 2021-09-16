@@ -29,7 +29,6 @@ import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { debug } from "@/lib";
-import { fullRoutes } from "~/routes";
 import axios from "axios";
 
 export default Vue.extend({
