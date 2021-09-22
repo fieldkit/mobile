@@ -162,7 +162,7 @@ export class QueryStation {
     public async sendLoraSettings(address: string, lora: LoraSettings): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
-            loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
+            loraSettings: { joinEui: lora.appEui, appKey: lora.appKey },
         });
         return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
