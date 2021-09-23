@@ -251,7 +251,9 @@ export interface Schedules {
 }
 
 export interface LoraSettings {
-    appEui: Uint8Array;
+    frequencyBand: number;
+    deviceEui: Uint8Array;
+    joinEui: Uint8Array;
     appKey: Uint8Array;
 }
 

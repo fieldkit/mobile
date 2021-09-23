@@ -78,9 +78,19 @@ export default Vue.extend({
             }
 
             if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.station.details(1));
+                if (this.$s.getters.stationCalibrations[1]) {
+                    await this.$deprecatedNavigateTo(fullRoutes.station.details(1));
 
-                return;
+                    return;
+                }
+            }
+
+            if (true) {
+                if (this.$s.getters.stationCalibrations[1]) {
+                    await this.$deprecatedNavigateTo(fullRoutes.station.settings(1));
+
+                    return;
+                }
             }
 
             if (false) {
@@ -89,7 +99,7 @@ export default Vue.extend({
                 return;
             }
 
-            if (true) {
+            if (false) {
                 await this.$deprecatedNavigateTo(fullRoutes.stations, {
                     clearHistory: true,
                 });

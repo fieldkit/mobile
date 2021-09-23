@@ -3,7 +3,7 @@
         <PlatformHeader :title="_L('networks')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
             <SettingsItemText text="wifi" @tap="goToWiFi" />
-            <SettingsItemText text="lora" @tap="goToLoRa" />
+            <SettingsItemText text="lora.title" @tap="goToLoRa" />
         </StationSettingsLayout>
     </Page>
 </template>

@@ -1,59 +1,61 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :canNavigateSettings="false" />
         <StationSettingsLayout :connected="station.connected">
-            <StackLayout class="m-x-10">
-                <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
-
-                <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
-                    <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
-                    <Label col="1" :text="_L('editAppEUI')" class="size-16"></Label>
-                </GridLayout>
-
-                <StackLayout v-if="editingLora">
-                    <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
-                        <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
-                        <TextField
-                            row="0"
-                            col="1"
-                            class="network-input m-y-10"
-                            autocorrect="false"
-                            autocapitalizationType="none"
-                            v-model="lora.appEui"
-                            returnKeyType="next"
-                        />
-                        <Label
-                            row="1"
-                            col="1"
-                            class="validation-error m-l-10"
-                            :text="_L('invalidAppEUI')"
-                            textWrap="true"
-                            :visibility="invalidEui ? 'visible' : 'collapsed'"
-                        />
-                        <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
-                        <TextField
-                            row="2"
-                            col="1"
-                            class="network-input m-y-10"
-                            autocorrect="false"
-                            autocapitalizationType="none"
-                            v-model="lora.appKey"
-                            returnKeyType="done"
-                        />
-                        <Label
-                            row="3"
-                            col="1"
-                            class="validation-error m-l-10"
-                            :text="_L('invalidAppKey')"
-                            textWrap="true"
-                            :visibility="invalidKey ? 'visible' : 'collapsed'"
-                        />
-                    </GridLayout>
-                    <StackLayout class="p-b-20"></StackLayout>
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="editLora" />
-                    <StackLayout class="p-b-20"></StackLayout>
+            <FlexboxLayout class="lora-network-form-container">
+                <StackLayout row="0" class="m-b-20">
+                    <LabeledTextField
+                        v-model="form.deviceEui"
+                        :label="_L('lora.deviceEui')"
+                        @blur="checkDeviceEui"
+                        :alwaysShowLabel="true"
+                    />
+                    <Label
+                        v-show="v.deviceEui.hex"
+                        class="validation-error"
+                        horizontalAlignment="left"
+                        :text="_L('required')"
+                        textWrap="true"
+                    />
                 </StackLayout>
-            </StackLayout>
+                <StackLayout row="1" class="m-b-20">
+                    <LabeledTextField v-model="form.joinEui" :label="_L('lora.joinEui')" @blur="checkJoinEui" :alwaysShowLabel="true" />
+                    <Label
+                        v-show="v.joinEui.hex"
+                        class="validation-error"
+                        horizontalAlignment="left"
+                        :text="_L('required')"
+                        textWrap="true"
+                    />
+                </StackLayout>
+                <StackLayout row="2" class="m-b-20">
+                    <LabeledTextField v-model="form.appKey" :label="_L('lora.appKey')" @blur="checkAppKey" :alwaysShowLabel="true" />
+                    <Label
+                        v-show="v.appKey.hex"
+                        class="validation-error"
+                        horizontalAlignment="left"
+                        :text="_L('required')"
+                        textWrap="true"
+                    />
+                </StackLayout>
+                <StackLayout row="3" class="m-b-20">
+                    <LabeledTextField
+                        v-model="form.frequencyBand"
+                        :label="_L('lora.frequencyBand')"
+                        :isEnabled="false"
+                        :alwaysShowLabel="true"
+                    />
+                </StackLayout>
+
+                <StackLayout row="4" class="m-b-20">
+                    <Button
+                        class="btn btn-primary"
+                        :text="_L('save')"
+                        :isEnabled="true && !(v.appKey.hex || v.joinEui.hex || v.deviceEui.hex)"
+                        @tap="save"
+                    />
+                </StackLayout>
+            </FlexboxLayout>
         </StationSettingsLayout>
     </Page>
 </template>
@@ -61,7 +63,8 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-import { AvailableStation } from "@/store";
+import { Buffer } from "buffer";
+import { AvailableStation, LoraSettings, ConfigureLoraOtaaAction } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -74,20 +77,56 @@ export default Vue.extend({
         },
     },
     data(): {
-        invalidEui: boolean;
-        invalidKey: boolean;
-        editingLora: boolean;
-        lora: {
+        form: {
             deviceEui: string;
-            appEui: string;
             appKey: string;
+            joinEui: string;
+            frequencyBand: string;
         };
+        v: {
+            deviceEui: {
+                required: boolean;
+                length: boolean;
+                hex: boolean;
+            };
+            appKey: {
+                required: boolean;
+                length: boolean;
+                hex: boolean;
+            };
+            joinEui: {
+                required: boolean;
+                length: boolean;
+                hex: boolean;
+            };
+        };
+        busy: boolean;
     } {
         return {
-            invalidEui: false,
-            invalidKey: false,
-            editingLora: false,
-            lora: { deviceEui: "", appEui: "", appKey: "" },
+            busy: false,
+            form: {
+                frequencyBand: "915",
+                deviceEui: "0000000000000000",
+                appKey: "00000000000000000000000000000000",
+                joinEui: "0000000000000000",
+            },
+            v: {
+                deviceEui: {
+                    required: false,
+                    length: false,
+                    hex: false,
+                },
+                appKey: {
+                    required: false,
+                    length: false,
+                    hex: false,
+                },
+                joinEui: {
+                    required: false,
+                    length: false,
+                    hex: false,
+                },
+            },
         };
     },
     computed: {
@@ -96,67 +135,65 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(): void {
-            if (this.station.lora) {
-                this.lora.deviceEui = this.station.lora.deviceEui;
-            }
-        },
-        showLoraForm(): void {
-            this.editingLora = true;
-        },
-        checkAppEui(): Buffer | null {
+        checkDeviceEui() {
             try {
-                if (this.lora.appEui.length != 16) {
+                this.v.deviceEui.hex = false;
+                if (this.form.deviceEui.length != 16) {
                     throw Error("invalid length");
                 }
-                return Buffer.from(this.lora.appEui, "hex");
+                return Buffer.from(this.form.deviceEui, "hex");
             } catch (error) {
-                this.invalidEui = true;
+                console.log(`device-eui error:`, error);
+                this.v.deviceEui.hex = true;
                 return null;
             }
         },
-        checkAppKey(): Buffer | null {
+        checkAppKey() {
             try {
-                if (this.lora.appKey.length != 32) {
+                this.v.appKey.hex = false;
+                if (this.form.appKey.length != 32) {
                     throw Error("invalid length");
                 }
-                return Buffer.from(this.lora.appKey, "hex");
+                return Buffer.from(this.form.appKey, "hex");
             } catch (error) {
-                this.invalidKey = true;
+                console.log(`app-key error:`, error);
+                this.v.appKey.hex = true;
                 return null;
             }
         },
-        async editLora(ev: Event): Promise<void> {
-            this.invalidEui = false;
-            this.invalidKey = false;
-            const appEui = this.checkAppEui();
+        checkJoinEui() {
+            try {
+                this.v.joinEui.hex = false;
+                if (this.form.joinEui.length != 16) {
+                    throw Error("invalid length");
+                }
+                return Buffer.from(this.form.joinEui, "hex");
+            } catch (error) {
+                console.log(`join-eui error:`, error);
+                this.v.joinEui.hex = true;
+                return null;
+            }
+        },
+        async save(): Promise<void> {
+            console.log("save", this.v, this.form);
+            const frequencyBand = Number(this.form.frequencyBand);
+            const deviceEui = this.checkDeviceEui();
+            const joinEui = this.checkJoinEui();
             const appKey = this.checkAppKey();
-
-            if (appEui && appKey) {
-                this.editingLora = false;
-                this.invalidEui = false;
-                this.invalidKey = false;
-
-                const sendableLora = {
-                    appEui: appEui,
-                    appKey: appKey,
-                };
-
-                const url = this.station.url;
-                if (!url) throw new Error(`no nearby info`);
-
-                await this.$services
-                    .QueryStation()
-                    .sendLoraSettings(url, sendableLora)
-                    .then((result) => {
-                        this.$navigateBack();
-                        // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
-                        // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
-                        // in order to match in the interim, must edit station.statusJson
-                        // NOTE: appEui and appKey currently aren't sent in statusJson, so they
-                        // won't be preserved after exiting this view
-                        // debug.log("response from station after adding", result.loraSettings)
-                    });
+            if (!deviceEui || !joinEui || !appKey) {
+                return;
+            }
+            const settings: LoraSettings = {
+                frequencyBand: frequencyBand,
+                deviceEui: deviceEui,
+                joinEui: joinEui,
+                appKey: appKey,
+            };
+            this.busy = true;
+            try {
+                await this.$s.dispatch(new ConfigureLoraOtaaAction(this.station.deviceId, settings));
+            } finally {
+                this.busy = false;
             }
         },
     },
@@ -165,17 +202,21 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.network-input {
-    border-bottom-color: $fk-primary-black;
-    border-bottom-width: 1;
-    padding: 0;
-    margin-left: 8;
-    margin-bottom: 8;
-}
-
 .validation-error {
     width: 100%;
     font-size: 13;
     color: $fk-tertiary-red;
+}
+
+.lora-network-form-container {
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+    padding: 20;
+
+    .validation-error {
+        color: $fk-tertiary-red;
+        padding-top: 5;
+    }
 }
 </style>
