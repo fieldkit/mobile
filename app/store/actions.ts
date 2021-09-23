@@ -103,6 +103,8 @@ export enum ActionTypes {
 
     CHANGE_PORTAL_ENV = "CHANGE_PORTAL_ENV",
     LOAD_PORTAL_ENVS = "LOAD_PORTAL_ENVS",
+
+    CONFIGURE_LORA_OTAA = "CONFIGURE_LORA_OTAA",
 }
 
 export class TryStationAction {
@@ -289,4 +291,13 @@ export class ResumeRecordingAction {
 
 export class StopRecordingAction {
     type = ActionTypes.AUDIO_STOP;
+}
+
+export class ConfigureLoraOtaaAction {
+    type = ActionTypes.CONFIGURE_LORA_OTAA;
+
+    constructor(
+        public readonly deviceId: string,
+        public readonly settings: { deviceEui: Uint8Array; appKey: Uint8Array; joinEui: Uint8Array; frequencyBand: number }
+    ) {}
 }

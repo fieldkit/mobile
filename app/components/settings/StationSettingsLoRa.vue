@@ -64,7 +64,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { Buffer } from "buffer";
-import { AvailableStation } from "@/store";
+import { AvailableStation, LoraSettings, ConfigureLoraOtaaAction } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -100,10 +100,12 @@ export default Vue.extend({
                 hex: boolean;
             };
         };
+        busy: boolean;
     } {
         return {
+            busy: false,
             form: {
-                frequencyBand: "868",
+                frequencyBand: "915",
                 deviceEui: "0000000000000000",
                 appKey: "00000000000000000000000000000000",
                 joinEui: "0000000000000000",
@@ -172,8 +174,27 @@ export default Vue.extend({
                 return null;
             }
         },
-        save() {
+        async save(): Promise<void> {
             console.log("save", this.v, this.form);
+            const frequencyBand = Number(this.form.frequencyBand);
+            const deviceEui = this.checkDeviceEui();
+            const joinEui = this.checkJoinEui();
+            const appKey = this.checkAppKey();
+            if (!deviceEui || !joinEui || !appKey) {
+                return;
+            }
+            const settings: LoraSettings = {
+                frequencyBand: frequencyBand,
+                deviceEui: deviceEui,
+                joinEui: joinEui,
+                appKey: appKey,
+            };
+            this.busy = true;
+            try {
+                await this.$s.dispatch(new ConfigureLoraOtaaAction(this.station.deviceId, settings));
+            } finally {
+                this.busy = false;
+            }
         },
     },
 });
