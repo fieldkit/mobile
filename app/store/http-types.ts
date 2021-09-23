@@ -323,8 +323,6 @@ function translateLora(reply: AppProto.ILoraSettings | null): HttpReplyLoraSetti
     if (!reply) {
         return null;
     }
-    if (reply.frequencyBand) {
-    }
     const frequencyBand = reply.frequencyBand || 868;
     const deviceEui = reply.deviceEui ? toHexString(reply.deviceEui) : null;
     const appKey = reply.appKey ? toHexString(reply.appKey) : null;
