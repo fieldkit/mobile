@@ -68,6 +68,8 @@ make ios-release
                 archiveArtifacts artifacts: 'platforms/ios/build/Debug-iphoneos/*.ipa, platforms/ios/build/Release-iphoneos/*.ipa'
             }
 
+			refreshDistribution()
+
             notifySuccess()
         }
         catch (Exception e) {
@@ -75,6 +77,4 @@ make ios-release
             throw e;
         }
     }
-
-    refreshDistribution()
 }
