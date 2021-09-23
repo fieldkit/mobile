@@ -44,6 +44,19 @@ export function initializeI18n(defaultLang: string) {
     Application.setResources(applicationResources);
 }
 
+export function changeLanguageI18n(lang: string) {
+    try {
+        i18n.defaults = require("~/locales/" + lang);
+
+        i18n.strings = require("~/locales/" + lang);
+        const applicationResources = Application.getResources();
+        Application.setResources(applicationResources);
+        Application.getRootView();
+    } catch (e) {
+        debug.log("error changing:", lang);
+    }
+}
+
 function deepAccessUsingString(obj, key) {
     return key.split(".").reduce((nestedObject, key) => {
         if (nestedObject && key in nestedObject) {
