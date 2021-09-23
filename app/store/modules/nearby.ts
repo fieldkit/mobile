@@ -16,6 +16,7 @@ import {
     NetworkChangedAction,
     ScanForStationsAction,
     RenameStationAction,
+    ConfigureLoraOtaaAction,
 } from "@/store/actions";
 import { OpenProgressMutation, RenameStationMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
@@ -275,6 +276,28 @@ const actions = (services: ServiceRef) => {
             return services
                 .queryStation()
                 .sendNetworkSettings(info.url, payload.networks)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
+                    }
+                );
+        },
+        [ActionTypes.CONFIGURE_LORA_OTAA]: ({ commit, dispatch, state }: ActionParameters, payload: ConfigureLoraOtaaAction) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+
+            commit(MutationTypes.STATION_QUERIED, info);
+            return services
+                .queryStation()
+                .sendLoraSettings(info.url, payload.settings)
                 .then(
                     (statusReply) => {
                         commit(MutationTypes.STATION_ACTIVITY, info);

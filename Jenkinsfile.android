@@ -86,6 +86,8 @@ make android-release
                 archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/*/*.apk, platforms/android/app/build/outputs/bundle/*/*.aab'
             }
 
+			refreshDistribution()
+
             notifySuccess()
         }
         catch (Exception e) {
@@ -93,6 +95,4 @@ make android-release
             throw e;
         }
     }
-
-    refreshDistribution()
 }

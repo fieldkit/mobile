@@ -130,7 +130,13 @@
     "saveName": "Save Name",
     "networks": "Networks",
     "wifi": "WiFi",
-    "lora": "LoRa",
+    "lora": {
+        "title": "LoRa",
+        "deviceEui": "Device EUI",
+        "appKey": "App Key",
+        "joinEui": "App/Join EUI",
+        "frequencyBand": "Frequency Band"
+    },
     "network": "Network",
     "uploadSchedule": "Upload Schedule",
     "wifiNetwork": "WiFi Network",
@@ -1002,7 +1008,7 @@
             "every": "Every"
         }
     },
-  "registerTncLabel": "By creating an account you agree to our",
-  "registerTncLabelLink": "Terms of Use.",
-  "mustBeConnected": "You must be connected to the internet"
+    "registerTncLabel": "By creating an account you agree to our",
+    "registerTncLabelLink": "Terms of Use.",
+    "mustBeConnected": "You must be connected to the internet"
 }
