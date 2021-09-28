@@ -59,7 +59,6 @@ export default Vue.extend({
             try {
                 const portal = this.$services.PortalInterface();
                 await portal.accept(this.currentUser);
-                this.$navigateBack();
                 // eslint-disable-next-line
                 await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
             } catch (error) {
