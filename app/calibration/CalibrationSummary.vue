@@ -57,7 +57,7 @@ export default Vue.extend({
             return this.sensor.moduleCalibration?.calibration?.points
                 ?.map((p) => {
                     if (!p.references) throw new Error();
-                    return p.references[0].toFixed(2); // prettyReading
+                    return p.references[0].toFixed(3); // prettyReading
                 })
                 .join(", ");
         },
@@ -66,9 +66,9 @@ export default Vue.extend({
                 ?.map((p) => {
                     if (!p.factory) {
                         if (!p.uncalibrated) throw new Error();
-                        return p.uncalibrated[0].toFixed(2); // prettyReading
+                        return p.uncalibrated[0].toFixed(3); // prettyReading
                     }
-                    return p.factory[0].toFixed(2); // prettyReading
+                    return p.factory[0].toFixed(3); // prettyReading
                 })
                 .join(", ");
         },
