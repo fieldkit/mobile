@@ -76,8 +76,13 @@ export default Vue.extend({
             }
         },
         async checkIfOnline() {
-            const response = await axios.request({ url: "https://google.com", timeout: 3000 });
-            this.isOnline = response.status === 200;
+            try {
+                await axios.request({ url: "https://google.com", timeout: 3000 });
+                this.isOnline = true;
+            }
+            catch(e) {
+                this.isOnline = false;
+            }
         },
     },
 });
