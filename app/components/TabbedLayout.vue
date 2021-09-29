@@ -91,6 +91,7 @@ export default Vue.extend({
         loaded: boolean;
         ready: boolean;
         showings: { [index: number]: number };
+        tabsToReload: string[];
     } {
         return {
             tab: 0,
@@ -98,6 +99,7 @@ export default Vue.extend({
             loaded: false,
             ready: false,
             showings: {},
+            tabsToReload: [],
         };
     },
     computed: {
@@ -119,6 +121,7 @@ export default Vue.extend({
         debug.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
 
         getBus().$on("nav:tab", this.onTabChangedRequired);
+        getBus().$on("nav:tabs-reload", this.onTabReloadRequired);
     },
     mounted(): void {
         debug.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
@@ -196,11 +199,11 @@ export default Vue.extend({
         async tapStations(): Promise<void> {
             const frame: Frame = Frame.getFrameById("stations-frame");
             debug.log(`tabbed-layout: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
-            if (this.tab == 0) {
+            if (this.tab == 0 || this.tabsToReload.includes(frame.id)) {
                 await logAnalytics("tabbed_tap_stations");
 
                 // eslint-disable-next-line
-                if (!this.isSameView(frame.id, StationListView)) {
+                if (!this.isSameView(frame.id, StationListView) || this.tabsToReload.includes(frame.id)) {
                     await this.$deprecatedNavigateTo(StationListView, {
                         frame: frame.id,
                         clearHistory: true,
@@ -212,11 +215,11 @@ export default Vue.extend({
         async tapData(): Promise<void> {
             const frame = Frame.getFrameById("data-frame");
             debug.log(`tabbed-layout: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
-            if (this.tab == 1) {
+            if (this.tab == 1 || this.tabsToReload.includes(frame.id)) {
                 await logAnalytics("tabbed_tap_data");
 
                 // eslint-disable-next-line
-                if (!this.isSameView(frame.id, DataSync)) {
+                if (!this.isSameView(frame.id, DataSync) || this.tabsToReload.includes(frame.id)) {
                     await this.$deprecatedNavigateTo(DataSync, {
                         frame: frame.id,
                         clearHistory: true,
@@ -243,6 +246,9 @@ export default Vue.extend({
         },
         bottomLoaded(): void {
             getBus().$emit("nav:tabs-ready");
+        },
+        onTabReloadRequired() {
+            this.tabsToReload = ["stations-frame", "data-frame"];
         },
     },
 });

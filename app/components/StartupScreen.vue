@@ -12,6 +12,7 @@ import Config from "@/config";
 import { debug, zoned } from "@/lib";
 
 import Blank from "@/components/Blank.vue";
+import { changeLanguageI18n } from "~/lib/i18n";
 
 function getFirstRoute(services: Services): FullRoute {
     const appSettings = new AppSettings();
@@ -32,6 +33,11 @@ function getFirstRoute(services: Services): FullRoute {
 }
 
 export default Vue.extend({
+    computed: {
+        currentSettings(this: any) {
+            return this.$s.state.portal.settings;
+        },
+    },
     components: {},
     async mounted(): Promise<void> {
         const services: Services = ServicesSingleton;
@@ -41,6 +47,8 @@ export default Vue.extend({
         await zoned({}, async () => {
             await initializeApplication(services);
         });
+
+        changeLanguageI18n(this.currentSettings.appearance.language);
 
         if (Config.env.developer) {
             debug.log("developer", Config.env.developer);

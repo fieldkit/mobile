@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.appearance.language')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <SettingsLayout>
+        <SettingsLayout :scrollable="true">
             <StackLayout>
                 <GridLayout columns="30,*" class="top-bordered-item p-t-30 p-b-10" @tap="selectLanguage('en')">
                     <CheckBox
@@ -33,21 +33,6 @@
                     />
                     <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.spanish')"></Label>
                 </GridLayout>
-                <GridLayout columns="30,*" class="p-t-10 p-b-10 p-l-1" @tap="selectLanguage('cz')">
-                    <CheckBox
-                        row="0"
-                        col="0"
-                        :class="this.isIOS ? 'm-l-5' : ''"
-                        :checked="this.currentSettings.appearance.language == 'cz'"
-                        fillColor="#2c3e50"
-                        onCheckColor="#2c3e50"
-                        onTintColor="#d8dce0"
-                        fontSize="16"
-                        boxType="circle"
-                        @tap="selectLanguage('cz')"
-                    />
-                    <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.chinese')"></Label>
-                </GridLayout>
             </StackLayout>
         </SettingsLayout>
     </Page>
@@ -57,6 +42,9 @@ import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import { isIOS } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
+import { routes } from "~/routes";
+import { changeLanguageI18n } from "~/lib/i18n";
+import { getBus } from "~/components/NavigationBus";
 
 export default Vue.extend({
     computed: {
@@ -73,9 +61,12 @@ export default Vue.extend({
     methods: {
         async saveSettings(): Promise<void> {
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+            getBus().$emit("nav:tabs-reload");
+            await this.$deprecatedNavigateTo(routes.appSettings.appearanceLanguage, {});
         },
         async selectLanguage(language): Promise<void> {
             this.currentSettings.appearance.language = language;
+            changeLanguageI18n(language);
             await this.saveSettings();
         },
     },
