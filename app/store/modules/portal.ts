@@ -9,7 +9,6 @@ import { CurrentUser } from "../http-types";
 import { MutationTypes } from "../mutations";
 import { AccountsTableRow, SettingsTableRow } from "../row-types";
 import Config from "@/config";
-import {getBus} from '~/components/NavigationBus';
 
 export type { CurrentUser };
 
@@ -161,7 +160,6 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .deleteAllAccounts()
                 .then(() => {
-                    getBus().$emit("nav:tabs-reload");
                     commit(MutationTypes.LOGOUT_ACCOUNTS);
                     return dispatch(ActionTypes.LOAD_ACCOUNTS);
                 })
