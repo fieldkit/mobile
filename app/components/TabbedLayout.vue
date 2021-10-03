@@ -248,7 +248,7 @@ export default Vue.extend({
             getBus().$emit("nav:tabs-ready");
         },
         onTabReloadRequired() {
-            this.tabsToReload = ["stations-frame", "data-frame"];
+            this.tabsToReload = ["stations-frame", "data-frame", "settings-frame"];
         },
     },
 });
