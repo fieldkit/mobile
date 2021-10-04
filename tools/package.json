@@ -10,7 +10,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.20.0",
+        "axios": "^0.21.2",
         "ts-node": "^9.1.1",
         "typescript": "^3.9.9",
         "yup": "^0.29.3"
