@@ -41,6 +41,7 @@
             :secure="true"
             :isEnabled="!busy"
             :invalid="form.v.password.required || form.v.password.length"
+            class="m-t-20"
         />
         <Label
             v-show="form.v.password.required"
@@ -59,7 +60,7 @@
             textWrap="true"
         />
 
-        <Label class="forgot-password-link m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
+        <Label class="forgot-password-link m-t-12" :text="_L('forgotLink')" @tap="forgotPassword" />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('logIn')" :isEnabled="!busy" @tap="login" />
 
@@ -196,7 +197,12 @@ export default Vue.extend({
     justify-content: space-around;
     margin: 0;
     padding: 0;
-    height: 100%;
+
+    .forgot-password-link {
+        font-weight: bold;
+        font-size: 14;
+        text-align: right;
+    }
 
     .logo {
         margin-top: 50;
