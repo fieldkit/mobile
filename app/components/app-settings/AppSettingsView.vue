@@ -45,13 +45,13 @@ import Config from "~/config";
 
 export default Vue.extend({
     name: "AppSettingsView",
+    components: {
+        ...SharedComponents,
+    },
     computed: {
         beta(): boolean {
             return Config.beta;
         },
-    },
-    components: {
-        ...SharedComponents,
     },
 });
 </script>
