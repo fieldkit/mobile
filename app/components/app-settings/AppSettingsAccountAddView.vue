@@ -30,6 +30,7 @@ import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { debug } from "@/lib";
 import axios from "axios";
+import {fullRoutes} from '~/routes';
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
@@ -63,8 +64,12 @@ export default Vue.extend({
                 await this.$services
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
-                    .then(() => {
-                        this.$navigateBack();
+                    .then(async () => {
+                        if (!this.$services.PortalInterface().isTncValid()) {
+                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
+                        } else {
+                            this.$navigateBack();
+                        }
                     })
                     .catch((error) => {
                         debug.log("error", error);
