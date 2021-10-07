@@ -49,7 +49,6 @@ export default Vue.extend({
 
 .md-heading {
     color: $fk-primary-black;
-    font-family: "AvenirLTPro-Medium";
     text-align: center;
     font-weight: bold;
     margin-bottom: 20;
@@ -96,8 +95,9 @@ export default Vue.extend({
 .md-paragraph {
     // background-color: #8383aa;
     text-align: center;
-    font-size: 18;
+    font-size: 16;
     line-height: 4;
     margin-bottom: 20;
+    color: $fk-primary-black;
 }
 </style>

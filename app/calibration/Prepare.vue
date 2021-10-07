@@ -91,16 +91,18 @@ export default Vue.extend({
     text-align: center;
     margin-right: 20;
     margin-left: 20;
-    font-size: 18;
 }
 .instruction-heading {
+    color: $fk-primary-black;
     font-weight: bold;
+    text-align: center;
     margin-bottom: 20;
-    font-family: "AvenirLTPro-Medium";
+    font-size: 18;
 }
 
 .instruction-text {
-    font-family: "AvenirLTPro-Book";
+    font-size: 16;
+    line-height: 4;
 }
 
 .illo {
