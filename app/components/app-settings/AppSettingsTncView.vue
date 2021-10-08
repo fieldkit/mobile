@@ -15,7 +15,7 @@
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
-            <GridLayout row="2" columns="*, *" v-if="currentUser && !isTncValid">
+            <GridLayout v-if="currentUser && !isTncValid" row="2" columns="*, *">
                 <Button
                     col="0"
                     class="btn btn-primary btn-padded"
