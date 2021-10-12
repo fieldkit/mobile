@@ -1,7 +1,7 @@
 import { Conservify, Services, OurStore } from "@/services";
 import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
-import { ActionTypes, RefreshNetworkAction } from "@/store";
+import { ActionTypes, RefreshNetworkAction, LostReasons } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
 import { debug, promiseAfter, zoned, logAnalytics } from "@/lib";
@@ -205,7 +205,7 @@ export default class DiscoverStation {
 
         await logAnalytics("discovery_lost");
 
-        void this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name });
+        void this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name, reason: LostReasons.LostService });
 
         return;
     }
@@ -244,7 +244,11 @@ export default class DiscoverStation {
                     break;
                 }
                 case fk_app.UdpStatus.UDP_STATUS_BYE: {
-                    void this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId });
+                    void this.store.dispatch(ActionTypes.LOST, {
+                        url: station.url,
+                        deviceId: station.deviceId,
+                        reason: LostReasons.UdpBye,
+                    });
                     break;
                 }
             }
