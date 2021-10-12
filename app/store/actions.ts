@@ -301,3 +301,9 @@ export class ConfigureLoraOtaaAction {
         public readonly settings: { deviceEui: Uint8Array; appKey: Uint8Array; joinEui: Uint8Array; frequencyBand: number }
     ) {}
 }
+
+export enum LostReasons {
+    LostService = "LostService",
+    UdpBye = "UdpBye",
+    NoReplies = "NoReplies",
+}

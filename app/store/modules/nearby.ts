@@ -17,6 +17,7 @@ import {
     ScanForStationsAction,
     RenameStationAction,
     ConfigureLoraOtaaAction,
+    LostReasons,
 } from "@/store/actions";
 import { OpenProgressMutation, RenameStationMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
@@ -103,7 +104,11 @@ const actions = (services: ServiceRef) => {
                 Object.values(state.stations).map((nearby) => {
                     if (!nearby.transferring && (nearby.old(now) || nearby.tooManyFailures())) {
                         debug.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
-                        return dispatch(ActionTypes.LOST, nearby.info);
+                        return dispatch(ActionTypes.LOST, {
+                            url: nearby.info.url,
+                            deviceId: nearby.info.deviceId,
+                            reason: LostReasons.NoReplies,
+                        });
                     }
                     return {};
                 })
@@ -135,13 +140,15 @@ const actions = (services: ServiceRef) => {
             }
             return;
         },
-        [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string; reason: LostReasons }) => {
             const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
             if (info && !info.transferring) {
-                await dispatch(ActionTypes.QUERY_STATION, info).catch(() => dispatch(ActionTypes.LOST, payload));
+                await dispatch(ActionTypes.QUERY_STATION, info).catch(() =>
+                    dispatch(ActionTypes.LOST, { deviceId: payload.deviceId, reason: payload.reason })
+                );
             }
         },
-        [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; reason: LostReasons }) => {
             const info = state.stations[payload.deviceId]?.info || null;
             commit(MutationTypes.LOSE, payload);
             if (info) {
