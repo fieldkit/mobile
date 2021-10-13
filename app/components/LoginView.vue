@@ -76,6 +76,10 @@ export default Vue.extend({
                     .catch((error) => {
                         debug.log("error", error);
                         this.busy = false;
+                        // eslint-disable-next-line
+                        if (!error.response) {
+                            return Dialogs.alert(_L('mustBeConnected'));
+                        }
                         return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {

@@ -25,7 +25,7 @@ import RegisterForm from "../RegisterForm.vue";
 import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
-import { debug } from "@/lib";
+import {_L, debug} from "@/lib";
 import { fullRoutes } from "~/routes";
 import InternetConnectionBanner from '~/components/InternetConnectionBanner.vue';
 
@@ -67,6 +67,9 @@ export default Vue.extend({
                     .catch((error) => {
                         debug.log("error", error);
                         this.busy = false;
+                        if (!error.response) {
+                            return Dialogs.alert(_L('mustBeConnected'));
+                        }
                         return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {

@@ -229,6 +229,9 @@ export default Vue.extend({
                         return;
                     }
                 }
+                if (!error.response) {
+                    await this.alert(_L('mustBeConnected'));
+                }
                 await this.alert("An error occured, please contact customer support.");
             } finally {
                 this.busy = false;
