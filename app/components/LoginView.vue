@@ -4,6 +4,8 @@
             <FlexboxLayout class="page login-page m-x-10" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
 
+                <InternetConnectionBanner />
+
                 <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
 
                 <RegisterForm v-else />
@@ -26,21 +28,29 @@ import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import { fullRoutes } from "@/routes";
 import { debug, _L } from "@/lib";
+import axios from "axios";
+import InternetConnectionBanner from "~/components/InternetConnectionBanner.vue";
 
 export default Vue.extend({
     name: "LoginView",
     components: {
+        InternetConnectionBanner,
         LoginForm,
         RegisterForm,
     },
     data(): {
         login: boolean;
         busy: boolean;
+        isOnline: boolean;
     } {
         return {
             login: true,
             busy: false,
+            isOnline: true,
         };
+    },
+    mounted() {
+        this.checkIfOnline();
     },
     methods: {
         toggle(): void {
@@ -72,6 +82,14 @@ export default Vue.extend({
                 this.busy = false;
             }
         },
+        async checkIfOnline() {
+            try {
+                await axios.request({ url: "https://google.com", timeout: 3000 });
+                this.isOnline = true;
+            } catch (e) {
+                this.isOnline = false;
+            }
+        },
     },
 });
 </script>
@@ -90,7 +108,7 @@ export default Vue.extend({
     }
 
     .logo {
-        margin-top: 50;
+        margin-top: 60;
         height: 47;
     }
 

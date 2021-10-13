@@ -2,10 +2,7 @@
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
         <SettingsLayout class="m-x-10">
-            <StackLayout v-if="!isOnline" orientation="horizontal" class="banner-internet">
-                <Image width="20" class="banner-internet-img" src="~/images/Icon_Warning_error.png"></Image>
-                <Label :text="_L('mustBeConnected')" />
-            </StackLayout>
+            <InternetConnectionBanner />
             <GridLayout rows="*,auto">
                 <LoginForm row="0" v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
@@ -30,28 +27,24 @@ import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { debug } from "@/lib";
 import { fullRoutes } from "~/routes";
-import axios from "axios";
+import InternetConnectionBanner from '~/components/InternetConnectionBanner.vue';
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
     components: {
         ...SharedComponents,
+        InternetConnectionBanner,
         LoginForm,
         RegisterForm,
     },
     data(): {
         login: boolean;
         busy: boolean;
-        isOnline: boolean;
     } {
         return {
             login: true,
             busy: false,
-            isOnline: true,
         };
-    },
-    mounted() {
-        this.checkIfOnline();
     },
     methods: {
         toggle(): void {
@@ -80,15 +73,6 @@ export default Vue.extend({
                 // this.busy = false;
             }
         },
-        async checkIfOnline() {
-            try {
-                await axios.request({ url: "https://google.com", timeout: 3000 });
-                this.isOnline = true;
-            }
-            catch(e) {
-                this.isOnline = false;
-            }
-        },
     },
 });
 </script>
@@ -106,15 +90,5 @@ export default Vue.extend({
     font-size: 14;
     margin-bottom: 10;
     font-weight: bold;
-}
-
-.banner-internet {
-    background: $fk-gray-lightest;
-    padding: 10 15;
-    font-size: 14;
-
-    &-img {
-        margin-right: 12;
-    }
 }
 </style>
