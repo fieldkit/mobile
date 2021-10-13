@@ -1,10 +1,9 @@
 <template>
     <Page>
-        <GridLayout :rows="currentUser && !isTncValid ? '120, *, 80' : '*'">
+        <GridLayout :rows="currentUser && !isTncValid ? 'auto, *, 80' : '*'">
             <Label
                 v-if="currentUser && !isTncValid"
-                class="p-20"
-                backgroundColor="#ffe047"
+                class="p-20 tnc-header"
                 :text="_L('appSettings.tnc.updated')"
                 textWrap="true"
             />
@@ -48,7 +47,7 @@ export default Vue.extend({
             return this.$s.state.portal.currentUser;
         },
         isTncValid(): boolean {
-            return this.$services.PortalInterface().isTncValid();
+            return !this.$services.PortalInterface().isTncValid();
         },
     },
     methods: {
@@ -84,3 +83,11 @@ export default Vue.extend({
     },
 });
 </script>
+
+<style scoped lang="scss">
+@import "~/_app-variables";
+
+.tnc-header {
+    background: $fk-orange;
+}
+</style>
