@@ -112,7 +112,7 @@ export default Vue.extend({
     }
 
     .logo {
-        margin-top: 60;
+        margin-top: 50;
         height: 47;
     }
 
