@@ -106,13 +106,7 @@ export default Vue.extend({
             if (!_.isNumber(sensor.reading)) {
                 return "--";
             }
-            return sensor.reading.toFixed(1);
-        },
-        getUncalibratedDisplayReading(sensor: Sensor): string {
-            if (!_.isNumber(sensor.uncalibrated)) {
-                return "--";
-            }
-            return sensor.uncalibrated.toFixed(1);
+            return sensor.reading.toFixed(3);
         },
         getDisplayIcon(sensor: Sensor): string {
             if (sensor.trend) {

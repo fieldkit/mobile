@@ -117,7 +117,7 @@ import { fullRoutes } from "@/routes";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 import { email } from "vuelidate/lib/validators";
-import { debug } from "@/lib/debugging";
+import { debug, _L } from "@/lib";
 
 const ErrorUserEmailRegistered = "user-email-registered";
 
@@ -228,6 +228,9 @@ export default Vue.extend({
                         await this.alert("A user with that email is already registered.");
                         return;
                     }
+                }
+                if (!error.response) {
+                    await this.alert(_L('mustBeConnected'));
                 }
                 await this.alert("An error occured, please contact customer support.");
             } finally {
