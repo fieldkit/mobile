@@ -49,8 +49,9 @@ export default Vue.extend({
             isOnline: true,
         };
     },
-    mounted() {
-        this.checkIfOnline();
+    async mounted(): Promise<void> {
+        // eslint-disable-next-line
+        return await this.checkIfOnline();
     },
     methods: {
         toggle(): void {
@@ -78,7 +79,7 @@ export default Vue.extend({
                         this.busy = false;
                         // eslint-disable-next-line
                         if (!error.response) {
-                            return Dialogs.alert(_L('mustBeConnected'));
+                            return Dialogs.alert(_L("mustBeConnected"));
                         }
                         return Dialogs.alert(_L("loginFailed"));
                     });
@@ -86,7 +87,7 @@ export default Vue.extend({
                 this.busy = false;
             }
         },
-        async checkIfOnline() {
+        async checkIfOnline(): Promise<void> {
             try {
                 await axios.request({ url: "https://google.com", timeout: 3000 });
                 this.isOnline = true;

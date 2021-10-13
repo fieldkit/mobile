@@ -6,15 +6,12 @@
 </template>
 
 <script lang="ts">
-
 import Vue from "vue";
 import axios from "axios";
 
 export default Vue.extend({
     name: "InternetConnectionBanner",
-    props: {
-
-    },
+    props: {},
     data(): {
         isOnline: boolean;
     } {
@@ -22,8 +19,8 @@ export default Vue.extend({
             isOnline: true,
         };
     },
-    mounted(): void {
-        this.checkIfOnline();
+    async mounted(): Promise<void> {
+        return await this.checkIfOnline();
     },
     methods: {
         async checkIfOnline() {
