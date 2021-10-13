@@ -1,28 +1,48 @@
 <template>
     <Page>
-        <ScrollView>
-            <StackLayout class="p-20">
-                <Image horizontalAlignment="right" width="17" class="m-t-10" src="~/images/Icon_Close.png" @tap="back" />
-                <Label class="m-t-20 size-26" :text="_L('appSettings.tnc.title')" />
-                <Label class="m-t-25 size-16" textWrap="true" :text="_L('appSettings.tnc.body')" />
+        <GridLayout :rows="currentUser && !isTncValid ? '120, *, 80' : '*'">
+            <Label
+                v-if="currentUser && !isTncValid"
+                class="p-20"
+                backgroundColor="#ffe047"
+                :text="_L('appSettings.tnc.updated')"
+                textWrap="true"
+            />
+            <ScrollView row="1" @scroll="onScroll">
+                <StackLayout class="p-20">
+                    <StackLayout ref="tncLayout">
+                        <HtmlView :html="_L('appSettings.tnc.body')" />
+                    </StackLayout>
+                </StackLayout>
+            </ScrollView>
+            <GridLayout v-if="currentUser && !isTncValid" row="2" columns="*, *">
                 <Button
-                    v-if="currentUser && !isTncValid"
-                    class="btn btn-primary btn-padded m-t-25"
+                    col="0"
+                    class="btn btn-primary btn-padded"
+                    :class="{ pressed: !isTncRead }"
                     :text="_L('appSettings.tnc.agreeButton')"
                     @tap="agree"
                 />
-            </StackLayout>
-        </ScrollView>
+                <Button col="1" class="btn btn-primary btn-padded" :text="_L('appSettings.tnc.disagreeButton')" @tap="disagree" />
+            </GridLayout>
+        </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { debug } from "@/lib";
 import { CurrentUser, RemoveAccountAction } from "~/store";
 import { fullRoutes } from "~/routes";
+import { EventData, ScrollView } from "@nativescript/core";
 
 export default Vue.extend({
     name: "AppSettingsTncView",
+    data(): {
+        isTncRead: boolean;
+    } {
+        return {
+            isTncRead: false,
+        };
+    },
     computed: {
         currentUser(): CurrentUser | null {
             return this.$s.state.portal.currentUser;
@@ -32,17 +52,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        async back(): Promise<void> {
-            if (this.isTncValid) {
-                this.$navigateBack();
-            } else {
-                if (this.currentUser) {
-                    await this.$s.dispatch(new RemoveAccountAction(this.currentUser.email));
-                }
-                // eslint-disable-next-line
-                await this.$deprecatedNavigateTo(fullRoutes.login);
-            }
-        },
         async agree(): Promise<void> {
             if (!this.currentUser) {
                 return;
@@ -53,8 +62,23 @@ export default Vue.extend({
                 // eslint-disable-next-line
                 await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
             } catch (error) {
-                debug.log("error", error);
                 return;
+            }
+        },
+
+        async disagree() {
+            if (this.currentUser) {
+                await this.$s.dispatch(new RemoveAccountAction(this.currentUser.email));
+            }
+            this.$navigateBack();
+        },
+
+        onScroll(event: EventData) {
+            const scrollView = <ScrollView>event.object;
+            const whitespaceHeight = 100;
+            const scrollOffset = scrollView.verticalOffset;
+            if (scrollOffset > 0 && scrollOffset > scrollView.scrollableHeight - whitespaceHeight) {
+                this.isTncRead = true;
             }
         },
     },

@@ -280,9 +280,18 @@ export default class DatabaseInterface {
 
     private async insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
         await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) => {
-            const values = [modulePrimaryKey, sensor.name, sensor.position, sensor.unitOfMeasure, 0, sensor.reading, sensor.uncalibrated];
+            const values = [
+                modulePrimaryKey,
+                sensor.name,
+                sensor.position,
+                sensor.unitOfMeasure,
+                0,
+                sensor.reading,
+                sensor.uncalibrated,
+                sensor.factory,
+            ];
             return this.execute(
-                "INSERT INTO sensors (module_id, name, position, unit, frequency, reading, uncalibrated) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO sensors (module_id, name, position, unit, frequency, reading, uncalibrated, factory) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 values
             ).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)));
         });
@@ -343,6 +352,7 @@ export default class DatabaseInterface {
                             id: existing[name].id,
                             reading: incoming[name].reading,
                             uncalibrated: incoming[name].uncalibrated,
+                            factory: incoming[name].factory,
                             unitOfMeasure: incoming[name].unitOfMeasure,
                             position: incoming[name].position,
                             trend: getTrend(name),
@@ -350,14 +360,18 @@ export default class DatabaseInterface {
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        this.execute("UPDATE sensors SET reading = ?, uncalibrated = ?, trend = ?, position = ?, unit = ? WHERE id = ?", [
-                            update.reading,
-                            update.uncalibrated,
-                            update.trend,
-                            update.position,
-                            update.unitOfMeasure,
-                            update.id,
-                        ])
+                        this.execute(
+                            "UPDATE sensors SET reading = ?, uncalibrated = ?, factory = ?, trend = ?, position = ?, unit = ? WHERE id = ?",
+                            [
+                                update.reading,
+                                update.uncalibrated,
+                                update.factory,
+                                update.trend,
+                                update.position,
+                                update.unitOfMeasure,
+                                update.id,
+                            ]
+                        )
                     )
             ),
         ]).then(() => Promise.resolve());

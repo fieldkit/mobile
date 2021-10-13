@@ -93,11 +93,18 @@ export default Vue.extend({
     margin-left: 20;
 }
 .instruction-heading {
+    color: $fk-primary-black;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20;
     font-size: 18;
 }
+
 .instruction-text {
     font-size: 16;
+    line-height: 4;
 }
+
 .illo {
     margin: 20;
 }

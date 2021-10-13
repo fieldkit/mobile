@@ -1,6 +1,6 @@
 <template>
     <StackLayout class="settings-layout">
-        <SettingsMenu v-if="false">
+        <SettingsMenu v-if="scrollable">
             <slot></slot>
         </SettingsMenu>
         <template v-else>
@@ -17,7 +17,12 @@ export default Vue.extend({
     components: {
         SettingsMenu,
     },
-    props: {},
+    props: {
+        scrollable: {
+            type: Boolean,
+            default: false,
+        },
+    },
     methods: {},
 });
 </script>

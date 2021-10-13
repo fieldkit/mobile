@@ -4,32 +4,7 @@
             <StackLayout row="0" v-if="calibrationPoints > 0">
                 <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
-                <StackLayout class="field-container">
-                    <Label text="Calibration Method" textWrap="true" class="field-label" />
-                    <Label text="Three-point Method" textWrap="true" class="field-value" v-if="calibrationPoints == 3" />
-                    <Label text="Not Calibrated" textWrap="true" class="field-value" v-else />
-                </StackLayout>
-
-                <StackLayout class="field-container">
-                    <GridLayout rows="auto" columns="auto,auto">
-                        <Label row="0" col="0" text="Standard Values" textWrap="true" class="field-label" />
-                        <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
-                    </GridLayout>
-                    <Label :text="calibratedStandards" textWrap="true" class="field-value" />
-                </StackLayout>
-
-                <StackLayout class="field-container">
-                    <GridLayout rows="auto" columns="auto,auto">
-                        <Label row="0" col="0" text="Raw Sensor Values" textWrap="true" class="field-label" />
-                        <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
-                    </GridLayout>
-                    <Label :text="sensorValues" textWrap="true" class="field-value" />
-                </StackLayout>
-
-                <StackLayout class="field-container">
-                    <Label text="Last Calibrated" textWrap="true" class="field-label" />
-                    <Label :text="calibratedDate" textWrap="true" class="field-value" />
-                </StackLayout>
+                <CalibrationSummary :sensor="sensor" />
 
                 <StackLayout class="field-container">
                     <Label
@@ -58,12 +33,14 @@ import Config from "@/config";
 import Vue from "vue";
 import Header from "./Header.vue";
 import ProgressBarAndStatus from "./ProgressBarAndStatus.vue";
+import CalibrationSummary from "./CalibrationSummary.vue";
 
 export default Vue.extend({
     name: "Check",
     components: {
         Header,
         ProgressBarAndStatus,
+        CalibrationSummary,
     },
     props: {
         sensor: {

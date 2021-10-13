@@ -7,7 +7,6 @@ import { Services, Conservify, FileSystem, OurStore } from "@/services";
 import { Buffer } from "buffer";
 import Config from "@/config";
 
-
 type ProgressFunc = (total: number, copied: number, info: never) => void;
 
 export { AxiosResponse, AxiosError };
@@ -146,8 +145,9 @@ export default class PortalInterface {
     private getCurrentToken(): string | null {
         if (this.isTncValid()) {
             return this.currentUser?.token ?? null;
+        } else {
+            debug.log("portal query: tnc invalid");
         }
-
         return null;
     }
 
@@ -156,7 +156,14 @@ export default class PortalInterface {
     }
 
     public isTncValid(): boolean {
-        return this.currentUser != null && this.currentUser.tncDate !=null && this.currentUser.tncDate >= Config.tncDate;
+        if (Config.beta) {
+            debug.log("portal query: tnc valid", this.currentUser?.tncDate);
+            if (this.currentUser != null && this.currentUser.tncDate != null) {
+                return this.currentUser.tncDate >= Config.tncDate;
+            }
+        }
+
+        return true;
     }
 
     private requireToken(): string {
@@ -249,13 +256,15 @@ export default class PortalInterface {
                 name: user.name,
                 email: user.email,
                 password: user.password,
-                tncAccept: user.tncAccept
+                tncAccept: user.tncAccept,
             },
         });
     }
 
     public async accept(user: CurrentUser): Promise<void> {
         if (!user.token) throw new Error(`no token for account`);
+
+        let betaSkip404Errors = false;
 
         await this.query({
             authenticated: true,
@@ -265,9 +274,18 @@ export default class PortalInterface {
             data: {
                 accept: true,
             },
+        }).catch((error: AxiosError) => {
+            // temp fix until prod deploy
+            if (Config.beta && error.response?.status === 404) {
+                betaSkip404Errors = true;
+            }
         });
 
         const self = await this.whoAmI(user.token);
+
+        if (betaSkip404Errors) {
+            self.tncDate = Config.tncDate;
+        }
 
         this.store.commit(MutationTypes.SET_CURRENT_USER, self);
     }

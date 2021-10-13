@@ -23,6 +23,7 @@ export class CalibratingSensor {
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
+        public readonly factory: number | null,
         public readonly calibrated: number | null,
         public readonly uncalibrated: number | null,
         public readonly calibrationValue: CalibrationValue,
@@ -115,10 +116,15 @@ export class CalibrationStrategy extends CalibrationStep {
         return this.calibrationPointSteps().length;
     }
 
+    /**
+     * Determine the curve type for the module. Not super happy with this approach.
+     */
     public get curveType(): DataProto.CurveType {
         if (/modules.water.ec/.test(this.moduleKey)) {
-            return DataProto.CurveType.CURVE_LOGARITHMIC;
+            debug.log(`curve type: module-key=${this.moduleKey}: exponential`);
+            return DataProto.CurveType.CURVE_EXPONENTIAL;
         }
+        debug.log(`curve type: module-key=${this.moduleKey}: linear`);
         return DataProto.CurveType.CURVE_LINEAR;
     }
 
@@ -190,7 +196,12 @@ export class StationCalibration {
 }
 
 export class PendingCalibrationPoint {
-    constructor(public readonly index: number, public readonly references: number[], public readonly uncalibrated: number[]) {}
+    constructor(
+        public readonly index: number,
+        public readonly references: number[],
+        public readonly uncalibrated: number[],
+        public readonly factory: number[]
+    ) {}
 }
 
 export class PendingCalibration {
@@ -210,6 +221,7 @@ export abstract class CalibrationCurve {
                 new DataProto.CalibrationPoint({
                     references: p.references,
                     uncalibrated: p.uncalibrated,
+                    factory: p.factory,
                 })
         );
         if (points.length == 0) throw new CalibrationError(`calibration failed: empty`);
@@ -237,9 +249,9 @@ function acceptableOffset(value: number): boolean {
     return true;
 }
 
-export class LogarithmicCalibrationCurve extends CalibrationCurve {
+export class ExponentialCalibrationCurve extends CalibrationCurve {
     public get curveType(): DataProto.CurveType {
-        return DataProto.CurveType.CURVE_LOGARITHMIC;
+        return DataProto.CurveType.CURVE_EXPONENTIAL;
     }
 
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
@@ -255,36 +267,13 @@ export class LogarithmicCalibrationCurve extends CalibrationCurve {
         const xySum = _.sum(indices.map((i) => x[i] * y[i])); // 5
 
         const denominator = ySum * xxySum - xySum * xySum;
-        const m = Math.exp((xxySum * yLogYSum - xySum * xyLogYSum) / denominator);
+        const a = Math.exp((xxySum * yLogYSum - xySum * xyLogYSum) / denominator);
         const b = (ySum * xyLogYSum - xySum * yLogYSum) / denominator;
 
-        debug.log(`cal:logarithmic ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
-        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
-        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
-        return new DataProto.CalibrationCoefficients({ values: [b, m] });
-    }
-}
-
-export class ExponentialCalibrationCurve extends CalibrationCurve {
-    public get curveType(): DataProto.CurveType {
-        return DataProto.CurveType.CURVE_EXPONENTIAL;
-    }
-
-    public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
-        const n = pending.points.length;
-        const x = pending.points.map((p) => p.uncalibrated[0]);
-        const y = pending.points.map((p) => p.references[0]);
-        const indices = _.range(0, n);
-        const xSum = _.sum(x);
-        const ySum = _.sum(y);
-        const xxSum = _.sum(_.map((x) => x * x));
-        const xySum = _.sum(indices.map((i) => x[i] * y[i]));
-        const m = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
-        const b = ySum / n - (m * xSum) / n;
-        debug.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxSum, xySum })}`);
-        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
-        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
-        return new DataProto.CalibrationCoefficients({ values: [b, m] });
+        debug.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
+        if (!acceptableCoefficient(a)) throw new CalibrationError(`calibration failed: a=${a}`);
+        if (!acceptableCoefficient(b)) throw new CalibrationError(`calibration failed: b=${b}`);
+        return new DataProto.CalibrationCoefficients({ values: [a, b] });
     }
 }
 
@@ -317,8 +306,6 @@ export function getCurveForSensor(curveType: DataProto.CurveType): CalibrationCu
     switch (curveType) {
         case DataProto.CurveType.CURVE_EXPONENTIAL:
             return new ExponentialCalibrationCurve();
-        case DataProto.CurveType.CURVE_LOGARITHMIC:
-            return new LogarithmicCalibrationCurve();
     }
     return new LinearCalibrationCurve();
 }

@@ -56,7 +56,7 @@ export default Vue.extend({
             this.rows = cal.points.map((p) => {
                 return {
                     expected: p.references[0],
-                    measured: p.uncalibrated[0],
+                    measured: p.factory[0],
                 };
             });
         } else {

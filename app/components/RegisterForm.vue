@@ -19,7 +19,7 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" />
+        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" class="m-t-20"/>
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -47,7 +47,7 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" />
+        <LabeledTextField v-model="form.password" label="Password" @blur="checkPassword" :secure="true" class="m-t-20" />
         <Label
             v-show="form.v.password.required"
             id="password-required"
@@ -65,7 +65,7 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.confirmPassword" label="Password" @blur="checkConfirmPassword" :secure="true" />
+        <LabeledTextField v-model="form.confirmPassword" label="Password" @blur="checkConfirmPassword" :secure="true" class="m-t-20" />
         <Label
             v-show="form.v.confirmPassword.required"
             id="confirm-password-required"
@@ -82,7 +82,7 @@
             :text="_L('noMatch')"
             textWrap="true"
         />
-        <GridLayout rows="auto" columns="25,*" class="p-t-15 p-b-5">
+        <GridLayout rows="auto" columns="25,*" class="p-t-15 p-b-5 m-t-5">
             <CheckBox
                 col="0"
                 :checked="form.tncAccept == true"

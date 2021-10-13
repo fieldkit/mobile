@@ -22,7 +22,7 @@
                 :imageSrc="'~/images/icon_permissions.png'"
             />
             <SettingsItemIconText
-                v-show="false"
+                v-show="beta"
                 :link="'appearance'"
                 :text="'appSettings.appearance.appearance'"
                 :imageSrc="'~/images/icon_lightmode_settings.png'"
@@ -41,11 +41,17 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
+import Config from "~/config";
 
 export default Vue.extend({
     name: "AppSettingsView",
     components: {
         ...SharedComponents,
+    },
+    computed: {
+        beta(): boolean {
+            return Config.beta;
+        },
     },
 });
 </script>

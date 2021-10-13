@@ -52,7 +52,7 @@ function configureVueJs(services: typeof Services): Store {
         if (!_.isNumber(value)) {
             return "--";
         }
-        return value.toFixed(2);
+        return value.toFixed(3);
     });
 
     Vue.filter("prettyUnixTime", (value: number | undefined): string => {

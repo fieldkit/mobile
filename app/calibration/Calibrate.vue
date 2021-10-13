@@ -9,7 +9,7 @@
             />
             <StackLayout>
                 <Success v-if="cleared" :text="_L('calibration.cleared')" />
-                <Success v-if="success" :text="_L('calibration.calibrated')" />
+                <Success v-if="success" :text="_L('calibration.calibrated')" :sensor="sensor" @done="() => onLeave()" />
                 <Failure v-if="failure" @try-again="tryAgain" @skip="skip" :moduleId="sensor.moduleId" />
                 <template v-if="!(success || failure) && sensor && !done">
                     <component
@@ -136,6 +136,7 @@ export default Vue.extend({
                     station.connected,
                     this.position,
                     getUoM(),
+                    displaySensor.factory,
                     displaySensor.reading,
                     displaySensor.uncalibrated,
                     calibrationValue,
@@ -185,6 +186,9 @@ export default Vue.extend({
         getTotalSteps(): number {
             return this.getAllVisualSteps().length;
         },
+        async onLeave(): Promise<void> {
+            await navigateBackToBookmark(this, "stations-frame");
+        },
         async onDone(step: CalibrationStep, ignoreNav: boolean = true): Promise<void> {
             debug.log("cal:", "done", this.completed.length, "+1", this.getTotalSteps());
 
@@ -206,9 +210,7 @@ export default Vue.extend({
                 return;
             }
 
-            await this.notifySuccess();
-
-            await navigateBackToBookmark(this, "stations-frame");
+            this.success = true;
         },
         async skip(): Promise<void> {
             debug.log("cal:", "skip", this.fromSettings);
@@ -269,6 +271,12 @@ export default Vue.extend({
             if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
+            if (!_.isNumber(sensor.uncalibrated)) {
+                throw new Error(`no sensor calibration value: ${JSON.stringify(sensor)}`);
+            }
+            if (!_.isNumber(sensor.factory)) {
+                throw new Error(`no sensor factory value: ${JSON.stringify(sensor)}`);
+            }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
             const compensations = {
                 temperature: maybeWaterTemp || null,
@@ -280,7 +288,9 @@ export default Vue.extend({
                 reference as WaterCalValue,
                 compensations,
                 this.strategy.numberOfCalibrationPoints,
-                this.strategy.curveType
+                this.strategy.curveType,
+                sensor.uncalibrated,
+                sensor.factory
             );
 
             debug.log(`cal-action: ${JSON.stringify(action)}`);

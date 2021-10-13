@@ -303,7 +303,7 @@ const Do3 = (): CalibrationStrategy => {
     const doxCommon = DoCommon();
 
     return new CalibrationStrategy(
-        "modules.water.dox",
+        "modules.water.do",
         _L("calibration.water.dox.strategy0.heading"),
         _L("calibration.water.dox.strategy0.help"),
         [

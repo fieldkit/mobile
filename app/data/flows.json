@@ -37,7 +37,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screws    |\n| D) Module Board(s)         | I) Micro-USB Cable   |\n| E) Battery        |  |",
+                        "body": "# Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| A) Upper Board       | F) FieldKit Case    |\n| B) Lower Board      | G) Cable Plate Pack     |\n| C) Module Base         | H) Screw Packs    |\n| D) Module Board(s)         | I) Micro-USB Cable   |\n| E) Battery        |  |",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e65b535bb2.png"
@@ -121,7 +121,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure with screws.\n\n## Use caution to avoid bending the Module Base pins, and make sure the pins never touch each other, as it could damage the board.",
+                        "body": "# Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure with Module Board Screws.\n\n## Use caution to avoid bending the Module Base pins, and make sure the pins never touch each other, as it could damage the board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_4_A_e9dc955a94.jpg"
@@ -148,7 +148,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Secure Inside Case\nPlace your assembled components inside the Case. Screw everything down to minimize movement and risk of damage.\n\n## You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
+                        "body": "# Secure Inside Case\nPlace your assembled components inside the Case. Secure with Core to Case Screws to minimize movement and risk of damage.\n\n## You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_5_A_ccf0984f18.png"
@@ -289,7 +289,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Attach Cable Plate to Case\nOnce you've attached your cables, inserts and glands to the Cable Plate, screw your Cable Plate onto your Case. \n\n## Ensure that the gasket is pressed into the groove to form a snug fit for optimum weather protection. ",
+                        "body": "# Attach Cable Plate to Case\nOnce you've attached your cables, inserts and glands to the Cable Plate, screw your Cable Plate onto your Case using Cable Plate Screws. \n\n## Ensure that the gasket is pressed into the groove to form a snug fit for optimum weather protection. ",
                         "images": [
                             {
                                 "url": "/uploads/TI_24_6362509d17.png"
@@ -376,10 +376,13 @@
                         "body": "# Connect Anemometer and Wind Vane\n\nInsert the RJ11 jack from the Wind Vane into the slot on the Weather Sensor Board marked “WIND.” Insert the RJ11 jack from the Anemometer into the Wind Vane so that they are connected.",
                         "images": [
                             {
+                                "url": "/uploads/TI_34_41fc0b20bb.png"
+                            },
+                            {
                                 "url": "/uploads/TI_35_77a7e23703.png"
                             },
                             {
-                                "url": "/uploads/TI_34_41fc0b20bb.png"
+                                "url": "/uploads/TI_63_8e5ec859d8.png"
                             }
                         ],
                         "logo": null
@@ -403,10 +406,13 @@
                         "body": "# Place Stevenson Screen\n\nInsert the Weather Sensor Board into the Stevenson Screen. Attach the enclosed board to the Arm.",
                         "images": [
                             {
+                                "url": "/uploads/TI_36_9cae5fda4b.png"
+                            },
+                            {
                                 "url": "/uploads/TI_37_d407eb532d.png"
                             },
                             {
-                                "url": "/uploads/TI_36_9cae5fda4b.png"
+                                "url": "/uploads/TI_64_69d61032ed.png"
                             }
                         ],
                         "logo": null
@@ -434,6 +440,9 @@
                             },
                             {
                                 "url": "/uploads/TI_39_bdd7faffff.png"
+                            },
+                            {
+                                "url": "/uploads/TI_65_2d924591e9.png"
                             }
                         ],
                         "logo": null
@@ -885,7 +894,7 @@
                         "body": "# Three-Point Transfer Calibration\nMake sure you have 3 temperature sources and a standard thermometer.\n\n## We recommend using the following sources in this order: a cup of ice water (0°C), room temperature air, and a cup of boiling water (100°C).",
                         "images": [
                             {
-                                "url": "/uploads/Image_from_i_OS_13_1_d4f56f3f14.jpg"
+                                "url": "/uploads/TI_74_e5319a0c87.png"
                             }
                         ],
                         "logo": null
@@ -909,7 +918,7 @@
                         "body": "# Three-point Transfer Calibration\n\nGather together a cup of water, an aquarium air pump, tubing and airstone, and a standard Dissolved Oxygen meter or test kit.",
                         "images": [
                             {
-                                "url": "/uploads/TI_66.png"
+                                "url": "/uploads/TI_66_9740ee9cb4.png"
                             }
                         ],
                         "logo": null
@@ -991,6 +1000,30 @@
                             },
                             {
                                 "url": "/uploads/Image_from_i_OS_14_1_cb602a19a3.jpg"
+                            }
+                        ],
+                        "logo": null
+                    }
+                ]
+            },
+            {
+                "id": "47",
+                "name": "onboarding.01a",
+                "locale": "en_US",
+                "forward": "Continue",
+                "skip": null,
+                "guideTitle": null,
+                "guideUrl": null,
+                "header": {
+                    "title": "Need Additional Help?",
+                    "subtitle": null
+                },
+                "simple": [
+                    {
+                        "body": "If you get stuck, use our Product Guide at fieldkit.org that goes through these steps (and more) in additional detail. \n\nYou can access all of our support resources, including the Product Guide, by clicking the blue  ?  icon at the upper right hand corner. ",
+                        "images": [
+                            {
+                                "url": "/uploads/product_guide_help_icon_38aad2f330.svg"
                             }
                         ],
                         "logo": null

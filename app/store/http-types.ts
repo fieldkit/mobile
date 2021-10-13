@@ -26,6 +26,7 @@ export interface LiveSensorReading {
     sensor: SensorCapabilities;
     value: number;
     uncalibrated: number;
+    factory: number;
 }
 
 export interface LiveModuleReadings {
@@ -167,6 +168,15 @@ export interface ModuleStatusReply {
     configuration: ModuleConfiguration | null;
 }
 
+export interface HttpReplyLoraSettings {
+    available: boolean;
+    frequencyBand: number;
+    deviceEui: string;
+    joinEui: string;
+    appKey: string;
+    deviceAddress: string | null;
+}
+
 export interface HttpStatusReply {
     type: AppProto.ReplyType;
     status: ReplyStatus;
@@ -175,6 +185,7 @@ export interface HttpStatusReply {
     schedules: ReplySchedules;
     streams: ReplyStream[];
     networkSettings: NetworkSettings;
+    lora: HttpReplyLoraSettings | null;
     errors: AppProto.IError[];
     serialized: string;
     logs: string | null;
@@ -237,6 +248,7 @@ function translateLiveModuleReadings(lmr: AppProto.ILiveModuleReadings, moduleCo
                 sensor: new AppProto.SensorCapabilities(lsr.sensor),
                 value: lsr.value!,
                 uncalibrated: lsr.uncalibrated!,
+                factory: lsr.factory!,
             };
         }),
     };
@@ -305,6 +317,29 @@ export interface HttpStatusErrorReply {
 
 function translateLong(value: number | Long | undefined): number {
     return value as number;
+}
+
+function translateLora(reply: AppProto.ILoraSettings | null): HttpReplyLoraSettings | null {
+    if (!reply) {
+        return null;
+    }
+    const frequencyBand = reply.frequencyBand || 868;
+    const deviceEui = reply.deviceEui ? toHexString(reply.deviceEui) : null;
+    const appKey = reply.appKey ? toHexString(reply.appKey) : null;
+    const joinEui = reply.joinEui ? toHexString(reply.joinEui) : null;
+    const deviceAddress = reply.deviceAddress ? toHexString(reply.deviceAddress) : null;
+    if (deviceEui && appKey && joinEui) {
+        return {
+            available: reply.available || false,
+            deviceAddress: deviceAddress,
+            frequencyBand: frequencyBand,
+            deviceEui: deviceEui,
+            joinEui: joinEui,
+            appKey: appKey,
+        };
+    }
+
+    return null;
 }
 
 export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
@@ -424,6 +459,7 @@ export function prepareReply(reply: AppProto.HttpReply, serialized: SerializedSt
             }),
         },
         errors: reply.errors,
+        lora: translateLora(reply.loraSettings || null),
         logs: reply.status.logs || null,
         serialized: serialized,
     };
