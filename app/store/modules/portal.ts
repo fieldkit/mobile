@@ -70,7 +70,6 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
         usedAt: row.usedAt ?? new Date(),
         lastSync: null,
         transmission: null,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         tncDate: row.tncDate,
     };
 }
@@ -134,8 +133,6 @@ const actions = (services: ServiceRef) => {
                     const users = rows.map(rowToUser);
                     commit(MutationTypes.LOAD_ACCOUNTS, users);
                     const sorted = _.reverse(_.sortBy(users, (a) => a.usedAt));
-                    debug.log("radoi sorted", sorted);
-                    debug.log("radoi current user state", state.currentUser);//
                     if (sorted.length > 0) {
                         commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
@@ -153,7 +150,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
             const portal = services.portal();
             const self = await portal.login(payload);
-            debug.log("LOGIN RADOI ACTION", self);
+
             await services.db().addOrUpdateAccounts(userToRow(self));
 
             await dispatch(ActionTypes.LOAD_ACCOUNTS);
