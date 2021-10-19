@@ -212,6 +212,7 @@ export default class PortalInterface {
             transmission: transmission,
             usedAt: new Date(),
             lastSync: null,
+            tncDate: user.tncDate,
         };
     }
 

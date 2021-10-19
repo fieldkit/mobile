@@ -937,6 +937,7 @@ export default class DatabaseInterface {
                 token: row.token == "" ? null : row.token,
                 usedAt: row.usedAt,
                 details: row.details,
+                tncDate: row.tncDate,
             };
         });
     }

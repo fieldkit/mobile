@@ -47,7 +47,7 @@ export default Vue.extend({
             return this.$s.state.portal.currentUser;
         },
         isTncValid(): boolean {
-            return !this.$services.PortalInterface().isTncValid();
+            return this.$services.PortalInterface().isTncValid();
         },
     },
     methods: {
