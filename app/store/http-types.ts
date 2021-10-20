@@ -19,7 +19,7 @@ export interface CurrentUser {
         url: string;
     } | null;
     lastSync: Date | null;
-    tncDate?: number;
+    tncDate: number;
 }
 
 export interface LiveSensorReading {
