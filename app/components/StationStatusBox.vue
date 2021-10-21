@@ -167,7 +167,7 @@ export default Vue.extend({
             } else if (battery <= 80) {
                 return `~/images/Battery_80${statusString}.png`;
             } else {
-                return `~/images/Icon_Battery_100${statusString}.png`;
+                return `~/images/Battery_100${statusString}.png`;
             }
         },
         batteryLevel(): string {
