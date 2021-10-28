@@ -51,7 +51,7 @@
                                     v-model="form.value"
                                     autocorrect="false"
                                     autocapitalizationType="none"
-                                    class="reference-field size-24 m-r-10"
+                                    class="reference-field size-24"
                                     keyboardType="number"
                                     @textChange="onChange()"
                                 />
@@ -253,6 +253,7 @@ export default Vue.extend({
 .reference-field {
     text-align: right;
     border-color: white;
+    padding-right: 10;
 }
 
 .heading {
