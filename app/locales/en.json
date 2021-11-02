@@ -676,7 +676,7 @@
                         "instructions": "Place the Dissolved Oxygen Probe in a cup of water with your standard dissolved oxygen meter probe or test kit, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
+                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in %:",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -693,7 +693,7 @@
                         "instructions": "Place the aquarium pump air stone into the cup alongside the Dissolved Oxygen Probe and your standard meter or test kit. Turn the aquarium pump to low, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
+                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in %:",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"
@@ -710,7 +710,7 @@
                         "instructions": "Keep everything in the cup. Turn the aquarium pump to high, and let the readings stabilize.",
                         "done": "Start Timer"
                     },
-                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in mg/L:",
+                    "standard": "Enter the value below based on your standard dissolved oxygen meter, in %:",
                     "calibrate": {
                         "heading": "",
                         "done": "Calibrate"

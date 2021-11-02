@@ -78,7 +78,7 @@ function PhCommon(): CommonProperties {
 function DoCommon(): CommonProperties {
     return {
         sensor: "do",
-        unitOfMeasure: "mg/L",
+        unitOfMeasure: "%",
         title: _L("calibration.water.dox.title"),
         subtitle: _L("calibration.water.dox.subtitle"),
         icon: "~/images/Icon_DissolvedOxygen_Module.png",

@@ -161,7 +161,7 @@ const stations = [
                 sensors: [
                     {
                         name: "DO Sensor",
-                        unitOfMeasure: "mg/L",
+                        unitOfMeasure: "%",
                         frequency: "60",
                     },
                     {

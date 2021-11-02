@@ -81,11 +81,11 @@
                         height="30"
                     >
                         <Label
-                            :text="'mg/L'"
+                            :text="'%'"
                             class="size-13 text-center p-t-3 b-right"
                             width="55"
                             @loaded="onLabelLoaded"
-                            :class="currentSettings.units.unitName == 'mgl' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitName == '%' ? 'b-active' : ''"
                             @tap="setUnitName('mgl')"
                         />
                         <FlexboxLayout
