@@ -5,6 +5,7 @@
                 :title="activeStep.visual.title"
                 :subtitle="activeStep.visual.subtitle"
                 :icon="activeStep.visual.icon"
+                :canNavigateBack="!success"
                 @back="() => onBack(activeStep)"
             />
             <StackLayout>

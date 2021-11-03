@@ -91,7 +91,6 @@ export default Vue.extend({
             type: Boolean,
             default: false,
         },
-        // Deprecated
         canNavigateBack: {
             type: Boolean,
             default: true,
