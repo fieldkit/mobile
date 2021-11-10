@@ -10,7 +10,8 @@
             <ScrollView row="1" @scroll="onScroll">
                 <StackLayout class="p-20">
                     <StackLayout ref="tncLayout">
-                        <HtmlView :html="_L('appSettings.tnc.body')" />
+                        <HtmlView :html="_L('appSettings.tnc.body')" v-if="isIOS"/>
+                        <WebView :src="_L('appSettings.tnc.body')" v-if="isAndroid"/>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
@@ -31,7 +32,7 @@
 import Vue from "vue";
 import { CurrentUser, RemoveAccountAction } from "~/store";
 import { fullRoutes } from "~/routes";
-import { EventData, ScrollView } from "@nativescript/core";
+import {EventData, isAndroid, isIOS, ScrollView} from "@nativescript/core";
 
 export default Vue.extend({
     name: "AppSettingsTncView",
@@ -48,6 +49,12 @@ export default Vue.extend({
         },
         isTncValid(): boolean {
             return this.$services.PortalInterface().isTncValid();
+        },
+        isAndroid(): boolean {
+            return isAndroid;
+        },
+        isIOS(): boolean {
+            return isIOS;
         },
     },
     methods: {
