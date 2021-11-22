@@ -38,7 +38,7 @@
         </FlexboxLayout>
 
         <WrapLayout v-if="closed[module.position] !== true" orientation="horizontal" class="m-t-5">
-            <Label v-if="!station.connected" :text="lastSeen()" width="100%" class="m-t-5 size-14 hint-color" />
+            <Label :text="lastSeen(module)" width="100%" class="m-t-5 size-14 hint-color" />
             <WrapLayout
                 v-for="sensor in module.sensors"
                 :key="sensor.id"
@@ -119,11 +119,16 @@ export default Vue.extend({
             }
             return "~/images/Icon_Neutral.png";
         },
-        lastSeen(): string {
+        lastSeen(module): string {
             if (!this.station || !this.station.lastSeen) {
                 return "";
             }
-            return _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
+
+            if (!this.station.connected) {
+                return _L("bayPosition") + module.position + " " + _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
+            }
+
+            return _L("bayPosition") + module.position;
         },
         getModuleName(): string {
             return _L(this.module.name + ".name");
