@@ -336,6 +336,7 @@
     "select": "Select...",
     "viewGraph": "View Graph",
     "lastReading": "Last reading",
+    "bayPosition": "Bay #",
     "notifications": "Notifications",
     "notificationRemindLater": "Remind Later",
     "notificationDontRemind": "Don't Remind",

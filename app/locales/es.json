@@ -355,6 +355,7 @@
     "select": "Seleccionar ...",
     "viewGraph": "Ver Gráfico",
     "lastReading": "Última lectura",
+    "bayPosition": "Bay #",
     "notifications": "Notificaciones",
     "notificationRemindLater": "Remind Later",
     "notificationDontRemind": "Don't Remind",
