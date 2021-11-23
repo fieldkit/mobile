@@ -103,7 +103,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
                     new NavigationMutation(
                         pageOrRoute.frame || "<no-frame>",
                         pageOrRoute.name || "<no-name>",
-                        page.options.__file || "<no-file>",
+                        page?.options?.__file || "<no-file>",
                         true
                     )
                 );
@@ -118,7 +118,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
                             duration: 0,
                         },
                     },
-                    pageOrRoute.options
+                    pageOrRoute?.options
                 );
 
                 debug.log(`nav:full-route: final-options ${JSON.stringify(finalOptions)}`);
@@ -136,8 +136,8 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",
-                    page.options.name || "<no-name>",
-                    page.options.__file || "<no-file>",
+                    page?.options?.name || "<no-name>",
+                    page?.options?.__file || "<no-file>",
                     false
                 )
             );
@@ -148,8 +148,8 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",
-                    pageOrRoute.options.name || "<no-name>",
-                    pageOrRoute.options.__file || "<no-file>",
+                    pageOrRoute?.options?.name || "<no-name>",
+                    pageOrRoute?.options?.__file || "<no-file>",
                     false
                 )
             );

@@ -60,6 +60,7 @@ export interface SensorTableRow {
     unit: string;
     reading: number | null;
     uncalibrated: number | null;
+    factory: number | null;
     trend: number | null;
     moduleId: number | null;
 }
@@ -105,6 +106,7 @@ export interface AccountsTableRow {
     token: string | null;
     usedAt: Date;
     details: string | null;
+    tncDate: number;
 }
 
 export interface NotificationsTableRow {

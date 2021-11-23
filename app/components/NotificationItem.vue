@@ -22,7 +22,7 @@
                 @loaded="onLabelLoadedVerticalCentered"
             />
             <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4" />
-            <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold">
+            <GridLayout col="1" row="2" columns="auto,auto,*" class="size-12 bold">
                 <Label
                     col="0"
                     v-if="!notificationsKind[notification.kind].buttonRoute"
@@ -46,6 +46,7 @@
                     <Label col="0" :text="_L('dismiss')" class="action-btn" />
                     <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2" :class="isAndroid ? 'm-t-2' : 'm-t-8'" />
                 </GridLayout>
+                <Label col="2" :text="prettyCreatedAt(notification.created)" horizontaAlign="right" class="notify-date" />
             </GridLayout>
         </GridLayout>
         <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu.includes(notification.id)">
@@ -58,7 +59,8 @@
 import Vue from "vue";
 import { isAndroid, Label } from "@nativescript/core";
 import { _L } from "@/lib";
-import { routes } from "~/routes";
+import { fullRoutes } from "~/routes";
+import moment from "moment";
 
 export default Vue.extend({
     data() {
@@ -94,7 +96,7 @@ export default Vue.extend({
                     text: _L("calibrationBeforeDeploymentText"),
                     error: false,
                     buttonText: _L("calibrationBeforeDeploymentButton"),
-                    buttonRoute: routes.onboarding.recalibrate,
+                    buttonRoute: fullRoutes.onboarding.recalibrate,
                 },
             },
         };
@@ -143,6 +145,9 @@ export default Vue.extend({
                 route: this.notificationsKind[this.notification.kind].buttonRoute,
             });
         },
+        prettyCreatedAt(epoch: number): string {
+            return moment(epoch).format("MMM D, h:mm a");
+        },
     },
 });
 </script>
@@ -171,5 +176,12 @@ export default Vue.extend({
     background-color: $background;
     border-width: 1;
     border-color: $fk-gray-lighter;
+}
+
+.notify-date {
+    font-size: 9;
+    color: $fk-gray-hint;
+    margin-top: 10;
+    text-align: right;
 }
 </style>

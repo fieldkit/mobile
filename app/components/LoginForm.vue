@@ -41,6 +41,7 @@
             :secure="true"
             :isEnabled="!busy"
             :invalid="form.v.password.required || form.v.password.length"
+            class="m-t-20"
         />
         <Label
             v-show="form.v.password.required"
@@ -59,7 +60,7 @@
             textWrap="true"
         />
 
-        <Label class="forgot-password-link m-t-5" horizontalAlignment="right" :text="_L('forgotLink')" @tap="forgotPassword" />
+        <Label class="forgot-password-link m-t-12" :text="_L('forgotLink')" @tap="forgotPassword" />
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('logIn')" :isEnabled="!busy" @tap="login" />
 
@@ -79,6 +80,7 @@ import SharedComponents from "@/components/shared";
 import { fullRoutes } from "@/routes";
 import { _L } from "@/lib";
 import { email } from "vuelidate/lib/validators";
+import AppSettings from '~/wrappers/app-settings';
 
 export default Vue.extend({
     name: "LoginForm",
@@ -127,6 +129,14 @@ export default Vue.extend({
             this.form.v.password.length = this.form.password.length > 0 && this.form.password.length < 10;
         },
         async continueOffline(): Promise<void> {
+            const appSettings = new AppSettings();
+            const skipCount = appSettings.getNumber("skipCount");
+
+            if (skipCount >= 3) {
+                await this.$deprecatedNavigateTo(fullRoutes.stations);
+                return;
+            }
+
             await this.$deprecatedNavigateTo(fullRoutes.onboarding.assemble);
         },
         invalid(): boolean {
@@ -187,7 +197,12 @@ export default Vue.extend({
     justify-content: space-around;
     margin: 0;
     padding: 0;
-    height: 100%;
+
+    .forgot-password-link {
+        font-weight: bold;
+        font-size: 14;
+        text-align: right;
+    }
 
     .logo {
         margin-top: 50;

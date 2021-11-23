@@ -162,7 +162,13 @@ export class QueryStation {
     public async sendLoraSettings(address: string, lora: LoraSettings): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
-            loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
+            loraSettings: {
+                modifying: true,
+                joinEui: lora.joinEui,
+                appKey: lora.appKey,
+                deviceEui: lora.deviceEui,
+                frequencyBand: lora.frequencyBand,
+            },
         });
         return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
@@ -357,6 +363,8 @@ export class QueryStation {
         return this.trackActivity<T>({ url: url, throttle: true }, factory);
     }
 
+    private counter = 0;
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
@@ -368,11 +376,22 @@ export class QueryStation {
         return await this.trackActivity(finalOptions, async () => {
             await logAnalytics("station_querying", { url: url });
 
+            function addUrlCounter(noCounter: string, n: number): string {
+                if (noCounter.indexOf("?") >= 0) {
+                    return `${noCounter}&c=${n}`;
+                }
+                return `${noCounter}?c=${n}`;
+            }
+
+            const counterUrl = addUrlCounter(url, this.counter++);
+
+            debug.log("url", counterUrl);
+
             return this.catchErrors(
                 this.conservify
                     .protobuf({
                         method: "POST",
-                        url: url,
+                        url: counterUrl,
                         body: binaryQuery,
                         connectionTimeout: 3,
                         headers: {

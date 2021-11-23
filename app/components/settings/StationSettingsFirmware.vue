@@ -50,6 +50,14 @@
                                 class="btn btn-update btn-no-margin"
                                 @tap="downloadFirmware"
                             />
+
+                            <StackLayout class="quick-tip">
+                                <StackLayout orientation="horizontal" class="m-b-25">
+                                    <Image class="m-r-10" width="18" src="~/images/Icon_Quick_Tip.png"></Image>
+                                    <Label :text="_L('firmwareQuickTipTitle')" class="size-18 m-t-5" />
+                                </StackLayout>
+                                <Label :text="_L('firmwareCheckQuickTipBody')" class="size-16" lineHeight="4" textWrap="true" />
+                            </StackLayout>
                         </template>
 
                         <template v-if="currentState === State.updateAvailable">
@@ -105,7 +113,13 @@
                     </StackLayout>
                 </StackLayout>
 
-                <AbsoluteLayout row="0" col="0" class="text-center" v-if="currentState === State.updateDone" @tap="dismissUpdate">
+                <AbsoluteLayout
+                    row="0"
+                    col="0"
+                    class="text-center transparent-background"
+                    v-if="currentState === State.updateDone"
+                    @tap="dismissUpdate"
+                >
                     <GridLayout top="75" width="100%">
                         <StackLayout class="updated-dialog-container">
                             <Image width="60" src="~/images/Icon_Success.png"></Image>
@@ -483,5 +497,9 @@ Progress {
     background-position: center;
     background-size: contain;
     border-radius: 4;
+}
+
+.transparent-background {
+    background-color: transparent;
 }
 </style>

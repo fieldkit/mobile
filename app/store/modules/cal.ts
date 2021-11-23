@@ -43,7 +43,9 @@ export class CalibrateWater {
         public readonly value: WaterCalValue,
         public readonly compensations: { temperature: number | null },
         public readonly expectedPoints: number,
-        public readonly curveType: CurveType
+        public readonly curveType: CurveType,
+        public readonly uncalibrated: number,
+        public readonly factory: number
     ) {}
 }
 
@@ -120,15 +122,9 @@ const actions = (services: ServiceRef) => {
             const moduleId = payload.moduleId;
             const info = state.connected[payload.deviceId];
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
-            const reply = await services.queryStation().takeReadings(info.url, null, { throttle: false });
-            const lr = reply.liveReadings[0];
-            if (!lr) throw new Error(`no live readings in reply`);
-            const sm = lr.modules.find((m) => m.module.moduleId == moduleId);
-            if (!sm) throw new Error(`no module: ${JSON.stringify(payload)}`);
-            debug.log(`module: ${JSON.stringify(sm)}`);
-            const values = sm.readings.map((r) => r.value);
+            const values = [payload.uncalibrated];
             debug.log(`values: ${JSON.stringify(values)}`);
-            const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values);
+            const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values, [payload.factory]);
             commit(MutationTypes.CALIBRATION_POINT, { moduleId: moduleId, point: pcp });
 
             const pending = state.pending[moduleId];

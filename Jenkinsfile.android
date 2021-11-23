@@ -41,7 +41,7 @@ timestamps {
                     sh "mkdir -p private && cp -f $APP_ANDROID_SIGNING_DATA private/private.zip && (cd private && unzip -o private.zip)"
                 }
                 withCredentials([file(credentialsId: 'app-android-google-services', variable: 'APP_ANDROID_GOOGLE_SERVICES')]) {
-                    sh "cp -f $APP_ANDROID_GOOGLE_SERVICES app/App_Resources/Android"
+                    sh "cp -f $APP_ANDROID_GOOGLE_SERVICES App_Resources/Android"
 				}
                 withCredentials([file(credentialsId: 'nativescript-sqlite-commercial', variable: 'APP_NATIVESCRIPT_SQLITE')]) {
                     sh "cp -f $APP_NATIVESCRIPT_SQLITE ."
@@ -86,6 +86,8 @@ make android-release
                 archiveArtifacts artifacts: 'platforms/android/app/build/outputs/apk/*/*.apk, platforms/android/app/build/outputs/bundle/*/*.aab'
             }
 
+			refreshDistribution()
+
             notifySuccess()
         }
         catch (Exception e) {
@@ -93,6 +95,4 @@ make android-release
             throw e;
         }
     }
-
-    refreshDistribution()
 }

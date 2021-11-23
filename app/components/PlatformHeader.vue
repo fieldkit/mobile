@@ -26,6 +26,11 @@
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
+                <ActionItem v-show="icon" ios.position="right">
+                    <StackLayout class="normal-icon" @tap="raiseIcon">
+                        <Image height="25" :src="icon"></Image>
+                    </StackLayout>
+                </ActionItem>
             </template>
         </template>
         <template v-else>
@@ -86,7 +91,6 @@ export default Vue.extend({
             type: Boolean,
             default: false,
         },
-        // Deprecated
         canNavigateBack: {
             type: Boolean,
             default: true,

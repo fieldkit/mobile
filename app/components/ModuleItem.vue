@@ -38,7 +38,7 @@
         </FlexboxLayout>
 
         <WrapLayout v-if="closed[module.position] !== true" orientation="horizontal" class="m-t-5">
-            <Label v-if="!station.connected" :text="lastSeen()" width="100%" class="m-t-5 size-14 hint-color" />
+            <Label :text="lastSeen(module)" width="100%" class="m-t-5 size-14 hint-color" />
             <WrapLayout
                 v-for="sensor in module.sensors"
                 :key="sensor.id"
@@ -56,12 +56,6 @@
                         :class="moduleCalibration.canCalibrate && moduleCalibration.needsCalibration ? 'needs-calibration' : ''"
                     />
                     <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="unit size-12 m-t-10" />
-                    <Label
-                        :text="getUncalibratedDisplayReading(sensor)"
-                        verticalAlignment="bottom"
-                        class="size-12 m-l-20 m-t-10 uncalibrated"
-                        v-if="beta"
-                    />
                 </FlexboxLayout>
                 <Label :text="getSensorName(sensor)" textWrap="true" class="sensor-name size-14" />
             </WrapLayout>
@@ -112,13 +106,7 @@ export default Vue.extend({
             if (!_.isNumber(sensor.reading)) {
                 return "--";
             }
-            return sensor.reading.toFixed(1);
-        },
-        getUncalibratedDisplayReading(sensor: Sensor): string {
-            if (!_.isNumber(sensor.uncalibrated)) {
-                return "--";
-            }
-            return sensor.uncalibrated.toFixed(1);
+            return sensor.reading.toFixed(3);
         },
         getDisplayIcon(sensor: Sensor): string {
             if (sensor.trend) {
@@ -131,11 +119,16 @@ export default Vue.extend({
             }
             return "~/images/Icon_Neutral.png";
         },
-        lastSeen(): string {
+        lastSeen(module): string {
             if (!this.station || !this.station.lastSeen) {
                 return "";
             }
-            return _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
+
+            if (!this.station.connected) {
+                return _L("bayPosition") + module.position + " " + _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
+            }
+
+            return _L("bayPosition") + module.position;
         },
         getModuleName(): string {
             return _L(this.module.name + ".name");

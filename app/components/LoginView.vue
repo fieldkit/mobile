@@ -4,6 +4,8 @@
             <FlexboxLayout class="page login-page m-x-10" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
 
+                <InternetConnectionBanner />
+
                 <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
 
                 <RegisterForm v-else />
@@ -26,21 +28,30 @@ import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import { fullRoutes } from "@/routes";
 import { debug, _L } from "@/lib";
+import axios from "axios";
+import InternetConnectionBanner from "~/components/InternetConnectionBanner.vue";
 
 export default Vue.extend({
     name: "LoginView",
     components: {
+        InternetConnectionBanner,
         LoginForm,
         RegisterForm,
     },
     data(): {
         login: boolean;
         busy: boolean;
+        isOnline: boolean;
     } {
         return {
             login: true,
             busy: false,
+            isOnline: true,
         };
+    },
+    async mounted(): Promise<void> {
+        // eslint-disable-next-line
+        return await this.checkIfOnline();
     },
     methods: {
         toggle(): void {
@@ -54,17 +65,34 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
-                        debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
-                        // eslint-disable-next-line
-                        await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        if (!this.$services.PortalInterface().isTncValid()) {
+                            // eslint-disable-next-line
+                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
+                        } else {
+                            debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
+                            // eslint-disable-next-line
+                            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
+                        }
                     })
                     .catch((error) => {
                         debug.log("error", error);
                         this.busy = false;
+                        // eslint-disable-next-line
+                        if (!error.response) {
+                            return Dialogs.alert(_L("mustBeConnected"));
+                        }
                         return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {
                 this.busy = false;
+            }
+        },
+        async checkIfOnline(): Promise<void> {
+            try {
+                await axios.request({ url: "https://google.com", timeout: 3000 });
+                this.isOnline = true;
+            } catch (e) {
+                this.isOnline = false;
             }
         },
     },

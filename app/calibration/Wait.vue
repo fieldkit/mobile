@@ -1,78 +1,97 @@
 <template>
     <GridLayout rows="*,auto">
-        <StackLayout row="0">
-            <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
+        <ScrollView row="0">
+            <StackLayout>
+                <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
-            <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
+                <Label class="instruction-heading" :text="visual.heading" textWrap="true" />
 
-            <StackLayout class="form">
-                <Label col="1" class="m-t-5 m-l-5 m-b-20 size-16 text-center" :text="_L(form.label)" textWrap="true" v-if="!doneWaiting" />
-                <Label
-                    col="1"
-                    class="m-t-5 m-l-5 m-b-20 size-16 text-center"
-                    :text="_L('calibrationDoneHeading')"
-                    textWrap="true"
-                    v-if="doneWaiting"
-                />
+                <StackLayout class="form">
+                    <Label
+                        col="1"
+                        class="m-t-5 m-l-5 m-b-20 size-16 text-center"
+                        :text="_L(form.label)"
+                        textWrap="true"
+                        v-if="!doneWaiting"
+                    />
+                    <Label
+                        col="1"
+                        class="m-t-5 m-l-5 m-b-20 size-16 text-center"
+                        :text="_L('calibrationDoneHeading')"
+                        textWrap="true"
+                        v-if="doneWaiting"
+                    />
 
-                <GridLayout rows="auto,auto" columns="*" height="200">
-                    <StackLayout row="0" class="sensor-circular-border m-t-20" height="200" width="200">
-                        <Label
-                            :text="_L('calibrationSensorValue')"
-                            verticalAlignment="bottom"
-                            textAlignment="center"
-                            class="m-r-5 m-t-30 size-12 hint-text"
-                        />
-                        <FlexboxLayout verticalAlignment="middle" justifyContent="center" class="m-t-25">
-                            <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="m-r-5 m-t-5 size-14" />
-                            <StackLayout verticalAlignment="bottom">
-                                <Label :text="sensor.uncalibrated | prettyReading" class="size-26" />
-                                <Label :text="sensor.calibrated | prettyReading" v-if="beta" />
-                            </StackLayout>
-                        </FlexboxLayout>
-                    </StackLayout>
-                    <GridLayout row="0" height="75" verticalAlignment="bottom" backgroundColor="white">
-                        <StackLayout orientation="horizontal" class="input-wrap" verticalAlignment="top">
-                            <TextField
-                                width="34%"
-                                verticalAlignment="center"
-                                v-model="form.value"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                class="reference-field size-24 m-t-5 m-r-10"
-                                keyboardType="number"
-                                @textChange="onChange()"
-                            />
+                    <GridLayout rows="auto,auto" columns="*" height="200">
+                        <StackLayout row="0" class="sensor-circular-border m-t-20" height="200" width="200">
                             <Label
-                                verticalAlignment="center"
-                                width="66%"
-                                class="size-14"
-                                :text="_L('calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
-                                textWrap="true"
+                                :text="_L('calibrationSensorValue')"
+                                verticalAlignment="bottom"
+                                textAlignment="center"
+                                class="m-r-5 m-t-30 size-12 hint-text"
                             />
+                            <FlexboxLayout verticalAlignment="middle" justifyContent="center" class="m-t-25">
+                                <StackLayout verticalAlignment="bottom">
+                                    <Label :text="sensor.factory | prettyReading" class="size-26" />
+                                    <Label :text="sensor.uncalibrated | prettyReading" v-if="false && beta" />
+                                </StackLayout>
+                                <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="m-r-5 m-t-5 size-14" />
+                            </FlexboxLayout>
                         </StackLayout>
+                        <GridLayout row="0" height="80" verticalAlignment="bottom" backgroundColor="white">
+                            <StackLayout
+                                orientation="horizontal"
+                                class="input-wrap"
+                                verticalAlignment="top"
+                                :class="!form.valid ? 'input-border-error' : 'input-border'"
+                            >
+                                <TextField
+                                    width="34%"
+                                    verticalAlignment="center"
+                                    v-model="form.value"
+                                    autocorrect="false"
+                                    autocapitalizationType="none"
+                                    class="reference-field size-24"
+                                    keyboardType="number"
+                                    @textChange="onChange()"
+                                />
+                                <Label
+                                    verticalAlignment="center"
+                                    width="66%"
+                                    class="size-14"
+                                    :text="_L('calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
+                                    textWrap="true"
+                                />
+                            </StackLayout>
+                        </GridLayout>
                     </GridLayout>
-                </GridLayout>
-            </StackLayout>
-            <StackLayout orientation="horizontal" class="m-t-30" width="120">
-                <StackLayout width="40" verticalAlignment="middle" class="p-r-5">
-                    <Image width="30" src="~/images/Icon_Timer.png"></Image>
+                    <Label
+                        v-show="!form.valid"
+                        class="validation-error text-center"
+                        :text="_L('calibrationValidationError')"
+                        textWrap="true"
+                    />
                 </StackLayout>
-                <StackLayout width="80" class="p-l-10 timer" verticalAlignment="middle">
-                    <Label class="size-20 m-b-5" :text="elapsedMs | prettyDuration"></Label>
-                    <Label class="size-14" :text="elapsedMs | prettyDurationLabel"></Label>
+                <StackLayout orientation="horizontal" class="m-t-30" width="120">
+                    <StackLayout width="40" verticalAlignment="middle" class="p-r-5">
+                        <Image width="30" src="~/images/Icon_Timer.png"></Image>
+                    </StackLayout>
+                    <StackLayout width="80" class="p-l-10 timer" verticalAlignment="middle">
+                        <Label class="size-20 m-b-5" :text="elapsedMs | prettyDuration"></Label>
+                        <Label class="size-14" :text="elapsedMs | prettyDurationLabel"></Label>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout class="done-hint" v-if="doneWaiting">
+                    <Label class="size-16" :text="_L('calibrationDoneHint')" textWrap="true"></Label>
                 </StackLayout>
             </StackLayout>
-            <StackLayout class="done-hint" v-if="doneWaiting">
-                <Label class="size-16" :text="_L('calibrationDoneHint')" textWrap="true"></Label>
-            </StackLayout>
-        </StackLayout>
+        </ScrollView>
         <StackLayout row="1" class="buttons-container">
             <Button
                 class="btn btn-primary btn-padded"
                 :text="visual.done"
                 @tap="calibrate"
-                :isEnabled="form.valid && sensor.connected && !busy && (doneWaiting || debugging)"
+                :isEnabled="form.valid && !busy && (doneWaiting || debugging)"
             />
         </StackLayout>
     </GridLayout>
@@ -234,6 +253,7 @@ export default Vue.extend({
 .reference-field {
     text-align: right;
     border-color: white;
+    padding-right: 10;
 }
 
 .heading {
@@ -249,10 +269,17 @@ export default Vue.extend({
 
 .input-wrap {
     border-width: 2;
-    border-color: $fk-gray-lightest;
     border-radius: 22;
     height: 60;
-    width: 260;
+    width: 300;
+}
+
+.input-border {
+    border-color: $fk-gray-lightest;
+}
+
+.input-border-error {
+    border-color: $fk-tertiary-red;
 }
 
 .hint-text {
@@ -273,6 +300,13 @@ export default Vue.extend({
 .timer {
     border-left-width: 1;
     border-left-color: $fk-gray-lighter;
+}
+
+.validation-error {
+    color: $fk-tertiary-red;
+    margin-top: 5;
+    padding-top: 5;
+    padding-bottom: 5;
 }
 
 // Declared in common

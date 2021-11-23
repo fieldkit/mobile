@@ -1,5 +1,7 @@
 <template>
     <StackLayout class="labeled-text-field">
+        <Label v-if="alwaysShowLabel" :text="label" width="100%" />
+
         <Label ref="label" :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" width="100%" />
 
         <GridLayout rows="auto" :columns="hasExtras ? '*, 45' : '*'" :class="containerClass">
@@ -47,6 +49,10 @@ export default Vue.extend({
         label: {
             type: String,
             default: "",
+        },
+        alwaysShowLabel: {
+            type: Boolean,
+            default: false,
         },
         keyboardType: {
             type: String,

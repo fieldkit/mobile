@@ -17,6 +17,7 @@ export class Sensor {
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly uncalibrated: number | null,
+        public readonly factory: number | null,
         public readonly trend: number | null
     ) {}
 }
@@ -250,7 +251,9 @@ export interface Schedules {
 }
 
 export interface LoraSettings {
-    appEui: Uint8Array;
+    frequencyBand: number;
+    deviceEui: Uint8Array;
+    joinEui: Uint8Array;
     appKey: Uint8Array;
 }
 

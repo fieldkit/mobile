@@ -4,6 +4,7 @@
         <SettingsLayout>
             <SettingsItemText :link="'helpAppVersion'" :text="'appSettings.help.appVersion'" :cssClass="'top-bordered-item'" />
             <SettingsItemSlider
+                v-if="false"
                 :title="'appSettings.help.crashReports'"
                 v-model="currentSettings.help.crashReports"
                 v-on:change="saveSettings"

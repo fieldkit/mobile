@@ -26,6 +26,7 @@ function getBlankLocalConfig(): LocalConfig {
             style: "",
         },
         lossBufferDelay: 0,
+        tncDate: 0,
     };
 }
 

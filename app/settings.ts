@@ -2,38 +2,38 @@ const settings = {
     data: {
         autoSyncStation: true,
         autoSyncPortal: true,
-        mobileDataUsage: true
+        mobileDataUsage: true,
     },
     notifications: {
-        pushNotifications: true
+        pushNotifications: true,
     },
     units: {
-        unitSystem: 'imperial',
-        temperature: 'c',
-        unitName: 'mgl',
-        pressure: 'kPa',
-        velocity: 'kPa'
+        unitSystem: "imperial",
+        temperature: "c",
+        unitName: "mgl",
+        pressure: "kPa",
+        velocity: "kPa",
     },
     permissions: {
         location: true,
         files: true,
         camera: true,
-        microphone: true
+        microphone: true,
     },
     appearance: {
         fontSize: 2,
-        language: 'english',
-        darkMode: false
+        language: "en",
+        darkMode: false,
     },
     help: {
         appVersion: {
             updates: false,
-            downloadUpdates: true
+            downloadUpdates: true,
         },
         crashReports: true,
-        tutorialGuide: true
+        tutorialGuide: true,
     },
-    legal: {}
+    legal: {},
 };
 
 export default settings;

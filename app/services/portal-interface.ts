@@ -5,6 +5,7 @@ import { debug, AuthenticationError } from "@/lib";
 import { ActionTypes, MutationTypes, Download, FileTypeUtils, CurrentUser } from "@/store";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 import { Buffer } from "buffer";
+import Config from "@/config";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
 
@@ -108,12 +109,14 @@ export interface AddUserFields {
     name: string;
     email: string;
     password: string;
+    tncAccept: boolean;
 }
 
 export interface PortalCurrentUser {
     name: string;
     id: number;
     email: string;
+    tncDate: number;
 }
 
 export default class PortalInterface {
@@ -140,11 +143,27 @@ export default class PortalInterface {
     }
 
     private getCurrentToken(): string | null {
-        return this.currentUser?.token ?? null;
+        if (this.isTncValid()) {
+            return this.currentUser?.token ?? null;
+        } else {
+            debug.log("portal query: tnc invalid");
+        }
+        return null;
     }
 
     public isLoggedIn(): boolean {
         return this.currentUser != null;
+    }
+
+    public isTncValid(): boolean {
+        if (Config.beta) {
+            debug.log("portal query: tnc valid", this.currentUser?.tncDate);
+            if (this.currentUser != null && this.currentUser.tncDate != null) {
+                return this.currentUser.tncDate >= Config.tncDate;
+            }
+        }
+
+        return true;
     }
 
     private requireToken(): string {
@@ -193,6 +212,7 @@ export default class PortalInterface {
             transmission: transmission,
             usedAt: new Date(),
             lastSync: null,
+            tncDate: user.tncDate,
         };
     }
 
@@ -237,8 +257,38 @@ export default class PortalInterface {
                 name: user.name,
                 email: user.email,
                 password: user.password,
+                tncAccept: user.tncAccept,
             },
         });
+    }
+
+    public async accept(user: CurrentUser): Promise<void> {
+        if (!user.token) throw new Error(`no token for account`);
+
+        let betaSkip404Errors = false;
+
+        await this.query({
+            authenticated: true,
+            token: user.token,
+            method: "PATCH",
+            url: `/users/${user.portalId}/accept-tnc`,
+            data: {
+                accept: true,
+            },
+        }).catch((error: AxiosError) => {
+            // temp fix until prod deploy
+            if (Config.beta && error.response?.status === 404) {
+                betaSkip404Errors = true;
+            }
+        });
+
+        const self = await this.whoAmI(user.token);
+
+        if (betaSkip404Errors) {
+            self.tncDate = Config.tncDate;
+        }
+
+        this.store.commit(MutationTypes.SET_CURRENT_USER, self);
     }
 
     public async addStation(user: CurrentUser, data: AddStationFields): Promise<PortalStation> {

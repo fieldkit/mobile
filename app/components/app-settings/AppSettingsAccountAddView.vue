@@ -2,6 +2,7 @@
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
         <SettingsLayout class="m-x-10">
+            <InternetConnectionBanner />
             <GridLayout rows="*,auto">
                 <LoginForm row="0" v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
@@ -24,12 +25,15 @@ import RegisterForm from "../RegisterForm.vue";
 import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
-import { debug } from "@/lib";
+import {_L, debug} from "@/lib";
+import { fullRoutes } from "~/routes";
+import InternetConnectionBanner from '~/components/InternetConnectionBanner.vue';
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
     components: {
         ...SharedComponents,
+        InternetConnectionBanner,
         LoginForm,
         RegisterForm,
     },
@@ -53,10 +57,19 @@ export default Vue.extend({
                 await this.$services
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
-                    .then(() => this.$navigateBack())
+                    .then(async () => {
+                        if (!this.$services.PortalInterface().isTncValid()) {
+                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
+                        } else {
+                            this.$navigateBack();
+                        }
+                    })
                     .catch((error) => {
                         debug.log("error", error);
                         this.busy = false;
+                        if (!error.response) {
+                            return Dialogs.alert(_L('mustBeConnected'));
+                        }
                         return Dialogs.alert(_L("loginFailed"));
                     });
             } finally {
