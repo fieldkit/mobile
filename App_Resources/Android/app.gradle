@@ -10,19 +10,21 @@
 // create a file named before-plugins.gradle in the current directory and place it there
 
 android {
-    defaultConfig {
-        minSdkVersion 19
-        generatedDensities = []
+	defaultConfig {
+		targetSdkVersion 30
+		compileSdkVersion 30
+		minSdkVersion 19
+		generatedDensities = []
 		ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
-    }
+	}
 
-    aaptOptions {
-        additionalParameters "--no-version-vectors"
-    }
+	aaptOptions {
+		additionalParameters "--no-version-vectors"
+	}
 
-    defaultConfig {
-        multiDexEnabled true
-    }
+	defaultConfig {
+		multiDexEnabled true
+	}
 }
 
 dependencies {
