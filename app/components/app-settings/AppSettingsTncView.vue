@@ -10,8 +10,8 @@
             <ScrollView row="1" @scroll="onScroll">
                 <StackLayout class="p-20">
                     <StackLayout ref="tncLayout">
-                        <HtmlView :html="_L('appSettings.tnc.body')" v-if="isIOS"/>
-                        <WebView :src="_L('appSettings.tnc.body')" v-if="isAndroid"/>
+                        <HtmlView v-if="isIOS" :html="_L('appSettings.tnc.body')" />
+                        <WebView v-if="isAndroid" :src="_L('appSettings.tnc.body')" />
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
