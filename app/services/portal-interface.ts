@@ -156,11 +156,9 @@ export default class PortalInterface {
     }
 
     public isTncValid(): boolean {
-        if (Config.beta) {
-            debug.log("portal query: tnc valid", this.currentUser?.tncDate);
-            if (this.currentUser != null && this.currentUser.tncDate != null) {
-                return this.currentUser.tncDate >= Config.tncDate;
-            }
+        debug.log("portal query: tnc valid", this.currentUser?.tncDate);
+        if (this.currentUser != null && this.currentUser.tncDate != null) {
+            return this.currentUser.tncDate >= Config.tncDate;
         }
 
         return true;
