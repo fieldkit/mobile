@@ -3506,7 +3506,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-big-integer@1.6.x, big-integer@^1.6.44, big-integer@^1.6.7:
+big-integer@1.6.x, big-integer@^1.6.7:
   version "1.6.51"
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.51.tgz#0df92a5d9880560d3ff2d5fd20245c889d130686"
   integrity sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==
@@ -3652,12 +3652,11 @@ bplist-parser@0.1.1:
   dependencies:
     big-integer "^1.6.7"
 
-bplist-parser@0.2.0:
+bplist-parser@0.2.0, "bplist-parser@https://github.com/telerik/node-bplist-parser/tarball/master":
   version "0.2.0"
-  resolved "https://registry.yarnpkg.com/bplist-parser/-/bplist-parser-0.2.0.tgz#43a9d183e5bf9d545200ceac3e712f79ebbe8d0e"
-  integrity sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==
+  resolved "https://github.com/telerik/node-bplist-parser/tarball/master#5fb055968d4aaad9068bea64332151898287b456"
   dependencies:
-    big-integer "^1.6.44"
+    big-integer "^1.6.7"
 
 bplist-parser@0.3.0:
   version "0.3.0"
@@ -3665,12 +3664,6 @@ bplist-parser@0.3.0:
   integrity sha512-zgmaRvT6AN1JpPPV+S0a1/FAtoxSreYDccZGIqEMSvZl9DMe70mJ7MFzpxa1X+gHVdkToE2haRUHHMiW1OdejA==
   dependencies:
     big-integer "1.6.x"
-
-"bplist-parser@https://github.com/telerik/node-bplist-parser/tarball/master":
-  version "0.2.0"
-  resolved "https://github.com/telerik/node-bplist-parser/tarball/master#5fb055968d4aaad9068bea64332151898287b456"
-  dependencies:
-    big-integer "^1.6.7"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -6220,9 +6213,9 @@ fluent-ffmpeg@^2.1.2:
     which "^1.1.1"
 
 follow-redirects@^1.0.0, follow-redirects@^1.14.0, follow-redirects@^1.3.0:
-  version "1.14.5"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.5.tgz#f09a5848981d3c772b5392309778523f8d85c381"
-  integrity sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==
+  version "1.14.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
+  integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
 
 font-finder@1.1.0:
   version "1.1.0"
