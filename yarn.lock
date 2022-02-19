@@ -3506,7 +3506,7 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-big-integer@1.6.x, big-integer@^1.6.44, big-integer@^1.6.7:
+big-integer@1.6.x, big-integer@^1.6.7:
   version "1.6.51"
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.51.tgz#0df92a5d9880560d3ff2d5fd20245c889d130686"
   integrity sha512-GPEid2Y9QU1Exl1rpO9B2IPJGHPSupF5GnVIP0blYvNOMer2bTvSWs1jGOUg04hTmu67nmLsQ9TBo1puaotBHg==
@@ -3652,12 +3652,11 @@ bplist-parser@0.1.1:
   dependencies:
     big-integer "^1.6.7"
 
-bplist-parser@0.2.0:
+bplist-parser@0.2.0, "bplist-parser@https://github.com/telerik/node-bplist-parser/tarball/master":
   version "0.2.0"
-  resolved "https://registry.yarnpkg.com/bplist-parser/-/bplist-parser-0.2.0.tgz#43a9d183e5bf9d545200ceac3e712f79ebbe8d0e"
-  integrity sha512-z0M+byMThzQmD9NILRniCUXYsYpjwnlO8N5uCFaCqIOpqRsJCrQL9NK3JsD67CN5a08nF5oIL2bD6loTdHOuKw==
+  resolved "https://github.com/telerik/node-bplist-parser/tarball/master#5fb055968d4aaad9068bea64332151898287b456"
   dependencies:
-    big-integer "^1.6.44"
+    big-integer "^1.6.7"
 
 bplist-parser@0.3.0:
   version "0.3.0"
@@ -3665,12 +3664,6 @@ bplist-parser@0.3.0:
   integrity sha512-zgmaRvT6AN1JpPPV+S0a1/FAtoxSreYDccZGIqEMSvZl9DMe70mJ7MFzpxa1X+gHVdkToE2haRUHHMiW1OdejA==
   dependencies:
     big-integer "1.6.x"
-
-"bplist-parser@https://github.com/telerik/node-bplist-parser/tarball/master":
-  version "0.2.0"
-  resolved "https://github.com/telerik/node-bplist-parser/tarball/master#5fb055968d4aaad9068bea64332151898287b456"
-  dependencies:
-    big-integer "^1.6.7"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -13920,9 +13913,9 @@ url-parse-lax@^3.0.0:
     prepend-http "^2.0.0"
 
 url-parse@^1.4.3, url-parse@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.3.tgz#71c1303d38fb6639ade183c2992c8cc0686df862"
-  integrity sha512-IIORyIQD9rvj0A4CLWsHkBBJuNqWpFQe224b6j9t/ABmquIS0qDU2pY6kl6AuOrL5OkCXHMCFNe1jBcuAggjvQ==
+  version "1.5.7"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.7.tgz#00780f60dbdae90181f51ed85fb24109422c932a"
+  integrity sha512-HxWkieX+STA38EDk7CE9MEryFeHCKzgagxlGvsdS7WBImq9Mk+PGwiT56w82WI3aicwJA8REp42Cxo98c8FZMA==
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
