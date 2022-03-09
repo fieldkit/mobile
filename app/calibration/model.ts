@@ -255,22 +255,25 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
     }
 
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
-        const n = pending.points.length;
+        const len = pending.points.length;
         const x = pending.points.map((p) => p.uncalibrated[0]);
         const y = pending.points.map((p) => p.references[0]);
-        const indices = _.range(0, n);
-        const xSum = _.sum(x); // 0
-        const ySum = _.sum(y); // 1
-        const xxySum = _.sum(indices.map((i) => x[i] * x[i] * y[i])); // 2
-        const yLogYSum = _.sum(indices.map((i) => y[i] * Math.log(y[i]))); // 3
-        const xyLogYSum = _.sum(indices.map((i) => x[i] * y[i] * Math.log(y[i]))); // 4
-        const xySum = _.sum(indices.map((i) => x[i] * y[i])); // 5
 
-        const denominator = ySum * xxySum - xySum * xySum;
-        const a = Math.exp((xxySum * yLogYSum - xySum * xyLogYSum) / denominator);
-        const b = (ySum * xyLogYSum - xySum * yLogYSum) / denominator;
+        const indices = _.range(0, len);
+        const xSum = _.sum(x.map((x) => Math.log(x))); // sum0
+        const xySum = _.sum(indices.map((i) => Math.log(x[i]) * Math.log(y[i]))); // sum1
+        const ySum = _.sum(y.map((y) => Math.log(y))); // sum2
+        const xSquaredSum = _.sum(indices.map((i) => x[i] * x[i])); // sum3
 
-        debug.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxySum, yLogYSum, xyLogYSum, xySum })}`);
+        const sum0 = ySum;
+        const sum1 = xySum;
+        const sum2 = ySum;
+        const sum3 = xSquaredSum;
+
+        const b = (len * sum1 - sum0 * sum2) / (len * sum3 - sum0 ** 2);
+        const a = Math.exp((sum2 - b * sum0) / len);
+
+        debug.log(`cal:exponential ${JSON.stringify({ x, y, len, xSum, ySum, xySum, xSquaredSum })}`);
         if (!acceptableCoefficient(a)) throw new CalibrationError(`calibration failed: a=${a}`);
         if (!acceptableCoefficient(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [a, b] });
