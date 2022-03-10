@@ -99,7 +99,7 @@ describe("Syncing", () => {
         return ["downloads", deviceId, getPathTimestamp(time), FileTypeUtils.toString(fileType) + ".fkpb"].join("/");
     }
 
-    describe("one station", () => {
+    describe.skip("one station", () => {
         it("first sync, should download all of both files", async () => {
             expect.assertions(2);
 
