@@ -121,8 +121,8 @@ export class CalibrationStrategy extends CalibrationStep {
      */
     public get curveType(): DataProto.CurveType {
         if (/modules.water.ec/.test(this.moduleKey)) {
-            debug.log(`curve type: module-key=${this.moduleKey}: exponential`);
-            return DataProto.CurveType.CURVE_EXPONENTIAL;
+            debug.log(`curve type: module-key=${this.moduleKey}: power`);
+            return DataProto.CurveType.CURVE_POWER;
         }
         debug.log(`curve type: module-key=${this.moduleKey}: linear`);
         return DataProto.CurveType.CURVE_LINEAR;
@@ -249,9 +249,9 @@ function acceptableOffset(value: number): boolean {
     return true;
 }
 
-export class ExponentialCalibrationCurve extends CalibrationCurve {
+export class PowerCalibrationCurve extends CalibrationCurve {
     public get curveType(): DataProto.CurveType {
-        return DataProto.CurveType.CURVE_EXPONENTIAL;
+        return DataProto.CurveType.CURVE_POWER;
     }
 
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
@@ -260,20 +260,15 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
         const y = pending.points.map((p) => p.references[0]);
 
         const indices = _.range(0, len);
-        const xSum = _.sum(x.map((x) => Math.log(x))); // sum0
-        const xySum = _.sum(indices.map((i) => Math.log(x[i]) * Math.log(y[i]))); // sum1
-        const ySum = _.sum(y.map((y) => Math.log(y))); // sum2
-        const xSquaredSum = _.sum(indices.map((i) => Math.log(x[i]) * Math.log(x[i]))); // sum3
+        const xSum = _.sum(x.map((x) => Math.log(x)));
+        const xySum = _.sum(indices.map((i) => Math.log(x[i]) * Math.log(y[i])));
+        const ySum = _.sum(y.map((y) => Math.log(y)));
+        const xSquaredSum = _.sum(indices.map((i) => Math.log(x[i]) * Math.log(x[i])));
 
-        const sum0 = xSum;
-        const sum1 = xySum;
-        const sum2 = ySum;
-        const sum3 = xSquaredSum;
+        const b = (len * xySum - xSum * ySum) / (len * xSquaredSum - xSum ** 2);
+        const a = Math.exp((ySum - b * xSum) / len);
 
-        const b = (len * sum1 - sum0 * sum2) / (len * sum3 - sum0 ** 2);
-        const a = Math.exp((sum2 - b * sum0) / len);
-
-        debug.log(`cal:exponential ${JSON.stringify({ x, y, len, xSum, ySum, xySum, xSquaredSum })}`);
+        debug.log(`cal:power ${JSON.stringify({ x, y, len, xSum, ySum, xySum, xSquaredSum })}`);
         if (!acceptableCoefficient(a)) throw new CalibrationError(`calibration failed: a=${a}`);
         if (!acceptableCoefficient(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [a, b] });
@@ -289,6 +284,7 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const n = pending.points.length;
         const x = pending.points.map((p) => p.uncalibrated[0]);
         const y = pending.points.map((p) => p.references[0]);
+
         const indices = _.range(0, n);
         const xMean = _.mean(x);
         const yMean = _.mean(y);
@@ -296,8 +292,10 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const denomParts = indices.map((i) => (x[i] - xMean) ** 2);
         const numer = _.sum(numerParts);
         const denom = _.sum(denomParts);
+
         const m = numer / denom;
         const b = yMean - m * xMean;
+
         debug.log(`cal:linear ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
         if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
         if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
@@ -307,8 +305,8 @@ export class LinearCalibrationCurve extends CalibrationCurve {
 
 export function getCurveForSensor(curveType: DataProto.CurveType): CalibrationCurve {
     switch (curveType) {
-        case DataProto.CurveType.CURVE_EXPONENTIAL:
-            return new ExponentialCalibrationCurve();
+        case DataProto.CurveType.CURVE_POWER:
+            return new PowerCalibrationCurve();
     }
     return new LinearCalibrationCurve();
 }
