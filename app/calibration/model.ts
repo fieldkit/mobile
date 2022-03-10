@@ -265,7 +265,7 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
         const ySum = _.sum(y.map((y) => Math.log(y))); // sum2
         const xSquaredSum = _.sum(indices.map((i) => x[i] * x[i])); // sum3
 
-        const sum0 = ySum;
+        const sum0 = xSum;
         const sum1 = xySum;
         const sum2 = ySum;
         const sum3 = xSquaredSum;
