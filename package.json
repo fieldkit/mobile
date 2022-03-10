@@ -29,7 +29,6 @@
     "deepmerge": "^4.0.0",
     "exponential-backoff": "^3.1.0",
     "fk-app-protocol": "github:fieldkit/app-protocol",
-    "fk-atlas-protocol": "git+https://github.com/fieldkit/atlas-protocol.git#main",
     "fk-data-protocol": "github:fieldkit/data-protocol",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
