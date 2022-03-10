@@ -37,7 +37,8 @@
             android:label="@string/title_activity_kimera"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|locale|uiMode"
             android:theme="@style/LaunchScreenTheme"
-			android:windowSoftInputMode="stateHidden|adjustResize">
+			android:windowSoftInputMode="stateHidden|adjustResize"
+			android:exported="false">
 
             <meta-data android:name="SET_THEME_ON_LAUNCH" android:resource="@style/AppTheme" />
 
