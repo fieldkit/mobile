@@ -3,6 +3,7 @@ import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module } from "../store/types";
 import { debug, _L, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
+import { ExpReg } from "exponential-regression";
 
 export type ModuleConfiguration = DataProto.ModuleConfiguration;
 
@@ -247,6 +248,25 @@ function acceptableCoefficient(value: number): boolean {
 function acceptableOffset(value: number): boolean {
     if (value === null || isNaN(value)) return false;
     return true;
+}
+
+export class ExponentialCalibrationCurve extends CalibrationCurve {
+    public get curveType(): DataProto.CurveType {
+        return DataProto.CurveType.CURVE_EXPONENTIAL;
+    }
+
+    public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
+        const x = pending.points.map((p) => p.uncalibrated[0]);
+        const y = pending.points.map((p) => p.references[0]);
+        const coefficients = ExpReg.solve(x, y);
+
+        debug.log(`cal:exponential ${JSON.stringify({ x, y, coefficients })}`);
+
+        if (!acceptableOffset(coefficients.a)) throw new CalibrationError(`calibration failed: ${JSON.stringify(coefficients)}`);
+        if (!acceptableCoefficient(coefficients.b)) throw new CalibrationError(`calibration failed: ${JSON.stringify(coefficients)}`);
+        if (!acceptableCoefficient(coefficients.c)) throw new CalibrationError(`calibration failed: ${JSON.stringify(coefficients)}`);
+        return new DataProto.CalibrationCoefficients({ values: [coefficients.a, coefficients.b, coefficients.c] });
+    }
 }
 
 export class PowerCalibrationCurve extends CalibrationCurve {
