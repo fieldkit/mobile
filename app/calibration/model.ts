@@ -327,6 +327,11 @@ export function getCurveForSensor(curveType: DataProto.CurveType): CalibrationCu
     switch (curveType) {
         case DataProto.CurveType.CURVE_POWER:
             return new PowerCalibrationCurve();
+        case DataProto.CurveType.CURVE_EXPONENTIAL:
+            return new ExponentialCalibrationCurve();
+        case DataProto.CurveType.CURVE_LINEAR:
+            return new LinearCalibrationCurve();
+        default:
+            throw new Error(`unkonwn calibration curve type`);
     }
-    return new LinearCalibrationCurve();
 }
