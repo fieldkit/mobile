@@ -71,6 +71,8 @@ android-release: setup
 	cd $(APP) && ns build android --release --env.verbose --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 ios-release: setup
+	cat ~/.ssh/known_hosts || true
+	ssh-keyscan github.com
 	security list-keychains
 	security lock-keychain login.keychain
 	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
