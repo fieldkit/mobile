@@ -32,6 +32,8 @@
     "fk-app-protocol": "github:fieldkit/app-protocol",
     "fk-data-protocol": "github:fieldkit/data-protocol",
     "lodash": "^4.17.21",
+    "mathjs": "^10.4.2",
+    "ml-levenberg-marquardt": "^4.1.0",
     "moment": "^2.29.1",
     "nativescript-audio": "^6.2.6",
     "nativescript-clipboard": "^2.1.1",

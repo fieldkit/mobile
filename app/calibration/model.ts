@@ -3,7 +3,7 @@ import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module } from "../store/types";
 import { debug, _L, notEmpty, unixNow, CalibrationError } from "@/lib";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
-import { ExpReg } from "exponential-regression";
+import { levenbergMarquardt } from "ml-levenberg-marquardt";
 
 export type ModuleConfiguration = DataProto.ModuleConfiguration;
 
@@ -258,7 +258,29 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
         const x = pending.points.map((p) => p.uncalibrated[0]);
         const y = pending.points.map((p) => p.references[0]);
-        const coefficients = ExpReg.solve(x, y);
+
+        function calibrationFunction([a, b, c]: [number, number, number]): (v: number) => number {
+            return (t) => a + b * Math.exp(t * c);
+        }
+
+        const data = {
+            x: x,
+            y: y,
+        };
+
+        // Pete 4/6/2022
+        const options = {
+            damping: 1.5,
+            initialValues: _.clone([1000, 1500000, -7]),
+            gradientDifference: 10e-2,
+            maxIterations: 100,
+            errorTolerance: 10e-3,
+        };
+
+        const fittedParams = levenbergMarquardt(data, calibrationFunction, options);
+
+        const [a, b, c] = fittedParams.parameterValues;
+        const coefficients = { a, b, c };
 
         debug.log(`cal:exponential ${JSON.stringify({ x, y, coefficients })}`);
 
