@@ -6512,12 +6512,12 @@
 
 "fk-app-protocol@github:fieldkit/app-protocol":
   "integrity" "sha512-zG0oDd6nmXWv2OtGAmoddXQELrg/YBtTujYABMnxmdI0e0X/XshvtMp+RUfXquQ7vWoEI65N9xOvfLg9F4+xDg=="
-  "resolved" "git+ssh://git@github.com/fieldkit/app-protocol.git#ecbe14b02998e8c3f9c4e3dce082d2ad54ef9469"
+  "resolved" "git+https://git@github.com/fieldkit/app-protocol.git#ecbe14b02998e8c3f9c4e3dce082d2ad54ef9469"
   "version" "0.0.1"
 
 "fk-data-protocol@github:fieldkit/data-protocol":
   "integrity" "sha512-LiO4esApmEJrSev8AbJ5Rni5Uso9Vtn4/T4OOW07ynsVMtpqHGT2qE3JWtsz+ZO5fbj0p+VkQ2/5wwJCRmPaLQ=="
-  "resolved" "git+ssh://git@github.com/fieldkit/data-protocol.git#8d5368ab0773876f4fafa403f6a3401f1053e5da"
+  "resolved" "git+https://git@github.com/fieldkit/data-protocol.git#8d5368ab0773876f4fafa403f6a3401f1053e5da"
   "version" "0.0.1"
 
 "flat-cache@^3.0.4":
