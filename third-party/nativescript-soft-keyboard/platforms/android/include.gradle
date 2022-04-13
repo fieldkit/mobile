@@ -1,10 +1,13 @@
 repositories {
   jcenter()
   mavenCentral()
+  maven {
+    url  "https://jitpack.io"
+  }
 }
 
 dependencies {
-  implementation 'com.hold1:keyboardheightprovider:0.0.9'
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.+"
+  implementation 'com.github.liuy97:KeyboardHeightProvider:1.0.1'
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.+"
   implementation 'com.jakewharton.timber:timber:4.7.1'
 }
