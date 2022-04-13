@@ -6,10 +6,9 @@ Application.ios.addNotificationObserver(UIKeyboardDidShowNotification, (event) =
         softKeyboardCallback(height);
     }
 });
-Application.ios.addNotificationObserver(UIKeyboardWillHideNotification, (event) => {
-    const height = 0;
+Application.ios.addNotificationObserver(UIKeyboardDidHideNotification, (event) => {
     if (softKeyboardCallback !== null) {
-        softKeyboardCallback(height);
+        softKeyboardCallback(0);
     }
 });
 
