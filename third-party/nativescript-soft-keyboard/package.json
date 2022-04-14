@@ -1,42 +1,19 @@
 {
-  "_args": [
-    [
-      "nativescript-soft-keyboard@2.0.2",
-      "/home/jlewallen/fieldkit/mobile"
-    ]
-  ],
-  "_from": "nativescript-soft-keyboard@2.0.2",
-  "_id": "nativescript-soft-keyboard@2.0.2",
-  "_inBundle": false,
-  "_integrity": "sha512-sotuT4COS4mJTQZUVF8WBk0vtmhBLWsj5pSEp1MtGPCejLBTPotLT3q+g4g3rvLbps0r112Q6a4frjttmRqoXQ==",
-  "_location": "/nativescript-soft-keyboard",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "nativescript-soft-keyboard@2.0.2",
-    "name": "nativescript-soft-keyboard",
-    "escapedName": "nativescript-soft-keyboard",
-    "rawSpec": "2.0.2",
-    "saveSpec": null,
-    "fetchSpec": "2.0.2"
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/nativescript-soft-keyboard/-/nativescript-soft-keyboard-2.0.2.tgz",
-  "_spec": "2.0.2",
-  "_where": "/home/jlewallen/fieldkit/mobile",
-  "author": {
-    "name": "Yong Liu",
-    "email": "liuy97@gmail.com"
-  },
-  "bootstrapper": "@nativescript/plugin-seed",
-  "bugs": {
-    "url": "https://github.com/liuy97/nativescript-soft-keyboard/issues"
-  },
+  "name": "nativescript-soft-keyboard",
+  "version": "2.1.0",
   "description": "Detect soft keyboard Height",
-  "homepage": "https://github.com/liuy97/nativescript-soft-keyboard",
+  "main": "index",
+  "typings": "index.d.ts",
+  "nativescript": {
+    "platforms": {
+      "ios": "6.0.0",
+      "android": "6.0.0"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liuy97/nativescript-soft-keyboard.git"
+  },
   "keywords": [
     "keyboard",
     "soft keyboard",
@@ -46,19 +23,15 @@
     "Android",
     "iOS"
   ],
+  "author": {
+    "name": "Yong Liu",
+    "email": "liuy97@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/liuy97/nativescript-soft-keyboard/issues"
+  },
   "license": "Apache-2.0",
-  "main": "index.js",
-  "name": "nativescript-soft-keyboard",
-  "nativescript": {
-    "platforms": {
-      "ios": "6.0.0",
-      "android": "6.0.0"
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/liuy97/nativescript-soft-keyboard.git"
-  },
-  "typings": "index.d.ts",
-  "version": "2.0.2"
+  "homepage": "https://github.com/liuy97/nativescript-soft-keyboard",
+  "readmeFilename": "README.md",
+  "bootstrapper": "@nativescript/plugin-seed"
 }
