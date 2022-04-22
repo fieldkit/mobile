@@ -124,6 +124,6 @@
   },
   "main": "app/app",
   "nativescript": {
-    "id": "com.fieldkit"
+    "id": "org.fieldkit.fieldkit"
   }
 }
