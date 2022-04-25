@@ -166,6 +166,7 @@ async function initialize(): Promise<void> {
     Trace.enable();
     Trace.addCategories(Trace.categories.Navigation);
     Trace.addCategories(Trace.categories.NativeLifecycle);
+    Trace.addCategories(Trace.categories.Debug);
     Trace.clearWriters();
     Trace.addWriter(new DebugConsoleWriter(getTaskId));
     Trace.addWriter(logFileWriter);
