@@ -117,6 +117,7 @@ ios-debug: setup
 clean:
 	rm -rf $(APP)/node_modules
 	rm -rf $(APP)/platforms
+	rm -rf $(APP)/hooks/before-*
 	@echo Leaving $(APP)/hooks because of firebase-hack.
 
 images:
