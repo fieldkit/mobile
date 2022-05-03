@@ -43,7 +43,7 @@
                         </FlexboxLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.isDownloadReady" rows="auto" columns="*,30" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.isDownloadReady" rows="auto" columns="*,30" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                             <Label
                                 v-if="sync.readingsReadyDownload > 1"
@@ -62,7 +62,7 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.isDownloaded" rows="auto" columns="*,30" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.isDownloaded" rows="auto" columns="*,30" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                             <Label
                                 v-if="sync.readingsDownloaded > 1"
@@ -81,45 +81,49 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.isCopying" rows="auto" columns="*,auto,30" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.isCopying" rows="auto" columns="*,auto,30" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
-                            <Label v-if="sync.readingsCopying > 1" :text="sync.readingsCopying + ' Readings'" class="readings-label" />
-                            <Label v-if="sync.readingsCopying == 1" :text="sync.readingsCopying + ' Reading'" class="readings-label" />
-                            <Label v-if="sync.isDownloading" text="Downloading" class="transfer-label" />
-                            <Label v-if="sync.isUploading" text="Uploading" class="transfer-label" />
+                            <Label v-show="sync.readingsCopying > 1" :text="sync.readingsCopying + ' Readings'" class="readings-label" />
+                            <Label v-show="sync.readingsCopying == 1" :text="sync.readingsCopying + ' Reading'" class="readings-label" />
+                            <Label v-show="sync.isDownloading" text="Downloading" class="transfer-label" />
+                            <Label v-show="sync.isUploading" text="Uploading" class="transfer-label" />
                         </StackLayout>
                         <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
-                            <Label v-if="sync.progress" :text="sync.progress.percentage" class="transfer-progress" />
+                            <Label
+                                v-if="sync.progress && sync.progress.percentage"
+                                :text="sync.progress.percentage"
+                                class="transfer-progress"
+                            />
                         </StackLayout>
                         <StackLayout row="0" col="2" class="container-icon" orientation="horizontal">
                             <Image class="icon-button" width="20" src="~/images/Icon_Syncing.png" />
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.isUploadReady" rows="auto" columns="*,30" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.isUploadReady" rows="auto" columns="*,30" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                             <Label
-                                v-if="sync.readingsReadyUpload > 1"
+                                v-show="sync.readingsReadyUpload > 1"
                                 :text="sync.readingsReadyUpload + ' Readings'"
                                 class="readings-label"
                             />
                             <Label
-                                v-if="sync.readingsReadyUpload == 1"
+                                v-show="sync.readingsReadyUpload == 1"
                                 :text="sync.readingsReadyUpload + ' Reading'"
                                 class="readings-label"
                             />
-                            <Label v-if="userLoggedIn" :text="_L('readyToUpload')" class="transfer-label" />
-                            <StackLayout v-if="!userLoggedIn" @tap="goToLogin" class="login-needed">
+                            <Label v-show="userLoggedIn" :text="_L('readyToUpload')" class="transfer-label" />
+                            <StackLayout v-show="!userLoggedIn" @tap="goToLogin" class="login-needed">
                                 <Label :text="_L('clickToLogin')" class="transfer-label" textWrap="true" />
                             </StackLayout>
                         </StackLayout>
                         <StackLayout row="0" col="1" class="container-icon" @tap="onUpload(sync)">
-                            <Image v-if="userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload.png" />
-                            <Image v-if="!userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload_Disabled.png" />
+                            <Image v-show="userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload.png" />
+                            <Image v-show="!userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload_Disabled.png" />
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.isComplete" rows="auto" columns="*,30" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.isComplete" rows="auto" columns="*,30" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                             <Label v-if="sync.readingsUploaded > 1" :text="sync.readingsUploaded + ' Readings'" class="readings-label" />
                             <Label v-if="sync.readingsUploaded == 1" :text="sync.readingsUploaded + ' Reading'" class="readings-label" />
@@ -130,7 +134,7 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout v-if="opened(sync) && sync.hasError" rows="auto" columns="*" class="transfer-container">
+                    <GridLayout v-show="opened(sync) && sync.hasError" rows="auto" columns="*" class="transfer-container">
                         <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                             <Label
                                 v-if="sync.isAuthenticationError"
