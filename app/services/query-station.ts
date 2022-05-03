@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { unixNow, promiseAfter, QueryThrottledError, /* StationQueryError, */ HttpError, ConnectionError } from "@/lib";
+import { unixNow, promiseAfter, /* QueryThrottledError, StationQueryError, */ HttpError, ConnectionError } from "@/lib";
 import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
@@ -43,21 +43,61 @@ const log = Config.logger("QueryStation");
 
 type StationQuery = { reply: AppProto.HttpReply; serialized: SerializedStatus };
 
-type ResolveFunc = () => void;
+interface QueuedPromise {
+    promise: () => Promise<unknown>;
+    resolve: (v: unknown) => void;
+    reject: (v: unknown) => void;
+}
 
-class OpenQuery {
-    created: Date;
+// Stolen from https://medium.com/@karenmarkosyan/how-to-manage-promises-into-dynamic-queue-with-vanilla-javascript-9d0d1f8d4df5
+export default class PromiseQueue {
+    queue: QueuedPromise[] = [];
+    pendingPromise = false;
+    working = false;
 
-    constructor(public readonly stationKey: string, public readonly url: string) {
-        this.created = new Date();
+    enqueue(promise: () => Promise<unknown>) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                promise,
+                resolve,
+                reject,
+            });
+            this.dequeue();
+        });
+    }
+
+    dequeue() {
+        if (this.working) {
+            return false;
+        }
+        const item = this.queue.shift();
+        if (!item) {
+            return false;
+        }
+        try {
+            this.working = true;
+            item.promise()
+                .then((value) => {
+                    this.working = false;
+                    item.resolve(value);
+                    this.dequeue();
+                })
+                .catch((err) => {
+                    this.working = false;
+                    item.reject(err);
+                    this.dequeue();
+                });
+        } catch (err) {
+            this.working = false;
+            item.reject(err);
+            this.dequeue();
+        }
+        return true;
     }
 }
 
 export class QueryStation {
     private readonly conservify: Conservify;
-    private readonly openQueries: { [index: string]: OpenQuery } = {};
-    private readonly lastQueries: { [index: string]: Date } = {};
-    private readonly lastQueryTried: { [index: string]: Date } = {};
 
     constructor(services: Services) {
         this.conservify = services.Conservify();
@@ -326,10 +366,25 @@ export class QueryStation {
         return url.replace(/\/v1.*/, "");
     }
 
-    private readonly queued: { [index: string]: ResolveFunc } = {};
+    private readonly queued: { [index: string]: PromiseQueue } = {};
 
     private async trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
+
+        if (!_.isObject(this.queued[stationKey])) {
+            this.queued[stationKey] = new PromiseQueue();
+        }
+
+        const promiseQueue = this.queued[stationKey];
+        const promised = promiseQueue.enqueue(() => {
+            return factory();
+        }) as Promise<T>;
+
+        promiseQueue.dequeue();
+
+        return promised;
+
+        /*
         if (_.isObject(this.openQueries[stationKey])) {
             if (options.throttle) {
                 debug.log(options.url, "query-station: throttle", this.openQueries[stationKey]);
@@ -342,14 +397,13 @@ export class QueryStation {
                 return this.trackActivity(options, factory);
             });
         }
+
         this.openQueries[stationKey] = new OpenQuery(stationKey, options.url);
-        this.lastQueryTried[stationKey] = new Date();
 
         return factory()
             .then(
                 (value: T) => {
                     delete this.openQueries[stationKey];
-                    this.lastQueries[stationKey] = new Date();
                     return value;
                 },
                 (error) => {
@@ -365,6 +419,7 @@ export class QueryStation {
                     resume();
                 }
             });
+        */
     }
 
     private trackActivityAndThrottle<T>(url: string, factory): Promise<T> {
