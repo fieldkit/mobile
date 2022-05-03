@@ -45,9 +45,17 @@ type StationQuery = { reply: AppProto.HttpReply; serialized: SerializedStatus };
 
 type ResolveFunc = () => void;
 
+class OpenQuery {
+    created: Date;
+
+    constructor(public readonly stationKey: string, public readonly url: string) {
+        this.created = new Date();
+    }
+}
+
 export class QueryStation {
     private readonly conservify: Conservify;
-    private readonly openQueries: { [index: string]: boolean } = {};
+    private readonly openQueries: { [index: string]: OpenQuery } = {};
     private readonly lastQueries: { [index: string]: Date } = {};
     private readonly lastQueryTried: { [index: string]: Date } = {};
 
@@ -322,9 +330,9 @@ export class QueryStation {
 
     private async trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
-        if (this.openQueries[stationKey] === true) {
+        if (_.isObject(this.openQueries[stationKey])) {
             if (options.throttle) {
-                debug.log(options.url, "query-station: throttle");
+                debug.log(options.url, "query-station: throttle", this.openQueries[stationKey]);
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
@@ -334,18 +342,18 @@ export class QueryStation {
                 return this.trackActivity(options, factory);
             });
         }
-        this.openQueries[stationKey] = true;
+        this.openQueries[stationKey] = new OpenQuery(stationKey, options.url);
         this.lastQueryTried[stationKey] = new Date();
 
         return factory()
             .then(
                 (value: T) => {
-                    this.openQueries[stationKey] = false;
+                    delete this.openQueries[stationKey];
                     this.lastQueries[stationKey] = new Date();
                     return value;
                 },
                 (error) => {
-                    this.openQueries[stationKey] = false;
+                    delete this.openQueries[stationKey];
                     return Promise.reject(error);
                 }
             )
