@@ -9,8 +9,8 @@
                     <Label class="instruction" :text="_L('introConnectStep2')" lineHeight="4" textWrap="true"></Label>
 
                     <GridLayout rows="*" columns="*">
-                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-A.jpg" v-if="frame % 2 == 0"></Image>
-                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-B.jpg" v-if="frame % 2 == 1"></Image>
+                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-A.jpg" v-show="frame % 2 == 0"></Image>
+                        <Image width="75%" verticalAlignment="middle" src="~/images/TI_9-B.jpg" v-show="frame % 2 == 1"></Image>
                     </GridLayout>
                 </StackLayout>
             </GridLayout>
@@ -93,7 +93,7 @@ const Start = Vue.extend({
         incrementSkipCount(): void {
             const appSettings = new AppSettings();
             const skipCount = appSettings.getNumber("skipCount", 0);
-            appSettings.setNumber('skipCount', skipCount + 1);
+            appSettings.setNumber("skipCount", skipCount + 1);
         },
     },
 });
