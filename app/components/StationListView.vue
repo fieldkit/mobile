@@ -27,8 +27,8 @@
                             :text="getDeployStatus(station)"
                             :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
                         />
-                        <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
-                        <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
+                        <Image v-show="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
+                        <Image v-show="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
                     </GridLayout>
 
                     <StackLayout>
