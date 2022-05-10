@@ -7,7 +7,7 @@
   "dependencies": {
     "@nativescript-community/insomnia": "^2.0.2",
     "@nativescript-community/ui-mapbox": "^6.2.10",
-    "@nativescript-community/ui-material-bottom-navigation": "^7.0.2",
+    "@nativescript-community/ui-material-bottom-navigation": "^7.0.7",
     "@nativescript/camera": "^5.0.10",
     "@nativescript/core": "^8.1.4",
     "@nativescript/firebase": "^11.1.3",
