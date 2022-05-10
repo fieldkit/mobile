@@ -235,12 +235,13 @@ export class QueryStation {
     }
 
     public async calculateDownloadSize(url: string): Promise<CalculatedSize> {
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url, unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.catchErrors(
                 this.conservify
                     .json({
                         method: "HEAD",
-                        url: url,
+                        url: uniqueUrl,
                     })
                     .then((response: HttpResponse) => {
                         if (response.statusCode != 204) {
@@ -278,11 +279,12 @@ export class QueryStation {
     }
 
     public async download(url: string, path: string, progress: ProgressCallback): Promise<HttpResponse> {
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url, unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.conservify
                 .download({
                     method: "GET",
-                    url: url,
+                    url: uniqueUrl,
                     path: path,
                     progress: progress,
                 })
@@ -300,11 +302,12 @@ export class QueryStation {
     public async uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
         await logAnalytics("station_firmware_upload");
 
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url + "/upload/firmware?swap=1", unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.conservify
                 .upload({
                     method: "POST",
-                    url: url + "/upload/firmware?swap=1",
+                    url: uniqueUrl,
                     path: path,
                     progress: progress,
                     defaultTimeout: 30,
@@ -426,7 +429,12 @@ export class QueryStation {
         return this.trackActivity<T>({ url: url, throttle: true }, factory);
     }
 
-    private counter = 0;
+    private makeUniqueUrl(noCounter: string, n: number): string {
+        if (noCounter.indexOf("?") >= 0) {
+            return `${noCounter}&n=${n}`;
+        }
+        return `${noCounter}?n=${n}`;
+    }
 
     /**
      * Perform a single station query, setting all the critical defaults for the
@@ -439,22 +447,15 @@ export class QueryStation {
         return await this.trackActivity(finalOptions, async () => {
             await logAnalytics("station_querying", { url: url });
 
-            function addUrlCounter(noCounter: string, n: number): string {
-                if (noCounter.indexOf("?") >= 0) {
-                    return `${noCounter}&c=${n}`;
-                }
-                return `${noCounter}?c=${n}`;
-            }
+            const uniqueUrl = this.makeUniqueUrl(url, unixNow());
 
-            const counterUrl = addUrlCounter(url, this.counter++);
-
-            debug.log("url", counterUrl);
+            debug.log("url", uniqueUrl);
 
             return this.catchErrors(
                 this.conservify
                     .protobuf({
                         method: "POST",
-                        url: counterUrl,
+                        url: uniqueUrl,
                         body: binaryQuery,
                         connectionTimeout: 3,
                         headers: {
