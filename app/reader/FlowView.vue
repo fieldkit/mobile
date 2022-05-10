@@ -77,7 +77,7 @@ const FlowView = Vue.extend({
             default: () => {
                 return {
                     name: "developer",
-                    frame: "outer-frame",
+                    frame: "default",
                     props: {},
                 };
             },
@@ -87,7 +87,7 @@ const FlowView = Vue.extend({
             default: () => {
                 return {
                     name: "developer",
-                    frame: "outer-frame",
+                    frame: "default",
                     props: {},
                 };
             },

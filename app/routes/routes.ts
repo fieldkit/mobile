@@ -58,7 +58,7 @@ import AddWifiPassword from "~/components/onboarding/AddWifiPassword.vue";
 import AppSettingsTnc from "~/components/app-settings/AppSettingsTncView.vue";
 
 const Frames = {
-    Outer: "outer-frame",
+    Outer: "default",
     Stations: "stations-frame",
     Data: "data-frame",
     Settings: "settings-frame",

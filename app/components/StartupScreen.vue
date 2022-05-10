@@ -141,8 +141,8 @@ export default Vue.extend({
                         flow: {
                             name: "onboarding",
                         },
-                        finished: new FullRoute("tabbed", "outer-frame", {}),
-                        skipped: new FullRoute("tabbed", "outer-frame", {}),
+                        finished: new FullRoute("tabbed", "default", {}),
+                        skipped: new FullRoute("tabbed", "default", {}),
                     })
                 );
 
