@@ -4,7 +4,7 @@ import { MockStationReplies } from "./utilities";
 import { debug } from "@/lib";
 import {
     PhoneLocation,
-    OpenProgressMutation,
+    TransferStartingMutation,
     CommonLocations,
     StationRepliedAction,
     MutationTypes,
@@ -175,7 +175,7 @@ describe("Store", () => {
 
             clock.tick(50000);
 
-            await store.commit(new OpenProgressMutation(info.deviceId, true, 0));
+            await store.commit(new TransferStartingMutation(info.deviceId, true));
 
             await store.dispatch(ActionTypes.REFRESH);
 

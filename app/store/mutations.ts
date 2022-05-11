@@ -136,6 +136,12 @@ export class RemoveNoteMediaMutation {
     constructor(public readonly stationId: number, public readonly key: string | null, public readonly media: NoteMedia) {}
 }
 
+export class TransferStartingMutation {
+    type = MutationTypes.TRANSFER_STARTING;
+
+    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number = 0) {}
+}
+
 export class OpenProgressMutation {
     type = MutationTypes.TRANSFER_OPEN;
 
