@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import DataSync from "../components/DataSyncView.vue";
-import Login from "../components/LoginView.vue";
+import LoginView from "../components/LoginView.vue";
 
 import StationDetail from "../components/StationDetailView.vue";
 import StationListView from "../components/StationListView.vue";
@@ -65,11 +65,13 @@ const Frames = {
 };
 
 export const pages = {
+    LoginView,
     TabbedLayout,
+    AppSettingsTnc,
 };
 
 export const routes = {
-    login: new Route(Login),
+    login: new Route(LoginView),
     tabbed: new Route(TabbedLayout),
 
     // Bottom navigation

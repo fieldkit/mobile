@@ -68,11 +68,15 @@ export default Vue.extend({
                     .then(async () => {
                         if (!this.$services.PortalInterface().isTncValid()) {
                             // eslint-disable-next-line
-                            await this.$deprecatedNavigateTo(fullRoutes.tnc);
+                            await this.$navigateTo(pages.AppSettingsTnc, {
+                                clearHistory: true,
+                            });
                         } else {
-                            debug.log("navigating", fullRoutes.onboarding.assembleFromLogin);
                             // eslint-disable-next-line
-                            await this.$deprecatedNavigateTo(fullRoutes.onboarding.assembleFromLogin);
+                            await this.$navigateTo(pages.TabbedLayout, {
+                                props: fullRoutes.onboarding.assembleFromLogin.props,
+                                clearHistory: true,
+                            });
                         }
                     })
                     .catch((error) => {
