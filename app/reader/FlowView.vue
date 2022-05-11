@@ -187,7 +187,7 @@ const FlowView = Vue.extend({
             debug.log("flow: arriving");
             if (!this.timer) {
                 this.timer = new Timer(2000, (frame) => {
-                    debug.log("frame", frame);
+                    // debug.log("frame", frame);
                     this.frame = frame;
                 });
             }

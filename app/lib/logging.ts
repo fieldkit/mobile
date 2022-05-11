@@ -58,7 +58,7 @@ class FileWriter {
             await file.writeText(final);
             this.queued = "";
 
-            console.log(`flushed ${final.length}`);
+            // console.log(`flushed ${final.length}`);
         } catch (error) {
             console.log(`flush-error`, error);
         }
