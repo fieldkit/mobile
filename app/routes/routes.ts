@@ -64,6 +64,10 @@ const Frames = {
     Settings: "settings-frame",
 };
 
+export const pages = {
+    TabbedLayout,
+};
+
 export const routes = {
     login: new Route(Login),
     tabbed: new Route(TabbedLayout),

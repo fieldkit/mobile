@@ -6,7 +6,7 @@
 
                 <InternetConnectionBanner />
 
-                <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
+                <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" @continue="onContinue" />
 
                 <RegisterForm v-else />
 
@@ -26,10 +26,11 @@ import { Dialogs } from "@nativescript/core";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
-import { fullRoutes } from "@/routes";
+import { pages, fullRoutes } from "@/routes";
 import { debug, _L } from "@/lib";
 import axios from "axios";
 import InternetConnectionBanner from "~/components/InternetConnectionBanner.vue";
+import AppSettings from "~/wrappers/app-settings";
 
 export default Vue.extend({
     name: "LoginView",
@@ -85,6 +86,22 @@ export default Vue.extend({
                     });
             } finally {
                 this.busy = false;
+            }
+        },
+        async onContinue(): Promise<void> {
+            const appSettings = new AppSettings();
+            if (appSettings.getNumber("skipCount") >= 3) {
+                // eslint-disable-next-line
+                await this.$navigateTo(pages.TabbedLayout, {
+                    props: fullRoutes.stations.props,
+                    clearHistory: true,
+                });
+            } else {
+                // eslint-disable-next-line
+                await this.$navigateTo(pages.TabbedLayout, {
+                    props: fullRoutes.onboarding.assemble.props,
+                    clearHistory: true,
+                });
             }
         },
         async checkIfOnline(): Promise<void> {

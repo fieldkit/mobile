@@ -9,11 +9,11 @@ import { OurStore } from "@/store/our-store";
 
 import { Route, FullRoute, NavigateOptions, FirstTab } from "./navigate";
 
-import { routes, fullRoutes, namedRoutes } from "./routes";
+import { pages, routes, fullRoutes, namedRoutes } from "./routes";
 
 export * from "./navigate";
 
-export { routes, fullRoutes };
+export { pages, routes, fullRoutes };
 
 import { getBus } from "@/components/NavigationBus";
 
@@ -58,7 +58,7 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | undefin
         void vue.$navigateBack({ frame: frameToNav }, a);
         return true;
     }
-    
+
     debug.log("navigate-back-to-bookmark: failed");
 
     return false;
