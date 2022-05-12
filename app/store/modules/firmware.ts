@@ -86,9 +86,6 @@ const actions = (services: ServiceRef) => {
                 debug.log(`error loading firmware:`, error);
             }
         },
-        [ActionTypes.AUTHENTICATED]: async ({ commit, dispatch, state }: ActionParameters) => {
-            await dispatch(ActionTypes.FIRMWARE_REFRESH);
-        },
         [ActionTypes.FIRMWARE_REFRESH]: async ({ commit, dispatch, state }: ActionParameters) => {
             await services
                 .firmware()

@@ -25,7 +25,7 @@ import { Vue } from "vue-property-decorator";
 import { Dialogs } from "@nativescript/core";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
-import { LoginAction } from "@/store/actions";
+import { ActionTypes, LoginAction } from "@/store/actions";
 import { pages, fullRoutes } from "@/routes";
 import { debug, _L } from "@/lib";
 import axios from "axios";
@@ -66,6 +66,8 @@ export default Vue.extend({
                     .Store()
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(async () => {
+                        void this.$services.Store().dispatch(ActionTypes.FIRMWARE_REFRESH);
+
                         if (!this.$services.PortalInterface().isTncValid()) {
                             // eslint-disable-next-line
                             await this.$navigateTo(pages.AppSettingsTnc, {
