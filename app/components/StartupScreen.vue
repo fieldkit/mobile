@@ -3,15 +3,12 @@
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
-import { fullRoutes, FullRoute } from "@/routes";
+import { fullRoutes, FullRoute, getFullRouteComponent } from "@/routes";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
-import Config from "@/config";
 import { debug, zoned } from "@/lib";
-
-import Blank from "@/components/Blank.vue";
 import { changeLanguageI18n } from "~/lib/i18n";
 
 function getFirstRoute(services: Services): FullRoute {
@@ -50,108 +47,11 @@ export default Vue.extend({
 
         changeLanguageI18n(this.currentSettings.appearance.language);
 
-        if (Config.env.developer) {
-            debug.log("developer", Config.env.developer);
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.login);
-
-                return;
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
-
-                return;
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(Blank, {});
-
-                return;
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.station.notes(1));
-
-                return;
-            }
-
-            if (false) {
-                if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$deprecatedNavigateTo(fullRoutes.station.details(1));
-
-                    return;
-                }
-            }
-
-            if (true) {
-                if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$deprecatedNavigateTo(fullRoutes.station.settings(1));
-
-                    return;
-                }
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.onboarding.addModule(1));
-
-                return;
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.stations, {
-                    clearHistory: true,
-                });
-
-                return;
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(fullRoutes.settings.developer, {
-                    clearHistory: true,
-                });
-
-                return;
-            }
-
-            if (false) {
-                if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$deprecatedNavigateTo(fullRoutes.onboarding.recalibrate(1), {
-                        clearHistory: true,
-                    });
-
-                    return;
-                }
-            }
-
-            if (false) {
-                if (this.$s.getters.stationCalibrations[1]) {
-                    await this.$deprecatedNavigateTo(fullRoutes.station.settings(1), {
-                        clearHistory: true,
-                    });
-
-                    return;
-                }
-            }
-
-            if (false) {
-                await this.$deprecatedNavigateTo(
-                    fullRoutes.flow({
-                        flow: {
-                            name: "onboarding",
-                        },
-                        finished: new FullRoute("tabbed", "default", {}),
-                        skipped: new FullRoute("tabbed", "default", {}),
-                    })
-                );
-
-                return;
-            }
-        }
-
         try {
-            await this.$deprecatedNavigateTo(getFirstRoute(services), {
+            const firstRoute = getFirstRoute(services);
+            const component = getFullRouteComponent(firstRoute);
+            await this.$navigateTo(component, {
+                props: firstRoute.props,
                 clearHistory: true,
             });
         } catch (err) {

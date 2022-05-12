@@ -82,6 +82,11 @@ export function getRouteComponent(pageOrRoute: FullRoute | Route): unknown {
     throw new Error(`unable to get route component`);
 }
 
+export function getFullRouteComponent(route: FullRoute): Vue {
+    const named = namedRoutes[route.name];
+    return named.page as any;
+}
+
 export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
     /* eslint-disable */
     const navFn = async (pageOrRoute: FullRoute | Route | any, options: NavigateOptions | null): Promise<void> => {
@@ -138,7 +143,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
             const withDefaults = addDefaults(options, { frame: undefined });
-            debug.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
+            debug.log(`nav:vue: ${pageOrRoute?.options?.name} ${JSON.stringify(withDefaults)}`);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",
