@@ -5,7 +5,7 @@ import registerLifecycleEvents from "@/services/lifecycle";
 import { deleteMissingAssets } from "@/services";
 import { debug, promiseAfter, zoned } from "@/lib";
 
-export function updateStore(store: OurStore): Promise<void> {
+export function startUpdatingStoreEverySecond(store: OurStore): void {
     promiseAfter(1000)
         .then(() =>
             zoned({ force: true }, async () => {
@@ -15,48 +15,23 @@ export function updateStore(store: OurStore): Promise<void> {
         .catch((error) => {
             debug.log(`refresh:error: ${JSON.stringify(error)}`, error);
         })
-        .finally(() => void updateStore(store));
-    return Promise.resolve();
-}
-
-export function enableLocationServices(services: Services): Promise<void> {
-    // On iOS this can take a while, so we do this in the background.
-    void services.PhoneLocation().enableAndGetLocation();
-    return Promise.resolve();
-}
-
-async function resumePortalSession(services: Services): Promise<void> {
-    const store = services.Store();
-    if (store.state.portal.currentUser) {
-        await store.dispatch(ActionTypes.AUTHENTICATED);
-    }
-}
-
-async function startupPortal(services: Services): Promise<void> {
-    debug.log(`startup-portal: begin`);
-
-    await resumePortalSession(services);
-    await services.PortalUpdater().start();
-
-    debug.log(`startup-portal: end`);
-}
-
-async function startupStore(services: Services): Promise<void> {
-    debug.log(`startup-store: begin`);
-
-    await services.DiscoverStation().startMonitorinNetwork();
-    await updateStore(services.Store());
-    await enableLocationServices(services);
-
-    debug.log(`startup-store: end`);
+        .finally(() => void startUpdatingStoreEverySecond(store));
 }
 
 async function background(services: Services): Promise<void> {
     debug.log(`startup:bg begin`);
 
-    registerLifecycleEvents(() => services.DiscoverStation());
+    // NOTE Right now this doesn't really do anything of the sort.
+    await deleteMissingAssets(services.Database());
 
-    await Promise.all([startupPortal(services), startupStore(services)]);
+    // Start background updates of the store. This timer drives many things.
+    startUpdatingStoreEverySecond(services.Store());
+
+    // Start checking the portal for updates.
+    await services.PortalUpdater().start();
+
+    // On iOS this can take a while, so we do this in the background.
+    void services.PhoneLocation().enableAndGetLocation();
 
     debug.log(`startup:bg end`);
 }
@@ -71,13 +46,25 @@ export async function initializeApplication(services: Services): Promise<void> {
     }
 
     try {
+        // Initialize the database first.
         await services.CreateDb().initialize(null, false, false);
         await services.Database().startup();
-        await deleteMissingAssets(services.Database());
+
+        debug.log("startup:db-ready");
+
+        // Start monitoring right away.
+        await services.DiscoverStation().startMonitorinNetwork();
+
+        // This means we can respond to app suspends, etc... this may get moved
+        // to later so that it can respond to things from a known state?
+        registerLifecycleEvents(() => services.DiscoverStation());
+
+        // Synchronous load of initial store state.
         await services.Store().dispatch(ActionTypes.LOAD);
 
-        debug.log("startup:bg");
+        debug.log("startup:sync-done");
 
+        // Now handle the background tasks.
         void background(services);
 
         const now = new Date();

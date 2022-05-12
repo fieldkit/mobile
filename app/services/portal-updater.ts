@@ -1,5 +1,5 @@
 import { Station, PortalError } from "../store/types";
-import { PortalErrorAction, PortalReplyAction } from "../store/actions";
+import { ActionTypes, PortalErrorAction, PortalReplyAction } from "../store/actions";
 import { OurStore } from "../store/our-store";
 import { FileSystem } from "@/services";
 import SynchronizeNotes from "./synchronize-notes";
@@ -17,11 +17,14 @@ export default class PortalUpdater {
         this.synchronizeNotes = new SynchronizeNotes(portal, store, fs);
     }
 
-    public start(): Promise<void> {
+    public async start(): Promise<void> {
+        await this.store.dispatch(ActionTypes.RESUME_PORTAL_SESSION);
+
         void promiseAfter(1 * OneMinute).then(async () => {
             await this.addOrUpdateStations();
             void this.start();
         });
+
         return Promise.resolve();
     }
 
