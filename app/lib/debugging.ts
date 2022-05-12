@@ -67,6 +67,8 @@ export const debug = {
         if (Trace && Trace.write) {
             // eslint-disable-next-line
             Trace.write(parts.join(" "), Trace.categories.Debug);
+        } else {
+            console.log(parts.join(" "));
         }
     },
 };
