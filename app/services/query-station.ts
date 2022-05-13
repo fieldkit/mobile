@@ -55,7 +55,7 @@ export default class PromiseQueue {
     pendingPromise = false;
     working = false;
 
-    enqueue(promise: () => Promise<unknown>): Promise<void> {
+    enqueue<T>(promise: () => Promise<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             this.queue.push({
                 promise,
@@ -381,7 +381,7 @@ export class QueryStation {
         const promiseQueue = this.queued[stationKey];
         const promised = promiseQueue.enqueue(() => {
             return factory();
-        }) as Promise<T>;
+        });
 
         promiseQueue.dequeue();
 
