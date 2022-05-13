@@ -112,14 +112,14 @@ export default Vue.extend({
                 }
 
                 if (this.reconnecting) {
-                    return this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
+                    await this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
                         props: {
                             stationId: connected[0].id,
                             bookmark: true,
                         },
                     });
                 } else {
-                    return this.$deprecatedNavigateTo(routes.onboarding.network, {
+                    await this.$deprecatedNavigateTo(routes.onboarding.network, {
                         props: {
                             stationId: connected[0].id,
                         },
@@ -127,7 +127,7 @@ export default Vue.extend({
                 }
             }
             if (numberStations > 1) {
-                return this.$deprecatedNavigateTo(routes.onboarding.nearby, {
+                await this.$deprecatedNavigateTo(routes.onboarding.nearby, {
                     props: {
                         reconnecting: this.reconnecting,
                     },

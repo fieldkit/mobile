@@ -94,12 +94,16 @@ export default Vue.extend({
     },
     methods: {
         onUpdate(): void {
-            debug.log("updating");
-            this.$modal.close({ updating: true });
+            if (this.$modal) {
+                debug.log("updating");
+                this.$modal.close({ updating: true });
+            }
         },
         onClose(): void {
-            debug.log("closing", this.$modal);
-            this.$modal.close({ updating: false });
+            if (this.$modal) {
+                debug.log("closing", this.$modal);
+                this.$modal.close({ updating: false });
+            }
         },
         onLabelLoaded(args) {
             const lbl = args.object as Label;

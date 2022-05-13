@@ -16,14 +16,14 @@ import { nearby } from "@/store/modules/nearby";
 import { fk_app } from "fk-app-protocol/fk-app";
 import FakeTimers from "@sinonjs/fake-timers";
 
+const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+
 describe("Store", () => {
     let services;
     let mockStation;
     let store;
-    let clock;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
         clock.tick(10);
 
         services = new ServicesImpl();

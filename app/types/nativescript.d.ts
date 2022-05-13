@@ -1,6 +1,6 @@
 import { navigateBack, ModalOptions } from "nativescript-vue";
 import { Vue } from "vue/types/vue";
-import { NavigateToFunc } from "@/routes/navigate";
+import { NavigateToFunc } from "@/routes";
 import { Services } from "@/services";
 import { OurStore } from "@/store";
 
@@ -8,7 +8,7 @@ type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<unkn
 
 declare module "vue/types/vue" {
     interface Vue {
-        $navigateTo: NavigateToFunc; // (where: any, options: any): Promise<void>;
+        // $navigateTo: NavigateToFunc; // (where: any, options: any): Promise<void>;
         $deprecatedNavigateTo: NavigateToFunc; // (where: any, options: any): Promise<void>;
         $navigateBack: navigateBack;
         $showModal: showModal;

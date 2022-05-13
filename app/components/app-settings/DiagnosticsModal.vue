@@ -64,8 +64,10 @@ export default Vue.extend({
             debug.log("diagnostics unloaded");
         },
         close(): void {
-            debug.log("Close");
-            this.$modal.close(true);
+            if (this.$modal) {
+                debug.log("Close");
+                this.$modal.close(true);
+            }
         },
     },
 });

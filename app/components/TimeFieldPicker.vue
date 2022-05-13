@@ -95,7 +95,9 @@ export default Vue.extend({
             this.$emit("change", time);
         },
         onSave(): void {
-            this.$modal.close(this.form.time);
+            if (this.$modal) {
+                this.$modal.close(this.form.time);
+            }
         },
     },
 });

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Component } from "vue";
+import { Vue } from "vue/types/vue";
 
 export interface NavigateOptions {
     clearHistory: boolean | undefined;
@@ -37,7 +37,7 @@ export class FullRoute {
 export class Route {
     public name = "unknown";
 
-    constructor(public readonly page: Component, public readonly frame: string | undefined = undefined) {}
+    constructor(public readonly page: typeof Vue, public readonly frame: string | undefined = undefined) {}
 }
 
 export interface FirstTab {

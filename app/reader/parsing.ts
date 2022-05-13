@@ -3,7 +3,7 @@ import _ from "lodash";
 const unified = require("unified");
 const markdown = require("remark-parse");
 const gfm = require("remark-gfm");
-const zwitch = require("zwitch");
+const { zwitch } = require("zwitch");
 
 type HandlerFunc = (tree: unknown, dunno: null, context: Context) => void;
 
@@ -122,18 +122,16 @@ function createContext(): CustomContext {
             const headerless = _.tail(rows);
             const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
             const columns = transpose(headerless);
-            const wrapped = columns.map(
-                (column, index): MdNode => {
-                    return {
-                        type: "StackLayout",
-                        props: {
-                            col: index,
-                            class: "md-column",
-                        },
-                        children: createSequences(_.flatten(column)),
-                    };
-                }
-            );
+            const wrapped = columns.map((column, index): MdNode => {
+                return {
+                    type: "StackLayout",
+                    props: {
+                        col: index,
+                        class: "md-column",
+                    },
+                    children: createSequences(_.flatten(column)),
+                };
+            });
 
             return { type: "GridLayout", props: { class: "md-grid", rows: "auto", columns: "*,*" }, children: wrapped };
         },

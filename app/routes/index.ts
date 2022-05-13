@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { VueConstructor } from "vue/types/vue";
+import { Vue, VueConstructor } from "vue/types/vue";
 import { Page, Frame } from "@nativescript/core";
 import { NavigationEntryVue } from "nativescript-vue";
 import { debug } from "@/lib";
@@ -82,9 +82,9 @@ export function getRouteComponent(pageOrRoute: FullRoute | Route): unknown {
     throw new Error(`unable to get route component`);
 }
 
-export function getFullRouteComponent(route: FullRoute): Vue {
+export function getFullRouteComponent(route: FullRoute): typeof Vue {
     const named = namedRoutes[route.name];
-    return named.page as any;
+    return named.page;
 }
 
 export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {

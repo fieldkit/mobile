@@ -5,15 +5,15 @@ import { ServicesImpl } from "@/services";
 import { StationRepliedAction } from "@/store";
 import { MockStationReplies } from "./utilities";
 
+const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+
 describe("Stations", () => {
     let services;
     let mockStation;
     let store;
-    let clock;
     let db;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
         clock.tick(10);
 
         services = new ServicesImpl();

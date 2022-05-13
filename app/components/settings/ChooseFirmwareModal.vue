@@ -55,17 +55,21 @@ export default Vue.extend({
         };
     },
     methods: {
-        onUpdate(): void {
-            debug.log("updating");
-            this.$modal.close({ firmware: this.currentFirmware, updating: true });
+        async onUpdate(): Promise<void> {
+            if (this.$modal) {
+                debug.log("updating");
+                await this.$modal.close({ firmware: this.currentFirmware, updating: true });
+            }
         },
         onSelect(firmware: AvailableFirmware): void {
             debug.log("selecting");
             this.currentFirmware = firmware;
         },
-        onClose(): void {
-            debug.log("closing", this.$modal);
-            this.$modal.close({ firmware: null, updating: false });
+        async onClose(): Promise<void> {
+            if (this.$modal) {
+                debug.log("closing", this.$modal);
+                await this.$modal.close({ firmware: null, updating: false });
+            }
         },
     },
 });

@@ -45,14 +45,14 @@ function addFakeFirmware(services: Services) {
     return services.StationFirmware().downloadFirmware();
 }
 
+const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
+
 describe("Firmware", () => {
     let services;
     let store;
-    let clock;
     let mockStation;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
         clock.tick(10);
 
         services = new ServicesImpl();

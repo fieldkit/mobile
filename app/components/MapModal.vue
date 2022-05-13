@@ -37,12 +37,16 @@ export default Vue.extend({
     },
     methods: {
         onClose(): void {
-            debug.log("onClose");
-            this.$modal.close();
+            if (this.$modal) {
+                debug.log("onClose");
+                this.$modal.close();
+            }
         },
         onOpenedDetails(): void {
-            debug.log("onOpenedDetails");
-            this.$modal.close();
+            if (this.$modal) {
+                debug.log("onOpenedDetails");
+                this.$modal.close();
+            }
         },
     },
 });

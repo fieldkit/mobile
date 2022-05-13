@@ -44,6 +44,7 @@ module.exports = (env) => {
             https: false,
             zlib: false,
             tty: false,
+            fs: false,
             stream: false,
             buffer: "buffer",
             "stream-http": false,
