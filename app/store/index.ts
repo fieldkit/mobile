@@ -237,10 +237,8 @@ export default function (rawServices: Services): OurStore {
     const services = new ServiceRef(() => rawServices);
     const appender = storeLogAppender(rawServices);
 
-    console.log(Config.env.dev, appender);
-
     const store = new Vuex.Store({
-        plugins: [], // Config.env.dev ? [customizeLogger(appender)] : [customizeLogger(appender)],
+        plugins: Config.env.dev ? [customizeLogger(appender)] : [customizeLogger(appender)],
         modules: {
             nearby: nearby(services),
             stations: stations(services),
