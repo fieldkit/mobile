@@ -74,6 +74,7 @@ import { ModuleCalibration, StationCalibration } from "~/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import Config from "@/config";
 import { Screen } from "@nativescript/core";
+import { Frames, getFullRouteComponent } from "~/routes";
 
 export default Vue.extend({
     name: "ModuleItemView",
@@ -202,7 +203,10 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.stationCalibration, this.moduleCalibration);
-            await this.$deprecatedNavigateTo(route);
+            await this.$navigateTo(getFullRouteComponent(route), {
+                frame: Frames.Stations,
+                props: route.props,
+            });
         },
     },
 });

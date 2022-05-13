@@ -3,7 +3,7 @@ import _ from "lodash";
 import DataSync from "../components/DataSyncView.vue";
 import LoginView from "../components/LoginView.vue";
 
-import StationDetail from "../components/StationDetailView.vue";
+import StationDetailView from "../components/StationDetailView.vue";
 import StationListView from "../components/StationListView.vue";
 import StationSettings from "../components/settings/StationSettingsView.vue";
 import StationSettingsWiFiNetworks from "../components/settings/StationSettingsWiFiNetwork.vue";
@@ -21,10 +21,10 @@ import RenameStation from "../components/onboarding/RenameStation.vue";
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import OnboardingReconnecting from "../components/onboarding/Reconnecting.vue";
 
-import DeployMap from "../components/deploy/DeployMapView.vue";
-import DeployNotes from "../components/deploy/DeployNotesView.vue";
-import EditNoteView from "../components/deploy/EditNoteView.vue";
-import DeployReview from "../components/deploy/DeployReviewView.vue";
+import DeployMapView from "../components/deploy/DeployMapView.vue";
+import DeployNotesView from "../components/deploy/DeployNotesView.vue";
+import EditNoteViewView from "../components/deploy/EditNoteView.vue";
+import DeployReviewView from "../components/deploy/DeployReviewView.vue";
 
 import FlowView from "@/reader/FlowView.vue";
 
@@ -57,7 +57,7 @@ import AddWifiName from "~/components/onboarding/AddWifiName.vue";
 import AddWifiPassword from "~/components/onboarding/AddWifiPassword.vue";
 import AppSettingsTnc from "~/components/app-settings/AppSettingsTncView.vue";
 
-const Frames = {
+export const Frames = {
     Outer: "default",
     Stations: "stations-frame",
     Data: "data-frame",
@@ -68,6 +68,14 @@ export const pages = {
     LoginView,
     TabbedLayout,
     AppSettingsTnc,
+    StationListView,
+    StationDetailView,
+    DeployMapView,
+    DeployNotesView,
+    EditNoteViewView,
+    DeployReviewView,
+    StationSettings,
+    AddModuleView,
 };
 
 export const routes = {
@@ -96,7 +104,7 @@ export const routes = {
     },
 
     station: {
-        detail: new Route(StationDetail, Frames.Stations),
+        detail: new Route(StationDetailView, Frames.Stations),
         calibrate: new Route(Calibrate, Frames.Stations),
         settings: {
             menu: new Route(StationSettings, Frames.Stations),
@@ -127,10 +135,10 @@ export const routes = {
 
     // Deployment
     deploy: {
-        start: new Route(DeployMap, Frames.Stations),
-        notes: new Route(DeployNotes, Frames.Stations),
-        editing: new Route(EditNoteView, Frames.Stations),
-        review: new Route(DeployReview, Frames.Stations),
+        start: new Route(DeployMapView, Frames.Stations),
+        notes: new Route(DeployNotesView, Frames.Stations),
+        editing: new Route(EditNoteViewView, Frames.Stations),
+        review: new Route(DeployReviewView, Frames.Stations),
     },
 
     // Reader

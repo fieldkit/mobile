@@ -133,7 +133,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { routes } from "@/routes";
+import { Frames, pages } from "@/routes";
 import { debug, _L, promiseAfter } from "@/lib";
 import { Notes, Notification, LegacyStation } from "@/store";
 import { ActionTypes } from "~/store/actions";
@@ -248,7 +248,8 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$deprecatedNavigateTo(routes.stations, {
+                    this.$navigateTo(pages.StationListView, {
+                        frame: Frames.Stations,
                         clearHistory: true,
                     }),
                 ]);
@@ -256,7 +257,8 @@ export default Vue.extend({
         },
         async goToDeploy(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$deprecatedNavigateTo(routes.deploy.start, {
+                await this.$navigateTo(pages.DeployMapView, {
+                    frame: Frames.Stations,
                     props: {
                         stationId: this.stationId,
                     },
@@ -265,7 +267,8 @@ export default Vue.extend({
         },
         async goToFieldNotes(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$deprecatedNavigateTo(routes.deploy.notes, {
+                await this.$navigateTo(pages.DeployNotesView, {
+                    frame: Frames.Stations,
                     props: {
                         stationId: this.stationId,
                         linkedFromStation: true,
@@ -277,7 +280,8 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$deprecatedNavigateTo(routes.station.settings.menu, {
+                    this.$navigateTo(pages.StationSettings, {
+                        frame: Frames.Stations,
                         props: {
                             stationId: this.currentStation.id,
                         },
@@ -289,7 +293,8 @@ export default Vue.extend({
             if (this.buttonsTappable) {
                 await Promise.all([
                     animations.pressed(ev),
-                    this.$deprecatedNavigateTo(routes.station.detail, {
+                    this.$navigateTo(pages.StationDetailView, {
+                        frame: Frames.Stations,
                         props: {
                             stationId: this.currentStation.id,
                         },
@@ -329,7 +334,8 @@ export default Vue.extend({
         },
         async addModule(): Promise<void> {
             if (this.buttonsTappable) {
-                await this.$deprecatedNavigateTo(routes.onboarding.addModule, {
+                await this.$navigateTo(pages.AddModuleView, {
+                    frame: Frames.Stations,
                     clearHistory: true,
                     props: {
                         stationId: this.stationId,
@@ -377,7 +383,8 @@ export default Vue.extend({
             utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
         async onSkip() {
-            await this.$deprecatedNavigateTo(routes.station.detail, {
+            await this.$navigateTo(pages.StationDetailView, {
+                frame: Frames.Stations,
                 props: {
                     stationId: this.stationId,
                 },

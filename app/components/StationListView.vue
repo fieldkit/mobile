@@ -44,7 +44,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { routes } from "@/routes";
+import { Frames, pages } from "@/routes";
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
@@ -98,7 +98,8 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 // eslint-disable-next-line
-                this.$deprecatedNavigateTo(routes.station.detail, {
+                this.$navigateTo(pages.StationDetailView, {
+                    frame: Frames.Stations,
                     props: {
                         stationId: station.id,
                     },

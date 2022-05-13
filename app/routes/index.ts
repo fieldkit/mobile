@@ -9,11 +9,11 @@ import { OurStore } from "@/store/our-store";
 
 import { Route, FullRoute, NavigateOptions, FirstTab } from "./navigate";
 
-import { pages, routes, fullRoutes, namedRoutes } from "./routes";
+import { Frames, pages, routes, fullRoutes, namedRoutes } from "./routes";
 
 export * from "./navigate";
 
-export { pages, routes, fullRoutes };
+export { Frames, pages, routes, fullRoutes };
 
 import { getBus } from "@/components/NavigationBus";
 
