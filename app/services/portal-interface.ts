@@ -1,11 +1,12 @@
 import _ from "lodash";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { HttpResponse } from "@/wrappers/networking";
-import { debug, AuthenticationError } from "@/lib";
+import { debug, AuthenticationError, _L } from "@/lib";
 import { ActionTypes, MutationTypes, Download, FileTypeUtils, CurrentUser } from "@/store";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 import { Buffer } from "buffer";
 import Config from "@/config";
+import { Dialogs } from "@nativescript/core";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
 
@@ -673,9 +674,20 @@ export default class PortalInterface {
             })
             .catch((error: AxiosError) => {
                 debug.log("refresh failed", error);
-                return this.logout().then(() => {
-                    return Promise.reject(error);
-                });
+                if (error.response?.status === 401) {
+                    if (Config.beta) {
+                        Dialogs.alert({
+                            title: "Refresh token expired!",
+                            message: "Refresh token expired!",
+                            okButtonText: _L("ok"),
+                        });
+                    }
+                    return this.logout().then(() => {
+                        return Promise.reject(error);
+                    });
+                }
+
+                return Promise.reject(error);
             });
     }
 
