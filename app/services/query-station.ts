@@ -55,7 +55,7 @@ export default class PromiseQueue {
     pendingPromise = false;
     working = false;
 
-    enqueue(promise: () => Promise<unknown>) {
+    enqueue(promise: () => Promise<unknown>): Promise<void> {
         return new Promise((resolve, reject) => {
             this.queue.push({
                 promise,
@@ -66,7 +66,7 @@ export default class PromiseQueue {
         });
     }
 
-    dequeue() {
+    dequeue(): boolean {
         if (this.working) {
             return false;
         }

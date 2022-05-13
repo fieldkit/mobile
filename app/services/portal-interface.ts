@@ -672,11 +672,11 @@ export default class PortalInterface {
                     return this.query<Q, V>(_.extend({}, original, { refreshed: true, token: self.token }));
                 });
             })
-            .catch((error: AxiosError) => {
+            .catch(async (error: AxiosError) => {
                 debug.log("refresh failed", error);
                 if (error.response?.status === 401) {
                     if (Config.beta) {
-                        Dialogs.alert({
+                        await Dialogs.alert({
                             title: "Refresh token expired!",
                             message: "Refresh token expired!",
                             okButtonText: _L("ok"),
