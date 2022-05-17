@@ -1,5 +1,5 @@
 <template>
-    <Page>
+    <Page actionBarHidden="true">
         <GridLayout :rows="currentUser && !isTncValid ? 'auto, *, 80' : '*'">
             <Label v-if="currentUser && !isTncValid" class="p-20 tnc-header" :text="_L('appSettings.tnc.updated')" textWrap="true" />
             <ScrollView row="1" @scroll="onScroll">
@@ -58,13 +58,15 @@ export default Vue.extend({
                 return;
             }
             try {
-                const portal = this.$services.PortalInterface();
-                await portal.accept(this.currentUser);
-                // eslint-disable-next-line
-                await this.$navigateTo(pages.TabbedLayout, {
-                    props: fullRoutes.onboarding.start.props,
-                    clearHistory: true,
-                });
+                if (this.isTncRead) {
+                    const portal = this.$services.PortalInterface();
+                    await portal.accept(this.currentUser);
+                    // eslint-disable-next-line
+                    await this.$navigateTo(pages.TabbedLayout, {
+                        props: fullRoutes.onboarding.start.props,
+                        clearHistory: true,
+                    });
+                }
             } catch (error) {
                 return;
             }
