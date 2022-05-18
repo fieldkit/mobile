@@ -9,7 +9,7 @@
                     :accessToken="token"
                     zoomLevel="11"
                     hideCompass="false"
-                    showUserLocation="true"
+                    :showUserLocation="locationEnabled"
                     disableZoom="false"
                     disableRotation="false"
                     disableScroll="false"
@@ -64,6 +64,10 @@ export default Vue.extend({
         mapKey: {
             type: Number,
             default: 0,
+        },
+        locationEnabled: {
+            type: Boolean,
+            required: true,
         },
     },
     data(): {

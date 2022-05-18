@@ -4,7 +4,15 @@
 
         <ScrollView @doubleTap="onDoubleTap">
             <GridLayout rows="auto,*">
-                <StationsMap id="stations-map" row="0" :mappedStations="mappedStations" :mapKey="mapKey" @toggle-modal="openModalMap" />
+                <StationsMap
+                    v-if="loadMap"
+                    id="stations-map"
+                    row="0"
+                    :mappedStations="mappedStations"
+                    :mapKey="mapKey"
+                    @toggle-modal="openModalMap"
+                    :locationEnabled="locationEnabled"
+                />
 
                 <StackLayout row="1" class="p-t-10">
                     <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
@@ -52,6 +60,7 @@ import MapModal from "./MapModal.vue";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
 import { debug, _L, uuidv4 } from "@/lib";
+import { GeoLocation } from "~/wrappers/geolocation";
 
 export default Vue.extend({
     name: "StationListView",
@@ -65,12 +74,16 @@ export default Vue.extend({
         scanning: boolean;
         key: string;
         mapKey: number;
+        locationEnabled: boolean;
+        loadMap: boolean;
     } {
         return {
             busy: false,
             scanning: false,
             key: uuidv4(),
             mapKey: 0,
+            locationEnabled: false,
+            loadMap: false,
         };
     },
     computed: {
@@ -86,9 +99,13 @@ export default Vue.extend({
         debug.log(this.key, "stations: mounted");
     },
     methods: {
-        onLoaded() {
+        async onLoaded() {
             debug.log(this.key, "stations: loaded");
             this.mapKey++;
+
+            const geoLocation = new GeoLocation();
+            this.locationEnabled = await geoLocation.isEnabled();
+            this.loadMap = true;
         },
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
