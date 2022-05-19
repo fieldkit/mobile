@@ -10,8 +10,8 @@
                     row="0"
                     :mappedStations="mappedStations"
                     :mapKey="mapKey"
-                    @toggle-modal="openModalMap"
                     :locationEnabled="locationEnabled"
+                    @toggle-modal="openModalMap"
                 />
 
                 <StackLayout row="1" class="p-t-10">

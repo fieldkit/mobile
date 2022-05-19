@@ -908,7 +908,9 @@
             "do": {
                 "name": "Dissolved Oxygen",
                 "sensors": {
-                    "do": "Dissolved Oxygen"
+                    "do": "Dissolved Oxygen",
+                    "temperature": "Temperature",
+                    "pressure": "Pressure"
                 }
             },
             "dox": {
