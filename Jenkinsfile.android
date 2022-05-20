@@ -23,8 +23,8 @@ timestamps {
             }
 
 			stage ("prepare-server") {
-				build job: "fk/oss/fancycamera"
-				build job: "fk/oss/keyboard-height-provider"
+				// build job: "fk/oss/fancycamera"
+				// build job: "fk/oss/keyboard-height-provider"
 			}
 
 			stage ("android-sdk") {

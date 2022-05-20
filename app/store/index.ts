@@ -46,7 +46,7 @@ export interface OurStore extends Store<GlobalState> {
     getters: GlobalGetters;
 }
 
-type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
+type AppendStoreLog = (rowFactory: () => StoreLogRow) => Promise<void>;
 
 type PassedMutation = { type: string; payload: PayloadType };
 
@@ -64,12 +64,14 @@ function sanitizeState(key: string, value: unknown): undefined | unknown {
 function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): boolean {
     debug.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
 
-    void appendLog({
-        time: new Date().getTime(),
-        mutation: mutation.type,
-        payload: JSON.stringify(mutation.payload || {}),
-        before: JSON.stringify({}),
-        after: JSON.stringify({}),
+    void appendLog(() => {
+        return {
+            time: new Date().getTime(),
+            mutation: mutation.type,
+            payload: JSON.stringify(mutation.payload || {}),
+            before: JSON.stringify({}),
+            after: JSON.stringify({}),
+        };
     });
 
     return false;
@@ -79,7 +81,7 @@ export function stateFor(_mutation: PassedMutation, state: GlobalState | Record<
     return JSON.stringify(state, sanitizeState);
 }
 
-function customizeLogger(appendLog: AppendStoreLog) {
+export function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
         filter(mutation: PassedMutation, stateBefore: GlobalState, stateAfter: GlobalState) {
             try {
@@ -109,12 +111,14 @@ function customizeLogger(appendLog: AppendStoreLog) {
                     return false;
                 }
 
-                void appendLog({
-                    time: new Date().getTime(),
-                    mutation: mutation.type,
-                    payload: JSON.stringify(mutation.payload || {}, sanitizeState),
-                    before: stateFor(mutation, stateBefore),
-                    after: stateFor(mutation, stateAfter),
+                void appendLog(() => {
+                    return {
+                        time: new Date().getTime(),
+                        mutation: mutation.type,
+                        payload: JSON.stringify(mutation.payload || {}, sanitizeState),
+                        before: stateFor(mutation, stateBefore),
+                        after: stateFor(mutation, stateAfter),
+                    };
                 });
 
                 if (mutation.type == MutationTypes.STATIONS) {
@@ -224,8 +228,8 @@ function customizeLogger(appendLog: AppendStoreLog) {
 }
 
 export function storeLogAppender(rawServices: Services): AppendStoreLog {
-    return async (row: StoreLogRow): Promise<void> => {
-        await rawServices.Database().addStoreLog(row);
+    return async (rowFactory: () => StoreLogRow): Promise<void> => {
+        // await rawServices.Database().addStoreLog(rowFactory());
     };
 }
 

@@ -453,7 +453,7 @@ const mutations = {
             state.stations[info.deviceId].activity = new Date();
         }
     },
-    [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressMutation) => {
+    [MutationTypes.TRANSFER_STARTING]: (state: NearbyState, payload: OpenProgressMutation) => {
         if (payload.downloading) {
             if (!state.stations[payload.deviceId]) {
                 debug.log("warning: no nearby station in transfer open", payload.downloading);

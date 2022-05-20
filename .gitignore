@@ -1,6 +1,4 @@
 # NativeScript
-hooks/
-!hooks/after-createProject/*.js
 node_modules/
 platforms/
 !third-party/*/platforms/

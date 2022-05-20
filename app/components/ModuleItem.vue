@@ -52,7 +52,8 @@
                         flexShrink="0.25"
                         :text="getDisplayReading(sensor)"
                         verticalAlignment="bottom"
-                        class="size-24 m-l-2"
+                        class="m-l-2"
+                        :style="{ 'font-size': getDisplayFontSize(sensor) }"
                         :class="moduleCalibration.canCalibrate && moduleCalibration.needsCalibration ? 'needs-calibration' : ''"
                     />
                     <Label :text="sensor.unitOfMeasure" verticalAlignment="bottom" class="unit size-12 m-t-10" />
@@ -72,6 +73,8 @@ import { isAndroid, Label } from "@nativescript/core";
 import { ModuleCalibration, StationCalibration } from "~/calibration";
 import { makeCalibrationRoute } from "@/calibration/start-calibrate";
 import Config from "@/config";
+import { Screen } from "@nativescript/core";
+import { Frames, getFullRouteComponent } from "~/routes";
 
 export default Vue.extend({
     name: "ModuleItemView",
@@ -102,6 +105,25 @@ export default Vue.extend({
         },
     },
     methods: {
+        getDisplayFontSize(sensor: Sensor): string {
+            const textLength = this.getDisplayReading(sensor).length + sensor.unitOfMeasure.length;
+            let fontSize = 24;
+
+            if (Screen.mainScreen.widthDIPs < 375) {
+                fontSize = 20;
+            }
+            if (textLength > 9) {
+                fontSize = fontSize - 2;
+            }
+            if (textLength > 11) {
+                fontSize = fontSize - 4;
+            }
+            if (textLength > 14) {
+                fontSize = fontSize - 5;
+            }
+
+            return fontSize.toString();
+        },
         getDisplayReading(sensor: Sensor): string {
             if (!_.isNumber(sensor.reading)) {
                 return "--";
@@ -181,7 +203,10 @@ export default Vue.extend({
                 return Promise.resolve();
             }
             const route = await makeCalibrationRoute(this.stationCalibration, this.moduleCalibration);
-            await this.$deprecatedNavigateTo(route);
+            await this.$navigateTo(getFullRouteComponent(route), {
+                frame: Frames.Stations,
+                props: route.props,
+            });
         },
     },
 });

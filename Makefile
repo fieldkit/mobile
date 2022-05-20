@@ -71,6 +71,8 @@ android-release: setup
 	cd $(APP) && ns build android --release --env.verbose --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 ios-release: setup
+	cat ~/.ssh/known_hosts || true
+	ssh-keyscan github.com
 	security list-keychains
 	security lock-keychain login.keychain
 	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
@@ -93,8 +95,8 @@ ios-release: setup
 	pod repo update
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2021/01/08)" --for-device --env.sourceMap --log trace
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2021/01/08)" --for-device --release --env.sourceMap
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2022)" --for-device --env.sourceMap --log trace
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2022)" --for-device --release --env.sourceMap
 
 android-logs:
 	adb logcat | grep -i " JS" | grep -v NSVue
@@ -115,7 +117,8 @@ ios-debug: setup
 clean:
 	rm -rf $(APP)/node_modules
 	rm -rf $(APP)/platforms
-	rm -rf $(APP)/hooks
+	rm -rf $(APP)/hooks/before-*
+	@echo Leaving $(APP)/hooks because of firebase-hack.
 
 images:
 	for a in $(APP)/app/images/Icon*.svg; do  \

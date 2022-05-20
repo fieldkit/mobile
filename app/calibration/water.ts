@@ -246,7 +246,7 @@ const Ec3 = (): CalibrationStrategy => {
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
-                    seconds: 120,
+                    seconds: 60 * 3,
                     heading: _L("calibration.water.ec.step0.calibrate.heading"),
                     done: _L("calibration.water.ec.step0.calibrate.done"),
                 }),
@@ -268,7 +268,7 @@ const Ec3 = (): CalibrationStrategy => {
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
-                    seconds: 120,
+                    seconds: 60 * 3,
                     heading: _L("calibration.water.ec.step1.calibrate.heading"),
                     done: _L("calibration.water.ec.step1.calibrate.done"),
                 }),
@@ -290,7 +290,7 @@ const Ec3 = (): CalibrationStrategy => {
                 }),
                 new WaitVisual(Wait, {
                     ...ecCommon,
-                    seconds: 120,
+                    seconds: 60 * 3,
                     heading: _L("calibration.water.ec.step2.calibrate.heading"),
                     done: _L("calibration.water.ec.step2.calibrate.done"),
                 }),

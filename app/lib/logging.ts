@@ -15,6 +15,7 @@ const MaximumLogFileSize = 1024 * 1024 * 1;
 class FileWriter {
     private queued = "";
     private scheduled: unknown | null = null;
+    private everything: string | null = null;
 
     constructor(public readonly getTaskId: TaskIdProvider) {}
 
@@ -50,18 +51,16 @@ class FileWriter {
         return possiblyLong;
     }
 
-    async flush(): Promise<void> {
-        try {
-            const file = getLogsFile();
-            const existing = await file.readText();
-            const final = this.trimmed(existing + this.queued);
-            await file.writeText(final);
-            this.queued = "";
+    flush(): Promise<void> {
+        const file = getLogsFile();
 
-            console.log(`flushed ${final.length}`);
-        } catch (error) {
-            console.log(`flush-error`, error);
-        }
+        const resolveEverything = this.everything == null ? file.readText() : Promise.resolve(this.everything);
+
+        return resolveEverything.then((everything) => {
+            this.everything = this.trimmed(everything + this.queued);
+            this.queued = "";
+            return file.writeTextSync(everything);
+        });
     }
 }
 
@@ -166,6 +165,7 @@ async function initialize(): Promise<void> {
     Trace.enable();
     Trace.addCategories(Trace.categories.Navigation);
     Trace.addCategories(Trace.categories.NativeLifecycle);
+    Trace.addCategories(Trace.categories.Debug);
     Trace.clearWriters();
     Trace.addWriter(new DebugConsoleWriter(getTaskId));
     Trace.addWriter(logFileWriter);

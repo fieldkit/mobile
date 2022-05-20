@@ -15,23 +15,21 @@ const screenSchema = yup.object().shape({
     guideTitle: yup.string().nullable(),
     guideUrl: yup.string().url().nullable(),
     header: yup
-        .object()
-        .shape({
+        .object({
             title: yup.string().required(),
             subtitle: yup.string().nullable(),
         })
         .nullable(),
     simple: yup.array().of(
-        yup.object().shape({
+        yup.object({
             body: yup.string().required(),
             images: yup.array().of(
-                yup.object().shape({
+                yup.object({
                     url: yup.string().required(),
                 })
             ),
             logo: yup
-                .object()
-                .shape({
+                .object({
                     url: yup.string().required(),
                 })
                 .nullable(),
@@ -41,18 +39,12 @@ const screenSchema = yup.object().shape({
 
 const schema = yup.object().shape({
     data: yup.object().shape({
-        flows: yup
-            .array()
-            .of(flowSchema)
-            .default(() => {
-                return [];
-            }),
-        screens: yup
-            .array()
-            .of(screenSchema)
-            .default(() => {
-                return [];
-            }),
+        flows: yup.array(flowSchema).default(() => {
+            return [];
+        }),
+        screens: yup.array(screenSchema).default(() => {
+            return [];
+        }),
     }),
 });
 

@@ -231,6 +231,7 @@ export default Vue.extend({
                 }
                 if (!error.response) {
                     await this.alert(_L('mustBeConnected'));
+                    return;
                 }
                 await this.alert("An error occured, please contact customer support.");
             } finally {

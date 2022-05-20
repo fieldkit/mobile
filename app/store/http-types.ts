@@ -3,7 +3,6 @@ import Long from "long";
 import { Buffer } from "buffer";
 import { debug } from "@/lib";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
-import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 
 const HttpReply = AppProto.HttpReply;
@@ -37,13 +36,6 @@ export interface LiveModuleReadings {
 export interface LiveReadings {
     time: number;
     modules: LiveModuleReadings[];
-}
-
-export interface AtlasStatus {
-    type: AtlasProto.SensorType;
-    calibration: {
-        total: number;
-    };
 }
 
 type ModuleConfiguration = DataProto.ModuleConfiguration;

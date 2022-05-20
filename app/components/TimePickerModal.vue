@@ -32,7 +32,9 @@ export default Vue.extend({
             this.displayTime = this.selectedTime;
         },
         onSubmit(): void {
+            if (this.$modal) {
             this.$modal.close(this.displayTime);
+            }
         },
     },
 });

@@ -1,0 +1,6 @@
+before-prepare
+before-checkForChanges
+after-prepare/firebase-build-gradle.js
+after-prepare/firebase-copy-google-services.js
+after-prepare/firebase-crashlytics-buildscript.js
+after-prepare/nativescript-firebase.js

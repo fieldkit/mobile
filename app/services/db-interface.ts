@@ -1016,10 +1016,15 @@ export default class DatabaseInterface {
                 JSON.stringify(notification.station),
                 JSON.stringify(notification.actions),
             ];
-            await this.execute(
-                `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                values
-            );
+
+            const maybe = await this.query<NotificationsTableRow>(`SELECT * FROM notifications WHERE key = ?`, [notification.key]);
+
+            if (maybe.length === 0) {
+                await this.execute(
+                    `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    values
+                );
+            }
         } catch (error) {
             log.error(`add-notifications error`, error);
         }

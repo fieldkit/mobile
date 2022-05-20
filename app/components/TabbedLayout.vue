@@ -204,7 +204,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, StationListView) || this.tabsToReload.includes(frame.id)) {
-                    await this.$deprecatedNavigateTo(StationListView, {
+                    await this.$navigateTo(StationListView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -220,7 +220,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, DataSync) || this.tabsToReload.includes(frame.id)) {
-                    await this.$deprecatedNavigateTo(DataSync, {
+                    await this.$navigateTo(DataSync, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },
@@ -236,7 +236,7 @@ export default Vue.extend({
 
                 // eslint-disable-next-line
                 if (!this.isSameView(frame.id, AppSettingsView)) {
-                    await this.$deprecatedNavigateTo(AppSettingsView, {
+                    await this.$navigateTo(AppSettingsView, {
                         frame: frame.id,
                         clearHistory: true,
                         transition: { name: "fade" },

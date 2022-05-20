@@ -1,4 +1,4 @@
-import { Application } from "@nativescript/core";
+import { Application } from '@nativescript/core';
 let softKeyboardCallback = null;
 Application.ios.addNotificationObserver(UIKeyboardDidShowNotification, (event) => {
     const height = event.userInfo.valueForKey(UIKeyboardFrameEndUserInfoKey).CGRectValue.size.height.toString();
@@ -11,6 +11,7 @@ Application.ios.addNotificationObserver(UIKeyboardDidHideNotification, (event) =
         softKeyboardCallback(0);
     }
 });
+
 export function registerSoftKeyboardCallback(callback) {
     softKeyboardCallback = callback;
 }

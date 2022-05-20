@@ -92,7 +92,6 @@ import { getAppRelative, getFileName, rebaseAbsolutePath, promiseAfter } from "@
 import NoteDisplay from "./NoteDisplay.vue";
 import EditNoteView from "./EditNoteView.vue";
 import DeployReviewView from "./DeployReviewView.vue";
-// import Blank from "@/components/Blank.vue";
 import StationDetailView from "@/components/StationDetailView.vue";
 import ConnectionStatusHeader from "@/components/ConnectionStatusHeader.vue";
 import SharedComponents from "@/components/shared";
@@ -136,9 +135,9 @@ export default Vue.extend({
             return rebaseAbsolutePath(path);
         },
         onPageLoaded(): void {},
-        openNote(key: string): Promise<void> {
+        async openNote(key: string): Promise<void> {
             debug.log("opening", key);
-            return this.$navigateTo(EditNoteView, {
+            await this.$navigateTo(EditNoteView, {
                 frame: "stations-frame",
                 props: {
                     stationId: this.stationId,
@@ -146,8 +145,8 @@ export default Vue.extend({
                 },
             });
         },
-        takePicture(): Promise<void> {
-            return this.$services
+        async takePicture(): Promise<void> {
+            await this.$services
                 .Images()
                 .takePicture()
                 .then((savedImage) => {
@@ -159,8 +158,8 @@ export default Vue.extend({
                     });
                 });
         },
-        selectPicture(): Promise<void> {
-            return this.$services
+        async selectPicture(): Promise<void> {
+            await this.$services
                 .Images()
                 .findPicture()
                 .then((savedImage) => {
@@ -175,8 +174,8 @@ export default Vue.extend({
         async goBack(): Promise<void> {
             await this.$navigateBack();
         },
-        onNavCancel(): Promise<void> {
-            return this.$navigateTo(StationDetailView, {
+        async onNavCancel(): Promise<void> {
+            await this.$navigateTo(StationDetailView, {
                 frame: "stations-frame",
                 clearHistory: true,
                 props: {

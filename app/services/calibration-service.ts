@@ -5,7 +5,6 @@ import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { QueryStation } from "./query-station";
 import { fixupModuleConfiguration, EmptyModuleConfig, ModuleConfiguration } from "@/store/http-types";
 import { fk_app as AppProto } from "fk-app-protocol/fk-app";
-import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import { Buffer } from "buffer";
 
 const log = Config.logger("CalibrationService");
@@ -74,27 +73,14 @@ export default class CalibrationService {
         return null;
     }
 
-    private fixupReply(reply: AtlasProto.WireAtlasReply | AppProto.ModuleHttpReply): ModuleConfiguration {
+    private fixupReply(reply: AppProto.ModuleHttpReply): ModuleConfiguration {
         if (reply.errors && reply.errors.length > 0) {
             debug.log(`calibration error`, JSON.stringify(reply));
             throw new Error(`calibration error ${JSON.stringify(reply)}`);
         }
 
-        if ((reply as AtlasProto.WireAtlasReply).calibration) {
-            const atlasReply = reply as AtlasProto.WireAtlasReply;
-            if (!atlasReply.calibration || !atlasReply.calibration.configuration) {
-                debug.log(`calibration error, no cal`, JSON.stringify(atlasReply));
-                throw new Error(`calibration error, no cal ${JSON.stringify(atlasReply)}`);
-            }
-            const configuration = fixupModuleConfiguration(
-                atlasReply.calibration.configuration ? Buffer.from(atlasReply.calibration.configuration) : null
-            );
-
-            return configuration || EmptyModuleConfig;
-        }
-
-        if ((reply as AppProto.ModuleHttpReply).configuration) {
-            const genericReply = reply as AppProto.ModuleHttpReply;
+        if (reply.configuration) {
+            const genericReply = reply;
             const configuration = fixupModuleConfiguration(genericReply.configuration ? Buffer.from(genericReply.configuration) : null);
 
             return configuration || EmptyModuleConfig;

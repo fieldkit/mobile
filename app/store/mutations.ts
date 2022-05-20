@@ -20,6 +20,7 @@ export enum MutationTypes {
     STATIONS = "STATIONS",
     UPDATE = "UPDATE",
 
+    TRANSFER_STARTING = "TRANSFER_STARTING",
     TRANSFER_OPEN = "TRANSFER_OPEN",
     TRANSFER_PROGRESS = "TRANSFER_PROGRESS",
     TRANSFER_CLOSE = "TRANSFER_CLOSE",
@@ -133,6 +134,12 @@ export class RemoveNoteMediaMutation {
     type = MutationTypes.REMOVE_NOTE_MEDIA;
 
     constructor(public readonly stationId: number, public readonly key: string | null, public readonly media: NoteMedia) {}
+}
+
+export class TransferStartingMutation {
+    type = MutationTypes.TRANSFER_STARTING;
+
+    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number = 0) {}
 }
 
 export class OpenProgressMutation {

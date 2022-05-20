@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-import { VueConstructor } from "vue/types/vue";
+import { Vue, VueConstructor } from "vue/types/vue";
 import { Page, Frame } from "@nativescript/core";
 import { NavigationEntryVue } from "nativescript-vue";
 import { debug } from "@/lib";
@@ -9,11 +9,11 @@ import { OurStore } from "@/store/our-store";
 
 import { Route, FullRoute, NavigateOptions, FirstTab } from "./navigate";
 
-import { routes, fullRoutes, namedRoutes } from "./routes";
+import { Frames, pages, routes, fullRoutes, namedRoutes } from "./routes";
 
 export * from "./navigate";
 
-export { routes, fullRoutes };
+export { Frames, pages, routes, fullRoutes };
 
 import { getBus } from "@/components/NavigationBus";
 
@@ -55,14 +55,8 @@ export async function navigateBackToBookmark(vue: Vue, frameId: string | undefin
     for (const a of frame.backStack) {
         const entryProps = a.entry as { props?: { bookmark?: boolean } };
         debug.log(`navigate-back-to-bookmark: ${frame.id} ${JSON.stringify(entryProps)}`);
-    }
-
-    for (const a of frame.backStack) {
-        const entryProps = a.entry as { props?: { bookmark?: boolean } };
-        if (entryProps.props?.bookmark === true) {
-            void vue.$navigateBack({ frame: frameToNav }, a);
-            return true;
-        }
+        void vue.$navigateBack({ frame: frameToNav }, a);
+        return true;
     }
 
     debug.log("navigate-back-to-bookmark: failed");
@@ -86,6 +80,11 @@ export function getRouteComponent(pageOrRoute: FullRoute | Route): unknown {
     }
 
     throw new Error(`unable to get route component`);
+}
+
+export function getFullRouteComponent(route: FullRoute): typeof Vue {
+    const named = namedRoutes[route.name];
+    return named.page;
 }
 
 export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
@@ -144,7 +143,7 @@ export function navigatorFactory(store: OurStore, navigateTo: NavigateToFunc) {
             await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
         } else {
             const withDefaults = addDefaults(options, { frame: undefined });
-            debug.log(`nav:vue: ${pageOrRoute.options.name} ${JSON.stringify(withDefaults)}`);
+            debug.log(`nav:vue: ${pageOrRoute?.options?.name} ${JSON.stringify(withDefaults)}`);
             store.commit(
                 new NavigationMutation(
                     withDefaults.frame || "<no-frame>",

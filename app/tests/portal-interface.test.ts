@@ -98,7 +98,7 @@ describe("UserAuth", () => {
             name: "Carla",
             email: "carla@example.com",
             password: "newuserspassword",
-            tncAccept: true
+            tncAccept: true,
         };
         const mockResponse = { status: 200 };
         mockedAxios.request.mockReturnValueOnce(Promise.resolve(mockResponse));

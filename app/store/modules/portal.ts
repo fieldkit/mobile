@@ -147,6 +147,9 @@ const actions = (services: ServiceRef) => {
             debug.log("register-value", value);
         },
 		*/
+        [ActionTypes.RESUME_PORTAL_SESSION]: ({ state, dispatch }: ActionParameters) => {
+            debug.log("resume-portal-session");
+        },
         [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
             const portal = services.portal();
             const self = await portal.login(payload);

@@ -1,12 +1,7 @@
 <template>
-    <Page>
+    <Page actionBarHidden="true">
         <GridLayout :rows="currentUser && !isTncValid ? 'auto, *, 80' : '*'">
-            <Label
-                v-if="currentUser && !isTncValid"
-                class="p-20 tnc-header"
-                :text="_L('appSettings.tnc.updated')"
-                textWrap="true"
-            />
+            <Label v-if="currentUser && !isTncValid" class="p-20 tnc-header" :text="_L('appSettings.tnc.updated')" textWrap="true" />
             <ScrollView row="1" @scroll="onScroll">
                 <StackLayout class="p-20">
                     <StackLayout ref="tncLayout">
@@ -31,8 +26,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { CurrentUser, RemoveAccountAction } from "~/store";
-import { fullRoutes } from "~/routes";
-import {EventData, isAndroid, isIOS, ScrollView} from "@nativescript/core";
+import { fullRoutes, pages } from "~/routes";
+import { EventData, isAndroid, isIOS, ScrollView } from "@nativescript/core";
 
 export default Vue.extend({
     name: "AppSettingsTncView",
@@ -63,22 +58,26 @@ export default Vue.extend({
                 return;
             }
             try {
-                const portal = this.$services.PortalInterface();
-                await portal.accept(this.currentUser);
-                // eslint-disable-next-line
-                await this.$deprecatedNavigateTo(fullRoutes.onboarding.start);
+                if (this.isTncRead) {
+                    const portal = this.$services.PortalInterface();
+                    await portal.accept(this.currentUser);
+                    // eslint-disable-next-line
+                    await this.$navigateTo(pages.TabbedLayout, {
+                        props: fullRoutes.onboarding.start.props,
+                        clearHistory: true,
+                    });
+                }
             } catch (error) {
                 return;
             }
         },
-
-        async disagree() {
+        async disagree(): Promise<void> {
             if (this.currentUser) {
                 await this.$s.dispatch(new RemoveAccountAction(this.currentUser.email));
             }
-            this.$navigateBack();
+            // eslint-disable-next-line
+            await this.$navigateTo(pages.LoginView, { clearHistory: true });
         },
-
         onScroll(event: EventData) {
             const scrollView = <ScrollView>event.object;
             const whitespaceHeight = 100;

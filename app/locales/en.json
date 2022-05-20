@@ -493,7 +493,8 @@
             "updatesTitle": "Updates",
             "updatesDescription": "No available updates",
             "downloadUpdatesTitle": "Download Updates",
-            "downloadUpdatesDescription": "Download FieldKit app updates automatically when on WiFi internet "
+            "downloadUpdatesDescription": "Download FieldKit app updates automatically when on WiFi internet ",
+            "preDeploymentChecklist": "Pre-deployment Checklist"
         },
         "legal": {
             "legal": "Legal",
@@ -907,7 +908,9 @@
             "do": {
                 "name": "Dissolved Oxygen",
                 "sensors": {
-                    "do": "Dissolved Oxygen"
+                    "do": "Dissolved Oxygen",
+                    "temperature": "Temperature",
+                    "pressure": "Pressure"
                 }
             },
             "dox": {

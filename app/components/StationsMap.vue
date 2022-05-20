@@ -9,7 +9,7 @@
                     :accessToken="token"
                     zoomLevel="11"
                     hideCompass="false"
-                    showUserLocation="true"
+                    :showUserLocation="locationEnabled"
                     disableZoom="false"
                     disableRotation="false"
                     disableScroll="false"
@@ -65,6 +65,10 @@ export default Vue.extend({
             type: Number,
             default: 0,
         },
+        locationEnabled: {
+            type: Boolean,
+            required: true,
+        },
     },
     data(): {
         key: string;
@@ -86,12 +90,6 @@ export default Vue.extend({
             hasMap: false,
             located: true,
         };
-    },
-    watch: {
-        mappedStations(): void {
-            this.shown = false;
-            this.showStations();
-        },
     },
     updated(): void {
         debug.log(this.key, "map: updated", this.isIOS);

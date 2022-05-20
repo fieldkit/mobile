@@ -4,13 +4,13 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { ServicesImpl, SynchronizeNotes, PatchPortalNotes, Ids } from "@/services";
 import { Notes, SaveNotesAction, UpdateNoteMutation } from "@/store";
 
+const clock = FakeTimers.install();
+
 describe("Notes", () => {
     let services;
     let store;
-    let clock;
 
     beforeEach(async () => {
-        clock = FakeTimers.install();
         clock.tick(10);
 
         services = new ServicesImpl();
@@ -87,7 +87,7 @@ describe("Notes", () => {
             expect(patches.mock.calls.length).toBe(0);
             expect(addOrUpdates.mock.calls.length).toBe(1);
 
-            const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
+            const [saved] = addOrUpdates.mock.calls[0] as unknown as [Notes];
 
             expect(saved.studyObjective.body).toBe("Portal Note");
         });
@@ -127,7 +127,7 @@ describe("Notes", () => {
             expect(patches.mock.calls.length).toBe(0);
             expect(addOrUpdates.mock.calls.length).toBe(1);
 
-            const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
+            const [saved] = addOrUpdates.mock.calls[0] as unknown as [Notes];
 
             expect(saved.studyObjective.body).toBe("Portal Note");
         });
@@ -169,7 +169,7 @@ describe("Notes", () => {
             expect(patches.mock.calls.length).toBe(1);
             expect(addOrUpdates.mock.calls.length).toBe(0);
 
-            const [id, saved] = (patches.mock.calls[0] as unknown) as [number, PatchPortalNotes];
+            const [id, saved] = patches.mock.calls[0] as unknown as [number, PatchPortalNotes];
 
             expect(id).toBe(ids.portal);
             expect(saved.notes[0].body).toBe("Mobile Note");
@@ -212,7 +212,7 @@ describe("Notes", () => {
             expect(patches.mock.calls.length).toBe(1);
             expect(addOrUpdates.mock.calls.length).toBe(0);
 
-            const [id, saved] = (patches.mock.calls[0] as unknown) as [number, PatchPortalNotes];
+            const [id, saved] = patches.mock.calls[0] as unknown as [number, PatchPortalNotes];
 
             expect(id).toBe(ids.portal);
             expect(saved.notes[0].body).toBe("");
@@ -265,7 +265,7 @@ describe("Notes", () => {
             expect(addOrUpdates.mock.calls.length).toBe(1);
             expect(downloads.mock.calls.length).toBe(1);
 
-            const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
+            const [saved] = addOrUpdates.mock.calls[0] as unknown as [Notes];
 
             expect(saved.studyObjective.body).toBe("Portal Note");
         });

@@ -20,7 +20,7 @@
 
                     <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
-					<Button class="btn btn-primary btn-padded" text="Throw Exception" @tap="throwException" />
+                    <Button class="btn btn-primary btn-padded" text="Throw Exception" @tap="throwException" />
                     <!--
 					<Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
 					<Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
@@ -120,18 +120,16 @@ export default Vue.extend({
         portalEnvs(): EnvOption[] {
             return this.$s.state.portal.availableEnvs
                 .filter((e) => e.name != null)
-                .map(
-                    (env: PortalEnv, index): EnvOption => {
-                        if (!env.name) throw new Error(`name is missing`);
-                        return {
-                            index: index,
-                            selected: env.baseUri == this.$s.state.portal.env.baseUri,
-                            display: env.name,
-                            value: env.name,
-                            env: env,
-                        };
-                    }
-                );
+                .map((env: PortalEnv, index): EnvOption => {
+                    if (!env.name) throw new Error(`name is missing`);
+                    return {
+                        index: index,
+                        selected: env.baseUri == this.$s.state.portal.env.baseUri,
+                        display: env.name,
+                        value: env.name,
+                        env: env,
+                    };
+                });
         },
         selectedPortalEnvIndex(): number | null {
             const selected = this.portalEnvs.find((e) => e.selected);
@@ -267,8 +265,8 @@ export default Vue.extend({
                     flow: {
                         name: name,
                     },
-                    finished: new FullRoute("tabbed", "outer-frame", {}),
-                    skipped: new FullRoute("tabbed", "outer-frame", {}),
+                    finished: new FullRoute("tabbed", "default", {}),
+                    skipped: new FullRoute("tabbed", "default", {}),
                 })
             );
         },

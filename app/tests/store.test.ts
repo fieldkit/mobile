@@ -4,7 +4,7 @@ import { MockStationReplies } from "./utilities";
 import { debug } from "@/lib";
 import {
     PhoneLocation,
-    OpenProgressMutation,
+    TransferStartingMutation,
     CommonLocations,
     StationRepliedAction,
     MutationTypes,
@@ -16,14 +16,14 @@ import { nearby } from "@/store/modules/nearby";
 import { fk_app } from "fk-app-protocol/fk-app";
 import FakeTimers from "@sinonjs/fake-timers";
 
+const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+
 describe("Store", () => {
     let services;
     let mockStation;
     let store;
-    let clock;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
         clock.tick(10);
 
         services = new ServicesImpl();
@@ -175,7 +175,7 @@ describe("Store", () => {
 
             clock.tick(50000);
 
-            await store.commit(new OpenProgressMutation(info.deviceId, true, 0));
+            await store.commit(new TransferStartingMutation(info.deviceId, true));
 
             await store.dispatch(ActionTypes.REFRESH);
 

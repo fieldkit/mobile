@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "@/config";
-import { unixNow, promiseAfter, QueryThrottledError, /* StationQueryError, */ HttpError, ConnectionError } from "@/lib";
+import { unixNow, promiseAfter, /* QueryThrottledError, StationQueryError, */ HttpError, ConnectionError } from "@/lib";
 import { Services } from "@/services/interface";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
@@ -43,13 +43,61 @@ const log = Config.logger("QueryStation");
 
 type StationQuery = { reply: AppProto.HttpReply; serialized: SerializedStatus };
 
-type ResolveFunc = () => void;
+interface QueuedPromise {
+    promise: () => Promise<unknown>;
+    resolve: (v: unknown) => void;
+    reject: (v: unknown) => void;
+}
+
+// Stolen from https://medium.com/@karenmarkosyan/how-to-manage-promises-into-dynamic-queue-with-vanilla-javascript-9d0d1f8d4df5
+export default class PromiseQueue {
+    queue: QueuedPromise[] = [];
+    pendingPromise = false;
+    working = false;
+
+    enqueue<T>(promise: () => Promise<T>): Promise<T> {
+        return new Promise((resolve, reject) => {
+            this.queue.push({
+                promise,
+                resolve,
+                reject,
+            });
+            this.dequeue();
+        });
+    }
+
+    dequeue(): boolean {
+        if (this.working) {
+            return false;
+        }
+        const item = this.queue.shift();
+        if (!item) {
+            return false;
+        }
+        try {
+            this.working = true;
+            item.promise()
+                .then((value) => {
+                    this.working = false;
+                    item.resolve(value);
+                    this.dequeue();
+                })
+                .catch((err) => {
+                    this.working = false;
+                    item.reject(err);
+                    this.dequeue();
+                });
+        } catch (err) {
+            this.working = false;
+            item.reject(err);
+            this.dequeue();
+        }
+        return true;
+    }
+}
 
 export class QueryStation {
     private readonly conservify: Conservify;
-    private readonly openQueries: { [index: string]: boolean } = {};
-    private readonly lastQueries: { [index: string]: Date } = {};
-    private readonly lastQueryTried: { [index: string]: Date } = {};
 
     constructor(services: Services) {
         this.conservify = services.Conservify();
@@ -187,12 +235,13 @@ export class QueryStation {
     }
 
     public async calculateDownloadSize(url: string): Promise<CalculatedSize> {
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url, unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.catchErrors(
                 this.conservify
                     .json({
                         method: "HEAD",
-                        url: url,
+                        url: uniqueUrl,
                     })
                     .then((response: HttpResponse) => {
                         if (response.statusCode != 204) {
@@ -230,11 +279,12 @@ export class QueryStation {
     }
 
     public async download(url: string, path: string, progress: ProgressCallback): Promise<HttpResponse> {
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url, unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.conservify
                 .download({
                     method: "GET",
-                    url: url,
+                    url: uniqueUrl,
                     path: path,
                     progress: progress,
                 })
@@ -252,11 +302,12 @@ export class QueryStation {
     public async uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
         await logAnalytics("station_firmware_upload");
 
-        return await this.trackActivity({ url: url, throttle: false }, () => {
+        const uniqueUrl = this.makeUniqueUrl(url + "/upload/firmware?swap=1", unixNow());
+        return await this.trackActivity({ url: uniqueUrl, throttle: false }, () => {
             return this.conservify
                 .upload({
                     method: "POST",
-                    url: url + "/upload/firmware?swap=1",
+                    url: uniqueUrl,
                     path: path,
                     progress: progress,
                     defaultTimeout: 30,
@@ -318,13 +369,28 @@ export class QueryStation {
         return url.replace(/\/v1.*/, "");
     }
 
-    private readonly queued: { [index: string]: ResolveFunc } = {};
+    private readonly queued: { [index: string]: PromiseQueue } = {};
 
     private async trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
-        if (this.openQueries[stationKey] === true) {
+
+        if (!_.isObject(this.queued[stationKey])) {
+            this.queued[stationKey] = new PromiseQueue();
+        }
+
+        const promiseQueue = this.queued[stationKey];
+        const promised = promiseQueue.enqueue(() => {
+            return factory();
+        });
+
+        promiseQueue.dequeue();
+
+        return promised;
+
+        /*
+        if (_.isObject(this.openQueries[stationKey])) {
             if (options.throttle) {
-                debug.log(options.url, "query-station: throttle");
+                debug.log(options.url, "query-station: throttle", this.openQueries[stationKey]);
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
@@ -334,18 +400,17 @@ export class QueryStation {
                 return this.trackActivity(options, factory);
             });
         }
-        this.openQueries[stationKey] = true;
-        this.lastQueryTried[stationKey] = new Date();
+
+        this.openQueries[stationKey] = new OpenQuery(stationKey, options.url);
 
         return factory()
             .then(
                 (value: T) => {
-                    this.openQueries[stationKey] = false;
-                    this.lastQueries[stationKey] = new Date();
+                    delete this.openQueries[stationKey];
                     return value;
                 },
                 (error) => {
-                    this.openQueries[stationKey] = false;
+                    delete this.openQueries[stationKey];
                     return Promise.reject(error);
                 }
             )
@@ -357,13 +422,19 @@ export class QueryStation {
                     resume();
                 }
             });
+        */
     }
 
     private trackActivityAndThrottle<T>(url: string, factory): Promise<T> {
         return this.trackActivity<T>({ url: url, throttle: true }, factory);
     }
 
-    private counter = 0;
+    private makeUniqueUrl(noCounter: string, n: number): string {
+        if (noCounter.indexOf("?") >= 0) {
+            return `${noCounter}&n=${n}`;
+        }
+        return `${noCounter}?n=${n}`;
+    }
 
     /**
      * Perform a single station query, setting all the critical defaults for the
@@ -376,22 +447,15 @@ export class QueryStation {
         return await this.trackActivity(finalOptions, async () => {
             await logAnalytics("station_querying", { url: url });
 
-            function addUrlCounter(noCounter: string, n: number): string {
-                if (noCounter.indexOf("?") >= 0) {
-                    return `${noCounter}&c=${n}`;
-                }
-                return `${noCounter}?c=${n}`;
-            }
+            const uniqueUrl = this.makeUniqueUrl(url, unixNow());
 
-            const counterUrl = addUrlCounter(url, this.counter++);
-
-            debug.log("url", counterUrl);
+            debug.log("url", uniqueUrl);
 
             return this.catchErrors(
                 this.conservify
                     .protobuf({
                         method: "POST",
-                        url: counterUrl,
+                        url: uniqueUrl,
                         body: binaryQuery,
                         connectionTimeout: 3,
                         headers: {

@@ -6,8 +6,6 @@ import crypto from "crypto";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol")); // eslint-disable-line
 const HttpReply = appRoot.lookupType("fk_app.HttpReply"); // eslint-disable-line
-const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol")); // eslint-disable-line
-const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply"); // eslint-disable-line
 
 export function randomHexString(): string {
     return crypto.randomBytes(16).toString("hex");
@@ -166,15 +164,6 @@ export class MockStationReplies {
 
     public queueBody(body: HttpStatusReply): MockStationReplies {
         const encoded = HttpReply.encodeDelimited(body).finish();
-        const response = {
-            body: Buffer.from(encoded),
-        };
-
-        return this.queueResponse(response);
-    }
-
-    public queueAtlasBody(body: any): MockStationReplies {
-        const encoded = AtlasReply.encodeDelimited(body).finish();
         const response = {
             body: Buffer.from(encoded),
         };

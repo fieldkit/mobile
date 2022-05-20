@@ -15,7 +15,7 @@ import _ from "lodash";
 import moment from "moment";
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
-import VueDevtools from "nativescript-vue-devtools";
+// import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
 
 import { debug, _L, initializeLogging } from "./lib";
@@ -120,9 +120,11 @@ function configureVueJs(services: typeof Services): Store {
     Vue.prototype._L = _L;
 
     // Enable use of dev tools on developer machine.
+    /*
     if (Config.debugging.machine) {
         Vue.use(VueDevtools, { host: Config.debugging.machine });
     }
+    */
 
     // This is extremely verbose and sometimes the only way to
     // discover why a VueJs page is breaking.
@@ -147,7 +149,7 @@ function startVueJs(services: typeof Services): void {
 
     new Vue({
         store,
-        render: (h) => h("Frame", { attrs: { id: "outer-frame" } }, [h(StartupScreen)]),
+        render: (h) => h("Frame", { attrs: { id: "default" } }, [h(StartupScreen)]),
     }).$start();
 }
 

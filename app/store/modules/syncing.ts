@@ -83,6 +83,8 @@ const actions = (services: ServiceRef) => {
 
             await logAnalytics("station_download");
 
+            commit(MutationTypes.TRANSFER_STARTING, new OpenProgressMutation(sync.deviceId, true, 0));
+
             state.busy[sync.deviceId] = true;
 
             debug.log("syncing:download", sync.downloads);
