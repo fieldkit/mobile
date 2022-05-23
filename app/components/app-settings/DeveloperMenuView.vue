@@ -5,6 +5,7 @@
             <ScrollView>
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
+
                     <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
                     <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
@@ -53,6 +54,7 @@ import Vue from "vue";
 import _ from "lodash";
 import axios from "axios";
 import { Dialogs, knownFolders } from "@nativescript/core";
+import * as utils from "@nativescript/core/utils/utils";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
@@ -308,10 +310,22 @@ export default Vue.extend({
                 }
             });
         },
-        uploadDiagnostics(): Promise<any> {
-            return this.$showModal(DiagnosticsModal, {
-                props: {},
+        async uploadDiagnostics(): Promise<void> {
+            const uploadOrNot = await Dialogs.confirm({
+                title: _L("diagnostics.privacyNotice.title"),
+                message: _L("diagnostics.privacyNotice.body"),
+                okButtonText: _L("diagnostics.privacyNotice.upload"),
+                cancelButtonText: _L("diagnostics.privacyNotice.cancel"),
+                neutralButtonText: _L("diagnostics.privacyNotice.privacyPolicy"),
             });
+
+            if (uploadOrNot) {
+                await this.$showModal(DiagnosticsModal, {
+                    props: {},
+                });
+            } else if (uploadOrNot === undefined) {
+                utils.openUrl("https://www.fieldkit.org/privacy-policy/");
+            }
         },
         async deleteLogs(): Promise<void> {
             const confirmation = await this.superConfirm();
