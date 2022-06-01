@@ -99,7 +99,7 @@
     "nativescript": "^8.2.3",
     "nativescript-vue-template-compiler": "^2.9.2",
     "prettier": "^2.6.1",
-    "sharp": "^0.27.2",
+    "sharp": "^0.30.5",
     "speed-measure-webpack-plugin": "^1.5.0",
     "sqlite3": "^5.0.2",
     "ts-jest": "^26.5.6",
