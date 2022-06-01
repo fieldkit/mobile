@@ -1,9 +1,9 @@
 import _ from "lodash";
-// import { Device, Folder, File, knownFolders } from "@nativescript/core";
-import { debug /*, uuidv4, copyLogs*/ } from "@/lib";
-// import { DiagnosticsDirectory, getRelativeTo, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
+import { Device, Folder, File, knownFolders } from "@nativescript/core";
+import { debug, uuidv4, copyLogs } from "@/lib";
+import { DiagnosticsDirectory, getRelativeTo, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import { Services } from "@/services";
-// import Config, { Build } from "@/config";
+import Config, { Build } from "@/config";
 
 export interface DiagnosticsProgress {
     id: string;
@@ -25,13 +25,12 @@ export interface SavedDiagnostics {
 }
 
 export default class Diagnostics {
-    // private readonly baseUrl: string;
+    private readonly baseUrl: string;
 
-    constructor(public readonly services: Services) {
-        // this.baseUrl = "https://code.conservify.org/diagnostics";
+    constructor(private readonly services: Services) {
+        this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    /*
     private async prepare(progress: ProgressFunc): Promise<string> {
         const id = uuidv4();
 
@@ -87,11 +86,9 @@ export default class Diagnostics {
 
         return id;
     }
-    */
 
     public async upload(progress: ProgressFunc): Promise<SavedDiagnostics | void> {
         try {
-            /*
             await dumpAllFiles(null, false);
 
             const id = await this.prepare(progress);
@@ -99,6 +96,15 @@ export default class Diagnostics {
             debug.log(`diagnostics-upload: ${id}`);
 
             progress({ id: id, message: `Uploading bundle...` });
+
+            /*
+            if (true) {
+                return {
+                    reference: { phrase: "DONE" },
+                    id: id,
+                };
+            }
+			*/
 
             const reference = await this.uploadAll(id, progress);
 
@@ -110,14 +116,12 @@ export default class Diagnostics {
                 reference: reference,
                 id: id,
             };
-            */
         } catch (err: unknown) {
             debug.log(`diagnostics error:`, err);
             return Promise.resolve();
         }
     }
 
-    /*
     private gatherDeviceInformation(): DeviceInformation {
         const device = Device;
 
@@ -208,5 +212,4 @@ export default class Diagnostics {
     private getDiagnosticsFolder(): Folder {
         return knownFolders.documents().getFolder(DiagnosticsDirectory);
     }
-    */
 }
