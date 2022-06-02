@@ -7,10 +7,7 @@
                 <CalibrationSummary :sensor="sensor" />
 
                 <StackLayout class="field-container">
-                    <Label
-                        text="Please check the Product Guide for the suggested re-calibration intervals for each sensor."
-                        textWrap="true"
-                    />
+                    <Label :text="_L('calibration.check.pleaseCheckProductGuide')" textWrap="true" />
                 </StackLayout>
 
                 <Button class="btn btn-padded btn-clear" :text="visual.clear" :isEnabled="connected && !busy" @tap="clear" />

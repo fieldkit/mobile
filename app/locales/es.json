@@ -162,13 +162,9 @@
     "updateFirmwareModalContinueButton": "Continue Update",
     "updateFirmwareModalCancelButton": "Cancel",
     "fieldkitSettings": "Ajustes FieldKit",
-    "stationDisconnectedTapHere": "Estación desconectado. Toque aquí para volver a conectar.",
     "expectedValue": "Valor esperado",
-    "calibrationFailed": "Error de calibración",
-    "calibrationErrorOccured": "Se ve como un error ha ocurrido. Trate de calibración de nuevo ahora o tratar más adelante, si lo prefiere.",
     "calibrateLater": "Calibrar tarde",
     "waterPh": "El pH del agua",
-    "chooseCalibrationType": "Elegir el tipo de calibración",
     "choosePhInstruction": "¿Le gustaría realizar una calibración rápida o calibración de tres puntos?",
     "quickCalibration": "Calibración rápida",
     "threePointCalibration": "La calibración de tres puntos",
@@ -307,22 +303,19 @@
     "authenticated": "Usted ha autenticado correctamente",
     "currentEnvironment": "El entorno actual es",
     "resetCalibration": "Calibración de reposición",
-    "resetOnboarding": "Restablecer Onboarding",
-    "uploadDiagnostics": "Subir Diagnóstico",
     "deleteDB": "DB borrado",
     "deleteFiles": "Borrar archivos",
     "crash": "Choque",
     "manualCrash": "Manual de Crash",
-    "devOptions": "Opciones de desarrollo",
     "noStationsFound": "No se encontraron estaciones",
-    "resetDoneGoToOnboarding": "Reset completo! ¿Le gustaría ir a Onboarding?",
     "no": "No",
-    "dbDeleted": "Base de datos eliminados",
-    "errorRemovingFiles": "Error al eliminar archivos!",
     "filesRemoved": "Archivos eliminado!",
-    "includeThisPhrase": "¡Éxito! Por favor, incluya esta frase en su informe de error:",
     "name": "Nombre",
     "email": "Email",
+    "emailTooLong": "Email too long.",
+    "invalidEmail": "Invalid Email",
+    "passwordTooShort": "Password too short.",
+    "nameTooShort": "Name too long.",
     "password": "Contraseña",
     "confirmPassword": "Confirmar contraseña",
     "nameRequired": "El nombre es un campo obligatorio.",
@@ -438,11 +431,43 @@
         }
     },
     "station": {},
+    "version": "Version",
+    "synced": "Synced",
+    "dataAuthenticationError": "You are logged out. Please open settings and Log In.",
+    "readyToDownloadStation": "Ready to download from the station",
+    "syncError": "An error occurred! Oh no!",
+    "titleStations": "FieldKit Stations",
+    "doubleTapScan": "Double tap to scan for stations.",
+    "scanning": "Scanning",
     "appSettings": {
         "title": "Settings",
         "developer": {
             "developer": "Developer",
-            "notice": "The options below have irreversible consequences. Please only use them when directed to."
+            "notice": "The options below have irreversible consequences. Please only use them when directed to.",
+            "uploadDiagnostics": "Subir Diagnóstico",
+            "syncPortal": "Sync Portal",
+            "realOnboarding": "Real Onboarding",
+            "resetOnboarding": "Restablecer Onboarding",
+            "stopDiscovery": "Stop Discovery",
+            "startDiscovery": "Start Discovery",
+            "resetAllDiscovery": "Restart All Discovery",
+            "examineNetwork": "Examine Network",
+            "throwException": "Throw Exception",
+            "resetLogs": "Reset Logs",
+            "resetData": "Reset Data",
+            "forgetUploads": "Forget Uploads",
+            "forgetDownloads": "Forget Downloads",
+            "zones": "Zones",
+            "flows": "Flows",
+            "flow": "Flow",
+            "areYouSure": "Are you sure?",
+            "areYouReallySure": "Are really you sure? This is irreversible.",
+            "resetDoneGoToOnboarding": "Reset completo! ¿Le gustaría ir a Onboarding?",
+            "devOptions": "Opciones de desarrollo",
+            "confirmLogsDeleted": "Logs deleted.",
+            "dbDeleted": "Base de datos eliminados",
+            "errorRemovingFiles": "Error al eliminar archivos!",
+            "includeThisPhrase": "¡Éxito! Por favor, incluya esta frase en su informe de error:"
         },
         "data": {
             "data": "Data",
@@ -497,7 +522,14 @@
             "password": "Password",
             "resetPassword": "Reset Password",
             "login": "Log in",
-            "createAccount": "Create an account"
+            "createAccount": "Create an account",
+            "switch": "Switch",
+            "loggedIn": "Logged In",
+            "notLoggedIn": "Not Logged In",
+            "lastSynchronizedAt": "Last synchronized at",
+            "titleSyncDialog": "Are you sure you would like to sync this account?",
+            "titleRemoveDialog": "Are you sure you would like to remove this account?",
+            "titleLogoutAll": "Are you sure?"
         },
         "help": {
             "help": "Help",
@@ -511,7 +543,8 @@
             "updatesDescription": "No available updates",
             "downloadUpdatesTitle": "Download Updates",
             "downloadUpdatesDescription": "Download FieldKit app updates automatically when on WiFi internet ",
-            "preDeploymentChecklist": "Pre-deployment Checklist"
+            "preDeploymentChecklist": "Pre-deployment Checklist",
+            "openGitHub": "Open GitHub in browser?"
         },
         "legal": {
             "legal": "Legal",
@@ -532,7 +565,11 @@
     "calibration": {
         "failure": {
             "again": "Calibrate Again",
-            "later": "Calibrate Later"
+            "later": "Calibrate Later",
+            "calibrationFailed": "Error de calibración",
+            "calibrationErrorOccurred": "Se ve como un error ha ocurrido. Trate de calibración de nuevo ahora o tratar más adelante, si lo prefiere.",
+            "expected": "Expected",
+            "measured": "Measured"
         },
         "water": {
             "ph": {
@@ -871,20 +908,40 @@
                 }
             }
         },
+        "summary": {
+            "calibrationMethod": "Calibration Method",
+            "threePointMethod": "Three-point Method",
+            "notCalibrated": "Not Calibrated",
+            "standardValues": "Standard Values",
+            "factorySensorValues": "Factory Sensor Values",
+            "lastCalibrated": "Last Calibrated"
+        },
+        "check": {
+            "pleaseCheckProductGuide": "Please check the Product Guide for the suggested re-calibration intervals for each sensor."
+        },
+        "strategy": {
+            "chooseCalibrationType": "Elegir el tipo de calibración",
+            "setModuleBaseline": "For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+        },
+        "progressBar": {
+            "stationDisconnectedTapHere": "Estación desconectado. Toque aquí para volver a conectar."
+        },
+        "wait": {
+            "calibrationDoneHeading": "Tap the Calibrate button to record the sensor value and the standard value.",
+            "calibrationSensorValue": "Sensor Value",
+            "calibrationStandardValue": "Standard Value",
+            "calibrationValidationError": "A valid number is required",
+            "calibrationDoneHint": "Recording these values together allows us to later calibrate the sensor."
+        },
         "uncalibrated": "Uncalibrated",
         "calibrated": "Calibrated",
         "cleared": "Cleared"
     },
     "calibrationRequiredHeading": "Calibration Required",
     "calibrationRequiredText": "calibration Required Text",
-    "calibrationSensorValue": "Sensor Value",
-    "calibrationStandardValue": "Standard Value",
-    "calibrationDoneHeading": "Tap the Calibrate button to record the sensor value and the standard value.",
-    "calibrationDoneHint": "Recording these values together allows us to later calibrate the sensor.",
     "calibrationBeforeDeploymentHeading": "Calibrate before Deployment",
     "calibrationBeforeDeploymentText": "Calibrate the sensors for accurate data readings.",
     "calibrationBeforeDeploymentButton": "Start Calibration",
-    "calibrationValidationError": "A valid number is required",
     "onboarding": {
         "assembled": {
             "message": "Success!"
@@ -894,6 +951,9 @@
                 "caseSensitive": "Note: The WiFi network name and password are case sensitive.",
                 "band": "Only 2.4GHz WiFi networks are currently supported."
             }
+        },
+        "nearby": {
+            "onboarding": "Onboarding"
         }
     },
     "titles": {

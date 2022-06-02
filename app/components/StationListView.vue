@@ -1,6 +1,6 @@
 <template>
     <Page @loaded="onLoaded">
-        <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('titleStations')" :canNavigateBack="false" :canNavigateSettings="false" />
 
         <ScrollView @doubleTap="onDoubleTap">
             <GridLayout rows="auto,*">
@@ -40,8 +40,8 @@
                     </GridLayout>
 
                     <StackLayout>
-                        <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
-                        <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
+                        <Label v-if="!scanning" :text="_L('doubleTapScan')" textWrap="true" class="scan-notice" />
+                        <Label v-if="scanning" :text="_L('scanning')" textWrap="true" class="scan-notice" />
                     </StackLayout>
                 </StackLayout>
             </GridLayout>

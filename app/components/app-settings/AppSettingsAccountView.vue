@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.account.accounts')" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.account.accounts')" :canNavigateSettings="false"/>
         <GridLayout rows="*,auto">
             <ScrollView row="0">
                 <DockLayout stretchLastChild="true" backgroundColor="white">
@@ -13,11 +13,13 @@
                                 class="v-middle"
                                 src="~/images/Icon_Save_Account.png"
                             />
-                            <StackLayout col="0" row="0" v-else />
+                            <StackLayout col="0" row="0" v-else/>
                             <StackLayout col="1" row="0">
-                                <Label :text="account.email" textWrap="true" class="account-email" />
-                                <Label text="Logged In" textWrap="true" class="account-subtitle" v-if="account.token" />
-                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else />
+                                <Label :text="account.email" textWrap="true" class="account-email"/>
+                                <Label :text="_L('appSettings.account.loggedIn')" textWrap="true"
+                                       class="account-subtitle" v-if="account.token"/>
+                                <Label :text="_L('appSettings.account.notLoggedIn')" textWrap="true"
+                                       class="account-subtitle" v-else/>
                             </StackLayout>
 
                             <FlexboxLayout
@@ -28,26 +30,30 @@
                                 justifyContent="space-around"
                                 alignItems="center"
                             >
-                                <Image v-show="opened(account)" class="icon-button" width="25" src="~/images/Icon_Cheveron_Up.png" />
-                                <Image v-show="!opened(account)" class="icon-button" width="25" src="~/images/Icon_Cheveron_Down.png" />
+                                <Image v-show="opened(account)" class="icon-button" width="25"
+                                       src="~/images/Icon_Cheveron_Up.png"/>
+                                <Image v-show="!opened(account)" class="icon-button" width="25"
+                                       src="~/images/Icon_Cheveron_Down.png"/>
                             </FlexboxLayout>
                         </GridLayout>
                         <StackLayout v-if="opened(account)" class="details-container">
-                            <Label :text="'Last synchronized at ' + prettyTime(account.lastSynced)" />
-                            <Button class="btn" text="Log Out" v-if="account.token && false" />
-                            <Button class="btn" text="Log In" v-if="!account.token && false" />
+                            <Label
+                                :text="_L('appSettings.account.lastSynchronizedAt') + prettyTime(account.lastSynced)"/>
+                            <Button class="btn" :text="_L('logOut')" v-if="account.token && false"/>
+                            <Button class="btn" :text="_L('appSettings.account.login')" v-if="!account.token && false"/>
                             <Button
                                 class="btn"
-                                text="Switch"
+                                :text="_L('appSettings.account.switch')"
                                 @tap="onChooseAccount(account)"
                                 v-if="!currentUser || currentUser.email != account.email"
                             />
-                            <Button class="btn" text="Remove" @tap="onRemove(account)" />
-                            <Button class="btn" text="Sync" @tap="onSync(account)" />
+                            <Button class="btn" text="Remove" @tap="onRemove(account)"/>
+                            <Button class="btn" text="Sync" @tap="onSync(account)"/>
                         </StackLayout>
                     </StackLayout>
                     <GridLayout rows="auto" columns="20,*" @tap="addAccount" class="m-t-15 m-r-20 m-l-20">
-                        <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png" verticalAlignment="center" />
+                        <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png"
+                               verticalAlignment="center"/>
                         <Label
                             :text="_L('appSettings.account.addAccount')"
                             class="size-16 m-10"
@@ -59,7 +65,8 @@
                 </DockLayout>
             </ScrollView>
             <StackLayout row="1" class="m-r-20 m-l-20">
-                <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.removeAll')" @tap="logoutAll"></Button>
+                <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.removeAll')"
+                        @tap="logoutAll"></Button>
             </StackLayout>
         </GridLayout>
     </Page>
@@ -70,11 +77,11 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
-import { Dialogs } from "@nativescript/core";
-import { ActionTypes, CurrentUser, RemoveAccountAction, SyncAccountAction } from "@/store";
-import { routes } from "@/routes";
+import {Dialogs} from "@nativescript/core";
+import {ActionTypes, CurrentUser, RemoveAccountAction, SyncAccountAction} from "@/store";
+import {routes} from "@/routes";
 import Services from "@/services/singleton";
-import { _L } from "@/lib";
+import {_L} from "@/lib";
 
 export default Vue.extend({
     data(): {
@@ -127,7 +134,7 @@ export default Vue.extend({
         },
         async onSync(account: CurrentUser): Promise<void> {
             const yesNo = await Dialogs.confirm({
-                title: "Are you sure you would like to sync this account?",
+                title: _L("appSettings.account.titleSyncDialog"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             });
@@ -137,7 +144,7 @@ export default Vue.extend({
         },
         async onRemove(account: CurrentUser): Promise<void> {
             const yesNo = await Dialogs.confirm({
-                title: "Are you sure you would like to remove this account?",
+                title: _L("appSettings.account.titleRemoveDialog"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             });
@@ -153,7 +160,7 @@ export default Vue.extend({
         },
         async logoutAll(): Promise<void> {
             const yesNo = await Dialogs.confirm({
-                title: "Are you sure?",
+                title: _L("appSettings.account.titleLogoutAll"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             });

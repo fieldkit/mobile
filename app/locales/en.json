@@ -163,10 +163,8 @@
     "updateFirmwareModalContinueButton": "Continue Update",
     "updateFirmwareModalCancelButton": "Cancel",
     "fieldkitSettings": "FieldKit Settings",
-    "stationDisconnectedTapHere": "Station disconnected.",
     "expectedValue": "Expected value",
     "calibrateLater": "Calibrate later",
-    "chooseCalibrationType": "Choose calibration type",
     "choosePhInstruction": "Would you like to perform quick calibration or three-point calibration?",
     "quickCalibration": "Quick calibration",
     "threePointCalibration": "Three-point calibration",
@@ -291,22 +289,19 @@
     "authenticated": "You have successfully authenticated.",
     "currentEnvironment": "The current environment is",
     "resetCalibration": "Reset Calibration",
-    "resetOnboarding": "Reset Onboarding",
-    "uploadDiagnostics": "Upload Diagnostics",
     "deleteDB": "Delete DB",
     "deleteFiles": "Delete Files",
     "crash": "Crash",
     "manualCrash": "Manual Crash",
-    "devOptions": "Development Options",
     "noStationsFound": "No stations found",
-    "resetDoneGoToOnboarding": "Reset complete! Would you like to go to Onboarding?",
     "no": "No",
-    "dbDeleted": "Database Deleted",
-    "errorRemovingFiles": "Error removing files!",
     "filesRemoved": "Files removed!",
-    "includeThisPhrase": "Success! Please include this phrase in your bug report:",
     "name": "Name",
     "email": "Email",
+    "emailTooLong": "Email too long.",
+    "invalidEmail": "Invalid Email",
+    "passwordTooShort": "Password too short.",
+    "nameTooShort": "Name too long.",
     "password": "Password",
     "confirmPassword": "Confirm password",
     "nameRequired": "Name is a required field.",
@@ -421,11 +416,43 @@
         }
     },
     "station": {},
+    "version": "Version",
+    "synced": "Synced",
+    "dataAuthenticationError": "You are logged out. Please open settings and Log In.",
+    "readyToDownloadStation": "Ready to download from the station",
+    "syncError": "An error occurred! Oh no!",
+    "titleStations": "FieldKit Stations",
+    "doubleTapScan": "Double tap to scan for stations.",
+    "scanning": "Scanning",
     "appSettings": {
         "title": "Settings",
         "developer": {
             "developer": "Developer",
-            "notice": "The options below have irreversible consequences. Please only use them when directed to."
+            "notice": "The options below have irreversible consequences. Please only use them when directed to.",
+            "uploadDiagnostics": "Upload Diagnostics",
+            "syncPortal": "Sync Portal",
+            "realOnboarding": "Real Onboarding",
+            "resetOnboarding": "Reset Onboarding",
+            "stopDiscovery": "Stop Discovery",
+            "startDiscovery": "Start Discovery",
+            "resetAllDiscovery": "Restart All Discovery",
+            "examineNetwork": "Examine Network",
+            "throwException": "Throw Exception",
+            "resetLogs": "Reset Logs",
+            "resetData": "Reset Data",
+            "forgetUploads": "Forget Uploads",
+            "forgetDownloads": "Forget Downloads",
+            "zones": "Zones",
+            "flows": "Flows",
+            "flow": "Flow",
+            "areYouSure": "Are you sure?",
+            "areYouReallySure": "Are really you sure? This is irreversible.",
+            "resetDoneGoToOnboarding": "Reset complete! Would you like to go to Onboarding?",
+            "devOptions": "Development Options",
+            "confirmLogsDeleted": "Logs deleted.",
+            "dbDeleted": "Database Deleted",
+            "errorRemovingFiles": "Error removing files!",
+            "includeThisPhrase": "Success! Please include this phrase in your bug report:"
         },
         "data": {
             "data": "Data",
@@ -480,7 +507,14 @@
             "password": "Password",
             "resetPassword": "Reset Password",
             "login": "Log in",
-            "createAccount": "Create an account"
+            "createAccount": "Create an account",
+            "switch": "Switch",
+            "loggedIn": "Logged In",
+            "notLoggedIn": "Not Logged In",
+            "lastSynchronizedAt": "Last synchronized at",
+            "titleSyncDialog": "Are you sure you would like to sync this account?",
+            "titleRemoveDialog": "Are you sure you would like to remove this account?",
+            "titleLogoutAll": "Are you sure?"
         },
         "help": {
             "help": "Help",
@@ -494,7 +528,8 @@
             "updatesDescription": "No available updates",
             "downloadUpdatesTitle": "Download Updates",
             "downloadUpdatesDescription": "Download FieldKit app updates automatically when on WiFi internet ",
-            "preDeploymentChecklist": "Pre-deployment Checklist"
+            "preDeploymentChecklist": "Pre-deployment Checklist",
+            "openGitHub": "Open GitHub in browser?"
         },
         "legal": {
             "legal": "Legal",
@@ -515,7 +550,11 @@
     "calibration": {
         "failure": {
             "again": "Calibrate Again",
-            "later": "Calibrate Later"
+            "later": "Calibrate Later",
+            "calibrationFailed": "Calibration Failed",
+            "calibrationErrorOccurred": "An error has occurred during calibration. Please double check the standards you have gathered and read the instructions carefully. If the problem persists, please contact technical support.",
+            "expected": "Expected",
+            "measured": "Measured"
         },
         "water": {
             "ph": {
@@ -854,12 +893,35 @@
                 }
             }
         },
+        "summary": {
+            "calibrationMethod": "Calibration Method",
+            "threePointMethod": "Three-point Method",
+            "notCalibrated": "Not Calibrated",
+            "standardValues": "Standard Values",
+            "factorySensorValues": "Factory Sensor Values",
+            "lastCalibrated": "Last Calibrated"
+        },
+        "check": {
+            "pleaseCheckProductGuide": "Please check the Product Guide for the suggested re-calibration intervals for each sensor."
+        },
+        "strategy": {
+            "chooseCalibrationType": "Choose calibration type",
+            "setModuleBaseline": "For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+        },
+        "progressBar": {
+            "stationDisconnectedTapHere": "Station disconnected."
+        },
+        "wait": {
+            "calibrationDoneHeading": "Tap the Calibrate button to record the sensor value and the standard value.",
+            "calibrationSensorValue": "Sensor Value",
+            "calibrationStandardValue": "Standard Value",
+            "calibrationValidationError": "A valid number is required",
+            "calibrationDoneHint": "Recording these values together allows us to later calibrate the sensor."
+        },
         "uncalibrated": "Uncalibrated",
         "calibrated": "Calibrated",
         "cleared": "Cleared"
     },
-    "calibrationFailed": "Calibration Failed",
-    "calibrationErrorOccured": "An error has ocurred during calibration. Please double check the standards you have gathered and read the instructions carefully. If the problem persists, please contact technical support.",
     "uncalibrated": "Uncalibrated",
     "noCalibrationNeeded": "No calibration needed",
     "startCalibrationStep1": "Let's set up your station before you deploy!",
@@ -867,14 +929,9 @@
     "tapStationToRecalibrate": "Tap the station you want to recalibrate:",
     "calibrationRequiredHeading": "Calibration Required",
     "calibrationRequiredText": "calibration Required Text",
-    "calibrationSensorValue": "Sensor Value",
-    "calibrationStandardValue": "Standard Value",
-    "calibrationDoneHeading": "Tap the Calibrate button to record the sensor value and the standard value.",
-    "calibrationDoneHint": "Recording these values together allows us to later calibrate the sensor.",
     "calibrationBeforeDeploymentHeading": "Calibrate before Deployment",
     "calibrationBeforeDeploymentText": "Calibrate the sensors for accurate data readings.",
     "calibrationBeforeDeploymentButton": "Start Calibration",
-    "calibrationValidationError": "A valid number is required",
     "onboarding": {
         "assembled": {
             "message": "Success!"
@@ -884,6 +941,9 @@
                 "caseSensitive": "Note: The WiFi network name and password are case sensitive.",
                 "band": "Only 2.4GHz WiFi networks are currently supported."
             }
+        },
+        "nearby": {
+            "onboarding": "Onboarding"
         }
     },
     "titles": {

@@ -5,7 +5,7 @@
                 <Label :text="progress.message" textWrap="true" v-if="!done && progress" />
                 <Progress :value="progress.progress * 100" scaleY="4" v-if="!done && progress && progress.progress" />
 
-                <Label :text="_L('includeThisPhrase')" textWrap="true" v-if="phrase" />
+                <Label :text="_L('appSettings.developer.includeThisPhrase')" textWrap="true" v-if="phrase" />
                 <Label :text="phrase" textWrap="true" class="phrase" v-if="phrase" />
 
                 <Button @tap="close" v-if="done" class="btn btn-primary btn-padded">OK</Button>

@@ -17,7 +17,7 @@
                     <Label
                         col="1"
                         class="m-t-5 m-l-5 m-b-20 size-16 text-center"
-                        :text="_L('calibrationDoneHeading')"
+                        :text="_L('calibration.wait.calibrationDoneHeading')"
                         textWrap="true"
                         v-if="doneWaiting"
                     />
@@ -25,7 +25,7 @@
                     <GridLayout rows="auto,auto" columns="*" height="200">
                         <StackLayout row="0" class="sensor-circular-border m-t-20" height="200" width="200">
                             <Label
-                                :text="_L('calibrationSensorValue')"
+                                :text="_L('calibration.wait.calibrationSensorValue')"
                                 verticalAlignment="bottom"
                                 textAlignment="center"
                                 class="m-r-5 m-t-30 size-12 hint-text"
@@ -59,7 +59,7 @@
                                     verticalAlignment="center"
                                     width="66%"
                                     class="size-14"
-                                    :text="_L('calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
+                                    :text="_L('calibration.wait.calibrationStandardValue') + ' (' + sensor.unitOfMeasure + ')'"
                                     textWrap="true"
                                 />
                             </StackLayout>
@@ -68,7 +68,7 @@
                     <Label
                         v-show="!form.valid"
                         class="validation-error text-center"
-                        :text="_L('calibrationValidationError')"
+                        :text="_L('calibration.wait.calibrationValidationError')"
                         textWrap="true"
                     />
                 </StackLayout>
@@ -82,7 +82,7 @@
                     </StackLayout>
                 </StackLayout>
                 <StackLayout class="done-hint" v-if="doneWaiting">
-                    <Label class="size-16" :text="_L('calibrationDoneHint')" textWrap="true"></Label>
+                    <Label class="size-16" :text="_L('calibration.wait.calibrationDoneHint')" textWrap="true"></Label>
                 </StackLayout>
             </StackLayout>
         </ScrollView>

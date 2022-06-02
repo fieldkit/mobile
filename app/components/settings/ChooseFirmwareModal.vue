@@ -7,7 +7,7 @@
                         <StackLayout dock="top">
                             <StackLayout orientation="horizontal" class="m-t-20">
                                 <Label width="50" text="Id" class="size-16 firmware-id bold"></Label>
-                                <Label text="Version" textAlignment="left" lineHeight="4" class="size-16 bold"></Label>
+                                <Label :text="_L('version')" textAlignment="left" lineHeight="4" class="size-16 bold"></Label>
                             </StackLayout>
                             <StackLayout
                                 v-for="firmware in firmwares"

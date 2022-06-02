@@ -4,23 +4,23 @@
         <SettingsLayout>
             <ScrollView>
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
-                    <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.uploadDiagnostics')" @tap="uploadDiagnostics" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.syncPortal')" @tap="syncPortal" :isEnabled="!syncing" />
 
-                    <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.realOnboarding')" @tap="goOnboarding" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
 
-                    <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.stopDiscovery')" @tap="stopDiscovery" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.startDiscovery')" @tap="startDiscovery" v-if="beta" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetAllDiscovery')" @tap="restartDiscovery" />
 
                     <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
                         <Label :text="s.message" textWrap="true" />
                     </StackLayout>
 
-                    <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.examineNetwork')" @tap="examineNetwork" :disabled="busy" />
 
-                    <Button class="btn btn-primary btn-padded" text="Throw Exception" @tap="throwException" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.examineNetwork')" @tap="throwException" />
                     <!--
 					<Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
 					<Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
@@ -30,17 +30,17 @@
 
                     <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 
-                    <Button class="btn btn-primary btn-padded" text="Reset Logs" @tap="deleteLogs" />
-                    <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
-                    <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
-                    <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetLogs')" @tap="deleteLogs" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetData')" @tap="deleteAll" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.forgetUploads')" @tap="forgetUploads" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.forgetDownloads')" @tap="forgetDownloads" />
 
-                    <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" v-if="false" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.zones')" @tap="testZones" v-if="false" />
 
-                    <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.flows')" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
 
                     <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
-                        <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
+                        <Button class="btn btn-primary btn-padded flow" :text="_L('appSettings.developer.flow') + ': ' + name" @tap="openFlow(name)" />
                     </StackLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -201,8 +201,8 @@ export default Vue.extend({
                 .addOrUpdateStations()
                 .then(() => {
                     return Dialogs.alert({
-                        title: _L("devOptions"),
-                        message: "Done",
+                        title: _L("appSettings.developer.devOptions"),
+                        message: _L("done"),
                         okButtonText: _L("ok"),
                     });
                 })
@@ -223,8 +223,8 @@ export default Vue.extend({
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
                             return Dialogs.alert({
-                                title: _L("devOptions"),
-                                message: "Done",
+                                title: _L("appSettings.developer.devOptions"),
+                                message: _L("done"),
                                 okButtonText: _L("ok"),
                             });
                         });
@@ -243,8 +243,8 @@ export default Vue.extend({
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
                             return Dialogs.alert({
-                                title: _L("devOptions"),
-                                message: "Done",
+                                title: _L("appSettings.developer.devOptions"),
+                                message: _L("done"),
                                 okButtonText: _L("ok"),
                             });
                         });
@@ -280,13 +280,13 @@ export default Vue.extend({
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({
-                title: "Are you sure?",
+                title: _L('appSettings.developer.areYouSure'),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
                     return Dialogs.confirm({
-                        title: "Are really you sure? This is irreversible.",
+                        title: _L('appSettings.developer.areYouReallySure'),
                         okButtonText: _L("yes"),
                         cancelButtonText: _L("no"),
                     });
@@ -299,7 +299,7 @@ export default Vue.extend({
             appSettings.remove("completedSetup");
             appSettings.remove("skipCount");
             return Dialogs.confirm({
-                title: _L("resetDoneGoToOnboarding"),
+                title: _L("appSettings.developer.resetDoneGoToOnboarding"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
@@ -322,8 +322,8 @@ export default Vue.extend({
             await truncateLogs();
 
             await Dialogs.alert({
-                title: _L("devOptions"),
-                message: "Logs deleted.",
+                title: _L("appSettings.developer.devOptions"),
+                message: _L("appSettings.developer.confirmLogsDeleted"),
                 okButtonText: _L("ok"),
             });
         },
@@ -337,8 +337,8 @@ export default Vue.extend({
             await this.deleteFiles();
 
             await Dialogs.alert({
-                title: _L("devOptions"),
-                message: _L("dbDeleted"),
+                title: _L("appSettings.developer.devOptions"),
+                message: _L("appSettings.developer.dbDeleted"),
                 okButtonText: _L("ok"),
             });
         },
@@ -371,8 +371,8 @@ export default Vue.extend({
                     debug.log("error removing files", res, res ? res.stack : null);
 
                     Dialogs.alert({
-                        title: _L("devOptions"),
-                        message: _L("errorRemovingFiles"),
+                        title: _L("appSettings.developer.devOptions"),
+                        message: _L("appSettings.developer.errorRemovingFiles"),
                         okButtonText: _L("ok"),
                     });
                 })

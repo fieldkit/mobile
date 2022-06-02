@@ -1,6 +1,6 @@
 <template>
     <Page @navigatingFrom="onNavigatingFrom">
-        <PlatformHeader title="Onboarding" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('onboarding.nearby.onboarding')" :canNavigateSettings="false" />
 
         <SkipLayout :buttonLabel="_L('next')" @button="forward" :skipLabel="_L('noStationTryAgain')" @skip="tryAgain" :scrollable="true">
             <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true" />
