@@ -289,6 +289,18 @@
     "authenticated": "You have successfully authenticated.",
     "currentEnvironment": "The current environment is",
     "resetCalibration": "Reset Calibration",
+    "resetOnboarding": "Reset Onboarding",
+    "uploadDiagnostics": "Upload Diagnostics",
+    "diagnostics": {
+        "upload": "Upload Diagnostics",
+        "privacyNotice": {
+            "title": "Privacy Notice",
+            "body": "Diagnostic information includes basic information about your phone and runtime logs from the FieldKit app only. It will never be sold or used for tracking purposes.",
+            "privacyPolicy": "Privacy Policy",
+            "upload": "Upload",
+            "cancel": "Cancel"
+        }
+    },
     "deleteDB": "Delete DB",
     "deleteFiles": "Delete Files",
     "crash": "Crash",

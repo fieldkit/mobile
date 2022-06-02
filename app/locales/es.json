@@ -303,6 +303,18 @@
     "authenticated": "Usted ha autenticado correctamente",
     "currentEnvironment": "El entorno actual es",
     "resetCalibration": "Calibración de reposición",
+    "resetOnboarding": "Reset Onboarding",
+    "uploadDiagnostics": "Upload Diagnostics",
+    "diagnostics": {
+        "upload": "Upload Diagnostics",
+        "privacyNotice": {
+            "title": "Privacy Notice",
+            "body": "Diagnostic information includes basic information about your phone and runtime logs from the FieldKit app only. It will never be sold or used for tracking purposes.",
+            "privacyPolicy": "Privacy Policy",
+            "upload": "Upload",
+            "cancel": "Cancel"
+        }
+    },
     "deleteDB": "DB borrado",
     "deleteFiles": "Borrar archivos",
     "crash": "Choque",
