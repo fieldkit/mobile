@@ -43,7 +43,7 @@
     "nativescript-theme-core": "^1.0.6",
     "nativescript-toasty": "^2.0.1",
     "nativescript-vue": "^2.9.2",
-    "protobufjs": "^6.11.2",
+    "protobufjs": "^6.11.3",
     "remark": "^13.0.0",
     "remark-gfm": "^1.0.0",
     "remark-grid-tables": "^2.1.2",
