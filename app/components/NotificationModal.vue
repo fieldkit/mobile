@@ -26,7 +26,7 @@
                         <Label col="1" row="1" :text="n.text" textWrap="true" lineHeight="4"/>
                         <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" :dataId="n.id"
                                     @tap="dismiss">
-                            <Label col="0" text="Add Field Notes" class="action-btn m-r-15"/>
+                            <Label col="0" :text="_L('addFieldNotes')" class="action-btn m-r-15"/>
                             <GridLayout col="1" columns="auto,auto" @tap="toggleMenu" :dataId="n.id">
                                 <Label col="0" :text="_L('dismiss')" class="action-btn" :dataId="n.id" @tap="dismiss"/>
                                 <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2"

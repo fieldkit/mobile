@@ -15,11 +15,11 @@
             id="email-length"
             class="validation-error"
             horizontalAlignment="left"
-            text="Name too long."
+            :text="_L('nameTooShort')"
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" class="m-t-20"/>
+        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" class="m-t-20" />
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -34,7 +34,7 @@
             id="email-length"
             class="validation-error"
             horizontalAlignment="left"
-            text="Email too long."
+            :text="_L('emailTooLong')"
             textWrap="true"
         />
 
@@ -43,7 +43,7 @@
             id="email-format"
             class="validation-error"
             horizontalAlignment="left"
-            text="Invalid Email"
+            :text="_L('invalidEmail')"
             textWrap="true"
         />
 
@@ -61,7 +61,7 @@
             id="password-length"
             class="validation-error"
             horizontalAlignment="left"
-            text="Password too short."
+            :text="_L('passwordTooShort')"
             textWrap="true"
         />
 
@@ -230,7 +230,7 @@ export default Vue.extend({
                     }
                 }
                 if (!error.response) {
-                    await this.alert(_L('mustBeConnected'));
+                    await this.alert(_L("mustBeConnected"));
                     return;
                 }
                 await this.alert("An error occured, please contact customer support.");

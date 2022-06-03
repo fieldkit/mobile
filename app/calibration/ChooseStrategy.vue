@@ -3,13 +3,8 @@
         <ScrollView row="0" class="scroll-style" @tap="maybeDismissKeyboard">
             <GridLayout rows="auto,*" class="choice-container">
                 <StackLayout row="0">
-                    <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
-
-                    <Label
-                        class="choice-why"
-                        textWrap="true"
-                        text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
-                    />
+                    <Label class="choice-heading" textWrap="true" :text="_L('calibration.strategy.chooseCalibrationType')" />
+                    <Label class="choice-why" textWrap="true" :text="_L('calibration.strategy.setModuleBaseline')" />
                 </StackLayout>
 
                 <StackLayout row="1">

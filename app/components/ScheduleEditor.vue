@@ -22,7 +22,7 @@
         <StackLayout class="complex-schedule-container" v-if="isComplex">
             <StackLayout v-for="(interval, index) in schedule.intervals" :key="index" class="interval-container">
                 <GridLayout rows="auto" columns="*,30" class="interval-header">
-                    <Label :text="'Capture Time ' + (index + 1)" />
+                    <Label :text="_L('captureTime') + ' ' + (index + 1)" />
 
                     <StackLayout
                         col="1"
