@@ -463,7 +463,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the pH Probe.\n## The pH Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the pH Probe.\n## The pH Module Board should already be attached to your station.\n\n## Before calibrating, examine your module board and probe cable for a CAL ID decal. All probe and module pairs that have the same CAL ID printed on them have been calibrated together in the lab and will not require calibration before use. If you have multiple probes of the same type, match the CAL ID number on the probe cable and the module board when setting up the station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_41_ee59861b57.png"
@@ -517,7 +517,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCollect the Conductivity Probe.\n\n## The Conductivity Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\nCollect the Conductivity Probe.\n\n## The Conductivity Module Board should already be attached to your station.\n\n## Before calibrating, examine your module board and probe cable for a CAL ID decal. All probe and module pairs that have the same CAL ID printed on them have been calibrated together in the lab and will not require calibration before use. If you have multiple probes of the same type, match the CAL ID number on the probe cable and the module board when setting up the station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_44_d448775f78.png"
@@ -571,7 +571,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\nCollect the Dissolved Oxygen Probe.\n\n## The Dissolved Oxygen Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\nCollect the Dissolved Oxygen Probe.\n\n## The Dissolved Oxygen Module Board should already be attached to your station.\n\n## Before calibrating, examine your module board and probe cable for a CAL ID decal. All probe and module pairs that have the same CAL ID printed on them have been calibrated together in the lab and will not require calibration before use. If you have multiple probes of the same type, match the CAL ID number on the probe cable and the module board when setting up the station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_48_764d104c39.png"
@@ -625,7 +625,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Do you have everything?\n\nCollect the Water Temperature Probe.\n\n## The Water Temperature Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the Water Temperature Probe.\n\n## The Water Temperature Module Board should already be attached to your station.\n\n## Before calibrating, examine your module board and probe cable for a CAL ID decal. All probe and module pairs that have the same CAL ID printed on them have been calibrated together in the lab and will not require calibration before use. If you have multiple probes of the same type, match the CAL ID number on the probe cable and the module board when setting up the station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_52_6bd200df41.png"
