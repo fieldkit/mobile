@@ -32,7 +32,7 @@
     "lodash": "^4.17.21",
     "mathjs": "^10.5.3",
     "ml-levenberg-marquardt": "^4.1.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "nativescript-audio": "^6.2.6",
     "nativescript-clipboard": "^2.1.1",
     "nativescript-conservify": "file:third-party/nativescript-conservify",
