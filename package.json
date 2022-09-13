@@ -66,7 +66,7 @@
     "@babel/preset-env": "^7.16.4",
     "@nativescript/android": "^8.2.2",
     "@nativescript/ios": "^8.2.2",
-    "@nativescript/types": "~8.2.0",
+    "@nativescript/types": "~8.3.0",
     "@nativescript/webpack": "^5.0.1",
     "@sinonjs/fake-timers": "^9.1.2",
     "@types/bluebird": "^3.5.36",

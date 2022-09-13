@@ -1995,23 +1995,23 @@
   "resolved" "https://registry.npmjs.org/@nativescript/shared-notification-delegate/-/shared-notification-delegate-1.0.2.tgz"
   "version" "1.0.2"
 
-"@nativescript/types-android@~8.2.0":
-  "integrity" "sha512-XVMS85zEM/5Vf+5UkPkwZyQYoIRr2roR/LTaAgsg6pk9ECOQni7eCJGAD5dsdhMpt8KSj26VAESXDq3PoBWT3A=="
-  "resolved" "https://registry.npmjs.org/@nativescript/types-android/-/types-android-8.2.0.tgz"
-  "version" "8.2.0"
+"@nativescript/types-android@~8.3.0":
+  "integrity" "sha512-4BEThu0ROtUYEOEf3Zbadlsml0ir8aFuPCmUjyyrjpPCIZKl+TtBQ7z79/wdHz1+5VxUS0RtIYoensRY5FxQRw=="
+  "resolved" "https://registry.npmjs.org/@nativescript/types-android/-/types-android-8.3.1.tgz"
+  "version" "8.3.1"
 
-"@nativescript/types-ios@~8.2.0":
-  "integrity" "sha512-5Bs6G/WmbBqyK35S05Hqgje/qFwhvF5L6MrU5cjic8ZXtz4NlMwU5KvvpGs9D45jjnfBo1MP/9tUtuj0bEPM7A=="
-  "resolved" "https://registry.npmjs.org/@nativescript/types-ios/-/types-ios-8.2.1.tgz"
-  "version" "8.2.1"
+"@nativescript/types-ios@~8.3.0":
+  "integrity" "sha512-gb7e1vtQjD90nb84VQw9lrBoGV48ikiKi7EqvHT8fmURqeFJ+g1feC9+vYEEoWkNJGWx2VhSUCjQVPWr5uUahA=="
+  "resolved" "https://registry.npmjs.org/@nativescript/types-ios/-/types-ios-8.3.1.tgz"
+  "version" "8.3.1"
 
-"@nativescript/types@~8.2.0":
-  "integrity" "sha512-VROFKlRLBu9Pj/4CID1ZgVqDg/GD6QYNFxlAiooG0zD8uRLPVFGc4I6K6yq3FqJF7s7X70+3luMH9KoqGFr75g=="
-  "resolved" "https://registry.npmjs.org/@nativescript/types/-/types-8.2.0.tgz"
-  "version" "8.2.0"
+"@nativescript/types@~8.3.0":
+  "integrity" "sha512-ouHerFdjVOAjgYoKFs54jwQeWoOdCf3SAmaUPF1lNnS9s2UU4hNECesB5RrDh5YvziC84810kjcBwlARY1wNbw=="
+  "resolved" "https://registry.npmjs.org/@nativescript/types/-/types-8.3.1.tgz"
+  "version" "8.3.1"
   dependencies:
-    "@nativescript/types-android" "~8.2.0"
-    "@nativescript/types-ios" "~8.2.0"
+    "@nativescript/types-android" "~8.3.0"
+    "@nativescript/types-ios" "~8.3.0"
 
 "@nativescript/webpack@^5.0.1":
   "integrity" "sha512-51C/ME3ZvOAdLdJeQOKuZE0fVn1IF/I6ezEaYq0PF+lPQAnbYWrZfXe4T6TT/8HfM6NoodWJUW3UnowLt+VmoQ=="
@@ -5949,11 +5949,13 @@
     "path-exists" "^4.0.0"
 
 "fk-app-protocol@github:fieldkit/app-protocol":
-  "resolved" "git+ssh://git@github.com/fieldkit/app-protocol.git#030266515bd163613348b2f44937302ceca97148"
+  "integrity" "sha512-UrWQw3cPZNcJZyetNSadUxoRiHPSRykKTC+BbsTGfusXkeAunMUTPVfQF7jaAJKoKH+ZlPBzi0hZYTyGV3zcwA=="
+  "resolved" "git+ssh://git@github.com/fieldkit/app-protocol.git"
   "version" "0.0.1"
 
 "fk-data-protocol@github:fieldkit/data-protocol":
-  "resolved" "git+ssh://git@github.com/fieldkit/data-protocol.git#c0deceaf3f8533feac5cd8e4c9dbee29a1bf0014"
+  "integrity" "sha512-mUlBMmBFqhMJEk7MDidcDhmScYtLp/ieAXCGWRhwUh8YzKuvVR+D5moB4ycKNFakZVUyVgWGOqtKc+Ii/Wqlmw=="
+  "resolved" "git+ssh://git@github.com/fieldkit/data-protocol.git"
   "version" "0.0.1"
 
 "flat-cache@^3.0.4":
