@@ -7,3 +7,17 @@ post_install do |installer|
     end
   end
 end
+
+# https://github.com/CocoaPods/CocoaPods/issues/11402
+# This should probably only be enabled on the build server, as well. Just
+# trying to see if it works.
+post_install do |installer|
+  installer.generated_projects.each do |project|
+    project.targets.each do |target|
+        target.build_configurations.each do |config|
+            config.build_settings["DEVELOPMENT_TEAM"] = "Conservify"
+         end
+    end
+  end
+end
+
