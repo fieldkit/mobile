@@ -120,8 +120,8 @@ export default Vue.extend({
 
         debug.log(`tabbed-layout: created ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);
 
-        getBus().$on("nav:tab", this.onTabChangedRequired);
-        getBus().$on("nav:tabs-reload", this.onTabReloadRequired);
+        getBus().$on("nav:tab", this.onTabChangedRequired.bind(this));
+        getBus().$on("nav:tabs-reload", this.onTabReloadRequired.bind(this));
     },
     mounted(): void {
         debug.log(`tabbed-layout: mounted ${JSON.stringify(this.firstTab)}`, this.tab, this.ready);

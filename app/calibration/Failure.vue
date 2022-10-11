@@ -2,15 +2,15 @@
     <GridLayout rows="auto, *, auto" verticalAlignment="stretch">
         <StackLayout row="0">
             <Image src="~/images/Icon_Warning_error.png" class="small"></Image>
-            <Label :text="_L('calibrationFailed')" class="instruction-heading"></Label>
+            <Label :text="_L('calibration.failure.calibrationFailed')" class="instruction-heading"></Label>
         </StackLayout>
 
         <ScrollView row="1" class="information-container">
             <StackLayout>
-                <Label :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true" />
+                <Label :text="_L('calibration.failure.calibrationErrorOccurred')" class="instruction" textWrap="true" />
                 <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="table" v-if="rows.length >= 3">
-                    <Label row="0" col="0" text="Expected" class="column-heading" />
-                    <Label row="0" col="1" text="Measured" class="column-heading" />
+                    <Label row="0" col="0" :text="_L('calibration.failure.expected')" class="column-heading" />
+                    <Label row="0" col="1" :text="_L('calibration.failure.measured')" class="column-heading" />
 
                     <Label row="1" col="0" :text="rows[0].expected | prettyReading" class="column-value" />
                     <Label row="1" col="1" :text="rows[0].measured | prettyReading" class="column-value" />

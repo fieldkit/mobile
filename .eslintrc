@@ -21,6 +21,7 @@
     },
     "plugins": ["vue", "@typescript-eslint", "nativescript"],
     "rules": {
+        "@typescript-eslint/triple-slash-reference": "warn",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {

@@ -1,14 +1,14 @@
 <template>
     <StackLayout>
         <StackLayout class="field-container">
-            <Label text="Calibration Method" textWrap="true" class="field-label" />
-            <Label v-if="calibrationPoints == 3" text="Three-point Method" textWrap="true" class="field-value" />
-            <Label v-else text="Not Calibrated" textWrap="true" class="field-value" />
+            <Label :text="_L('calibration.summary.calibrationMethod')" textWrap="true" class="field-label" />
+            <Label v-if="calibrationPoints == 3" :text="_L('calibration.summary.threePointMethod')" textWrap="true" class="field-value" />
+            <Label v-else :text="_L('calibration.summary.notCalibrated')" textWrap="true" class="field-value" />
         </StackLayout>
 
         <StackLayout class="field-container">
             <GridLayout rows="auto" columns="auto,auto">
-                <Label row="0" col="0" text="Standard Values" textWrap="true" class="field-label" />
+                <Label row="0" col="0" :text="_L('calibration.summary.standardValues')" textWrap="true" class="field-label" />
                 <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
             </GridLayout>
             <Label :text="calibratedStandards" textWrap="true" class="field-value" />
@@ -16,14 +16,14 @@
 
         <StackLayout class="field-container">
             <GridLayout rows="auto" columns="auto,auto">
-                <Label row="0" col="0" text="Factory Sensor Values" textWrap="true" class="field-label" />
+                <Label row="0" col="0" :text="_L('calibration.summary.factorySensorValues')" textWrap="true" class="field-label" />
                 <Label row="0" col="1" :text="'(' + units + ')'" textWrap="true" class="field-label units" />
             </GridLayout>
             <Label :text="sensorValues" textWrap="true" class="field-value" />
         </StackLayout>
 
         <StackLayout class="field-container">
-            <Label text="Last Calibrated" textWrap="true" class="field-label" />
+            <Label :text="_L('calibration.summary.lastCalibrated')" textWrap="true" class="field-label" />
             <Label :text="calibratedDate" textWrap="true" class="field-value" />
         </StackLayout>
     </StackLayout>

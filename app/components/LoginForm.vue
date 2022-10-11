@@ -2,7 +2,7 @@
     <FlexboxLayout class="login-form form">
         <LabeledTextField
             v-model="form.email"
-            label="Email"
+            :label="_L('email')"
             @blur="checkEmail"
             :isEnabled="!busy"
             :invalid="form.v.email.required || form.v.email.length || form.v.email.format"
@@ -21,7 +21,7 @@
             id="email-length"
             class="validation-error"
             horizontalAlignment="left"
-            text="Email too long."
+            :text="_L('emailTooLong')"
             textWrap="true"
         />
 
@@ -30,7 +30,7 @@
             id="email-format"
             class="validation-error"
             horizontalAlignment="left"
-            text="Invalid Email"
+            :text="_L('invalidEmail')"
             textWrap="true"
         />
 
@@ -56,7 +56,7 @@
             id="password-length"
             class="validation-error"
             horizontalAlignment="left"
-            text="Password too short."
+            :text="_L('passwordTooShort')"
             textWrap="true"
         />
 

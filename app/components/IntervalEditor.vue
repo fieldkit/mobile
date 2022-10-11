@@ -48,12 +48,12 @@
         </StackLayout>
         <FlexboxLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
             <Button
-                text="Minutes"
+                :text="_L('minutes')"
                 :class="form.duration == 60 ? 'duration-button duration-button-selected' : 'duration-button'"
                 @tap="onDurationChange(60)"
             />
             <Button
-                text="Hours"
+                :text="_L('hours')"
                 :class="form.duration == 3600 ? 'duration-button duration-button-selected' : 'duration-button'"
                 @tap="onDurationChange(3600)"
             />

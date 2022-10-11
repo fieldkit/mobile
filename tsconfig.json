@@ -2,11 +2,15 @@
     "compilerOptions": {
         "target": "es2017",
         "module": "esnext",
+        "moduleResolution": "node",
         "allowJs": true,
         "declaration": true,
         "outDir": "./lib",
-        "strict": false,
+        "strict": false, 
+        "sourceMap": true,
         "noImplicitAny": false,
+        "noEmitHelpers": true,
+        "importHelpers": true,
         "strictNullChecks": true,
         "strictFunctionTypes": false,
         "strictPropertyInitialization": true,
@@ -16,7 +20,6 @@
         "noUnusedParameters": false,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "moduleResolution": "node",
         "resolveJsonModule": true,
         "baseUrl": "./",
         "paths": {
@@ -37,8 +40,11 @@
         ],
         "esModuleInterop": true,
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "skipLibCheck": true,
         "removeComments": false,
         "lib": [
+            "dom",
             "es2017"
         ]
     },

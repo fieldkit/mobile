@@ -9,7 +9,7 @@ import Wait from "./Wait.vue";
 type Range = [number, number];
 
 const PhRange: Range = [0, 14];
-const DoxRange: Range = [0, 40];
+const DoxRange: Range = [0, 100];
 const EcRange: Range = [0, 1000000];
 const OrpRange: Range = [-2000, 2000];
 const TempRange: Range = [-200, 200];

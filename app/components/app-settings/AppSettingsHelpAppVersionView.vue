@@ -54,7 +54,7 @@ export default Vue.extend({
         },
         async openGit(): Promise<void> {
             return Dialogs.confirm({
-                title: "Open GitHub in browser?",
+                title: _L("appSettings.help.openGitHub"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
