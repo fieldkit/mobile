@@ -402,6 +402,9 @@ const actions = (services: ServiceRef) => {
                 .then((statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                     return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                },
+                (error) => {
+                    return Promise.reject(error);
                 });
         },
         [ActionTypes.SCAN_STATION_NETWORKS]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
