@@ -1088,5 +1088,6 @@
     },
     "registerTncLabel": "By creating an account you agree to our",
     "registerTncLabelLink": "Terms of Use.",
-    "mustBeConnected": "You must be connected to the internet!"
+    "mustBeConnected": "You must be connected to the internet!",
+    "moduleAddError": "There is an error adding this module, please check your station and module configuration."
 }
