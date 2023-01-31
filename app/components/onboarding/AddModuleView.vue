@@ -30,6 +30,8 @@ import SharedComponents from "@/components/shared";
 import { LegacyStation, ScanStationModulesAction } from "~/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import { routes } from "@/routes";
+import { Dialogs } from "@nativescript/core";
+import { _L } from "@/lib";
 
 export default Vue.extend({
     props: {
@@ -77,7 +79,10 @@ export default Vue.extend({
             this.stopAnimation();
         },
         async goNext(ev: Event): Promise<void> {
-            await this.$store.dispatch(new ScanStationModulesAction(this.currentStation.deviceId));
+            await this.$store.dispatch(new ScanStationModulesAction(this.currentStation.deviceId))
+                .catch(e => {
+                    return Dialogs.alert(_L("moduleAddError"));
+                })
 
             await Promise.all([
                 this.$deprecatedNavigateTo(routes.onboarding.recalibrate, {
