@@ -25,7 +25,7 @@
         "screens": [
             {
                 "id": "1",
-                "name": "onboarding.01old",
+                "name": "OLD_onboarding.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -52,7 +52,7 @@
             },
             {
                 "id": "2",
-                "name": "onboarding.02",
+                "name": "onboarding.05",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -82,7 +82,7 @@
             },
             {
                 "id": "3",
-                "name": "onboarding.03",
+                "name": "onboarding.06",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -109,7 +109,7 @@
             },
             {
                 "id": "4",
-                "name": "onboarding.04",
+                "name": "onboarding.07",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -136,7 +136,7 @@
             },
             {
                 "id": "5",
-                "name": "onboarding.05",
+                "name": "onboarding.08",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -166,7 +166,7 @@
             },
             {
                 "id": "6",
-                "name": "onboarding.06",
+                "name": "onboarding.09",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -193,7 +193,7 @@
             },
             {
                 "id": "7",
-                "name": "onboarding.07",
+                "name": "onboarding.10",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -220,7 +220,7 @@
             },
             {
                 "id": "8",
-                "name": "onboarding.10",
+                "name": "onboarding.13",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -250,7 +250,7 @@
             },
             {
                 "id": "9",
-                "name": "onboarding.08",
+                "name": "onboarding.11",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -277,7 +277,7 @@
             },
             {
                 "id": "10",
-                "name": "onboarding.11",
+                "name": "onboarding.14",
                 "locale": "en_US",
                 "forward": "Complete Station Assembly",
                 "skip": "",
@@ -304,7 +304,7 @@
             },
             {
                 "id": "11",
-                "name": "onboarding.09",
+                "name": "onboarding.12",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -1008,7 +1008,7 @@
             },
             {
                 "id": "47",
-                "name": "onboarding.01a",
+                "name": "onboarding.01",
                 "locale": "en_US",
                 "forward": "Continue",
                 "skip": null,
@@ -1032,7 +1032,7 @@
             },
             {
                 "id": "48",
-                "name": "onboarding.01b",
+                "name": "onboarding.02",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -1056,7 +1056,7 @@
             },
             {
                 "id": "49",
-                "name": "onboarding.01c",
+                "name": "onboarding.03",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
@@ -1080,7 +1080,7 @@
             },
             {
                 "id": "50",
-                "name": "onboarding.01d",
+                "name": "onboarding.04",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
