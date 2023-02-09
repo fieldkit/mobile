@@ -5,7 +5,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import { debug } from "@/lib";
 
 export default Vue.extend({
@@ -17,9 +17,9 @@ export default Vue.extend({
         },
     },
     methods: {
-        onOpen() {
+        onOpen(): void {
             debug.log(this.target);
-            utils.openUrl(this.target);
+            Utils.openUrl(this.target);
         },
     },
 });

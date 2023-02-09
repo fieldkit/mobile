@@ -8,7 +8,7 @@ export * from "./logging";
 export * from "./analytics";
 export * from "./debugging";
 
-import * as nsutils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import { ios } from "@nativescript/core/application";
 
 export function hideKeyboard(): void {
@@ -16,7 +16,7 @@ export function hideKeyboard(): void {
         // eslint-disable-next-line
         ios.nativeApp.sendActionToFromForEvent("resignFirstResponder", null, null, null);
     } else {
-        nsutils.ad.dismissSoftInput();
+        Utils.ad.dismissSoftInput();
     }
 }
 
