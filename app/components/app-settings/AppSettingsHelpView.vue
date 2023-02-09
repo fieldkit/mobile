@@ -23,7 +23,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
@@ -40,7 +40,7 @@ export default Vue.extend({
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         onProductGuide() {
-            utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
+            Utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
     },
 });

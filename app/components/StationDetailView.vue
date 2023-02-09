@@ -145,7 +145,7 @@ import NoModulesWannaAdd from "./NoModulesWannaAdd.vue";
 import NotificationFooter from "./NotificationFooter.vue";
 import StationDetailTooltipView from "~/components/StationDetailTooltipView.vue";
 import { Settings } from "~/store/modules/portal";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 
 export default Vue.extend({
     components: {
@@ -380,7 +380,7 @@ export default Vue.extend({
             }
         },
         onViewChecklist() {
-            utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
+            Utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
         async onSkip() {
             await this.$navigateTo(pages.StationDetailView, {

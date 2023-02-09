@@ -4,21 +4,59 @@
         <SettingsLayout>
             <ScrollView>
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.uploadDiagnostics')" @tap="uploadDiagnostics" />
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.syncPortal')" @tap="syncPortal" :isEnabled="!syncing" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.uploadDiagnostics')"
+                        @tap="uploadDiagnostics"
+                    />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.syncPortal')"
+                        @tap="syncPortal"
+                        :isEnabled="!syncing"
+                    />
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.realOnboarding')" @tap="goOnboarding" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.realOnboarding')"
+                        @tap="goOnboarding"
+                        v-if="beta"
+                    />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.resetOnboarding')"
+                        @tap="resetOnboarding"
+                        v-if="beta"
+                    />
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.stopDiscovery')" @tap="stopDiscovery" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.startDiscovery')" @tap="startDiscovery" v-if="beta" />
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.resetAllDiscovery')" @tap="restartDiscovery" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.stopDiscovery')"
+                        @tap="stopDiscovery"
+                        v-if="beta"
+                    />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.startDiscovery')"
+                        @tap="startDiscovery"
+                        v-if="beta"
+                    />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.resetAllDiscovery')"
+                        @tap="restartDiscovery"
+                    />
 
                     <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
                         <Label :text="s.message" textWrap="true" />
                     </StackLayout>
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.examineNetwork')" @tap="examineNetwork" :disabled="busy" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.examineNetwork')"
+                        @tap="examineNetwork"
+                        :disabled="busy"
+                    />
 
                     <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.examineNetwork')" @tap="throwException" />
                     <!--
@@ -37,10 +75,20 @@
 
                     <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.zones')" @tap="testZones" v-if="false" />
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('appSettings.developer.flows')" @tap="loadFlows" v-if="beta" :isEnabled="!busy" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('appSettings.developer.flows')"
+                        @tap="loadFlows"
+                        v-if="beta"
+                        :isEnabled="!busy"
+                    />
 
                     <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
-                        <Button class="btn btn-primary btn-padded flow" :text="_L('appSettings.developer.flow') + ': ' + name" @tap="openFlow(name)" />
+                        <Button
+                            class="btn btn-primary btn-padded flow"
+                            :text="_L('appSettings.developer.flow') + ': ' + name"
+                            @tap="openFlow(name)"
+                        />
                     </StackLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -53,7 +101,7 @@ import Vue from "vue";
 import _ from "lodash";
 import axios from "axios";
 import { Dialogs, knownFolders } from "@nativescript/core";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
@@ -281,13 +329,13 @@ export default Vue.extend({
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({
-                title: _L('appSettings.developer.areYouSure'),
+                title: _L("appSettings.developer.areYouSure"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             }).then((yesNo) => {
                 if (yesNo) {
                     return Dialogs.confirm({
-                        title: _L('appSettings.developer.areYouReallySure'),
+                        title: _L("appSettings.developer.areYouReallySure"),
                         okButtonText: _L("yes"),
                         cancelButtonText: _L("no"),
                     });
@@ -323,7 +371,7 @@ export default Vue.extend({
                     props: {},
                 });
             } else if (uploadOrNot === undefined) {
-                utils.openUrl("https://www.fieldkit.org/privacy-policy/");
+                Utils.openUrl("https://www.fieldkit.org/privacy-policy/");
             }
         },
         async deleteLogs(): Promise<void> {

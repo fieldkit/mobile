@@ -161,7 +161,7 @@ import {
     UpgradeStatus,
     UpgradeStatusMutation,
 } from "@/store";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import ChooseFirmwareModal from "~/components/settings/ChooseFirmwareModal.vue";
 import { debug } from "@/lib";
 
@@ -390,7 +390,7 @@ export default Vue.extend({
             });
         },
         onProductGuide(): void {
-            utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
+            Utils.openUrl("https://www.fieldkit.org/product-guide/set-up-station/#ready-to-deploy");
         },
     },
 });

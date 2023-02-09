@@ -12,7 +12,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
@@ -29,13 +29,13 @@ export default Vue.extend({
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         onTermsOfService() {
-            utils.openUrl("https://www.fieldkit.org/terms-and-conditions/");
+            Utils.openUrl("https://www.fieldkit.org/terms-and-conditions/");
         },
         onPrivacyPolicy() {
-            utils.openUrl("https://www.fieldkit.org/privacy-policy/");
+            Utils.openUrl("https://www.fieldkit.org/privacy-policy/");
         },
         onLicenses() {
-            utils.openUrl("https://www.fieldkit.org/licenses");
+            Utils.openUrl("https://www.fieldkit.org/licenses");
         },
     },
 });

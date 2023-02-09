@@ -25,7 +25,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import { routes, fullRoutes } from "@/routes";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 
 export default Vue.extend({
     components: {
@@ -45,7 +45,7 @@ export default Vue.extend({
             await this.$deprecatedNavigateTo(fullRoutes.tabbed);
         },
         getHelp() {
-            utils.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");
+            Utils.openUrl("https://www.fieldkit.org/product-guide/troubleshooting/");
         },
     },
 });

@@ -51,7 +51,7 @@ import { debug, _L, Timer, logAnalytics } from "@/lib";
 import { FlowNavigator, NavigationOption, VisibleScreen, NavigationProps } from "./model";
 import { ModuleHeader, tryFindModuleHeader } from "./headers";
 import { getFlows } from "./download";
-import * as utils from "@nativescript/core/utils/utils";
+import { Utils } from "@nativescript/core";
 import { Screen } from "@nativescript/core";
 
 function isLandscape(): boolean {
@@ -206,7 +206,7 @@ const FlowView = Vue.extend({
             await this.leave(this.skipped);
         },
         async onGuide(url: string): Promise<void> {
-            utils.openUrl(url);
+            Utils.openUrl(url);
             await Promise.resolve();
         },
         async onCancel(): Promise<void> {
