@@ -95,8 +95,8 @@ ios-release: setup
 	pod repo update
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2022)" --for-device --env.sourceMap --log trace
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2022)" --for-device --release --env.sourceMap
+	cd $(APP) && ns build ios --provision "FK AdHoc 2023" --for-device --env.sourceMap --log trace
+	cd $(APP) && ns build ios --provision "FK AdHoc 2023" --for-device --release --env.sourceMap
 
 android-logs:
 	adb logcat | grep -i " JS" | grep -v NSVue
