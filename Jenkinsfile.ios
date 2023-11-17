@@ -53,8 +53,8 @@ set -x
 export BUILD_TYPE=${buildType}
 env
 
-make clean-secrets
-make ios-release
+arch -arm64 make clean-secrets
+arch -arm64 make ios-release
 """
 					}
 				}

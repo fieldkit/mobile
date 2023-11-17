@@ -92,7 +92,7 @@ ios-release: setup
 	xcode-select -p
 	xcodebuild -version
 	xcrun simctl list || true
-	arch -x86_64 pod repo update
+	arch -arm64 pod repo update
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
 	cd $(APP) && ns build ios --provision "FK AdHoc 2023" --for-device --env.sourceMap --log trace
