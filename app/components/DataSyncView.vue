@@ -43,7 +43,12 @@
                         </FlexboxLayout>
                     </GridLayout>
 
-                    <GridLayout v-show="opened(sync) && sync.isDownloadReady" rows="auto" columns="*,30" class="transfer-container">
+                    <GridLayout
+                        v-show="opened(sync) && sync.isDownloadReady && !downloadTriggered"
+                        rows="auto"
+                        columns="*,30"
+                        class="transfer-container"
+                    >
                         <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                             <Label
                                 v-if="sync.readingsReadyDownload > 1"
@@ -59,6 +64,33 @@
                         </StackLayout>
                         <StackLayout v-if="sync.connected" row="0" col="1" class="container-icon" @tap="onDownload(sync)">
                             <Image class="icon-button" width="20" src="~/images/Icon_Download.png" />
+                        </StackLayout>
+                    </GridLayout>
+
+                    <GridLayout
+                        v-show="opened(sync) && sync.isDownloadReady && downloadTriggered"
+                        rows="auto"
+                        columns="*, auto, 30"
+                        class="transfer-container"
+                    >
+                        <StackLayout row="0" col="0" class="transfer-details transfer-ready">
+                            <Label
+                                v-if="sync.readingsReadyDownload > 1"
+                                :text="sync.readingsReadyDownload + ' Readings'"
+                                class="readings-label"
+                            />
+                            <Label
+                                v-if="sync.readingsReadyDownload == 1"
+                                :text="sync.readingsReadyDownload + ' Reading'"
+                                class="readings-label"
+                            />
+                            <Label text="Downloading" class="transfer-label" />
+                        </StackLayout>
+                        <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
+                            <Label text="0%" class="transfer-progress" />
+                        </StackLayout>
+                        <StackLayout row="0" col="2" class="container-icon" orientation="horizontal">
+                            <Image class="icon-button" width="20" src="~/images/Icon_Syncing.png" />
                         </StackLayout>
                     </GridLayout>
 
@@ -183,9 +215,10 @@ export default Vue.extend({
         ...SharedComponents,
         NoStationsWannaAdd,
     },
-    data(): { closed: { [index: string]: boolean } } {
+    data(): { closed: { [index: string]: boolean }; downloadTriggered: boolean } {
         return {
             closed: {},
+            downloadTriggered: false,
         };
     },
     computed: {
@@ -210,9 +243,11 @@ export default Vue.extend({
         async onDownload(sync: StationSyncStatus): Promise<void> {
             try {
                 log.info("download", sync);
+                this.downloadTriggered = true;
                 await this.$s.dispatch(new DownloadStationDataAction(sync)).catch((error) => {
                     debug.log(`download-error`, error);
                 });
+                this.downloadTriggered = false;
             } catch (error) {
                 log.info("error", error);
             }
