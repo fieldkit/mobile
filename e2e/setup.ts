@@ -1,5 +1,5 @@
 import { startServer, stopServer, ITestReporter, nsCapabilities, LogImageType } from "nativescript-dev-appium";
-import jasmine;
+import * as jasmine from 'jasmine';
 const addContext = require("mochawesome/addContext");
 
 const testReporterContext = <ITestReporter>{};

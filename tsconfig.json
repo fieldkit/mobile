@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "esModuleInterop": true,
         "target": "es2017",
         "module": "esnext",
         "moduleResolution": "node",
@@ -50,7 +51,9 @@
     },
     "exclude": [
         "node_modules",
-        "platforms"
+        "platforms",
+        "node_modules/@types/jasmine"
+
     ],
     "include": [
         "app"
